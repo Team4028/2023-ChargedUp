@@ -17,7 +17,7 @@ public final class SdsModuleConfigurations {
             (1.0 / 18.0), // TODO
             false,
             ModuleType.MK2);
-        public static final SdsModuleConfiguration MK2_6p92 = new SdsModuleConfiguration(
+    public static final SdsModuleConfiguration MK2_6p92 = new SdsModuleConfiguration(
             new Distance(0.1016),
             // (16.0 / 40.0) * (24.0 / 20.0) * (15.0 / 60.0),
             (15.0 / 60.0) * (26.0 / 18.0) * (16.0 / 40.0),
@@ -83,6 +83,13 @@ public final class SdsModuleConfigurations {
             (150.0 / 7.0),
             true,
             ModuleType.MK4i);
+    public static final SdsModuleConfiguration UNCHARACTERIZED_MK4I_L2 = new SdsModuleConfiguration(
+            new Distance(0.10033),
+            (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0),
+            false, // TODO: what
+            (150.0 / 7.0),
+            true,
+            ModuleType.UNCHARACTERIZED_MK4i);
     public static final SdsModuleConfiguration MK4I_L3 = new SdsModuleConfiguration(
             new Distance(0.10033),
             (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0),

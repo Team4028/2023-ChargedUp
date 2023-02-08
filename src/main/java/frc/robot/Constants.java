@@ -35,4 +35,8 @@ public final class Constants {
             public static final double[] gains = { kP, 0, kD };
         }
     }
+
+    public static final class DriveConstants {
+        public static final double SPEED_SCALE = 0.25;
+    }
 }

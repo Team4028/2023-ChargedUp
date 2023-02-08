@@ -43,7 +43,7 @@ public class PracticeSwerveDrivetrain extends BeakSwerveDrivetrain {
             0.,
             0.);
 
-    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
+    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.UNCHARACTERIZED_MK4I_L2;
 
     private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
 
