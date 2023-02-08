@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.CurrentZero;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Arm2;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
@@ -36,6 +37,7 @@ public class RobotContainer {
     private final PracticeSwerveDrivetrain m_drive;
     private final Flywheel flywheel;
     private final Arm m_arm;
+    private final Arm2 m_arm2;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -57,7 +59,7 @@ public class RobotContainer {
     public RobotContainer() {
         m_drive = PracticeSwerveDrivetrain.getInstance();
         m_arm = Arm.getInstance();
-
+        m_arm2=Arm2.getInstance();
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations
@@ -120,14 +122,14 @@ public class RobotContainer {
         m_driverController.back.toggleOnTrue(new CurrentZero(m_arm));
         
 
-        m_operatorController.a.whileTrue(new InstantCommand(m_arm::armTen2));
-        m_operatorController.b.whileTrue(new InstantCommand(m_arm::armThirty2));
-        m_operatorController.x.whileTrue(new InstantCommand(m_arm::armSixty2));
-        m_operatorController.y.whileTrue(new InstantCommand(m_arm::armNintey2));
-        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm.runArm2(0.7)));
-        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm.runArm2(0.0)));
-        m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm.runArm2(0.7)));
-        m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm.runArm2(0.0)));
+        m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
+        m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
+        m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
+        m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
+        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
+        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
+        m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
+        m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
     }
 
     public double speedScaledDriverLeftY() {

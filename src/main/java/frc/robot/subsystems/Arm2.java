@@ -3,26 +3,23 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Arm extends SubsystemBase {
+public class Arm2 extends SubsystemBase {
     private SparkMaxPIDController m_pid;
-    private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, minAcc, allowedErr;
+    private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, allowedErr;
     private CANSparkMax m_armMotor;
     private RelativeEncoder m_encoder;
-    
-    private static Arm m_instance;
+    private static Arm2 m_instance;
 
     /** Creates a new ExampleSubsystem. */
-    public Arm() {
+    public Arm2() {
         m_armMotor = new CANSparkMax(4, MotorType.kBrushless);
         m_encoder = m_armMotor.getEncoder();
         m_armMotor.setSmartCurrentLimit(20);
@@ -105,9 +102,9 @@ public class Arm extends SubsystemBase {
         return false;
     }
 
-    public static Arm getInstance() {
+    public static Arm2 getInstance() {
         if (m_instance == null) {
-            m_instance = new Arm();
+            m_instance = new Arm2();
         }
         return m_instance;
     }
