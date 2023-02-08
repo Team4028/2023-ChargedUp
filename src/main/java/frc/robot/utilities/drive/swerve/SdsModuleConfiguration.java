@@ -14,7 +14,8 @@ public class SdsModuleConfiguration {
         MK2,
         MK3,
         MK4,
-        MK4i
+        MK4i,
+        UNCHARACTERIZED_MK4i,
     }
 
     public final Distance wheelDiameter;

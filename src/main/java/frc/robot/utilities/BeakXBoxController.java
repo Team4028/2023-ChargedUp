@@ -153,6 +153,30 @@ public final class BeakXBoxController {
     }
 
     /**
+     * Check the classes in the "see also" for more information.
+     * @param axis The axis number.
+     * @param threshold The threshold.
+     * @return A {@link Trigger} that returns true when the specified axis's value is greater than the specified threshold.
+     * @see CommandXboxController
+     * @see XboxController.Axis
+     */
+    public Trigger axisGreaterThan(int axis, double threshold) {
+        return controller.axisGreaterThan(axis, threshold);
+    }
+
+    /**
+     * Check the classes in the "see also" for more information.
+     * @param axis The axis number.
+     * @param threshold The threshold.
+     * @return A {@link Trigger} that returns true when the specified axis's value is less than the specified threshold.
+     * @see CommandXboxController
+     * @see XboxController.Axis
+     */
+    public Trigger axisLessThan(int axis, double threshold) {
+        return controller.axisLessThan(axis, threshold);
+    }
+
+    /**
      * @return The Joystick of this XboxController
      */
     public CommandXboxController getJoystick() {

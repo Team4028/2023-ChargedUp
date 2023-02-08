@@ -7,18 +7,19 @@ package frc.robot.utilities.drive.swerve;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import frc.robot.utilities.encoder.BeakCANCoder;
 import frc.robot.utilities.motor.BeakTalonFX;
 
-/** SDS MK4i Swerve Module. */
-public class BeakMk4iSwerveModule extends BeakSwerveModule {
+/** SDS MK4i Swerve Module that has not been characterized. */
+public class BeakUncharacterizedMk4iSwerveModule extends BeakSwerveModule {
     /**
      * Construct a new Mk4i Swerve Module.
      * 
      * @param config {@link SwerveModuleConfiguration} containing
      *               details of the module.
      */
-    public BeakMk4iSwerveModule(SwerveModuleConfiguration config) {
+    public BeakUncharacterizedMk4iSwerveModule(SwerveModuleConfiguration config) {
         super(config);
         m_driveMotor = new BeakTalonFX(config.driveMotorID, config.CANBus);
         m_turningMotor = new BeakTalonFX(config.turnMotorID, config.CANBus);
@@ -59,13 +60,8 @@ public class BeakMk4iSwerveModule extends BeakSwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-        // Calculate Arb Feed Forward for drive motor
-        double arbFeedforward = m_feedforward.calculate(desiredState.speedMetersPerSecond);
-
-        m_driveMotor.setVelocityNU(
-                desiredState.speedMetersPerSecond / 10.0 / driveEncoderDistancePerPulse,
-                arbFeedforward,
-                0);
+        // TODO: put in config
+        m_driveMotor.set(desiredState.speedMetersPerSecond / Units.feetToMeters(16.3));
 
         // Set the turning motor to the correct position.
         setAngle(desiredState.angle.getDegrees());

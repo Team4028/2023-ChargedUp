@@ -215,6 +215,8 @@ public class BeakSwerveModule {
         switch (config.moduleType) {
             case MK4i:
                 return new BeakMk4iSwerveModule(config);
+            case UNCHARACTERIZED_MK4i:
+                return new BeakUncharacterizedMk4iSwerveModule(config);
             case MK2:
                 return new BeakMk2SwerveModule(config);
             default:
