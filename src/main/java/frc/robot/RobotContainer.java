@@ -5,7 +5,7 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+//import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -16,10 +16,10 @@ import frc.robot.commands.CurrentZero2;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm2;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO;
-import frc.robot.subsystems.flywheel.FlywheelIOSim;
-import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
+// import frc.robot.subsystems.flywheel.Flywheel;
+// import frc.robot.subsystems.flywheel.FlywheelIO;
+// import frc.robot.subsystems.flywheel.FlywheelIOSim;
+// import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import frc.robot.utilities.BeakXBoxController;
 import frc.robot.utilities.Util;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,7 +42,7 @@ public class RobotContainer {
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-    private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
+    //private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
 
     // Dashboard inputs
     // TODO: Convert to BeakXBoxCommand
@@ -112,26 +112,30 @@ public class RobotContainer {
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
         
-        m_driverController.a.whileTrue(new InstantCommand(m_arm::armTen));
-        m_driverController.b.whileTrue(new InstantCommand(m_arm::armThirty));
-        m_driverController.x.whileTrue(new InstantCommand(m_arm::armSixty));
-        m_driverController.y.whileTrue(new InstantCommand(m_arm::armNintey));
+        m_driverController.a.whileTrue(new InstantCommand(m_arm::armTen).andThen(new InstantCommand(m_arm2::armTen)));
+        m_driverController.b.whileTrue(new InstantCommand(m_arm::armThirty).andThen(new InstantCommand(m_arm2::armThirty)));
+        m_driverController.x.whileTrue(new InstantCommand(m_arm::armSixty).andThen(new InstantCommand(m_arm2::armSixty)));
+        m_driverController.y.whileTrue(new InstantCommand(m_arm::armNintey).andThen(new InstantCommand(m_arm2::armNintey)));
         m_driverController.lb.whileTrue(new InstantCommand(()->m_arm.runArm(0.7)));
         m_driverController.lb.whileFalse(new InstantCommand(()->m_arm.runArm(0.0)));
         m_driverController.rb.whileTrue(new InstantCommand(()->m_arm.runArm(-0.7)));
         m_driverController.rb.whileFalse(new InstantCommand(()->m_arm.runArm(0.0)));
-        m_driverController.back.toggleOnTrue(new CurrentZero(m_arm));
+        m_driverController.lt.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.7)));
+        m_driverController.lt.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
+        m_driverController.rt.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
+        m_driverController.rt.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
+        m_driverController.back.toggleOnTrue(new CurrentZero(m_arm).andThen(new CurrentZero2(m_arm2)));
         
 
-        m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
-        m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
-        m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
-        m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
-        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.6)));
-        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
-        m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.2)));
-        m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
-        m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
+        // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
+        // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
+        // m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
+        // m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
+        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.6)));
+        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
+        // m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.2)));
+        // m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
+        // m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
     }
 
     public double speedScaledDriverLeftY() {
