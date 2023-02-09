@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.CurrentZero;
+import frc.robot.commands.CurrentZero2;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm2;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
@@ -35,7 +36,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 public class RobotContainer {
     // Subsystems
     private final PracticeSwerveDrivetrain m_drive;
-    private final Flywheel flywheel;
+    // private final Flywheel flywheel;
     private final Arm m_arm;
     private final Arm2 m_arm2;
 
@@ -46,7 +47,7 @@ public class RobotContainer {
     // Dashboard inputs
     // TODO: Convert to BeakXBoxCommand
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    private final LoggedDashboardNumber flywheelSpeedInput = new LoggedDashboardNumber("Flywheel Speed", 1500.0);
+    // private final LoggedDashboardNumber flywheelSpeedInput = new LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
     // Limiters, etc.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
@@ -65,7 +66,7 @@ public class RobotContainer {
             // Real robot, instantiate hardware IO implementations
             case REAL:
                 // drive = new Drive(new DriveIOSparkMax());
-                flywheel = new Flywheel(new FlywheelIOSparkMax());
+                // flywheel = new Flywheel(new FlywheelIOSparkMax());
                 // drive = new Drive(new DriveIOFalcon500());
                 // flywheel = new Flywheel(new FlywheelIOFalcon500());
                 break;
@@ -73,15 +74,15 @@ public class RobotContainer {
             // Sim robot, instantiate physics sim IO implementations
             case SIM:
                 // drive = new Drive(new DriveIOSim());
-                flywheel = new Flywheel(new FlywheelIOSim());
+                // flywheel = new Flywheel(new FlywheelIOSim());
                 break;
 
             // Replayed robot, disable IO implementations
             default:
                 // drive = new Drive(new DriveIO() {
                 // });
-                flywheel = new Flywheel(new FlywheelIO() {
-                });
+                // flywheel = new Flywheel(new FlywheelIO() {
+                // });
                 break;
         }
 
@@ -126,10 +127,11 @@ public class RobotContainer {
         m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
         m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
         m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
-        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
+        m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.6)));
         m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
-        m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
+        m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.2)));
         m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
+        m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
     }
 
     public double speedScaledDriverLeftY() {

@@ -21,8 +21,9 @@ public class Arm2 extends SubsystemBase {
     /** Creates a new ExampleSubsystem. */
     public Arm2() {
         m_armMotor = new CANSparkMax(10, MotorType.kBrushless);
+        m_armMotor.setInverted(true);
         m_encoder = m_armMotor.getEncoder();
-        m_armMotor.setSmartCurrentLimit(20);
+        m_armMotor.setSmartCurrentLimit(30);
         m_pid = m_armMotor.getPIDController();
         kP = .6;
         kI = 0;
@@ -58,19 +59,19 @@ public class Arm2 extends SubsystemBase {
     }
 
     public void armTen() {
-        m_pid.setReference(8.467, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
+        m_pid.setReference(3.09, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
     }
 
     public void armThirty() {
-        m_pid.setReference(31.0451, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(11.33103, CANSparkMax.ControlType.kPosition);
     }
 
     public void armSixty() {
-        m_pid.setReference(53.62151, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(19.56897, CANSparkMax.ControlType.kPosition);
     }
 
     public void armNintey() {
-        m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(27.81, CANSparkMax.ControlType.kPosition);
     }
 
     public void setEncoderPosition(double position) {
@@ -111,7 +112,7 @@ public class Arm2 extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Encoder Pos", m_encoder.getPosition());
+        SmartDashboard.putNumber("Encoder Pos2", m_encoder.getPosition());
         // This method will be called once per scheduler run
     }
 

@@ -3,9 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.robot.subsystems.Arm2;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -28,7 +25,7 @@ public class CurrentZero2 extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_armSubsystem.runArm(-.1);
+        m_armSubsystem.runArm(.1);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

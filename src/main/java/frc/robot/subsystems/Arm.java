@@ -61,7 +61,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void armTen() {
-        m_pid.setReference(8.467, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
+        m_pid.setReference(2, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
     }
 
     public void armThirty() {
