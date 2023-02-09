@@ -18,7 +18,7 @@ public class Arm extends SubsystemBase {
     private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, allowedErr;
     private CANSparkMax m_armMotor;
     private RelativeEncoder m_encoder;
-    
+    private pidPos=0;
     private static Arm m_instance;
 
     /** Creates a new ExampleSubsystem. */
@@ -62,18 +62,22 @@ public class Arm extends SubsystemBase {
 
     public void armTen() {
         m_pid.setReference(2, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
+        pidPos=10;
     }
 
     public void armThirty() {
         m_pid.setReference(31.0451, CANSparkMax.ControlType.kPosition);
+        pidPos=30;
     }
 
     public void armSixty() {
         m_pid.setReference(53.62151, CANSparkMax.ControlType.kPosition);
+        pidPos=60;
     }
 
     public void armNintey() {
         m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
+        posPos=90;
     }
 
     public void setEncoderPosition(double position) {
@@ -115,6 +119,7 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Encoder Pos", m_encoder.getPosition());
+        
         // This method will be called once per scheduler run
     }
 

@@ -17,7 +17,7 @@ public class Arm2 extends SubsystemBase {
     private CANSparkMax m_armMotor;
     private RelativeEncoder m_encoder;
     private static Arm2 m_instance;
-
+    private double pidPos=0;
     /** Creates a new ExampleSubsystem. */
     public Arm2() {
         m_armMotor = new CANSparkMax(10, MotorType.kBrushless);
@@ -60,18 +60,22 @@ public class Arm2 extends SubsystemBase {
 
     public void armTen() {
         m_pid.setReference(3.09, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
+        pidPos=10;
     }
 
     public void armThirty() {
         m_pid.setReference(11.33103, CANSparkMax.ControlType.kPosition);
+        pidPos=10;
     }
 
     public void armSixty() {
         m_pid.setReference(19.56897, CANSparkMax.ControlType.kPosition);
+        pidPos=60;
     }
 
     public void armNintey() {
         m_pid.setReference(27.81, CANSparkMax.ControlType.kPosition);
+        pidPos=90;
     }
 
     public void setEncoderPosition(double position) {
@@ -113,6 +117,7 @@ public class Arm2 extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Encoder Pos2", m_encoder.getPosition());
+        SmartDashboard.putNumber("pidPos",pidPos);
         // This method will be called once per scheduler run
     }
 
