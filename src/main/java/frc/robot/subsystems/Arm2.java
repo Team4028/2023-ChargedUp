@@ -20,7 +20,7 @@ public class Arm2 extends SubsystemBase {
 
     /** Creates a new ExampleSubsystem. */
     public Arm2() {
-        m_armMotor = new CANSparkMax(4, MotorType.kBrushless);
+        m_armMotor = new CANSparkMax(10, MotorType.kBrushless);
         m_encoder = m_armMotor.getEncoder();
         m_armMotor.setSmartCurrentLimit(20);
         m_pid = m_armMotor.getPIDController();

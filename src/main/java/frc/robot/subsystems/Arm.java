@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
     private SparkMaxPIDController m_pid;
-    private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, minAcc, allowedErr;
+    private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, allowedErr;
     private CANSparkMax m_armMotor;
     private RelativeEncoder m_encoder;
     
@@ -23,7 +23,7 @@ public class Arm extends SubsystemBase {
 
     /** Creates a new ExampleSubsystem. */
     public Arm() {
-        m_armMotor = new CANSparkMax(4, MotorType.kBrushless);
+        m_armMotor = new CANSparkMax(9,MotorType.kBrushless);
         m_encoder = m_armMotor.getEncoder();
         m_armMotor.setSmartCurrentLimit(20);
         m_pid = m_armMotor.getPIDController();
