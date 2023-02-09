@@ -58,19 +58,19 @@ public class Arm2 extends SubsystemBase {
     }
 
     public void armTen() {
-        m_pid.setReference(8.467, CANSparkMax.ControlType.kSmartMotion/* change to kPosition to disable smartMotion */);
+        m_pid.setReference(8.467, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
     }
 
     public void armThirty() {
-        m_pid.setReference(31.0451, CANSparkMax.ControlType.kSmartMotion);
+        m_pid.setReference(31.0451, CANSparkMax.ControlType.kPosition);
     }
 
     public void armSixty() {
-        m_pid.setReference(53.62151, CANSparkMax.ControlType.kSmartMotion);
+        m_pid.setReference(53.62151, CANSparkMax.ControlType.kPosition);
     }
 
     public void armNintey() {
-        m_pid.setReference(76.203, CANSparkMax.ControlType.kSmartMotion);
+        m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
     }
 
     public void setEncoderPosition(double position) {
