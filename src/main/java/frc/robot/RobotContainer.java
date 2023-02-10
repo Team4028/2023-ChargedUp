@@ -11,6 +11,10 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.ArmNinety;
+import frc.robot.commands.ArmSixty;
+import frc.robot.commands.ArmTen;
+import frc.robot.commands.ArmThirty;
 import frc.robot.commands.CurrentZero;
 import frc.robot.commands.CurrentZero2;
 import frc.robot.subsystems.Arm;
@@ -25,6 +29,8 @@ import frc.robot.utilities.Util;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -111,11 +117,10 @@ public class RobotContainer {
                         m_drive));
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
-        
-        m_driverController.a.whileTrue(new InstantCommand(m_arm::armTen).andThen(new InstantCommand(m_arm2::armTen)));
-        m_driverController.b.whileTrue(new InstantCommand(m_arm::armThirty).andThen(new InstantCommand(m_arm2::armThirty)));
-        m_driverController.x.whileTrue(new InstantCommand(m_arm::armSixty).andThen(new InstantCommand(m_arm2::armSixty)));
-        m_driverController.y.whileTrue(new InstantCommand(m_arm::armNintey).andThen(new InstantCommand(m_arm2::armNintey)));
+        m_driverController.a.whileTrue(new ArmTen());
+        m_driverController.b.whileTrue(new ArmThirty());
+        m_driverController.x.whileTrue(new ArmSixty());
+        m_driverController.y.whileTrue(new ArmNinety());
         m_driverController.lb.whileTrue(new InstantCommand(()->m_arm.runArm(0.7)));
         m_driverController.lb.whileFalse(new InstantCommand(()->m_arm.runArm(0.0)));
         m_driverController.rb.whileTrue(new InstantCommand(()->m_arm.runArm(-0.7)));
@@ -124,8 +129,7 @@ public class RobotContainer {
         m_driverController.lt.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
         m_driverController.rt.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
         m_driverController.rt.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
-        m_driverController.back.toggleOnTrue(new CurrentZero(m_arm).andThen(new CurrentZero2(m_arm2)));
-        
+        m_driverController.back.whileTrue(new CurrentZero(m_arm).alongWith(new CurrentZero2(m_arm2)));
 
         // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
         // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));

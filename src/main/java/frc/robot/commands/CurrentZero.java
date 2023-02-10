@@ -26,7 +26,7 @@ public class CurrentZero extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_armSubsystem.runArm(-.1);
+        m_armSubsystem.runArm(-.2);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -38,7 +38,7 @@ public class CurrentZero extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         m_armSubsystem.runArm(0.0);
-        m_armSubsystem.setEncoderPosition(.0);
+        m_armSubsystem.setEncoderPosition(0.0);
     }
 
     // Returns true when the command should end.

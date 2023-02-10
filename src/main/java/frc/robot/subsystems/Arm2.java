@@ -1,19 +1,22 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+/**
+ * The lower Argos Arm
+ */
 public class Arm2 extends SubsystemBase {
     private SparkMaxPIDController m_pid;
     private double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, allowedErr;
+    private Arm m_arm1=Arm.getInstance();
     private CANSparkMax m_armMotor;
     private RelativeEncoder m_encoder;
     private static Arm2 m_instance;
@@ -32,6 +35,7 @@ public class Arm2 extends SubsystemBase {
         kFF = 0.000156;
         kMaxOutput = .9;
         kMinOutput = -.9;
+        m_armMotor.setIdleMode(IdleMode.kBrake);
         // smart motion cooefs
         maxVel = 5000 / 12;
         maxAcc = 5000 / 12;
@@ -82,6 +86,10 @@ public class Arm2 extends SubsystemBase {
         m_encoder.setPosition(position);
     }
 
+    public double getEncoder(){
+        return m_encoder.getPosition();
+    }
+
     /**
      * Example command factory method.
      *
@@ -118,6 +126,7 @@ public class Arm2 extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Encoder Pos2", m_encoder.getPosition());
         SmartDashboard.putNumber("pidPos",pidPos);
+        SmartDashboard.putNumber("LowerVoltage",m_armMotor.getOutputCurrent());
         // This method will be called once per scheduler run
     }
 
