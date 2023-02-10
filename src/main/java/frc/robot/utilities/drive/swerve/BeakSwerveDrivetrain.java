@@ -7,6 +7,8 @@ package frc.robot.utilities.drive.swerve;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -17,9 +19,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.auton.GeneratePath;
 import frc.robot.utilities.drive.BeakDrivetrain;
 import frc.robot.utilities.drive.RobotPhysics;
 
@@ -88,6 +92,26 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         resetTurningMotors();
     }
 
+    public void logData() {
+        Logger logger = Logger.getInstance();
+        logger.recordOutput("Pose", getPoseMeters());
+        // logger.recordOutput("Module States", getModuleStates());
+
+        double[] modulePositions = new double[m_numModules];
+        double[] moduleVelocities = new double[m_numModules];
+
+        SwerveModulePosition[] moduleRecordedPositions = getModulePositions();
+        SwerveModuleState[] moduleRecordedStates = getModuleStates();
+
+        for (int i = 0; i < m_numModules; i++) {
+            modulePositions[i] = moduleRecordedPositions[i].distanceMeters;
+            moduleVelocities[i] = moduleRecordedStates[i].speedMetersPerSecond;
+        }
+        logger.recordOutput("Swerve/Module Positions", modulePositions);
+        logger.recordOutput("Swerve/Module States", getModuleStates());
+        logger.recordOutput("Swerve/Module Angles", getModuleAngles());
+    }
+
     public SequentialCommandGroup getTrajectoryCommand(PathPlannerTrajectory traj) {
         return new PPSwerveControllerCommand(
                 traj,
@@ -149,12 +173,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
     public void drive(ChassisSpeeds speeds) {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(speeds);
-
-        setModuleStates(states);
-    }
-
-    public void driveChassisSpeeds(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(speeds);
+        
+        Logger.getInstance().recordOutput("Swerve/Module Setpoints", states);
 
         setModuleStates(states);
     }
@@ -200,6 +220,20 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         SwerveModulePosition[] states = new SwerveModulePosition[m_numModules];
         for (int i = 0; i < m_numModules; i++) {
             states[i] = m_modules.get(i).getPosition();
+        }
+
+        return states;
+    }
+
+    /**
+     * Get the angles of each module.
+     * 
+     * @return Array of the angles for each module.
+     */
+    public double[] getModuleAngles() {
+        double[] states = new double[m_numModules];
+        for (int i = 0; i < m_numModules; i++) {
+            states[i] = Units.radiansToDegrees(m_modules.get(i).getTurningEncoderRadians());
         }
 
         return states;
@@ -261,5 +295,12 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      */
     public double getAngularVelocity() {
         return getChassisSpeeds().omegaRadiansPerSecond;
+    }
+
+    @Override
+    public void periodic() {
+        updateOdometry();
+
+        logData();
     }
 }
