@@ -113,20 +113,20 @@ public class RobotContainer {
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
         m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
-        m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.THIRTY, m_lowerArm, m_upperArm));
-        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SIXTY, m_lowerArm, m_upperArm));
-        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.NINETY, m_lowerArm, m_upperArm));
+        m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, m_lowerArm, m_upperArm));
+        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
+        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH, m_lowerArm, m_upperArm));
 
-        m_driverController.lb.whileTrue(new InstantCommand(()->m_upperArm.runArm(0.7)));
+        m_driverController.lb.whileTrue(new InstantCommand(()->m_upperArm.runArm(-0.4)));
         m_driverController.lb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
 
-        m_driverController.rb.whileTrue(new InstantCommand(()->m_upperArm.runArm(-0.7)));
+        m_driverController.rb.whileTrue(new InstantCommand(()->m_upperArm.runArm(0.4)));
         m_driverController.rb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
 
-        m_driverController.lt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(-0.7)));
+        m_driverController.lt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(-0.4)));
         m_driverController.lt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
 
-        m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.7)));
+        m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.4)));
         m_driverController.rt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
 
         m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));

@@ -28,6 +28,9 @@ public abstract class Arm extends SubsystemBase {
 
     public enum ArmPositions {
         RETRACTED(2., 2.),
+        SCORE_MID(22, 52),
+        SCORE_HIGH(28, 80),
+        ACQUIRE_FLOOR(9, 45),
         THIRTY(11.33, 31.05),
         SIXTY(19.57, 53.62),
         NINETY(27.81, 76.2);
@@ -54,18 +57,19 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setSmartCurrentLimit(40);
         m_pid = m_motor.getPIDController();
 
-        kP = 7.5e-5;
-        kI = 0;
-        kD = 0;
+        kP = 8e-7;
+        kI = 1e-7;
+        kD = 1e-8;
         kIz = 0;
         kFF = 0.000156;
 
         kMaxOutput = .9;
         kMinOutput = -.9;
+        allowedErr = 0.1;
 
         // smart motion coefficients
-        maxVel = 6000;//6000 / 12;
-        maxAcc = 10000;//5000 / 12;
+        maxVel = 7000;//6000 / 12;
+        maxAcc = 14000;//5000 / 12;
 
         m_pid.setP(kP);
         m_pid.setI(kI);
