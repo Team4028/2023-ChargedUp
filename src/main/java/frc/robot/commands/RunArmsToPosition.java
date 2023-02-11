@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -18,12 +20,23 @@ public class RunArmsToPosition extends SequentialCommandGroup {
     public RunArmsToPosition(Arm.ArmPositions targetPositions, LowerArm lowerArm, UpperArm upperArm) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
+        
         addCommands(
                 new ConditionalCommand(
-                        new RunArm(targetPositions.lowerPosition, lowerArm)
-                                .andThen(new RunArm(targetPositions.upperPosition, upperArm)),
+                        // EXTENDING COMMAND
+                        // Begins extending lower arm,
+                        // Then waits a period based on the distance needed to travel
+                        // and then begins extending the upper arm.
+                        new RunArm(targetPositions.lowerPosition, lowerArm) 
+                                .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() / Constants.ArmConstants.EXTEND_COEFFICIENT)
+                                    .andThen(new RunArm(targetPositions.upperPosition, upperArm))),
+                        // RETRACTING COMMAND
+                        // Begins retracting upper arm,
+                        // Then waits a period based on the distance needed to travel
+                        // and then begins retracting the lower arm.
                         new RunArm(targetPositions.upperPosition, upperArm)
-                                .andThen(new RunArm(targetPositions.lowerPosition, lowerArm)),
+                                .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() / Constants.ArmConstants.RETRACT_COEFFICIENT)
+                                    .andThen(new RunArm(targetPositions.lowerPosition, lowerArm))),
                         () -> targetPositions.upperPosition > upperArm.getEncoderPosition()));
     }
 }

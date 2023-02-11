@@ -39,4 +39,12 @@ public final class Constants {
     public static final class DriveConstants {
         public static final double SPEED_SCALE = 0.25;
     }
+
+    public static final class ArmConstants {
+        public static final double EXTEND_COEFFICIENT = 56;
+        public static final double RETRACT_COEFFICIENT = 152;
+        public static final double EXTEND_WAIT_INTERVAL = 0.2;
+        public static final double RETRACT_WAIT_INTERVAL = 0.4;
+
+    }
 }
