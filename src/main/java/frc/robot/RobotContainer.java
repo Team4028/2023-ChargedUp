@@ -11,15 +11,12 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.ArmNinety;
-import frc.robot.commands.ArmSixty;
-import frc.robot.commands.ArmTen;
-import frc.robot.commands.ArmThirty;
 import frc.robot.commands.CurrentZero;
-import frc.robot.commands.CurrentZero2;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm2;
+import frc.robot.commands.RunArmsToPosition;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
+import frc.robot.subsystems.arms.Arm;
+import frc.robot.subsystems.arms.LowerArm;
+import frc.robot.subsystems.arms.UpperArm;
 // import frc.robot.subsystems.flywheel.Flywheel;
 // import frc.robot.subsystems.flywheel.FlywheelIO;
 // import frc.robot.subsystems.flywheel.FlywheelIOSim;
@@ -41,15 +38,15 @@ public class RobotContainer {
     // Subsystems
     private final PracticeSwerveDrivetrain m_drive;
     // private final Flywheel flywheel;
-    private final Arm m_arm;
-    private final Arm2 m_arm2;
+    private final UpperArm m_upperArm;
+    private final LowerArm m_lowerArm;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
     //private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
 
     // Dashboard inputs
-    // TODO: Convert to BeakXBoxCommand
+    // TODO: Convert to BeakAutonCommand
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     // private final LoggedDashboardNumber flywheelSpeedInput = new LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
@@ -63,8 +60,8 @@ public class RobotContainer {
      */
     public RobotContainer() {
         m_drive = PracticeSwerveDrivetrain.getInstance();
-        m_arm = Arm.getInstance();
-        m_arm2=Arm2.getInstance();
+        m_upperArm = UpperArm.getInstance();
+        m_lowerArm=LowerArm.getInstance();
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations
@@ -115,19 +112,24 @@ public class RobotContainer {
                         m_drive));
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
-        m_driverController.a.whileTrue(new ArmTen());
-        m_driverController.b.whileTrue(new ArmThirty());
-        m_driverController.x.whileTrue(new ArmSixty());
-        m_driverController.y.whileTrue(new ArmNinety());
-        m_driverController.lb.whileTrue(new InstantCommand(()->m_arm.runArm(0.7)));
-        m_driverController.lb.whileFalse(new InstantCommand(()->m_arm.runArm(0.0)));
-        m_driverController.rb.whileTrue(new InstantCommand(()->m_arm.runArm(-0.7)));
-        m_driverController.rb.whileFalse(new InstantCommand(()->m_arm.runArm(0.0)));
-        m_driverController.lt.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.7)));
-        m_driverController.lt.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
-        m_driverController.rt.whileTrue(new InstantCommand(()->m_arm2.runArm(0.7)));
-        m_driverController.rt.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
-        m_driverController.back.whileTrue(new CurrentZero(m_arm).alongWith(new CurrentZero2(m_arm2)));
+        m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
+        m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.THIRTY, m_lowerArm, m_upperArm));
+        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SIXTY, m_lowerArm, m_upperArm));
+        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.NINETY, m_lowerArm, m_upperArm));
+
+        m_driverController.lb.whileTrue(new InstantCommand(()->m_upperArm.runArm(0.7)));
+        m_driverController.lb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+
+        m_driverController.rb.whileTrue(new InstantCommand(()->m_upperArm.runArm(-0.7)));
+        m_driverController.rb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+
+        m_driverController.lt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(-0.7)));
+        m_driverController.lt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+
+        m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.7)));
+        m_driverController.rt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+
+        m_driverController.back.whileTrue(new CurrentZero(m_upperArm).alongWith(new CurrentZero(m_lowerArm)));
 
         // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
         // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));

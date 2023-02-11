@@ -3,29 +3,26 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-import frc.robot.subsystems.Arm2;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.arms.Arm;
 
-/** An example command that uses an example subsystem. */
-public class CurrentZero2 extends CommandBase {
-    private Arm2 m_armSubsystem;
+public class RunArm extends CommandBase {
+    private Arm m_arm;
+    private double m_position;
 
-    /**
-     * Creates a new ExampleCommand.
-     *
-     * @param subsystem The subsystem used by this command.
-     * @return
-     */
-    public CurrentZero2(Arm2 Arm2) {
-        m_armSubsystem = Arm2;
+    /** Creates a new RunArm. */
+    public RunArm(double position, Arm arm) {
+        m_position = position;
+        m_arm = arm;
         // Use addRequirements() here to declare subsystem dependencies.
-
+        addRequirements(arm);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_armSubsystem.runArm(.1);
+        m_arm.runToPosition(m_position);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -36,13 +33,11 @@ public class CurrentZero2 extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_armSubsystem.runArm(0.0);
-        m_armSubsystem.setEncoderPosition(0.0);
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_armSubsystem.getMotorCurrent() >= 20;
+        return Math.abs(m_arm.getEncoderPosition() - m_arm.getTargetPosition()) < 0.2;
     }
 }

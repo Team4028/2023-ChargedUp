@@ -4,12 +4,12 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.Arm;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.arms.Arm;
 
 /** An example command that uses an example subsystem. */
 public class CurrentZero extends CommandBase {
-    private Arm m_armSubsystem;
+    private Arm m_arm;
 
     /**
      * Creates a new ExampleCommand.
@@ -18,7 +18,7 @@ public class CurrentZero extends CommandBase {
      * @return
      */
     public CurrentZero(Arm arm) {
-        m_armSubsystem = arm;
+        m_arm = arm;
         // Use addRequirements() here to declare subsystem dependencies.
 
     }
@@ -26,7 +26,7 @@ public class CurrentZero extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_armSubsystem.runArm(-.2);
+        m_arm.runArm(-.2);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -37,13 +37,13 @@ public class CurrentZero extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_armSubsystem.runArm(0.0);
-        m_armSubsystem.setEncoderPosition(0.0);
+        m_arm.runArm(0.0);
+        m_arm.zeroEncoder();
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_armSubsystem.getMotorCurrent() >= 20;
+        return m_arm.getMotorCurrent() >= 20;
     }
 }
