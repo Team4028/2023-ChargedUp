@@ -68,8 +68,8 @@ public abstract class Arm extends SubsystemBase {
         allowedErr = 0.1;
 
         // smart motion coefficients
-        maxVel = 7000;//6000 / 12;
-        maxAcc = 14000;//5000 / 12;
+        maxVel = 7000;
+        maxAcc = 14000;
 
         m_pid.setP(kP);
         m_pid.setI(kI);
