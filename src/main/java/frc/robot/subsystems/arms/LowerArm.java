@@ -5,6 +5,8 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController.AccelStrategy;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -19,7 +21,6 @@ public class LowerArm extends Arm {
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
         super.initArm();
-
     }
 
     public void armTen() {
@@ -77,7 +78,7 @@ public class LowerArm extends Arm {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("LowArmEncoderPos", this.getEncoderPosition());
-        SmartDashboard.putNumber("LowArmPidPct", m_pidPos);
+        SmartDashboard.putNumber("LowArmErr", this.getError());
         SmartDashboard.putNumber("LowArmCurrentAmps", this.getMotorCurrent());
         // This method will be called once per scheduler run
     }

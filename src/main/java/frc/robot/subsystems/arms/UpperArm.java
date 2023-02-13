@@ -79,7 +79,7 @@ public class UpperArm extends Arm {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("UpArmEncoderPos", m_encoder.getPosition());
-        SmartDashboard.putNumber("UpArmTargetPct", m_pidPos);
+        SmartDashboard.putNumber("UpArmErr", this.getError());
         SmartDashboard.putNumber("UpArmCurrentAmps", m_motor.getOutputCurrent());
         // This method will be called once per scheduler run
     }
