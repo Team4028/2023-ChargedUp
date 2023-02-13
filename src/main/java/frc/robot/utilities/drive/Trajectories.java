@@ -80,6 +80,18 @@ public class Trajectories {
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
     }
 
+    public static PathPlannerTrajectory AquirePiece(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("Aquire Piece",
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
+    }
+
+    public static PathPlannerTrajectory ScorePiece(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("Score Piece",
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
+    }
+
     
 
     // public static Trajectory getTrajectory(String path) {
