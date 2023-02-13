@@ -17,6 +17,8 @@ import frc.robot.subsystems.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
+import frc.robot.subsystems.manipulator.Gripper;
+import frc.robot.subsystems.manipulator.Wrist;
 // import frc.robot.subsystems.flywheel.Flywheel;
 // import frc.robot.subsystems.flywheel.FlywheelIO;
 // import frc.robot.subsystems.flywheel.FlywheelIOSim;
@@ -40,15 +42,18 @@ public class RobotContainer {
     // private final Flywheel flywheel;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
+    private final Gripper m_gripper;
+    private final Wrist m_wrist;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-    //private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
+    private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
 
     // Dashboard inputs
     // TODO: Convert to BeakAutonCommand
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    // private final LoggedDashboardNumber flywheelSpeedInput = new LoggedDashboardNumber("Flywheel Speed", 1500.0);
+    // private final LoggedDashboardNumber flywheelSpeedInput = new
+    // LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
     // Limiters, etc.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
@@ -61,7 +66,11 @@ public class RobotContainer {
     public RobotContainer() {
         m_drive = PracticeSwerveDrivetrain.getInstance();
         m_upperArm = UpperArm.getInstance();
-        m_lowerArm=LowerArm.getInstance();
+        m_lowerArm = LowerArm.getInstance();
+        m_gripper = Gripper.getInstance();
+        m_wrist = Wrist.getInstance();
+
+
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations
@@ -90,7 +99,8 @@ public class RobotContainer {
         // Set up auto routines
         autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
         // autoChooser.addOption("Spin", new SpinAuto(drive));
-        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive, flywheel));
+        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive,
+        // flywheel));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -117,29 +127,28 @@ public class RobotContainer {
         m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SIXTY, m_lowerArm, m_upperArm));
         m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.NINETY, m_lowerArm, m_upperArm));
 
-        m_driverController.lb.whileTrue(new InstantCommand(()->m_upperArm.runArm(0.7)));
-        m_driverController.lb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+        m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.7)));
+        m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.rb.whileTrue(new InstantCommand(()->m_upperArm.runArm(-0.7)));
-        m_driverController.rb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+        m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.7)));
+        m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.lt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(-0.7)));
-        m_driverController.lt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+        m_driverController.lt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.7)));
+        m_driverController.lt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.7)));
-        m_driverController.rt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+        m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.7)));
+        m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
         m_driverController.back.whileTrue(new CurrentZero(m_upperArm).alongWith(new CurrentZero(m_lowerArm)));
 
-        // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
-        // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
-        // m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
-        // m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
-        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.6)));
-        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.2)));
-        // m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
+
+
+        m_operatorController.a.onTrue(new InstantCommand(() -> m_gripper.runToCubePosition()));
+        m_operatorController.b.onTrue(new InstantCommand(() -> m_gripper.runToConePosition()));
+
+        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_wrist.runToLowPosition()));
+        m_operatorController.x.onTrue(new InstantCommand(() -> m_wrist.runToMediumPosition()));
+        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_wrist.runToHighPosition()));
     }
 
     public double speedScaledDriverLeftY() {
