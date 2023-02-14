@@ -17,6 +17,7 @@ import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Gripper;
+import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.auton.CarsonVPath;
@@ -52,17 +53,16 @@ public class RobotContainer {
     private final Vision m_vision;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
-    private final Gripper m_gripper;
-    private final Wrist m_wrist;
+    private final Manipulator m_manipulator;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
     private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
 
     // Dashboard inputs
-    // TODO: Convert to BeakAutonCommand
-    private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    // private final LoggedDashboardNumber flywheelSpeedInput = new LoggedDashboardNumber("Flywheel Speed", 1500.0);
+    private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    // private final LoggedDashboardNumber flywheelSpeedInput = new
+    // LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
     // Limiters, etc.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
@@ -75,7 +75,10 @@ public class RobotContainer {
     public RobotContainer() {
         m_drive = PracticeSwerveDrivetrain.getInstance();
         m_upperArm = UpperArm.getInstance();
-        m_lowerArm=LowerArm.getInstance();
+        m_lowerArm = LowerArm.getInstance();
+        m_vision = Vision.getInstance();
+        m_manipulator = Manipulator.getInstance();
+
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations
@@ -133,42 +136,33 @@ public class RobotContainer {
         m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
         m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH, m_lowerArm, m_upperArm));
 
-        m_driverController.lb.whileTrue(new InstantCommand(()->m_upperArm.runArm(-0.4)));
-        m_driverController.lb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+        m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
+        m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.rb.whileTrue(new InstantCommand(()->m_upperArm.runArm(0.4)));
-        m_driverController.rb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+        m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.4)));
+        m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.lt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(-0.4)));
-        m_driverController.lt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+        m_driverController.lt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.4)));
+        m_driverController.lt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.4)));
-        m_driverController.rt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+        m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
+        m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
         m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
 
+        m_operatorController.a.onTrue(m_manipulator.lowCube());
+        m_operatorController.b.onTrue(m_manipulator.lowCone());
+        m_operatorController.x.onTrue(m_manipulator.midCube());
+        m_operatorController.y.onTrue(m_manipulator.midCone());
+        m_operatorController.dpadDown.onTrue(m_manipulator.highCube());
+        m_operatorController.dpadUp.onTrue(m_manipulator.highCone());
+        
+        // m_operatorController.a.onTrue(new InstantCommand(() -> m_gripper.runToCubePosition()));
+        // m_operatorController.b.onTrue(new InstantCommand(() -> m_gripper.runToConePosition()));
 
-
-        m_operatorController.a.onTrue(new InstantCommand(() -> m_gripper.runToCubePosition()));
-        m_operatorController.b.onTrue(new InstantCommand(() -> m_gripper.runToConePosition()));
-
-        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_wrist.runToLowPosition()));
-        m_operatorController.x.onTrue(new InstantCommand(() -> m_wrist.runToMediumPosition()));
-        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_wrist.runToHighPosition()));
-    }
-
-    private void initAutonChooser() {
-        autoChooser.addDefaultOption("Epic Path", new EpicPath(m_drive));
-        autoChooser.addOption("Test Path", new TestPath(m_drive));
-        autoChooser.addOption("Carson V Path", new CarsonVPath(m_drive));
-        autoChooser.addOption("Sam Path", new SamPath(m_drive));
-        autoChooser.addOption("Nick Path", new NickPath(m_drive));
-        autoChooser.addOption("j path 1", new JPath1(m_vision, m_drive));
-        autoChooser.addOption("j path 2", new JPath2(m_drive));
-        autoChooser.addOption("J Path", new JPath(m_drive));
-        autoChooser.addOption("Two Piece Drive Up", new TwoPieceDriveUp(m_drive));
-        autoChooser.addOption("Two Piece Acquire Piece", new TwoPieceAcquirePiece(m_drive));
-        autoChooser.addOption("Two Piece Score Piece", new TwoPieceScorePiece(m_drive));
+        // m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_wrist.runToLowPosition()));
+        // m_operatorController.x.onTrue(new InstantCommand(() -> m_wrist.runToMediumPosition()));
+        // m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_wrist.runToHighPosition()));
     }
 
     private void initAutonChooser() {
