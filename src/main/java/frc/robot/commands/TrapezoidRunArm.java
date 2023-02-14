@@ -25,6 +25,6 @@ public class TrapezoidRunArm extends TrapezoidProfileCommand {
             m_arm.runToPosition(state.position);
           // Use current trajectory state here
         });
-        m_arm.setDistanceToTravel(endRotations - startRotations);
+        m_arm.setDistanceToTravel(Math.abs(endRotations-startRotations));
   }
 }
