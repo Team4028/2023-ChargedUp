@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.utilities.drive.BeakDrivetrain;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
-public class RunPath extends CommandBase {
+public class RunGeneratedPath extends CommandBase {
     private PIDController m_xController, m_yController, m_thetaController;
 
     private PPHolonomicDriveController m_driveController;
@@ -35,7 +35,7 @@ public class RunPath extends CommandBase {
     private BeakDrivetrain m_drivetrain;
 
     /** Creates a new RunPath. */
-    public RunPath(PathPlannerTrajectory traj, BeakDrivetrain drivetrain) {
+    public RunGeneratedPath(PathPlannerTrajectory traj, BeakDrivetrain drivetrain) {
         m_drivetrain = drivetrain;
         m_traj = traj;
 
@@ -56,8 +56,8 @@ public class RunPath extends CommandBase {
     @Override
     public void initialize() {
         // Set up PID controllers
-        m_xController = m_drivetrain.createDriveController();
-        m_yController = m_drivetrain.createDriveController();
+        m_xController = m_drivetrain.createGeneratedDriveController();
+        m_yController = m_drivetrain.createGeneratedDriveController();
         m_thetaController = m_drivetrain.createAutonThetaController();
 
         m_thetaController.enableContinuousInput(-Math.PI, Math.PI);

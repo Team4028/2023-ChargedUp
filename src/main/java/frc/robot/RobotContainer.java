@@ -11,22 +11,18 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.Autons;
 import frc.robot.commands.CurrentZero;
 import frc.robot.commands.RunArmsToPosition;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.commands.auton.BeakAutonCommand;
-import frc.robot.commands.auton.CarsonVPath;
-import frc.robot.commands.auton.EpicPath;
 import frc.robot.commands.auton.JPath;
 import frc.robot.commands.auton.JPath1;
 import frc.robot.commands.auton.JPath2;
-import frc.robot.commands.auton.NickPath;
-import frc.robot.commands.auton.SamPath;
-import frc.robot.commands.auton.TestPath;
 import frc.robot.commands.auton.TwoPieceAcquirePiece;
-import frc.robot.commands.auton.TwoPieceDriveUp;
+import frc.robot.commands.auton.TwoPieceBalance;
 import frc.robot.commands.auton.TwoPieceScorePiece;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
@@ -44,19 +40,27 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+    // Constants
+    private static final String APRILTAG_CAMERA_NAME = "Global_Shutter_Camera";
+    private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; // Very much subject to change.
+
     // Subsystems
     private final PracticeSwerveDrivetrain m_drive;
     // private final SwerveDrivetrain m_drive;
-    private final Vision m_vision;
+    private final Vision m_aprilTagVision;
+    private final Vision m_gamePieceVision;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
 
+
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-    //private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
+    // private final BeakXBoxController m_operatorController = new
+    // BeakXBoxController(1);
 
-    // Dashboard inputs
-    private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    // Auton stuff
+    private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    private final Autons m_autons;
 
     // Limiters, etc.
     private SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
@@ -69,8 +73,11 @@ public class RobotContainer {
     public RobotContainer() {
         m_drive = PracticeSwerveDrivetrain.getInstance();
         m_upperArm = UpperArm.getInstance();
-        m_lowerArm=LowerArm.getInstance();
-        m_vision = Vision.getInstance();
+        m_lowerArm = LowerArm.getInstance();
+        m_aprilTagVision = new Vision(APRILTAG_CAMERA_NAME);
+        m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME);
+
+        m_autons = new Autons(m_drive, m_aprilTagVision, m_gamePieceVision);
 
         switch (Constants.currentMode) {
             // TODO
@@ -100,7 +107,8 @@ public class RobotContainer {
         // Set up auto routines
         // autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
         // autoChooser.addOption("Spin", new SpinAuto(drive));
-        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive, flywheel));
+        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive,
+        // flywheel));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -128,17 +136,17 @@ public class RobotContainer {
         m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
         m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH, m_lowerArm, m_upperArm));
 
-        m_driverController.lb.whileTrue(new InstantCommand(()->m_upperArm.runArm(-0.4)));
-        m_driverController.lb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+        m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
+        m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.rb.whileTrue(new InstantCommand(()->m_upperArm.runArm(0.4)));
-        m_driverController.rb.onFalse(new InstantCommand(()->m_upperArm.runArm(0.0)));
+        m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.4)));
+        m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.lt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(-0.4)));
-        m_driverController.lt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+        m_driverController.lt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.4)));
+        m_driverController.lt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.4)));
-        m_driverController.rt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
+        m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
+        m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
         m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
 
@@ -146,25 +154,25 @@ public class RobotContainer {
         // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
         // m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
         // m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
-        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.6)));
-        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.2)));
-        // m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
+        // m_operatorController.lb.whileTrue(new
+        // InstantCommand(()->m_arm2.runArm(-0.6)));
+        // m_operatorController.lb.whileTrue(new
+        // InstantCommand(()->m_arm2.runArm(0.0)));
+        // m_operatorController.rb.whileTrue(new
+        // InstantCommand(()->m_arm2.runArm(0.2)));
+        // m_operatorController.rb.whileFalse(new
+        // InstantCommand(()->m_arm2.runArm(0.0)));
         // m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
     }
 
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("Epic Path", new EpicPath(m_drive));
-        autoChooser.addOption("Test Path", new TestPath(m_drive));
-        autoChooser.addOption("Carson V Path", new CarsonVPath(m_drive));
-        autoChooser.addOption("Sam Path", new SamPath(m_drive));
-        autoChooser.addOption("Nick Path", new NickPath(m_drive));
-        autoChooser.addOption("j path 1", new JPath1(m_vision, m_drive));
-        autoChooser.addOption("j path 2", new JPath2(m_drive));
-        autoChooser.addOption("J Path", new JPath(m_drive));
-        autoChooser.addOption("Two Piece Drive Up", new TwoPieceDriveUp(m_drive));
-        autoChooser.addOption("Two Piece Acquire Piece", new TwoPieceAcquirePiece(m_drive));
-        autoChooser.addOption("Two Piece Score Piece", new TwoPieceScorePiece(m_drive));
+        autoChooser.addDefaultOption("j path 1", m_autons.JPath1());
+
+        // autoChooser.addOption("j path 2", new JPath2(m_drive));
+        // autoChooser.addOption("J Path", new JPath(m_drive));
+
+        autoChooser.addOption("Two Piece Top", m_autons.TwoPieceTop());
+        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceTopAcquire());
     }
 
     public double speedScaledDriverLeftY() {
@@ -191,7 +199,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        m_drive.resetOdometry(autoChooser.get().getInitialPose());
         return autoChooser.get();
     }
 }

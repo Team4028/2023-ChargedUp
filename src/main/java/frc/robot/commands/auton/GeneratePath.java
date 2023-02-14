@@ -44,9 +44,9 @@ public class GeneratePath extends CommandBase {
         m_poseSupplier = desiredPose;
 
         m_positionTolerance = new Pose2d(
-                0.1, // 4 inches
-                0.1,
-                Rotation2d.fromDegrees(2.0));
+                0.0254, // 1 inch
+                0.0254,
+                Rotation2d.fromDegrees(1.0));
         
         m_timer = new Timer();
 

@@ -6,6 +6,7 @@ package frc.robot.utilities.drive;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -19,7 +20,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.auton.GeneratePath;
 import frc.robot.utilities.subsystem.BeakGyroSubsystem;
 import frc.robot.utilities.units.AngularVelocity;
 import frc.robot.utilities.units.Distance;
@@ -231,23 +234,23 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * drivetrain to follow a path.
      * 
      * @param traj Trajectory to follow.
-     * @return A {@link SequentialCommandGroup} to run the trajectory, and stop the
+     * @return A {@link Command} to run the trajectory, and stop the
      *         drivetrain.
      */
-    public SequentialCommandGroup getTrajectoryCommand(PathPlannerTrajectory traj) {
+    public Command getTrajectoryCommand(PathPlannerTrajectory traj) {
         return null;
     }
 
     /**
-     * Gets a command to control the
-     * drivetrain to follow a dynamically generated path.
+     * Gets a command to generate a path to the desired pose and follow that path.
      * 
-     * @param traj Trajectory to follow.
-     * @return A {@link SequentialCommandGroup} to run the trajectory, and stop the
-     *         drivetrain.
+     * @param desiredPose A supplier of the pose to run to. When the command is
+     *                    initialized, this should evaluate to the final desired
+     *                    pose.
+     * @return A {@link Command} that runs the generated path.
      */
-    public SequentialCommandGroup getGeneratedTrajectoryCommand(PathPlannerTrajectory traj) {
-        return null;
+    public Command generatePath(Supplier<Pose2d> desiredPose) {
+        return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
     }
 
     /**

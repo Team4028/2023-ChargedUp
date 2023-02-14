@@ -29,22 +29,24 @@ public class Vision extends SubsystemBase {
 
     private double m_latestLatency;
 
-    private static final String CAMERA_NAME = "Global_Shutter_Camera";
+    // private static final String CAMERA_NAME = "Global_Shutter_Camera";
 
     private static final Pose3d ROBOT_TO_CAMERA = new Pose3d(Units.inchesToMeters(12.), Units.inchesToMeters(2.), 0.,
             new Rotation3d(0., Units.degreesToRadians(56.), Units.degreesToRadians(0.)));
 
-    private static Vision m_instance;
-
     /** Creates a new Vision. */
-    public Vision() {
-        m_camera = new PhotonCamera(CAMERA_NAME);
+    public Vision(String cameraName) {
+        m_camera = new PhotonCamera(cameraName);
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
         } catch (IOException err) {
             throw new RuntimeException();
         }
+    }
+
+    public void togglePipeline() {
+        m_camera.setPipelineIndex(m_camera.getPipelineIndex() == 0 ? 1 : 0);
     }
 
     /**
@@ -123,13 +125,6 @@ public class Vision extends SubsystemBase {
 
     public double getLatestLatency() {
         return m_latestLatency;
-    }
-
-    public static Vision getInstance() {
-        if (m_instance == null) {
-            m_instance = new Vision();
-        }
-        return m_instance;
     }
 
     @Override

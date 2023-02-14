@@ -25,35 +25,29 @@ public class JPath1 extends BeakAutonCommand {
     /** Creates a new TestPath. */
     public JPath1(Vision vision, BeakDrivetrain drivetrain) {
         super.addCommands(
-                // drivetrain.getTrajectoryCommand(Trajectories.JPath1(drivetrain)),
-                // // new WaitCommand(0.1),
-                // new InstantCommand(() -> m_desiredAprTagPose =
-                // vision.getTargetPose(drivetrain.getPoseMeters(),
-                // new Transform3d(new Translation3d(Units.inchesToMeters(54.),
-                // Units.inchesToMeters(-0.), 0.),
-                // new Rotation3d()))), // This gets the position of a point square to the
-                // target, and 54 inches away.
+                drivetrain.getTrajectoryCommand(Trajectories.JPath1(drivetrain)),
                 // new WaitCommand(0.1),
-                new NewNewGeneratePath(Trajectories.JPath1(drivetrain),
-                        () -> vision.getTargetPose(drivetrain.getPoseMeters(),
-                                new Transform3d(
-                                        new Translation3d(Units.inchesToMeters(54.), Units.inchesToMeters(-0.), 0.),
-                                        new Rotation3d())),
-                        drivetrain)
-                // new InstantCommand(() -> {
-                //     Field2d field = new Field2d();
-                //     field.setRobotPose(m_desiredAprTagPose);
-                //     SmartDashboard.putData("AprilTag Pose", field);
-                // })
-                // new GeneratePath(() -> m_desiredAprTagPose, drivetrain), // The actual path generation/running
-                // new WaitCommand(0.1),
-                // new InstantCommand(() -> m_poseDiff = drivetrain.getPoseMeters().minus(m_desiredAprTagPose)),
-                // new InstantCommand(() -> SmartDashboard.putNumber("X error", m_poseDiff.getX())),
-                // new InstantCommand(() -> SmartDashboard.putNumber("Y error", m_poseDiff.getY())),
-                // new InstantCommand(
-                //         () -> SmartDashboard.putNumber("Theta error", m_poseDiff.getRotation().getDegrees())),
-                // new RotateDrivetrainToAngle(() -> m_desiredAprTagPose.getRotation(), drivetrain, false) // verify the
-                //                                                                                         // angle
+                new InstantCommand(() -> m_desiredAprTagPose = vision.getTargetPose(drivetrain.getPoseMeters(),
+                        new Transform3d(new Translation3d(Units.inchesToMeters(54.),
+                                Units.inchesToMeters(-0.), 0.),
+                                new Rotation3d()))), // This gets the position of a point square to the target, and 54
+                                                     // inches away.
+                new WaitCommand(0.1),
+                new InstantCommand(() -> {
+                    Field2d field = new Field2d();
+                    field.setRobotPose(m_desiredAprTagPose);
+                    SmartDashboard.putData("AprilTag Pose", field);
+                }),
+                new GeneratePath(() -> m_desiredAprTagPose, drivetrain), // The actual path generation/running
+                new WaitCommand(0.1),
+                new InstantCommand(() -> m_poseDiff = drivetrain.getPoseMeters().minus(m_desiredAprTagPose)),
+                new InstantCommand(() -> SmartDashboard.putNumber("X error", m_poseDiff.getX())),
+                new InstantCommand(() -> SmartDashboard.putNumber("Y error", m_poseDiff.getY())),
+                new InstantCommand(
+                        () -> SmartDashboard.putNumber("Theta error", m_poseDiff.getRotation().getDegrees()))
+        // new RotateDrivetrainToAngle(() -> m_desiredAprTagPose.getRotation(),
+        // drivetrain, false) // verify the
+        // // angle
         );
         super.setInitialPose(Trajectories.JPath1(drivetrain));
     }

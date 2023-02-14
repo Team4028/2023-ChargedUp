@@ -7,7 +7,10 @@ package frc.robot.commands.auton;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.utilities.drive.BeakDrivetrain;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -15,14 +18,28 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class BeakAutonCommand extends SequentialCommandGroup {
     /** Creates a new BeakAutonCommand. */
     private Pose2d initialPose;
+    private BeakDrivetrain m_drivetrain;
 
     public BeakAutonCommand() {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
     }
 
+    public BeakAutonCommand(BeakDrivetrain drivetrain, PathPlannerTrajectory initialTrajectory, Command... commands) {
+        m_drivetrain = drivetrain;
+        setInitialPose(initialTrajectory);
+
+        super.addCommands(commands);
+        super.addRequirements(drivetrain);
+    }
+
+    public SequentialCommandGroup resetPoseAndRun() {
+        return new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose)).andThen(this);
+    }
+
     protected void setInitialPose(PathPlannerTrajectory initialTrajectory) {
-        this.initialPose = initialTrajectory.getInitialHolonomicPose(); // TODO: specify each drivetrain as holonomic or not
+        this.initialPose = initialTrajectory.getInitialHolonomicPose(); // TODO: specify each drivetrain as holonomic or
+                                                                        // not
     }
 
     public Pose2d getInitialPose() {

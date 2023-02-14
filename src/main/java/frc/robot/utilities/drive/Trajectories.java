@@ -9,47 +9,6 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 
 /** Get auton trajectories from paths. */
 public class Trajectories {
-    public static PathPlannerTrajectory TestPath(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("TestPath",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond());
-    }
-
-    public static PathPlannerTrajectory NewTestPath(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("NewTestPath",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25, // velocity
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25); // acceleration);
-    }
-
-    public static PathPlannerTrajectory Ball1(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Ball1",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond());
-    }
-
-    public static PathPlannerTrajectory Ball2(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Ball2",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond());
-    }
-
-    public static PathPlannerTrajectory CarsonVPath(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Carson V Path",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond());
-    }
-
-    public static PathPlannerTrajectory SamPath(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Sam Path",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond());
-    }
-    
-    public static PathPlannerTrajectory NickPath(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Nick Path",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond());
-    }
     public static PathPlannerTrajectory JPath1(BeakDrivetrain drivetrain) {
         return PathPlanner.loadPath("j path 1",
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
@@ -62,8 +21,8 @@ public class Trajectories {
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
     }
 
-    public static PathPlannerTrajectory TwoPieceDriveUp(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("2 Piece Drive Up",
+    public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("2 Piece Balance",
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
     }
@@ -79,20 +38,6 @@ public class Trajectories {
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
     }
-
-    public static PathPlannerTrajectory AquirePiece(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Aquire Piece",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
-    }
-
-    public static PathPlannerTrajectory ScorePiece(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Score Piece",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
-    }
-
-    
 
     // public static Trajectory getTrajectory(String path) {
     // Trajectory traj = new Trajectory();

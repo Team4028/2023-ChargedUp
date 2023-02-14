@@ -4,6 +4,8 @@
 
 package frc.robot.utilities.drive;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.LoggedRobot;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -17,7 +19,9 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.auton.GeneratePath;
 import frc.robot.utilities.motor.BeakMotorController;
 
 /** Generic Differential (Tank) Drivetrain subsystem. */
@@ -61,7 +65,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         return m_kinematics;
     }
 
-    public SequentialCommandGroup getTrajectoryCommand(PathPlannerTrajectory traj) {
+    // TODO: this needs to be fixed up.
+    public Command getTrajectoryCommand(PathPlannerTrajectory traj) {
         return new PPRamseteCommand(
                 traj,
                 this::getPoseMeters,
@@ -75,18 +80,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
                 this).andThen(() -> drive(0, 0, 0));
     }
 
-    public SequentialCommandGroup getGeneratedTrajectoryCommand(PathPlannerTrajectory traj) {
-        return new PPRamseteCommand(
-                traj,
-                this::getPoseMeters,
-                new RamseteController(),
-                m_feedForward,
-                m_kinematics,
-                this::getWheelSpeeds,
-                m_generatedDriveController,
-                m_generatedDriveController,
-                this::driveVolts,
-                this).andThen(() -> drive(0, 0, 0));
+    public Command generatePath(Supplier<Pose2d> desiredPose) {
+        return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
     }
 
     /**

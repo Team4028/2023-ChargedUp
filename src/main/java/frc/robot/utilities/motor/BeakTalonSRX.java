@@ -34,7 +34,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     @Override
     public void setVelocityRPM(double rpm, double arbFeedforward, int slot) {
-        setVelocityNU(rpm * 2048 / 600, arbFeedforward, slot);
+        setVelocityNU(rpm * 4096 / 600, arbFeedforward, slot);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     @Override
     public void setPositionMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setPositionNU(rotations * 2048, arbFeedforward, slot);
+        setPositionNU(rotations * 4096, arbFeedforward, slot);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     @Override
     public void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setMotionMagicNU(rotations * 2048, arbFeedforward, slot);
+        setMotionMagicNU(rotations * 4096, arbFeedforward, slot);
     }
 
     @Override

@@ -7,11 +7,11 @@ package frc.robot.commands.auton;
 import frc.robot.utilities.drive.BeakDrivetrain;
 import frc.robot.utilities.drive.Trajectories;
 
-public class TwoPieceDriveUp extends BeakAutonCommand {
+public class TwoPieceBalance extends BeakAutonCommand {
     /** Creates a new TestPath. */
-    public TwoPieceDriveUp(BeakDrivetrain drivetrain) {
+    public TwoPieceBalance(BeakDrivetrain drivetrain) {
         super.addCommands(
-                drivetrain.getTrajectoryCommand(Trajectories.TwoPieceDriveUp(drivetrain)));
-        super.setInitialPose(Trajectories.TwoPieceDriveUp(drivetrain));
+                drivetrain.getTrajectoryCommand(Trajectories.TwoPieceBalance(drivetrain)));
+        super.setInitialPose(Trajectories.TwoPieceBalance(drivetrain));
     }
 }

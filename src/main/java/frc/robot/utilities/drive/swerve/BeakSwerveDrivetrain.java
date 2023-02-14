@@ -6,11 +6,11 @@ package frc.robot.utilities.drive.swerve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,8 +22,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.auton.GeneratePath;
+import frc.robot.commands.auton.RunPath;
 import frc.robot.utilities.drive.BeakDrivetrain;
 import frc.robot.utilities.drive.RobotPhysics;
 
@@ -112,30 +114,13 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         logger.recordOutput("Swerve/Module Angles", getModuleAngles());
     }
 
-    public SequentialCommandGroup getTrajectoryCommand(PathPlannerTrajectory traj) {
-        return new PPSwerveControllerCommand(
-                traj,
-                this::getPoseMeters,
-                m_kinematics,
-                createDriveController(),
-                createDriveController(),
-                createAutonThetaController(),
-                this::setModuleStates,
-                this)
-                .andThen(() -> drive(0, 0, 0));
+    // TODO: Put the runpath, etc. commands into BeakLib.
+    public Command getTrajectoryCommand(PathPlannerTrajectory traj) {
+        return new RunPath(traj, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
     }
 
-    public SequentialCommandGroup getGeneratedTrajectoryCommand(PathPlannerTrajectory traj) {
-        return new PPSwerveControllerCommand(
-                traj,
-                this::getPoseMeters,
-                m_kinematics,
-                createGeneratedDriveController(),
-                createGeneratedDriveController(),
-                createAutonThetaController(),
-                this::setModuleStates,
-                this)
-                .andThen(() -> drive(0, 0, 0));
+    public Command generatePath(Supplier<Pose2d> desiredPose) {
+        return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
     }
 
     public Pose2d updateOdometry() {
