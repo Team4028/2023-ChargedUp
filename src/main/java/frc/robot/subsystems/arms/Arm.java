@@ -98,9 +98,8 @@ public abstract class Arm extends SubsystemBase {
     }
 
     public void runToPosition(double position) {
-        m_pid.setReference(position, CANSparkMax.ControlType.kSmartMotion);
-        m_pidPos = position;
-        m_distanceToTravel = Math.abs(position - getEncoderPosition());        
+        m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
+        m_pidPos = position;        
     }
 
     public double getError() {
@@ -145,6 +144,9 @@ public abstract class Arm extends SubsystemBase {
         return m_distanceToTravel;
     }
 
+    public void setDistanceToTravel(double dist){
+        m_distanceToTravel = dist;
+    }
     public static Arm getInstance() {return null;}
 
 }
