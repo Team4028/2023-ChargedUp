@@ -16,6 +16,7 @@ import frc.robot.commands.RunArmsToPosition;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
+import frc.robot.subsystems.infeed.Infeed;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.Wrist;
@@ -54,6 +55,7 @@ public class RobotContainer {
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
     private final Manipulator m_manipulator;
+    private final Infeed m_infeed;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -78,6 +80,7 @@ public class RobotContainer {
         m_lowerArm = LowerArm.getInstance();
         m_vision = Vision.getInstance();
         m_manipulator = Manipulator.getInstance();
+        m_infeed = Infeed.getInstance();
 
         switch (Constants.currentMode) {
             // TODO
@@ -156,6 +159,11 @@ public class RobotContainer {
         m_operatorController.y.onTrue(m_manipulator.midCone());
         m_operatorController.dpadDown.onTrue(m_manipulator.highCube());
         m_operatorController.dpadUp.onTrue(m_manipulator.highCone());
+
+        m_operatorController.rb.onTrue(m_infeed.runMotorIn());
+        m_operatorController.rb.onFalse(m_infeed.stopMotor());
+        m_operatorController.lb.onTrue(m_infeed.runMotorOut());
+        m_operatorController.lb.onFalse(m_infeed.stopMotor());
         
         // m_operatorController.a.onTrue(new InstantCommand(() -> m_gripper.runToCubePosition()));
         // m_operatorController.b.onTrue(new InstantCommand(() -> m_gripper.runToConePosition()));
