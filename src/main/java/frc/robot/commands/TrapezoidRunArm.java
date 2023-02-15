@@ -4,6 +4,7 @@
 package frc.robot.commands;
 import frc.robot.subsystems.arms.Arm;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -24,6 +25,8 @@ public class TrapezoidRunArm extends TrapezoidProfileCommand {
         state -> {
             m_arm.runToPosition(state.position);
           // Use current trajectory state here
+          SmartDashboard.putNumber("Position Trapezoid:", state.position);
+          SmartDashboard.putNumber("Trapezoid Vel",state.velocity);
         });
         m_arm.setDistanceToTravel(Math.abs(endRotations-startRotations));
   }
