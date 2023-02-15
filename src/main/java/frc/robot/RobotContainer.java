@@ -8,6 +8,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 //import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
@@ -17,17 +21,12 @@ import frc.robot.commands.RunArmsToPosition;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
-import frc.robot.commands.auton.BeakAutonCommand;
-import frc.robot.commands.auton.JPath;
-import frc.robot.commands.auton.JPath1;
-import frc.robot.commands.auton.JPath2;
-import frc.robot.commands.auton.TwoPieceAcquirePiece;
-import frc.robot.commands.auton.TwoPieceBalance;
-import frc.robot.commands.auton.TwoPieceScorePiece;
+import frc.robot.subsystems.PoseEstimatorSwerveDrivetrain;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.BeakXBoxController;
 import frc.robot.utilities.Util;
+import frc.robot.utilities.drive.swerve.BeakSwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -45,12 +44,11 @@ public class RobotContainer {
     private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; // Very much subject to change.
 
     // Subsystems
-    private final PracticeSwerveDrivetrain m_drive;
-    // private final SwerveDrivetrain m_drive;
+    private final BeakSwerveDrivetrain m_drive;
     private final Vision m_aprilTagVision;
     private final Vision m_gamePieceVision;
-    private final UpperArm m_upperArm;
-    private final LowerArm m_lowerArm;
+    // private final UpperArm m_upperArm;
+    // private final LowerArm m_lowerArm;
 
 
     // Controller
@@ -71,9 +69,10 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_drive = PracticeSwerveDrivetrain.getInstance();
-        m_upperArm = UpperArm.getInstance();
-        m_lowerArm = LowerArm.getInstance();
+        // m_drive = PracticeSwerveDrivetrain.getInstance();
+        m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
+        // m_upperArm = UpperArm.getInstance();
+        // m_lowerArm = LowerArm.getInstance();
         m_aprilTagVision = new Vision(APRILTAG_CAMERA_NAME);
         m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME);
 
@@ -131,24 +130,30 @@ public class RobotContainer {
                         m_drive));
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
-        m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
-        m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, m_lowerArm, m_upperArm));
-        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
-        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH, m_lowerArm, m_upperArm));
+        // m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
+        // m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, m_lowerArm, m_upperArm));
+        // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
+        // m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH, m_lowerArm, m_upperArm));
 
-        m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
-        m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
+        // m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
+        // m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.4)));
-        m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
+        // m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.4)));
+        // m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        m_driverController.lt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.4)));
-        m_driverController.lt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
+        // m_driverController.lt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.4)));
+        // m_driverController.lt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
-        m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
+        // TODO: Fix this doodoo
+        // m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
+        // m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
+        m_driverController.dpadUp.onTrue(m_drive.generatePath(() -> m_gamePieceVision.getTargetPose(m_drive.getPoseMeters(),
+        new Transform3d(new Translation3d(Units.inchesToMeters(10.),
+                Units.inchesToMeters(-0.), 0.),
+                new Rotation3d()))));
+
+        // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
 
         // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
         // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
@@ -173,6 +178,7 @@ public class RobotContainer {
 
         autoChooser.addOption("Two Piece Top", m_autons.TwoPieceTop());
         autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceTopAcquire());
+        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceTopScore());
     }
 
     public double speedScaledDriverLeftY() {

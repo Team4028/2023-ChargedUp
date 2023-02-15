@@ -51,6 +51,7 @@ public class GeneratePath extends CommandBase {
         m_timer = new Timer();
 
         // Use addRequirements() here to declare subsystem dependencies.
+        addRequirements(drivetrain);
     }
 
     // Called when the command is initially scheduled.
@@ -80,7 +81,6 @@ public class GeneratePath extends CommandBase {
 
         m_timer.reset();
         m_timer.start();
-
     }
 
     // Called every time the scheduler runs while the command is scheduled.

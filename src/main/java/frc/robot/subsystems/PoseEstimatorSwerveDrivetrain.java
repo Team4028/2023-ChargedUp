@@ -17,6 +17,8 @@ import frc.robot.utilities.units.Velocity;
 
 import java.io.IOException;
 
+import org.littletonrobotics.junction.LoggedRobot;
+
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 import edu.wpi.first.math.VecBuilder;
@@ -27,7 +29,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -208,28 +209,23 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
 
     @Override
     public void periodic() {
-        if (DriverStation.isEnabled()) {
-            updateOdometry();
-        }
-
-        if (resetTimer == 100) {
-            String resetCaniv = "caniv -r -d " + CAN_BUS;
-            try {
-                Runtime.getRuntime().exec(resetCaniv);
-            } catch (IOException excep) {
-                System.out.println("Something went wrong resetting canivore");
+        if (LoggedRobot.isReal()) {
+            if (resetTimer == 100) {
+                String resetCaniv = "caniv -r -d " + CAN_BUS;
+                try {
+                    Runtime.getRuntime().exec(resetCaniv);
+                } catch (IOException excep) {
+                    System.out.println("Something went wrong resetting canivore");
+                }
             }
         }
 
-        if (resetTimer > 200) {
-            SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getTurningEncoderRadians()));
-            SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));
-            SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getTurningEncoderRadians()));
-            SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getTurningEncoderRadians()));
+        if (resetTimer > 200 || LoggedRobot.isSimulation()) {
+            updateOdometry();
             m_field.setRobotPose(getPoseMeters());
             SmartDashboard.putData(m_field);
-
-            SmartDashboard.putNumber("Heading", getRotation2d().getDegrees());
+        
+            logData();
         } else {
             resetTimer++;
         }

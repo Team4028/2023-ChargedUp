@@ -29,14 +29,14 @@ public class Trajectories {
 
     public static PathPlannerTrajectory TwoPieceAcquirePiece(BeakDrivetrain drivetrain) {
         return PathPlanner.loadPath("2 Piece Acquire Piece",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
     }
 
     public static PathPlannerTrajectory TwoPieceScorePiece(BeakDrivetrain drivetrain) {
         return PathPlanner.loadPath("2 Piece Score Piece",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75,
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.75);
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
     }
 
     // public static Trajectory getTrajectory(String path) {

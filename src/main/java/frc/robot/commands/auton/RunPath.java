@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.utilities.drive.BeakDrivetrain;
@@ -24,7 +25,7 @@ public class RunPath extends CommandBase {
 
     private Timer m_timer;
 
-    private final PathPlannerTrajectory m_traj;
+    private PathPlannerTrajectory m_traj;
 
     private Pose2d m_currentPose;
 
@@ -55,6 +56,9 @@ public class RunPath extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        // Transform the trajectory based on the specified alliance
+        m_traj = PathPlannerTrajectory.transformTrajectoryForAlliance(m_traj, DriverStation.getAlliance());
+
         // Set up PID controllers
         m_xController = m_drivetrain.createDriveController();
         m_yController = m_drivetrain.createDriveController();

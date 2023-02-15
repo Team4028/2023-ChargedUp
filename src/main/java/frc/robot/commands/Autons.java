@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -16,18 +15,12 @@ import frc.robot.subsystems.Vision;
 import frc.robot.utilities.drive.BeakDrivetrain;
 import frc.robot.utilities.drive.Trajectories;
 
-/** Add your docs here. */
+/** Stores all autonomous routines and helper functions. */
 public class Autons {
+    // Global Subsystems
     private final BeakDrivetrain m_drivetrain;
     private final Vision m_aprilTagVision;
     private final Vision m_gamePieceVision;
-
-    /**
-     * This is a temporary storage variable for commands that use path generation.
-     * 
-     * May be unnecessary...
-     */
-    private Pose2d desiredPose;
 
     public Autons(BeakDrivetrain drivetrain, Vision aprilTagVision, Vision gamePieceVision) {
         m_drivetrain = drivetrain;
@@ -37,9 +30,26 @@ public class Autons {
 
     public Command TwoPieceTopAcquire() {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.TwoPieceAcquirePiece(m_drivetrain),
-                m_drivetrain.getTrajectoryCommand(Trajectories.TwoPieceAcquirePiece(m_drivetrain)),
-                new WaitCommand(0.2),
-                m_drivetrain.getTrajectoryCommand(Trajectories.TwoPieceScorePiece(m_drivetrain)));
+                m_drivetrain.getTrajectoryCommand(Trajectories.TwoPieceAcquirePiece(m_drivetrain))
+                // new WaitCommand(0.2),
+                // m_drivetrain.generatePath(() -> m_gamePieceVision.getTargetPose(m_drivetrain.getPoseMeters(),
+                //         new Transform3d(new Translation3d(Units.inchesToMeters(10.),
+                //                 Units.inchesToMeters(-0.), 0.),
+                //                 new Rotation3d()))));
+        );
+
+        return cmd.resetPoseAndRun();
+    }
+
+    public Command TwoPieceTopScore() {
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.TwoPieceScorePiece(m_drivetrain),
+                m_drivetrain.getTrajectoryCommand(Trajectories.TwoPieceScorePiece(m_drivetrain))
+                // new WaitCommand(0.2),
+                // m_drivetrain.generatePath(() -> m_gamePieceVision.getTargetPose(m_drivetrain.getPoseMeters(),
+                //         new Transform3d(new Translation3d(Units.inchesToMeters(10.),
+                //                 Units.inchesToMeters(-0.), 0.),
+                //                 new Rotation3d()))));
+        );
 
         return cmd.resetPoseAndRun();
     }
