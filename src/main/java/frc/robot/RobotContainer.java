@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.CurrentZero;
 import frc.robot.commands.RunArmsToPosition;
-import frc.robot.subsystems.arms.Arm;
+import frc.robot.subsystems.arms.Arm; 
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.infeed.Infeed;
@@ -155,12 +155,12 @@ public class RobotContainer {
 
         m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
 
-        m_operatorController.a.onTrue(m_manipulator.lowCube());
-        m_operatorController.b.onTrue(m_manipulator.lowCone());
-        m_operatorController.x.onTrue(m_manipulator.midCube());
-        m_operatorController.y.onTrue(m_manipulator.midCone());
-        m_operatorController.dpadDown.onTrue(m_manipulator.highCube());
-        m_operatorController.dpadUp.onTrue(m_manipulator.highCone());
+        // m_operatorController.a.onTrue(m_manipulator.lowCube());
+        // m_operatorController.b.onTrue(m_manipulator.lowCone());
+        // m_operatorController.x.onTrue(m_manipulator.midCube());
+        // m_operatorController.y.onTrue(m_manipulator.midCone());
+        // m_operatorController.dpadDown.onTrue(m_manipulator.highCube());
+        // m_operatorController.dpadUp.onTrue(m_manipulator.highCone());
 
         m_operatorController.rt.onTrue(m_wrist.runMotorUp());
         m_operatorController.rt.onFalse(m_wrist.stopMotor());

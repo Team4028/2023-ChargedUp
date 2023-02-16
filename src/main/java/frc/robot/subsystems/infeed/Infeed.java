@@ -20,7 +20,7 @@ public class Infeed extends SubsystemBase {
     public Command runMotorIn() {
         return runOnce(
                 () -> {
-                    m_motor.set(0.1);
+                    m_motor.set(0.4);
                 });
     }
 
@@ -34,7 +34,7 @@ public class Infeed extends SubsystemBase {
     public Command runMotorOut() {
         return runOnce(
                 () -> {
-                    m_motor.set(-0.1);
+                    m_motor.set(-0.4);
                 });
     }
 

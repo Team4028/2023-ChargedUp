@@ -15,6 +15,10 @@ public class Wrist extends SubsystemBase {
     /** Creates a new Wrist. */
     public Wrist() {
         m_motor = new BeakSparkMAX(12);
+        
+        m_motor.restoreFactoryDefault();
+        m_motor.setSmartCurrentLimit(40);
+        m_motor.setInverted(true);
 
         m_motor.setPIDF(0.2, 0, 0, 0, 0);
     }
@@ -22,7 +26,7 @@ public class Wrist extends SubsystemBase {
     public Command runMotorUp() {
         return runOnce(
                 () -> {
-                    m_motor.set(0.2);
+                    m_motor.set(1.0);
                 });
     }
 
@@ -36,7 +40,7 @@ public class Wrist extends SubsystemBase {
     public Command runMotorDown() {
         return runOnce(
                 () -> {
-                    m_motor.set(-0.2);
+                    m_motor.set(-1.0);
                 });
     }
 
