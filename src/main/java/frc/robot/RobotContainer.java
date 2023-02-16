@@ -56,6 +56,7 @@ public class RobotContainer {
     private final LowerArm m_lowerArm;
     private final Manipulator m_manipulator;
     private final Infeed m_infeed;
+    private final Wrist m_wrist;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -81,6 +82,7 @@ public class RobotContainer {
         m_vision = Vision.getInstance();
         m_manipulator = Manipulator.getInstance();
         m_infeed = Infeed.getInstance();
+        m_wrist = Wrist.getInstance();
 
         switch (Constants.currentMode) {
             // TODO
@@ -160,17 +162,27 @@ public class RobotContainer {
         m_operatorController.dpadDown.onTrue(m_manipulator.highCube());
         m_operatorController.dpadUp.onTrue(m_manipulator.highCone());
 
+        m_operatorController.rt.onTrue(m_wrist.runMotorUp());
+        m_operatorController.rt.onFalse(m_wrist.stopMotor());
+        m_operatorController.lt.onTrue(m_wrist.runMotorDown());
+        m_operatorController.lt.onFalse(m_wrist.stopMotor());
+
         m_operatorController.rb.onTrue(m_infeed.runMotorIn());
         m_operatorController.rb.onFalse(m_infeed.stopMotor());
         m_operatorController.lb.onTrue(m_infeed.runMotorOut());
         m_operatorController.lb.onFalse(m_infeed.stopMotor());
-        
-        // m_operatorController.a.onTrue(new InstantCommand(() -> m_gripper.runToCubePosition()));
-        // m_operatorController.b.onTrue(new InstantCommand(() -> m_gripper.runToConePosition()));
 
-        // m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_wrist.runToLowPosition()));
-        // m_operatorController.x.onTrue(new InstantCommand(() -> m_wrist.runToMediumPosition()));
-        // m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_wrist.runToHighPosition()));
+        // m_operatorController.a.onTrue(new InstantCommand(() ->
+        // m_gripper.runToCubePosition()));
+        // m_operatorController.b.onTrue(new InstantCommand(() ->
+        // m_gripper.runToConePosition()));
+
+        // m_operatorController.dpadDown.onTrue(new InstantCommand(() ->
+        // m_wrist.runToLowPosition()));
+        // m_operatorController.x.onTrue(new InstantCommand(() ->
+        // m_wrist.runToMediumPosition()));
+        // m_operatorController.dpadUp.onTrue(new InstantCommand(() ->
+        // m_wrist.runToHighPosition()));
     }
 
     private void initAutonChooser() {

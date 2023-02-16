@@ -21,50 +21,50 @@ public class Manipulator extends SubsystemBase {
 
     public Command lowCube() {
         return runOnce(
-            () -> {
-                m_gripper.runToCubePosition();
-                m_wrist.runToLowPosition();
-            });
+                () -> {
+                    m_gripper.runToCubePosition();
+                    m_wrist.runToLowPosition();
+                });
     }
 
     public Command lowCone() {
         return runOnce(
-            () -> {
-                m_gripper.runToConePosition();
-                m_wrist.runToLowPosition();
-            });
+                () -> {
+                    m_gripper.runToConePosition();
+                    m_wrist.runToLowPosition();
+                });
     }
 
     public Command midCube() {
         return runOnce(
-            () -> {
-                m_gripper.runToCubePosition();
-                m_wrist.runToMediumPosition();
-            });
+                () -> {
+                    m_gripper.runToCubePosition();
+                    m_wrist.runToMediumPosition();
+                });
     }
 
     public Command midCone() {
         return runOnce(
-            () -> {
-                m_gripper.runToConePosition();
-                m_wrist.runToMediumPosition();
-            });
+                () -> {
+                    m_gripper.runToConePosition();
+                    m_wrist.runToMediumPosition();
+                });
     }
 
     public Command highCube() {
         return runOnce(
-            () -> {
-                m_gripper.runToCubePosition();
-                m_wrist.runToHighPosition();
-            });
+                () -> {
+                    m_gripper.runToCubePosition();
+                    m_wrist.runToHighPosition();
+                });
     }
 
     public Command highCone() {
         return runOnce(
-            () -> {
-                m_gripper.runToConePosition();
-                m_wrist.runToHighPosition();
-            });
+                () -> {
+                    m_gripper.runToConePosition();
+                    m_wrist.runToHighPosition();
+                });
     }
 
     public static Manipulator getInstance() {

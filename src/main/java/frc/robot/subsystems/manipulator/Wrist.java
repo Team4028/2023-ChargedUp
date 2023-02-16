@@ -4,42 +4,74 @@
 
 package frc.robot.subsystems.manipulator;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.motor.BeakSparkMAX;
 
-public class Wrist {
-    private TalonSRX m_motor;
+public class Wrist extends SubsystemBase {
+    private static Wrist m_instance;
+    private BeakSparkMAX m_motor;
 
     /** Creates a new Wrist. */
     public Wrist() {
-        m_motor = new TalonSRX(12);
+        m_motor = new BeakSparkMAX(12);
 
-        m_motor.config_kP(0, 0.2);
-        m_motor.config_kI(0, 0);
-        m_motor.config_kD(0, 0);
+        m_motor.setPIDF(0.2, 0, 0, 0, 0);
     }
 
-    public void runMotorUp() {
-        m_motor.set(ControlMode.PercentOutput, 0.2);
+    public Command runMotorUp() {
+        return runOnce(
+                () -> {
+                    m_motor.set(0.2);
+                });
     }
 
-    public void runMotorDown() {
-        m_motor.set(ControlMode.PercentOutput, -0.2);
+    public Command stopMotor() {
+        return runOnce(
+                () -> {
+                    m_motor.set(0);
+                });
     }
 
-    public void runMotorToPosition(double position) {
-        m_motor.set(ControlMode.Position, position);
+    public Command runMotorDown() {
+        return runOnce(
+                () -> {
+                    m_motor.set(-0.2);
+                });
     }
 
-    public void runToLowPosition() {
-        runMotorToPosition(0. * 4096);
+    public Command runMotorToPosition(double position) {
+        return runOnce(
+                () -> {
+                    m_motor.setPositionMotorRotations(position);
+                });
     }
 
-    public void runToMediumPosition() {
-        runMotorToPosition(10. * 4096);
+    public Command runToLowPosition() {
+        return runOnce(
+                () -> {
+                    runMotorToPosition(0.);
+                });
     }
 
-    public void runToHighPosition() {
-        runMotorToPosition(20 * 4096);
+    public Command runToMediumPosition() {
+        return runOnce(
+                () -> {
+                    runMotorToPosition(10.);
+                });
+    }
+
+    public Command runToHighPosition() {
+        return runOnce(
+                () -> {
+                    runMotorToPosition(20.);
+                });
+    }
+
+    public static Wrist getInstance() {
+        if (m_instance == null) {
+            m_instance = new Wrist();
+        }
+        return m_instance;
     }
 }

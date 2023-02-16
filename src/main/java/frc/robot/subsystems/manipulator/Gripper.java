@@ -18,9 +18,9 @@ public class Gripper {
     public Gripper() {
         m_motor = new TalonSRX(11);
         m_solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
-        
+
         m_motor.config_kP(0, 0.2);
-        m_motor.config_kI(0,0);
+        m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
     }
 
@@ -43,7 +43,7 @@ public class Gripper {
     public void runToCubePosition() {
         runMotorToPosition(10. * 4096);
     }
-    
+
     public void runToConePosition() {
         runMotorToPosition(30. * 4096);
     }
