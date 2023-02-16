@@ -6,6 +6,8 @@ package frc.robot.commands.auton;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -47,7 +49,7 @@ public class GeneratePath extends CommandBase {
                 0.0254, // 1 inch
                 0.0254,
                 Rotation2d.fromDegrees(1.0));
-        
+
         m_timer = new Timer();
 
         // Use addRequirements() here to declare subsystem dependencies.
@@ -58,6 +60,10 @@ public class GeneratePath extends CommandBase {
     @Override
     public void initialize() {
         m_desiredPose = m_poseSupplier.get();
+
+        if (m_desiredPose.equals(m_drivetrain.getPoseMeters()) || m_desiredPose.equals(new Pose2d())) {
+            this.cancel();
+        }
 
         // Set up PID controllers
         m_xController = m_drivetrain.createGeneratedDriveController();
@@ -79,6 +85,8 @@ public class GeneratePath extends CommandBase {
         // Generate a trajectory and start the timer
         m_traj = m_drivetrain.generateTrajectoryToPose(m_desiredPose);
 
+        Logger.getInstance().recordOutput("Desired Pose", m_desiredPose);
+
         m_timer.reset();
         m_timer.start();
     }
@@ -89,18 +97,20 @@ public class GeneratePath extends CommandBase {
         // Gets the setpoint--i.e. the next target position. This is used
         // by the drive controller to determine "where" it should be
         // on the next cycle.
-        m_setpoint = (PathPlannerState) m_traj.sample(m_timer.get() + 0.02);
+        if (m_traj.getStates().size() > 0) {
+            m_setpoint = (PathPlannerState) m_traj.sample(m_timer.get() + 0.02);
 
-        // Gets the current pose
-        m_currentPose = m_drivetrain.getPoseMeters();
+            // Gets the current pose
+            m_currentPose = m_drivetrain.getPoseMeters();
 
-        // The drive controller's calculation takes in the current position
-        // and the target position, and outputs a ChassisSpeeds object.
-        // This is then passed into the drivetrain's drive method.
-        m_drivetrain.drive(
-                m_driveController.calculate(
-                        m_currentPose,
-                        m_setpoint));
+            // The drive controller's calculation takes in the current position
+            // and the target position, and outputs a ChassisSpeeds object.
+            // This is then passed into the drivetrain's drive method.
+            m_drivetrain.drive(
+                    m_driveController.calculate(
+                            m_currentPose,
+                            m_setpoint));
+        }
     }
 
     // Called once the command ends or is interrupted.

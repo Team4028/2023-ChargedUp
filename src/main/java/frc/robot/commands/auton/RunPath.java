@@ -86,7 +86,11 @@ public class RunPath extends CommandBase {
         // Gets the setpoint--i.e. the next target position. This is used
         // by the drive controller to determine "where" it should be
         // on the next cycle.
-        m_setpoint = (PathPlannerState) m_traj.sample(m_timer.get() + 0.02);
+        if (m_traj.getStates().size() > 0) {
+            m_setpoint = (PathPlannerState) m_traj.sample(m_timer.get() + 0.02);
+        } else {
+            m_setpoint = new PathPlannerState();
+        }
 
         // Gets the current pose
         m_currentPose = m_drivetrain.getPoseMeters();
