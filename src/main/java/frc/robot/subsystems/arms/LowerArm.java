@@ -7,17 +7,23 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * The lower Argos Arm
  */
 public class LowerArm extends Arm {
     private static LowerArm m_instance;
+    private final double kS = 0.33069;
+    private final double kG = 0.2554;
+    private final double kV = 0.10667;
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
+        ffmodel = new ElevatorFeedforward(kS, kG, kV);
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
         super.initArm();
@@ -51,10 +57,15 @@ public class LowerArm extends Arm {
     public CommandBase exampleMethodCommand() {
         // Inline construction of command goes here.
         // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return runOnce(
-                () -> {
-                    /* one-time action goes here */
-                });
+        return runOnce(() -> {
+            /* one-time action goes here */
+        });
+        // THIS IS A CURSED WAY TO DO 2 COMMANDS
+        // return new SequentialCommandGroup(runOnce(()->{
+        // //run wrist
+        // }),runOnce(()->{
+        // //run gripper
+        // }));
     }
 
     /**

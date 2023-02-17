@@ -6,7 +6,7 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -16,9 +16,13 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class UpperArm extends Arm {
 
     private static UpperArm m_instance;
+    private final double kS = 0.6;
+    private final double kG = 0.01;
+    private final double kV = 0.05;
 
     /** Creates a new UpperArm. */
     public UpperArm() {
+        ffmodel = new ElevatorFeedforward(kS, kG, kV);
         m_motor = new CANSparkMax(9, MotorType.kBrushless);
         super.initArm();
 

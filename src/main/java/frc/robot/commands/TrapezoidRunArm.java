@@ -23,7 +23,8 @@ public class TrapezoidRunArm extends TrapezoidProfileCommand {
             // Initial state
             new TrapezoidProfile.State(startRotations,0)),
         state -> {
-            m_arm.runToPosition(state.position);
+            
+            m_arm.runToPosition(state.position, m_arm.ffmodel.calculate(state.velocity));
           // Use current trajectory state here
           SmartDashboard.putNumber("Position Trapezoid:", state.position);
           SmartDashboard.putNumber("Trapezoid Vel",state.velocity);

@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +26,7 @@ public abstract class Arm extends SubsystemBase {
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
     protected double m_pidPos, m_distanceToTravel = 0;
+    public ElevatorFeedforward ffmodel;
 
     public enum ArmPositions {
         RETRACTED(2., 2.),
@@ -51,25 +53,22 @@ public abstract class Arm extends SubsystemBase {
      * <p>
      * MUST be run after initializing the SparkMAX
      */
-    protected void initArm()
-    {
+    protected void initArm() {
         m_encoder = m_motor.getEncoder();
         m_motor.setSmartCurrentLimit(40);
         m_pid = m_motor.getPIDController();
 
-        kP = 8e-7;
-        kI = 1e-7;
-        kD = 1e-8;
-        kIz = 0;
-        kFF = 0.000156;
-
+        kP = 0.4;
+        kI = 0.0;
+        kD = 0.0;
+        kIz = 0.0;
+        kFF = 0.0;
         kMaxOutput = .9;
         kMinOutput = -.9;
-        allowedErr = 0.1;
-
         // smart motion coefficients
         maxVel = 7000;
         maxAcc = 14000;
+        allowedErr = 0.1;
 
         m_pid.setP(kP);
         m_pid.setI(kI);
@@ -97,9 +96,25 @@ public abstract class Arm extends SubsystemBase {
         return m_motor.getOutputCurrent();
     }
 
+    /**
+     * Runs the motor to a place with position PID
+     * 
+     * @param position the encoder position to run it to
+     */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        m_pidPos = position;        
+        m_pidPos = position;
+    }
+
+    /**
+     * Runs the motor to a place with position PID & feedForward
+     * 
+     * @param position    the encoder position to run it to
+     * @param feedForward The return of {@code ElevatorFeedForward.calculate();}
+     */
+    public void runToPosition(double position, double feedForward) {
+        m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
+        m_pidPos = position;
     }
 
     public double getError() {
@@ -126,7 +141,8 @@ public abstract class Arm extends SubsystemBase {
     public Command exampleMethodCommand() {
         // Inline construction of command goes here.
         // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return new InstantCommand(() -> {});
+        return new InstantCommand(() -> {
+        });
     }
 
     /**
@@ -144,9 +160,12 @@ public abstract class Arm extends SubsystemBase {
         return m_distanceToTravel;
     }
 
-    public void setDistanceToTravel(double dist){
+    public void setDistanceToTravel(double dist) {
         m_distanceToTravel = dist;
     }
-    public static Arm getInstance() {return null;}
+
+    public static Arm getInstance() {
+        return null;
+    }
 
 }
