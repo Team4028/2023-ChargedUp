@@ -28,8 +28,10 @@ import frc.robot.commands.auton.TestPath;
 import frc.robot.commands.auton.TwoPieceAcquirePiece;
 import frc.robot.commands.auton.TwoPieceDriveUp;
 import frc.robot.commands.auton.TwoPieceScorePiece;
+import frc.robot.subsystems.Infeed;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Wrist;
 import frc.robot.utilities.BeakXBoxController;
 import frc.robot.utilities.Util;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,10 +52,11 @@ public class RobotContainer {
     private final Vision m_vision;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
-
+    private final Infeed m_infeed;
+    private final Wrist m_wrist;
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-    //private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
+    private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
@@ -71,7 +74,8 @@ public class RobotContainer {
         m_upperArm = UpperArm.getInstance();
         m_lowerArm=LowerArm.getInstance();
         m_vision = Vision.getInstance();
-
+        m_infeed=Infeed.getInstance();
+        m_wrist=Wrist.getInstance();
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations
@@ -142,15 +146,14 @@ public class RobotContainer {
 
         m_driverController.back.onTrue(new CurrentZero(m_upperArm,-0.1).andThen(new CurrentZero(m_lowerArm,-0.1)));
 
-        // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
-        // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
-        // m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
-        // m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
-        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(-0.6)));
-        // m_operatorController.lb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.rb.whileTrue(new InstantCommand(()->m_arm2.runArm(0.2)));
-        // m_operatorController.rb.whileFalse(new InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
+        m_operatorController.rb.onTrue(m_infeed.runInfeed(0.4));
+        m_operatorController.rb.onFalse(m_infeed.runInfeed(0.0));
+        m_operatorController.lb.onTrue(m_infeed.runInfeed(-0.4));
+        m_operatorController.lb.onFalse(m_infeed.runInfeed(0.0));
+        m_operatorController.rt.onTrue(m_wrist.runWrist(0.4));
+        m_operatorController.rt.onFalse(m_wrist.runWrist(0.0));
+        m_operatorController.lt.onTrue(m_wrist.runWrist(-0.4));
+        m_operatorController.lt.onFalse(m_wrist.runWrist(0.0));
     }
 
     private void initAutonChooser() {
