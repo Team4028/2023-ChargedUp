@@ -30,9 +30,9 @@ public abstract class Arm extends SubsystemBase {
 
     public enum ArmPositions {
         RETRACTED(2., 2.),  //2.
-        SCORE_MID(22, 2.), //52
-        SCORE_HIGH(28, 2.),  //80
-        ACQUIRE_FLOOR(9, 2.),  //45
+        SCORE_MID(44, 52.), //52
+        SCORE_HIGH(56, 80.),  //80
+        ACQUIRE_FLOOR(9, 40.),  //40
         THIRTY(11.33, 2.),  //31.05
         SIXTY(19.57, 2.), //53.62
         NINETY(27.81, 2.);  //76.2
@@ -58,9 +58,9 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setSmartCurrentLimit(40);
         m_pid = m_motor.getPIDController();
 
-        kP = .9;
+        kP = .1;
         kI = 0.0;
-        kD = 2.4;
+        kD = 0.;
         kIz = 0.0;
         kFF = 0.0;
         kMaxOutput = .9;

@@ -32,15 +32,15 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                         // Then waits a period based on the distance needed to travel
                         // and then begins extending the upper arm.
                         new TrapezoidRunArm(maxVel, maxAccel, m_lowerarm.getEncoderPosition(), targetPositions.lowerPosition, lowerArm) 
-                                .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() / Constants.ArmConstants.EXTEND_COEFFICIENT)
-                                    .andThen(new TrapezoidRunArm(maxVel, maxAccel, m_upperarm.getEncoderPosition(), targetPositions.upperPosition, upperArm))),
+                                /*.alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() / Constants.ArmConstants.EXTEND_COEFFICIENT)*/
+                                    .andThen(new TrapezoidRunArm(maxVel, maxAccel, m_upperarm.getEncoderPosition(), targetPositions.upperPosition, upperArm)),
                         // RETRACTING COMMAND
                         // Begins retracting upper arm,
                         // Then waits a period based on the distance needed to travel
                         // and then begins retracting the lower arm.
-                        new TrapezoidRunArm(maxVel, maxAccel, m_lowerarm.getEncoderPosition(), targetPositions.lowerPosition, lowerArm)
-                                .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() / Constants.ArmConstants.RETRACT_COEFFICIENT)
-                                    .andThen(new TrapezoidRunArm(maxVel, maxAccel, m_upperarm.getEncoderPosition(), targetPositions.upperPosition, upperArm))),
+                        new TrapezoidRunArm(maxVel, maxAccel, m_upperarm.getEncoderPosition(), targetPositions.upperPosition, upperArm)
+                                /*.alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() / Constants.ArmConstants.RETRACT_COEFFICIENT)*/
+                                    .andThen(new TrapezoidRunArm(maxVel, maxAccel, m_lowerarm.getEncoderPosition(), targetPositions.lowerPosition, lowerArm)),
                         () -> targetPositions.upperPosition > upperArm.getEncoderPosition()));
     }
 }

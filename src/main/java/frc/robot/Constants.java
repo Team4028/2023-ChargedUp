@@ -41,8 +41,8 @@ public final class Constants {
     }
 
     public static final class ArmConstants {
-        public static final double EXTEND_COEFFICIENT = 56;
-        public static final double RETRACT_COEFFICIENT = 152;
+        public static final double EXTEND_COEFFICIENT = 116.1;
+        public static final double RETRACT_COEFFICIENT = 156.58;
         public static final double EXTEND_WAIT_INTERVAL = 0.2;
         public static final double RETRACT_WAIT_INTERVAL = 0.4;
 
