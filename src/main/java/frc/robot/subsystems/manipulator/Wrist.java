@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.manipulator;
 
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.motor.BeakSparkMAX;
@@ -11,6 +13,8 @@ import frc.robot.utilities.motor.BeakSparkMAX;
 public class Wrist extends SubsystemBase {
     private static Wrist m_instance;
     private BeakSparkMAX m_motor;
+
+    private SparkMaxAbsoluteEncoder m_absoluteEncoder;
 
     /** Creates a new Wrist. */
     public Wrist() {
@@ -21,6 +25,15 @@ public class Wrist extends SubsystemBase {
         m_motor.setInverted(false);
 
         m_motor.setPIDF(0.2, 0, 0, 0, 0);
+
+        m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+        
+        // TODO: put this in beaklib
+        // BeakSparkMAXAbsoluteEncoder
+        m_motor.getPIDController().setFeedbackDevice(m_absoluteEncoder);
+
+        m_absoluteEncoder.setZeroOffset(0);
+
     }
 
     public Command runMotorUp() {
