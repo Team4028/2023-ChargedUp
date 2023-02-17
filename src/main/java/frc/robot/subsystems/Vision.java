@@ -21,22 +21,27 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase {
-    private PhotonCamera m_camera;
-    private AprilTagFieldLayout m_layout;
+    private final PhotonCamera m_camera;
+    private final AprilTagFieldLayout m_layout;
 
     private double m_latestLatency;
 
-    // private static final String CAMERA_NAME = "Global_Shutter_Camera";
+    private final Pose3d m_camToRobot;
+    private final boolean m_inverted;
 
-    private static final Pose3d ROBOT_TO_CAMERA = new Pose3d(Units.inchesToMeters(12.), Units.inchesToMeters(2.), 0.,
-            new Rotation3d(0., Units.degreesToRadians(56.), Units.degreesToRadians(0.)));
-
-    /** Creates a new Vision. */
-    public Vision(String cameraName) {
+    /** Creates a new Vision.
+     * @param inverted true for apriltags and false for others.
+     */
+    public Vision(String cameraName, Pose3d camToRobot, boolean inverted) {
         m_camera = new PhotonCamera(cameraName);
+
+        m_camToRobot = camToRobot;
+        m_inverted = inverted;
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
@@ -111,12 +116,16 @@ public class Vision extends SubsystemBase {
             // WARNING: The following code is scuffed. Please proceed with caution.
             Pose2d newPose = scoringPose.toPose2d();
 
-            Rotation2d newRotation = Rotation2d.fromDegrees(newPose.getRotation().getDegrees() - 180.);
+            Rotation2d newRotation = Rotation2d.fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
 
             Pose2d finalPose = new Pose2d(newPose.getTranslation(), newRotation).plus(
                     new Transform2d(
-                            ROBOT_TO_CAMERA.getTranslation().toTranslation2d(),
-                            ROBOT_TO_CAMERA.getRotation().toRotation2d()));
+                            m_camToRobot.getTranslation().toTranslation2d(),
+                            m_camToRobot.getRotation().toRotation2d()));
+
+            Field2d field = new Field2d();
+            field.setRobotPose(finalPose);
+            SmartDashboard.putData("Vision Desired Pose", field);
             return finalPose;
         }
 

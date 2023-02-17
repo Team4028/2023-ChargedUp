@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 //import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -43,6 +44,10 @@ public class RobotContainer {
     private static final String APRILTAG_CAMERA_NAME = "Global_Shutter_Camera";
     private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; // Very much subject to change.
 
+    private static final Pose3d APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.), Units.inchesToMeters(2.), 0.,
+    new Rotation3d(0., Units.degreesToRadians(56.), Units.degreesToRadians(0.)));
+    private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
+
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
     private final Vision m_aprilTagVision;
@@ -73,8 +78,8 @@ public class RobotContainer {
         m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
         // m_upperArm = UpperArm.getInstance();
         // m_lowerArm = LowerArm.getInstance();
-        m_aprilTagVision = new Vision(APRILTAG_CAMERA_NAME);
-        m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME);
+        m_aprilTagVision = new Vision(APRILTAG_CAMERA_NAME, APRILTAG_CAMERA_TO_ROBOT, true);
+        m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME, GAME_PIECE_CAMERA_TO_ROBOT, false);
 
         m_autons = new Autons(m_drive, m_aprilTagVision, m_gamePieceVision);
 
@@ -149,9 +154,10 @@ public class RobotContainer {
         // m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
         m_driverController.dpadUp.onTrue(m_drive.generatePath(() -> m_gamePieceVision.getTargetPose(m_drive.getPoseMeters(),
-        new Transform3d(new Translation3d(Units.inchesToMeters(10.),
+        new Transform3d(new Translation3d(Units.inchesToMeters(5.),
                 Units.inchesToMeters(-0.), 0.),
                 new Rotation3d()))));
+        m_driverController.dpadDown.onTrue(new InstantCommand(() -> m_gamePieceVision.togglePipeline()));
 
         // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
 
