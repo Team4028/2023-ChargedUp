@@ -10,15 +10,16 @@ import frc.robot.subsystems.arms.Arm;
 /** An example command that uses an example subsystem. */
 public class CurrentZero extends CommandBase {
     private Arm m_arm;
-
+    private double vbus;
     /**
      * Creates a new ExampleCommand.
      *
      * @param subsystem The subsystem used by this command.
      * @return
      */
-    public CurrentZero(Arm arm) {
+    public CurrentZero(Arm arm,double vbus) {
         m_arm = arm;
+        this.vbus=vbus;
         // Use addRequirements() here to declare subsystem dependencies.
 
     }
@@ -26,7 +27,7 @@ public class CurrentZero extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_arm.runArm(-.1);
+        m_arm.runArm(vbus);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

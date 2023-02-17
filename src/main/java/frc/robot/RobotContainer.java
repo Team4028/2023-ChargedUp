@@ -140,7 +140,7 @@ public class RobotContainer {
         m_driverController.rt.whileTrue(new InstantCommand(()->m_lowerArm.runArm(0.4)));
         m_driverController.rt.onFalse(new InstantCommand(()->m_lowerArm.runArm(0.0)));
 
-        m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
+        m_driverController.back.onTrue(new CurrentZero(m_upperArm,-0.1).andThen(new CurrentZero(m_lowerArm,-0.1)));
 
         // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
         // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
