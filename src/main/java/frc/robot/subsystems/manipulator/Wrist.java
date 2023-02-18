@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems.manipulator;
 
-import com.revrobotics.SparkMaxAbsoluteEncoder;
-
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.motor.BeakSparkMAX;
@@ -14,26 +14,27 @@ public class Wrist extends SubsystemBase {
     private static Wrist m_instance;
     private BeakSparkMAX m_motor;
 
-    private SparkMaxAbsoluteEncoder m_absoluteEncoder;
+    private DutyCycleEncoder m_dutyCycleEncoder;
+
+    private double m_targetPosition;
+    private PIDController m_pidController;
 
     /** Creates a new Wrist. */
     public Wrist() {
         m_motor = new BeakSparkMAX(12);
-        
+
         m_motor.restoreFactoryDefault();
         m_motor.setSmartCurrentLimit(25);
         m_motor.setInverted(false);
 
-        m_motor.setPIDF(0.2, 0, 0, 0, 0);
+        m_dutyCycleEncoder = new DutyCycleEncoder(0);
+        m_dutyCycleEncoder.setDutyCycleRange(1, 1024);
 
-        m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-        
-        // TODO: put this in beaklib
-        // BeakSparkMAXAbsoluteEncoder
-        m_motor.getPIDController().setFeedbackDevice(m_absoluteEncoder);
+        m_pidController = new PIDController(0.2, 0, 0);
+    }
 
-        m_absoluteEncoder.setZeroOffset(0);
-
+    public void getAbsoluteEncoderPosition() {
+        m_dutyCycleEncoder.getAbsolutePosition();
     }
 
     public Command runMotorUp() {
@@ -60,7 +61,7 @@ public class Wrist extends SubsystemBase {
     public Command runMotorToPosition(double position) {
         return runOnce(
                 () -> {
-                    m_motor.setPositionMotorRotations(position);
+                    m_targetPosition = position;
                 });
     }
 
@@ -90,5 +91,11 @@ public class Wrist extends SubsystemBase {
             m_instance = new Wrist();
         }
         return m_instance;
+    }
+
+    @Override
+    public void periodic() {
+        m_motor.set(
+                m_pidController.calculate(m_targetPosition - m_dutyCycleEncoder.getAbsolutePosition()));
     }
 }
