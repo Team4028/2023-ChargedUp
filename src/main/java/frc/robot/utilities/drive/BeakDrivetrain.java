@@ -6,6 +6,7 @@ package frc.robot.utilities.drive;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathConstraints;
@@ -237,7 +238,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * @return A {@link Command} to run the trajectory, and stop the
      *         drivetrain.
      */
-    public Command getTrajectoryCommand(PathPlannerTrajectory traj) {
+    public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
         return null;
     }
 

@@ -4,6 +4,7 @@
 
 package frc.robot.utilities.drive;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.LoggedRobot;
@@ -65,8 +66,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         return m_kinematics;
     }
 
-    // TODO: this needs to be fixed up.
-    public Command getTrajectoryCommand(PathPlannerTrajectory traj) {
+    // TODO: this needs to be fixed very badly
+    public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
         return new PPRamseteCommand(
                 traj,
                 this::getPoseMeters,

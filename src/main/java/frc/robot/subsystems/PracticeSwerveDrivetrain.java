@@ -17,21 +17,49 @@ import frc.robot.utilities.units.Velocity;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class PracticeSwerveDrivetrain extends BeakSwerveDrivetrain {
+    // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
+    // you trust your various sensors. Smaller numbers will cause the filter to
+    // "trust" the estimate from that particular component more than the others.
+    // This in turn means the particualr component will have a stronger influence
+    // on the final pose estimate.
+
+    /**
+     * Standard deviations of model states. Increase these numbers to trust your
+     * model's state estimates less. This
+     * matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then
+     * meters.
+     */
+    private static final Vector<N3> m_stateStdDevs = VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+
+    /**
+     * Standard deviations of the vision measurements. Increase these numbers to
+     * trust global measurements from vision
+     * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and
+     * radians.
+     */
+    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.25, 0.25,
+            Units.degreesToRadians(10));
+
     private static final double DRIVE_kP = 0.0125;
     private static final double TURN_kP = 0.2;
     private static final double TURN_kD = 0.0;
 
     private static final double AUTON_kP = 3.;
     private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0. };
-    
+
     private static final double GENERATED_AUTON_kP = 7.5;
     private static final double[] GENERATED_AUTON_DRIVE_GAINS = { GENERATED_AUTON_kP, 0., 0.01 };
 
@@ -157,6 +185,14 @@ public class PracticeSwerveDrivetrain extends BeakSwerveDrivetrain {
                 m_frontRightConfig,
                 m_backLeftConfig,
                 m_backRightConfig);
+
+        m_odom = new SwerveDrivePoseEstimator(
+                m_kinematics,
+                getGyroRotation2d(),
+                getModulePositions(),
+                new Pose2d(),
+                m_stateStdDevs,
+                m_visionMeasurementStdDevs);
     }
 
     public static PracticeSwerveDrivetrain getInstance() {
@@ -170,13 +206,9 @@ public class PracticeSwerveDrivetrain extends BeakSwerveDrivetrain {
     public void periodic() {
         updateOdometry();
 
-        SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getTurningEncoderRadians()));
-        SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));
-        SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getTurningEncoderRadians()));
-        SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getTurningEncoderRadians()));
         m_field.setRobotPose(getPoseMeters());
         SmartDashboard.putData(m_field);
 
-        SmartDashboard.putNumber("Heading", getRotation2d().getDegrees());
+        logData();
     }
 }

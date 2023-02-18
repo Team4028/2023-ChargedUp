@@ -5,7 +5,6 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-//import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -18,7 +17,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.Autons;
 import frc.robot.commands.CurrentZero;
+import frc.robot.commands.RunArm;
 import frc.robot.commands.RunArmsToPosition;
+import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -42,18 +43,18 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 public class RobotContainer {
     // Constants
     private static final String APRILTAG_CAMERA_NAME = "Global_Shutter_Camera";
-    private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; // Very much subject to change.
+    // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; // Very much subject to change.
 
-    private static final Pose3d APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.), Units.inchesToMeters(2.), 0.,
-    new Rotation3d(0., Units.degreesToRadians(56.), Units.degreesToRadians(0.)));
-    private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
+    private static final Pose3d APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-5.), Units.inchesToMeters(6.), 0.,
+    new Rotation3d(0., Units.degreesToRadians(14.), Units.degreesToRadians(0.)));
+    // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
     private final Vision m_aprilTagVision;
-    private final Vision m_gamePieceVision;
+    // private final Vision m_gamePieceVision;
     // private final UpperArm m_upperArm;
-    // private final LowerArm m_lowerArm;
+    private final LowerArm m_lowerArm;
 
 
     // Controller
@@ -62,7 +63,7 @@ public class RobotContainer {
     // BeakXBoxController(1);
 
     // Auton stuff
-    private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     private final Autons m_autons;
 
     // Limiters, etc.
@@ -74,14 +75,14 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        // m_drive = PracticeSwerveDrivetrain.getInstance();
-        m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
+        m_drive = PracticeSwerveDrivetrain.getInstance();
+        // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
         // m_upperArm = UpperArm.getInstance();
-        // m_lowerArm = LowerArm.getInstance();
+        m_lowerArm = LowerArm.getInstance();
         m_aprilTagVision = new Vision(APRILTAG_CAMERA_NAME, APRILTAG_CAMERA_TO_ROBOT, true);
-        m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME, GAME_PIECE_CAMERA_TO_ROBOT, false);
+        // m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME, GAME_PIECE_CAMERA_TO_ROBOT, false);
 
-        m_autons = new Autons(m_drive, m_aprilTagVision, m_gamePieceVision);
+        m_autons = new Autons(m_drive, m_lowerArm, m_aprilTagVision);
 
         switch (Constants.currentMode) {
             // TODO
@@ -135,6 +136,10 @@ public class RobotContainer {
                         m_drive));
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
+        m_driverController.a.onTrue(new InstantCommand(() -> m_lowerArm.runToPosition(0.)));
+        m_driverController.b.onTrue(new RunArm(45., m_lowerArm));
+        m_driverController.x.onTrue(new RunArm(12., m_lowerArm));
+        m_driverController.y.onTrue(new RunArm(14., m_lowerArm));
         // m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
         // m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, m_lowerArm, m_upperArm));
         // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
@@ -153,27 +158,14 @@ public class RobotContainer {
         // m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
         // m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_driverController.dpadUp.onTrue(m_drive.generatePath(() -> m_gamePieceVision.getTargetPose(m_drive.getPoseMeters(),
-        new Transform3d(new Translation3d(Units.inchesToMeters(5.),
-                Units.inchesToMeters(-0.), 0.),
-                new Rotation3d()))));
-        m_driverController.dpadDown.onTrue(new InstantCommand(() -> m_gamePieceVision.togglePipeline()));
+        // m_driverController.dpadUp.onTrue(m_drive.generatePath(() -> m_gamePieceVision.getTargetPose(m_drive.getPoseMeters(),
+        // new Transform3d(new Translation3d(Units.inchesToMeters(5.),
+        //         Units.inchesToMeters(-0.), 0.),
+        //         new Rotation3d()))));
+        // m_driverController.dpadDown.onTrue(new InstantCommand(() -> m_gamePieceVision.togglePipeline()));
 
-        // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
-
-        // m_operatorController.a.whileTrue(new InstantCommand(m_arm2::armTen));
-        // m_operatorController.b.whileTrue(new InstantCommand(m_arm2::armThirty));
-        // m_operatorController.x.whileTrue(new InstantCommand(m_arm2::armSixty));
-        // m_operatorController.y.whileTrue(new InstantCommand(m_arm2::armNintey));
-        // m_operatorController.lb.whileTrue(new
-        // InstantCommand(()->m_arm2.runArm(-0.6)));
-        // m_operatorController.lb.whileTrue(new
-        // InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.rb.whileTrue(new
-        // InstantCommand(()->m_arm2.runArm(0.2)));
-        // m_operatorController.rb.whileFalse(new
-        // InstantCommand(()->m_arm2.runArm(0.0)));
-        // m_operatorController.back.toggleOnTrue(new CurrentZero2(m_arm2));
+        // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));4
+        m_driverController.back.onTrue(new CurrentZero(m_lowerArm));
     }
 
     private void initAutonChooser() {
@@ -211,6 +203,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        return autoChooser.get().resetPoseAndRun();
     }
 }

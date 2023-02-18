@@ -6,11 +6,14 @@ package frc.robot.utilities.drive.swerve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,7 +28,6 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.auton.GeneratePath;
-import frc.robot.commands.auton.RunPath;
 import frc.robot.utilities.drive.BeakDrivetrain;
 import frc.robot.utilities.drive.RobotPhysics;
 
@@ -115,8 +117,22 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     }
 
     // TODO: Put the runpath, etc. commands into BeakLib.
-    public Command getTrajectoryCommand(PathPlannerTrajectory traj) {
-        return new RunPath(traj, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
+    public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
+        // return new RunPath(traj, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
+
+        Command pathFollowingCommand = new PPSwerveControllerCommand(
+            traj,
+            this::getPoseMeters,
+            createDriveController(),
+            createDriveController(),
+            createAutonThetaController(),
+            this::drive,
+            this);
+        
+        return new FollowPathWithEvents(
+            pathFollowingCommand,
+            traj.getMarkers(),
+            eventMap);
     }
 
     public Command generatePath(Supplier<Pose2d> desiredPose) {
