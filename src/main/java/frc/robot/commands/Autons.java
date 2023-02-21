@@ -7,6 +7,8 @@ package frc.robot.commands;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -26,32 +28,57 @@ public class Autons {
     // Global Subsystems
     private final BeakDrivetrain m_drivetrain;
     private final LowerArm m_lowerArm;
-    private final Vision m_aprilTagVision;
-    // private final Vision m_gamePieceVision;
+    private final Vision m_frontAprilTagVision;
+    private final Vision m_rearAprilTagVision;
 
     private final Map<String, Command> m_eventMap;
+
+    public enum TwoPiecePositions {
+        BOTTOM, MIDDLE, TOP
+    }
 
     public Autons(
         BeakDrivetrain drivetrain,
         LowerArm lowerArm,
-        Vision aprilTagVision) {
-        // Vision gamePieceVision) {
+        Vision frontAprilTagVision,
+        Vision rearAprilTagVision) {
         m_drivetrain = drivetrain;
         m_lowerArm = lowerArm;
-        m_aprilTagVision = aprilTagVision;
-        // m_gamePieceVision = gamePieceVision;
+        m_frontAprilTagVision = frontAprilTagVision;
+        m_rearAprilTagVision = rearAprilTagVision;
 
         m_eventMap = new HashMap<String, Command>();
         m_eventMap.put("ArmScoring", new RunArm(45., m_lowerArm));
+        m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
+        m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
+
+        m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
+        m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
     }
 
-    public BeakAutonCommand TwoPieceTopAcquire() {
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.TwoPieceAcquirePiece(m_drivetrain),
-            new AddVisionMeasurement(m_drivetrain, m_aprilTagVision),
+    public BeakAutonCommand TwoPieceAcquire(TwoPiecePositions position) {
+        PathPlannerTrajectory traj;
+        switch (position) {
+            case BOTTOM:
+                traj = Trajectories.TwoPieceBottomAcquirePiece(m_drivetrain);
+                break;
+            case TOP:
+                traj = Trajectories.TwoPieceTopAcquirePiece(m_drivetrain);
+                break;
+            default:
+                System.err.println("Bruh you code is broken " + position);
+                return null;
+        }
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            // new AddVisionMeasurement(m_drivetrain, m_frontAprilTagVision),
             new RunArm(45., m_lowerArm),
             new WaitCommand(0.2),
-            new RunArm(12., m_lowerArm).alongWith(
-                m_drivetrain.getTrajectoryCommand(Trajectories.TwoPieceAcquirePiece(m_drivetrain), m_eventMap)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap).deadlineWith(
+                // new RepeatCommand(new AddVisionMeasurement(m_drivetrain, m_frontAprilTagVision).alongWith(
+                //     new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision))
+                // //
+                // )
             //
             )
         //
@@ -60,25 +87,41 @@ public class Autons {
         return cmd;
     }
 
-    public BeakAutonCommand TwoPieceTopScore() {
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.TwoPieceScorePiece(m_drivetrain),
-            // new AddVisionMeasurement(m_drivetrain, m_aprilTagVision),
-            new RunArm(12., m_lowerArm),
-            m_drivetrain.getTrajectoryCommand(Trajectories.TwoPieceScorePiece(m_drivetrain), m_eventMap)
-                .deadlineWith(
-                    new RepeatCommand(new AddVisionMeasurement(m_drivetrain, m_aprilTagVision))
-                //
-                )
+    public BeakAutonCommand TwoPieceScore(TwoPiecePositions position) {
+        PathPlannerTrajectory traj;
+        switch (position) {
+            case BOTTOM:
+                traj = Trajectories.TwoPieceBottomScorePiece(m_drivetrain);
+                break;
+            case TOP:
+                traj = Trajectories.TwoPieceTopScorePiece(m_drivetrain);
+                break;
+            default:
+                System.err.println("Bruh you code is broken " + position);
+                return null;
+        }
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            new RunArm(10., m_lowerArm),
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+                // .deadlineWith(
+                //     new RepeatCommand(new AddVisionMeasurement(m_drivetrain, m_frontAprilTagVision).alongWith(
+                //         new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision))
+                //     //
+                //     )
+                // //
+                // )
         //
         );
 
         return cmd;
     }
 
-    public BeakAutonCommand TwoPieceTop() {
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.TwoPieceAcquirePiece(m_drivetrain),
-            TwoPieceTopAcquire(),
-            TwoPieceTopScore());
+    public BeakAutonCommand TwoPiece(TwoPiecePositions position) {
+        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            TwoPieceScore(position));
 
         return cmd;
     }
@@ -87,7 +130,7 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.JPath1(m_drivetrain),
             m_drivetrain.getTrajectoryCommand(Trajectories.JPath1(m_drivetrain), m_eventMap),
             new WaitCommand(0.1),
-            m_drivetrain.generatePath(() -> m_aprilTagVision.getTargetPose(m_drivetrain.getPoseMeters(),
+            m_drivetrain.generatePath(() -> m_frontAprilTagVision.getTargetPose(m_drivetrain.getPoseMeters(),
                 new Transform3d(new Translation3d(Units.inchesToMeters(54.),
                     Units.inchesToMeters(-0.), 0.),
                     new Rotation3d()))) // 54 inches away from target

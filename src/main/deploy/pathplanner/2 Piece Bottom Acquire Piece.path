@@ -1,0 +1,101 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.8286222286730291,
+        "y": 0.48670125911680434
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.8286222286730327,
+        "y": 0.48670125911680434
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.891977212525854,
+        "y": 0.8445698319968078
+      },
+      "prevControl": {
+        "x": 3.8919772125258536,
+        "y": 0.8445698319968078
+      },
+      "nextControl": {
+        "x": 5.8919772125258545,
+        "y": 0.8445698319968078
+      },
+      "holonomicAngle": 179.99,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.495228419028266,
+        "y": 0.7729961174208069
+      },
+      "prevControl": {
+        "x": 5.607714358285859,
+        "y": 0.758681374505606
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 1.0181818181818192,
+      "names": [
+        "ArmPickup",
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.09090909090909091,
+      "names": [
+        "ArmRetract",
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.49090909090909096,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.8363636363636333,
+      "names": [
+        "RearLocalize"
+      ]
+    }
+  ]
+}

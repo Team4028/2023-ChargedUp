@@ -26,8 +26,12 @@ public class BeakAutonCommand extends SequentialCommandGroup {
     }
 
     public BeakAutonCommand(BeakDrivetrain drivetrain, PathPlannerTrajectory initialTrajectory, Command... commands) {
+        this(drivetrain, initialTrajectory.getInitialHolonomicPose(), commands);
+    }
+
+    public BeakAutonCommand(BeakDrivetrain drivetrain, Pose2d initialPose, Command... commands) {
         m_drivetrain = drivetrain;
-        setInitialPose(initialTrajectory);
+        setInitialPose(initialPose);
 
         super.addCommands(commands);
         super.addRequirements(drivetrain);
@@ -37,8 +41,8 @@ public class BeakAutonCommand extends SequentialCommandGroup {
         return new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose)).andThen(this);
     }
 
-    protected void setInitialPose(PathPlannerTrajectory initialTrajectory) {
-        this.initialPose = initialTrajectory.getInitialHolonomicPose(); // TODO: specify each drivetrain as holonomic or
+    protected void setInitialPose(Pose2d initialPose) {
+        this.initialPose = initialPose; // TODO: specify each drivetrain as holonomic or
                                                                         // not
     }
 
