@@ -10,13 +10,10 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotState;
-import frc.robot.commands.BlinkLEDs;
 public class LEDs extends SubsystemBase {
     private Color m_color;
     private CANdle m_candle;
     private int r, g, b;
-
     private static LEDs m_instance;
 
     public enum Color {
@@ -58,10 +55,19 @@ public class LEDs extends SubsystemBase {
         m_color = color;
     }
 
-    public Command setBlank() {
+    public void setBlank() {
         setColor(Color.OFF);
-        return setLEDs();
+        setLEDs().ignoringDisable(true).schedule();
     }
+    
+    public Command setOff(){
+        return runOnce(()->{
+            r=0;
+            g=0;
+            b=0;
+        });
+    }
+
 
     public void setClimb() {
         setColor(Color.GREEN);
@@ -87,7 +93,7 @@ public class LEDs extends SubsystemBase {
         SmartDashboard.putNumber("r", r);
         SmartDashboard.putNumber("g", g);
         SmartDashboard.putNumber("b", b);
-        setLEDs().schedule();
+        //setLEDs().schedule();
         m_candle.setLEDs(r, g, b);
     }
 }

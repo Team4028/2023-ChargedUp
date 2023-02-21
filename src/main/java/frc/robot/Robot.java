@@ -11,6 +11,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix.led.CANdle;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.LEDs;
@@ -26,7 +28,7 @@ import frc.robot.subsystems.Limelight;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-
+    private CANdle m_candle;
     private Limelight m_limelight;
     private LEDs m_leds;
     /**
@@ -101,7 +103,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        m_leds.setBlank().schedule();;
+        RobotState.modeBlank();
         m_limelight.setLedMode(1.);
     }
 
