@@ -6,11 +6,13 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 //import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
-
+import com.ctre.phoenix.led.CANdle;
+import frc.robot.subsystems.LEDs;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.BlinkLEDs;
 import frc.robot.commands.CurrentZero;
 import frc.robot.commands.RunArmsToPosition;
 import frc.robot.subsystems.arms.Arm;
@@ -47,13 +49,14 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  */
 public class RobotContainer {
     // Subsystems
-    private final PracticeSwerveDrivetrain m_drive;
+    //private final PracticeSwerveDrivetrain m_drive;
     // private final SwerveDrivetrain m_drive;
-    private final Vision m_vision;
+    /*private final Vision m_vision;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
     private final Infeed m_infeed;
-    private final Wrist m_wrist;
+    private final Wrist m_wrist;*/
+    private final LEDs m_LEDs;
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
     private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
@@ -70,12 +73,14 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_drive = PracticeSwerveDrivetrain.getInstance();
+        /*m_drive = PracticeSwerveDrivetrain.getInstance();
         m_upperArm = UpperArm.getInstance();
         m_lowerArm = LowerArm.getInstance();
         m_vision = Vision.getInstance();
         m_infeed = Infeed.getInstance();
-        m_wrist = Wrist.getInstance();
+        m_wrist = Wrist.getInstance();*/
+        m_LEDs = LEDs.getInstance();
+        RobotState.addSubsystem(m_LEDs);
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations
@@ -119,7 +124,7 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        m_drive.setDefaultCommand(
+        /*m_drive.setDefaultCommand(
                 new RunCommand(() -> m_drive.drive(
                         -speedScaledDriverLeftY(),
                         speedScaledDriverLeftX(),
@@ -147,18 +152,38 @@ public class RobotContainer {
 
         m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
 
-        m_operatorController.rb.onTrue(m_infeed.runInfeed(0.4));
-        m_operatorController.rb.onFalse(m_infeed.runInfeed(0.0));
-        m_operatorController.lb.onTrue(m_infeed.runInfeed(-0.4));
-        m_operatorController.lb.onFalse(m_infeed.runInfeed(0.0));
+        // m_operatorController.rb.onTrue(m_infeed.runInfeed(0.4));
+        // m_operatorController.rb.onFalse(m_infeed.runInfeed(0.0));
+        // m_operatorController.lb.onTrue(m_infeed.runInfeed(-0.4));
+        // m_operatorController.lb.onFalse(m_infeed.runInfeed(0.0));
+
+        //infeed
+        m_operatorController.rb.onTrue(m_infeed.runInfeedIn());
+        m_operatorController.rb.onFalse(m_infeed.stopInfeed());
+        m_operatorController.lb.onTrue(m_infeed.runInfeedOut());
+        m_operatorController.lb.onFalse(m_infeed.stopInfeed());
+
+        //wrist
         m_operatorController.rt.onTrue(m_wrist.runWrist(0.4));
         m_operatorController.rt.onFalse(m_wrist.runWrist(0.0));
         m_operatorController.lt.onTrue(m_wrist.runWrist(-0.4));
-        m_operatorController.lt.onFalse(m_wrist.runWrist(0.0));
+        m_operatorController.lt.onFalse(m_wrist.runWrist(0.0));*/
+
+        //mode
+        m_operatorController.a.onTrue(new InstantCommand(()->{
+            RobotState.toggleClimb();
+        }));
+        m_operatorController.x.onTrue(new InstantCommand(()->{
+            RobotState.modeCube();
+        }));
+        m_operatorController.y.onTrue(new InstantCommand(()->{
+            RobotState.modeCone();
+        }));
+        m_operatorController.b.onTrue(m_LEDs.setBlank());
     }
 
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("Epic Path", new EpicPath(m_drive));
+        /*autoChooser.addDefaultOption("Epic Path", new EpicPath(m_drive));
         autoChooser.addOption("Test Path", new TestPath(m_drive));
         autoChooser.addOption("Carson V Path", new CarsonVPath(m_drive));
         autoChooser.addOption("Sam Path", new SamPath(m_drive));
@@ -168,10 +193,10 @@ public class RobotContainer {
         autoChooser.addOption("J Path", new JPath(m_drive));
         autoChooser.addOption("Two Piece Drive Up", new TwoPieceDriveUp(m_drive));
         autoChooser.addOption("Two Piece Acquire Piece", new TwoPieceAcquirePiece(m_drive));
-        autoChooser.addOption("Two Piece Score Piece", new TwoPieceScorePiece(m_drive));
+        autoChooser.addOption("Two Piece Score Piece", new TwoPieceScorePiece(m_drive));*/
     }
 
-    public double speedScaledDriverLeftY() {
+    /*public double speedScaledDriverLeftY() {
         return m_yLimiter.calculate(Util.speedScale(m_driverController.getLeftYAxis(),
                 DriveConstants.SPEED_SCALE,
                 m_driverController.getRightTrigger()));
@@ -187,7 +212,7 @@ public class RobotContainer {
         return m_xLimiter.calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
                 DriveConstants.SPEED_SCALE,
                 m_driverController.getRightTrigger()));
-    }
+    }*/
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -195,7 +220,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        m_drive.resetOdometry(autoChooser.get().getInitialPose());
+        //m_drive.resetOdometry(autoChooser.get().getInitialPose());
         return autoChooser.get();
     }
 }

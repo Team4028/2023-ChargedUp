@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState;
 import frc.robot.utilities.motor.BeakTalonSRX;
 
 public class Infeed extends SubsystemBase {
@@ -16,9 +17,36 @@ public class Infeed extends SubsystemBase {
     m_motor=new BeakTalonSRX(11);
   }
 
-  public Command runInfeed(double speed){
+//   public Command runInfeed(double speed){
+//     return runOnce(()->{
+//         m_motor.set(speed);
+//     });
+//   }
+
+  public Command runInfeedIn(){
+    //THIS IS FOR EVERYBOT INFEED, REMOVE FOR WILDSTANG INFEED
+    return runOnce(()->{ //TODO: remove w/ wildstang infeed
+        if(RobotState.getState() == RobotState.State.CUBE){
+            m_motor.set(0.4);
+        } else{
+            m_motor.set(-0.4);
+        }
+    });
+  }
+
+  public Command stopInfeed(){
     return runOnce(()->{
-        m_motor.set(speed);
+        m_motor.set(0.0);
+    });
+  }
+
+  public Command runInfeedOut(){
+    return runOnce(()->{
+        if(RobotState.getState() == RobotState.State.CUBE){
+            m_motor.set(-0.4);
+        } else{
+            m_motor.set(0.4);
+        }
     });
   }
 
