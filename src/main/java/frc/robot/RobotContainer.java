@@ -49,13 +49,13 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  */
 public class RobotContainer {
     // Subsystems
-    //private final PracticeSwerveDrivetrain m_drive;
+    private final PracticeSwerveDrivetrain m_drive;
     // private final SwerveDrivetrain m_drive;
-    /*private final Vision m_vision;
+    private final Vision m_vision;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
     private final Infeed m_infeed;
-    private final Wrist m_wrist;*/
+    private final Wrist m_wrist;
     private final LEDs m_LEDs;
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -73,12 +73,12 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        /*m_drive = PracticeSwerveDrivetrain.getInstance();
+        m_drive = PracticeSwerveDrivetrain.getInstance();
         m_upperArm = UpperArm.getInstance();
         m_lowerArm = LowerArm.getInstance();
         m_vision = Vision.getInstance();
         m_infeed = Infeed.getInstance();
-        m_wrist = Wrist.getInstance();*/
+        m_wrist = Wrist.getInstance();
         m_LEDs = LEDs.getInstance();
         RobotState.addSubsystem(m_LEDs);
         switch (Constants.currentMode) {
@@ -124,15 +124,15 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        /*m_drive.setDefaultCommand(
+        m_drive.setDefaultCommand(
                 new RunCommand(() -> m_drive.drive(
                         -speedScaledDriverLeftY(),
                         speedScaledDriverLeftX(),
                         speedScaledDriverRightX(),
                         true),
-                        m_drive));*/
+                        m_drive));
 
-        /*m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
+        m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
         m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
         m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, m_lowerArm, m_upperArm));
         m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
@@ -149,16 +149,10 @@ public class RobotContainer {
 
         m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
         m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
-
-        m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));*/
-
-        // m_operatorController.rb.onTrue(m_infeed.runInfeed(0.4));
-        // m_operatorController.rb.onFalse(m_infeed.runInfeed(0.0));
-        // m_operatorController.lb.onTrue(m_infeed.runInfeed(-0.4));
-        // m_operatorController.lb.onFalse(m_infeed.runInfeed(0.0));
+        m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
 
         //infeed
-        /*m_operatorController.rb.onTrue(m_infeed.runInfeedIn());
+        m_operatorController.rb.onTrue(m_infeed.runInfeedIn());
         m_operatorController.rb.onFalse(m_infeed.stopInfeed());
         m_operatorController.lb.onTrue(m_infeed.runInfeedOut());
         m_operatorController.lb.onFalse(m_infeed.stopInfeed());
@@ -167,7 +161,7 @@ public class RobotContainer {
         m_operatorController.rt.onTrue(m_wrist.runWrist(0.4));
         m_operatorController.rt.onFalse(m_wrist.runWrist(0.0));
         m_operatorController.lt.onTrue(m_wrist.runWrist(-0.4));
-        m_operatorController.lt.onFalse(m_wrist.runWrist(0.0));*/
+        m_operatorController.lt.onFalse(m_wrist.runWrist(0.0));
 
         //mode
         m_operatorController.a.onTrue(new InstantCommand(()->RobotState.toggleClimb()));
@@ -177,7 +171,7 @@ public class RobotContainer {
     }
     
     private void initAutonChooser() {
-        /*autoChooser.addDefaultOption("Epic Path", new EpicPath(m_drive));
+        autoChooser.addDefaultOption("Epic Path", new EpicPath(m_drive));
         autoChooser.addOption("Test Path", new TestPath(m_drive));
         autoChooser.addOption("Carson V Path", new CarsonVPath(m_drive));
         autoChooser.addOption("Sam Path", new SamPath(m_drive));
@@ -187,7 +181,7 @@ public class RobotContainer {
         autoChooser.addOption("J Path", new JPath(m_drive));
         autoChooser.addOption("Two Piece Drive Up", new TwoPieceDriveUp(m_drive));
         autoChooser.addOption("Two Piece Acquire Piece", new TwoPieceAcquirePiece(m_drive));
-        autoChooser.addOption("Two Piece Score Piece", new TwoPieceScorePiece(m_drive));*/
+        autoChooser.addOption("Two Piece Score Piece", new TwoPieceScorePiece(m_drive));
     }
 
     public double speedScaledDriverLeftY() {
@@ -214,7 +208,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        //m_drive.resetOdometry(autoChooser.get().getInitialPose());
+        m_drive.resetOdometry(autoChooser.get().getInitialPose());
         return autoChooser.get();
     }
 }
