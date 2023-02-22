@@ -7,13 +7,13 @@ package frc.robot.utilities.subsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.gyro.BeakGyro;
 
 /** A subsystem containing a gyro, with simulation support. */
 public class BeakGyroSubsystem extends SubsystemBase {
-    protected Gyro m_gyro;
+    protected BeakGyro m_gyro;
     protected AnalogGyroSim m_gyroSim;
 
     protected boolean m_gyroInverted = false;
@@ -69,5 +69,23 @@ public class BeakGyroSubsystem extends SubsystemBase {
         } else {
             return m_gyro.getRate();
         }
+    }
+
+    /**
+     * Get the gyro's reported pitch.
+     * 
+     * @return The reported pitch of the gyro.
+     */
+    public Rotation2d getGyroPitchRotation2d() {
+        return m_gyro.getPitchRotation2d();
+    }
+
+    /**
+     * Get the gyro's reported roll.
+     * 
+     * @return The reported roll of the gyro.
+     */
+    public Rotation2d getGyroRollRotation2d() {
+        return m_gyro.getRollRotation2d();
     }
 }

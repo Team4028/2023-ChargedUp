@@ -2,12 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerve;
 
 import frc.robot.Constants.PIDConstants;
 import frc.robot.utilities.drive.RobotPhysics;
 import frc.robot.utilities.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.utilities.drive.swerve.SwerveModuleConfiguration;
+import frc.robot.utilities.gyro.BeakPigeon2;
 import frc.robot.utilities.drive.swerve.SdsModuleConfiguration;
 import frc.robot.utilities.drive.swerve.SdsModuleConfigurations;
 import frc.robot.utilities.drive.swerve.SwerveDrivetrainConfiguration;
@@ -19,43 +20,12 @@ import java.io.IOException;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
-import com.ctre.phoenix.sensors.WPI_Pigeon2;
-
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
-public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
-    // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
-    // you trust your various sensors. Smaller numbers will cause the filter to
-    // "trust" the estimate from that particular component more than the others.
-    // This in turn means the particualr component will have a stronger influence
-    // on the final pose estimate.
-
-    /**
-     * Standard deviations of model states. Increase these numbers to trust your
-     * model's state estimates less. This
-     * matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then
-     * meters.
-     */
-    private static final Vector<N3> m_stateStdDevs = VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
-
-    /**
-     * Standard deviations of the vision measurements. Increase these numbers to
-     * trust global measurements from vision
-     * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and
-     * radians.
-     */
-    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(10));
-
+public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private int resetTimer = 0;
 
     private static final double DRIVE_kP = 0.0125;
@@ -94,9 +64,7 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
             CONFIGURATION.driveGearRatio,
             FEED_FORWARD);
 
-    private static PoseEstimatorSwerveDrivetrain m_instance;
-
-    private Field2d m_field = new Field2d();
+    private static SwerveDrivetrain m_instance;
 
     private static final int FL_DRIVE_ID = 2;
     private static final int FL_TURN_ID = 1;
@@ -132,7 +100,7 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int DRIVE_SUPPLY_LIMIT = 60;
     private static final int DRIVE_STATOR_LIMIT = 80;
 
-    private final static WPI_Pigeon2 m_gyro = new WPI_Pigeon2(PIGEON2_ID, CAN_BUS);
+    private final static BeakPigeon2 m_gyro = new BeakPigeon2(PIGEON2_ID, CAN_BUS);
 
     private static final SwerveDrivetrainConfiguration DRIVE_CONFIG = new SwerveDrivetrainConfiguration(
             DRIVE_kP,
@@ -178,7 +146,7 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
             BR_LOCATION,
             DRIVE_CONFIG);
 
-    public PoseEstimatorSwerveDrivetrain() {
+    public SwerveDrivetrain() {
         super(
                 PHYSICS,
                 m_gyro,
@@ -190,19 +158,11 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
                 m_frontRightConfig,
                 m_backLeftConfig,
                 m_backRightConfig);
-        
-        m_odom = new SwerveDrivePoseEstimator(
-                m_kinematics,
-                getGyroRotation2d(),
-                getModulePositions(),
-                new Pose2d(),
-                m_stateStdDevs,
-                m_visionMeasurementStdDevs);
     }
 
-    public static PoseEstimatorSwerveDrivetrain getInstance() {
+    public static SwerveDrivetrain getInstance() {
         if (m_instance == null) {
-            m_instance = new PoseEstimatorSwerveDrivetrain();
+            m_instance = new SwerveDrivetrain();
         }
         return m_instance;
     }
@@ -222,12 +182,11 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
 
         if (resetTimer > 200 || LoggedRobot.isSimulation()) {
             updateOdometry();
-            m_field.setRobotPose(getPoseMeters());
-            SmartDashboard.putData(m_field);
         
             logData();
         } else {
             resetTimer++;
         }
+
     }
 }

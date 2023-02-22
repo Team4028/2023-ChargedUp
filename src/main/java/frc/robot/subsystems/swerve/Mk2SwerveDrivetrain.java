@@ -2,19 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerve;
 
 import frc.robot.utilities.drive.RobotPhysics;
 import frc.robot.utilities.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.utilities.drive.swerve.SwerveModuleConfiguration;
+import frc.robot.utilities.gyro.BeakNavX;
 import frc.robot.utilities.drive.swerve.SdsModuleConfiguration;
 import frc.robot.utilities.drive.swerve.SdsModuleConfigurations;
 import frc.robot.utilities.drive.swerve.SwerveDrivetrainConfiguration;
 import frc.robot.utilities.units.AngularVelocity;
 import frc.robot.utilities.units.Distance;
 import frc.robot.utilities.units.Velocity;
-
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -102,7 +101,7 @@ public class Mk2SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int DRIVE_SUPPLY_LIMIT = 30;
     private static final int DRIVE_STATOR_LIMIT = 80;
 
-    private final static AHRS m_gyro = new AHRS(SPI.Port.kMXP);
+    private final static BeakNavX m_gyro = new BeakNavX(SPI.Port.kMXP);
 
     private static final SwerveDrivetrainConfiguration DRIVE_CONFIG = new SwerveDrivetrainConfiguration(
             DRIVE_kP,

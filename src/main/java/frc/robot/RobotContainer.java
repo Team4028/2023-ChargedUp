@@ -21,11 +21,12 @@ import frc.robot.commands.RunArm;
 import frc.robot.commands.RunArmsToPosition;
 import frc.robot.commands.Autons.TwoPiecePositions;
 import frc.robot.commands.auton.BeakAutonCommand;
+import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
-import frc.robot.subsystems.PoseEstimatorSwerveDrivetrain;
-import frc.robot.subsystems.PracticeSwerveDrivetrain;
+import frc.robot.subsystems.swerve.PoseEstimatorSwerveDrivetrain;
+import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.BeakXBoxController;
 import frc.robot.utilities.Util;
@@ -149,7 +150,9 @@ public class RobotContainer {
         m_driverController.a.onTrue(new InstantCommand(() -> m_lowerArm.runToPosition(0.)));
         m_driverController.b.onTrue(new RunArm(45., m_lowerArm));
         m_driverController.x.onTrue(new RunArm(12., m_lowerArm));
-        m_driverController.y.onTrue(new RunArm(14., m_lowerArm));
+        m_driverController.y.onTrue(new RunArm(0., m_lowerArm));
+
+        m_driverController.rb.toggleOnTrue(new AutoBalance(m_drive));
         // m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED,
         // m_lowerArm, m_upperArm));
         // m_driverController.b.onTrue(new
