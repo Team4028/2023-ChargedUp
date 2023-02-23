@@ -120,13 +120,13 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-// Create version file
-// project.compileJava.dependsOn(createVersionFile)
-// gversion {
-//   srcDir       = "src/main/java/"
-//   classPackage = "frc.robot"
-//   className    = "BuildConstants"
-//   dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-//   timeZone     = "America/New_York"
-//   indent       = "  "
-// }
+//Create version file
+project.compileJava.dependsOn(createVersionFile)
+gversion {
+  srcDir       = "src/main/java/"
+  classPackage = "frc.robot"
+  className    = "BuildConstants"
+  dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+  timeZone     = "America/New_York"
+  indent       = "  "
+}
