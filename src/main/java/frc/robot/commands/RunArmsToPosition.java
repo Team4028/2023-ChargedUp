@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
+import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -15,8 +16,12 @@ import frc.robot.subsystems.arms.UpperArm;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class RunArmsToPosition extends SequentialCommandGroup {
+    private double maxVel = 7000;
+    private double maxAccel = 14000;
+    private UpperArm m_upperarm = UpperArm.getInstance();
+    private LowerArm m_lowerarm = LowerArm.getInstance();
     /** Creates a new RunArmsToPosition. */
-    public RunArmsToPosition(Arm.ArmPositions targetPositions, LowerArm lowerArm, UpperArm upperArm) {
+    public RunArmsToPosition(Arm.ArmPositions targetArmPositions, Wrist.WristPositions targetWristPosition, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         
@@ -26,16 +31,16 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                         // Begins extending lower arm,
                         // Then waits a period based on the distance needed to travel
                         // and then begins extending the upper arm.
-                        new RunArm(targetPositions.lowerPosition, lowerArm) 
-                                .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() / Constants.ArmConstants.EXTEND_COEFFICIENT)
-                                    .andThen(new RunArm(targetPositions.upperPosition, upperArm))),
+                        new TrapezoidRunArm(maxVel, maxAccel, m_lowerarm.getEncoderPosition(), targetArmPositions.lowerPosition, lowerArm) 
+                                /*.alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() / Constants.ArmConstants.EXTEND_COEFFICIENT)*/
+                                    .andThen(new TrapezoidRunArm(maxVel, maxAccel, m_upperarm.getEncoderPosition(), targetArmPositions.upperPosition, upperArm).alongWith(new RunWrist(targetWristPosition.position, wrist))),
                         // RETRACTING COMMAND
                         // Begins retracting upper arm,
                         // Then waits a period based on the distance needed to travel
                         // and then begins retracting the lower arm.
-                        new RunArm(targetPositions.upperPosition, upperArm)
-                                .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() / Constants.ArmConstants.RETRACT_COEFFICIENT)
-                                    .andThen(new RunArm(targetPositions.lowerPosition, lowerArm))),
-                        () -> targetPositions.upperPosition > upperArm.getEncoderPosition()));
+                        new TrapezoidRunArm(maxVel, maxAccel, m_upperarm.getEncoderPosition(), targetArmPositions.upperPosition, upperArm).alongWith(new RunWrist(targetWristPosition.position, wrist))
+                                /*.alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() / Constants.ArmConstants.RETRACT_COEFFICIENT)*/
+                                    .andThen(new TrapezoidRunArm(maxVel, maxAccel, m_lowerarm.getEncoderPosition(), targetArmPositions.lowerPosition, lowerArm).alongWith(new RunWrist(targetWristPosition.position, wrist))),
+                        () -> targetArmPositions.upperPosition > upperArm.getEncoderPosition()));
     }
 }

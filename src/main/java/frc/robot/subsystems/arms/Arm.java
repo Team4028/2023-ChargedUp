@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,15 +26,16 @@ public abstract class Arm extends SubsystemBase {
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
     protected double m_pidPos, m_distanceToTravel = 0;
+    public ElevatorFeedforward ffmodel;
 
     public enum ArmPositions {
-        RETRACTED(2., 2.),
-        SCORE_MID(22, 52),
-        SCORE_HIGH(28, 80),
-        ACQUIRE_FLOOR(9, 45),
-        THIRTY(11.33, 31.05),
-        SIXTY(19.57, 53.62),
-        NINETY(27.81, 76.2);
+        RETRACTED(2., 2.),  //2.
+        SCORE_MID(44, 52.), //52
+        SCORE_HIGH(56, 80.),  //80
+        ACQUIRE_FLOOR(9, 40.),  //40
+        THIRTY(11.33, 2.),  //31.05
+        SIXTY(19.57, 2.), //53.62
+        NINETY(27.81, 2.);  //76.2
 
         public double lowerPosition;
         public double upperPosition;
@@ -51,25 +53,22 @@ public abstract class Arm extends SubsystemBase {
      * <p>
      * MUST be run after initializing the SparkMAX
      */
-    protected void initArm()
-    {
+    protected void initArm() {
         m_encoder = m_motor.getEncoder();
         m_motor.setSmartCurrentLimit(40);
         m_pid = m_motor.getPIDController();
 
-        kP = 8e-7;
-        kI = 1e-7;
-        kD = 1e-8;
-        kIz = 0;
-        kFF = 0.000156;
-
+        kP = .1;
+        kI = 0.0;
+        kD = 0.;
+        kIz = 0.0;
+        kFF = 0.0;
         kMaxOutput = .9;
         kMinOutput = -.9;
-        allowedErr = 0.1;
-
         // smart motion coefficients
         maxVel = 7000;
         maxAcc = 14000;
+        allowedErr = 0.1;
 
         m_pid.setP(kP);
         m_pid.setI(kI);
@@ -97,10 +96,25 @@ public abstract class Arm extends SubsystemBase {
         return m_motor.getOutputCurrent();
     }
 
+    /**
+     * Runs the motor to a place with position PID
+     * 
+     * @param position the encoder position to run it to
+     */
     public void runToPosition(double position) {
-        m_pid.setReference(position, CANSparkMax.ControlType.kSmartMotion);
+        m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
         m_pidPos = position;
-        m_distanceToTravel = Math.abs(position - getEncoderPosition());        
+    }
+
+    /**
+     * Runs the motor to a place with position PID & feedForward
+     * 
+     * @param position    the encoder position to run it to
+     * @param feedForward The return of {@code ElevatorFeedForward.calculate();}
+     */
+    public void runToPosition(double position, double feedForward) {
+        m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
+        m_pidPos = position;
     }
 
     public double getError() {
@@ -127,7 +141,8 @@ public abstract class Arm extends SubsystemBase {
     public Command exampleMethodCommand() {
         // Inline construction of command goes here.
         // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return new InstantCommand(() -> {});
+        return new InstantCommand(() -> {
+        });
     }
 
     /**
@@ -145,6 +160,12 @@ public abstract class Arm extends SubsystemBase {
         return m_distanceToTravel;
     }
 
-    public static Arm getInstance() {return null;}
+    public void setDistanceToTravel(double dist) {
+        m_distanceToTravel = dist;
+    }
+
+    public static Arm getInstance() {
+        return null;
+    }
 
 }

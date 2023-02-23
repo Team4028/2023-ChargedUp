@@ -11,8 +11,11 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix.led.CANdle;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Limelight;
 
 /**
@@ -25,9 +28,9 @@ import frc.robot.subsystems.Limelight;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-
+    private CANdle m_candle;
     private Limelight m_limelight;
-
+    private LEDs m_leds;
     /**
      * This function is run when the robot is first started up and should be used
      * for any initialization code.
@@ -36,7 +39,7 @@ public class Robot extends LoggedRobot {
     public void robotInit() {
         Logger logger = Logger.getInstance();
         m_limelight = Limelight.getInstance();
-
+        m_leds = LEDs.getInstance();
         // Record metadata
         logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -100,6 +103,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
+        RobotState.modeBlank();
         m_limelight.setLedMode(1.);
     }
 

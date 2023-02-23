@@ -6,7 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 //import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
-
+import frc.robot.subsystems.LEDs;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -27,8 +27,10 @@ import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.subsystems.PoseEstimatorSwerveDrivetrain;
+import frc.robot.subsystems.Infeed;
 import frc.robot.subsystems.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Wrist;
 import frc.robot.utilities.BeakXBoxController;
 import frc.robot.utilities.Util;
 import frc.robot.utilities.drive.swerve.BeakSwerveDrivetrain;
@@ -123,6 +125,8 @@ public class RobotContainer {
         // autoChooser.addOption("Spin", new SpinAuto(drive));
         // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive,
         // flywheel));
+        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive,
+        // flywheel));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -145,10 +149,19 @@ public class RobotContainer {
                         m_drive));
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
-        // m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, m_lowerArm, m_upperArm));
-        // m_driverController.b.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, m_lowerArm, m_upperArm));
-        // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, m_lowerArm, m_upperArm));
-        // m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH, m_lowerArm, m_upperArm));
+        // m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED,Wrist.WristPositions.STOW, m_lowerArm, m_upperArm,m_wrist));
+        // m_driverController.b.onTrue(new InstantCommand(()->{
+            if(RobotState.getState()==RobotState.State.CONE){
+                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm, m_upperArm, m_wrist).schedule();
+        //     } else{
+                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm, m_upperArm, m_wrist).schedule();
+            }
+        }));
+        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,m_lowerArm,m_upperArm,m_wrist));
+        // m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH,Wrist.WristPositions.SCORE_HIGH , m_lowerArm, m_upperArm,m_wrist));
+
+        m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
+        m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
         // m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
         // m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
@@ -169,42 +182,35 @@ public class RobotContainer {
                 new Rotation3d()))));
         m_driverController.dpadDown.onTrue(new InstantCommand(() -> m_gamePieceVision.togglePipeline()));
 
-        // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new CurrentZero(m_lowerArm)));
+        m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.4)));
+        m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
 
-        // m_operatorController.a.onTrue(m_manipulator.lowCube());
-        // m_operatorController.b.onTrue(m_manipulator.lowCone());
-        // m_operatorController.x.onTrue(m_manipulator.midCube());
-        // m_operatorController.y.onTrue(m_manipulator.midCone());
-        // m_operatorController.dpadDown.onTrue(m_manipulator.highCube());
-        // m_operatorController.dpadUp.onTrue(m_manipulator.highCone());
+        m_driverController.lt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.4)));
+        m_driverController.lt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
 
-        m_operatorController.rt.onTrue(m_wrist.runMotorUp());
-        m_operatorController.rt.onFalse(m_wrist.stopMotor());
-        m_operatorController.lt.onTrue(m_wrist.runMotorDown());
-        m_operatorController.lt.onFalse(m_wrist.stopMotor());
+        m_driverController.rt.whileTrue(new InstantCommand(() -> m_lowerArm.runArm(0.4)));
+        m_driverController.rt.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
+        m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
 
-        m_operatorController.rb.onTrue(m_infeed.runMotorIn());
-        m_operatorController.rb.onFalse(m_infeed.stopMotor());
-        m_operatorController.lb.onTrue(m_infeed.runMotorOut());
-        m_operatorController.lb.onFalse(m_infeed.stopMotor());
+        //infeed
+        m_operatorController.rb.onTrue(m_infeed.runInfeedIn());
+        m_operatorController.rb.onFalse(m_infeed.stopInfeed());
+        m_operatorController.lb.onTrue(m_infeed.runInfeedOut());
+        m_operatorController.lb.onFalse(m_infeed.stopInfeed());
 
-        // m_operatorController.a.onTrue(new
-        // InstantCommand(() ->
-        // m_gripper.runToCubePosition()));
-        // m_operatorController.b.onTrue(new
-        // InstantCommand(() ->
-        // m_gripper.runToConePosition()));
+        //wrist
+        m_operatorController.rt.onTrue(m_wrist.runWrist(0.4));
+        m_operatorController.rt.onFalse(m_wrist.runWrist(0.0));
+        m_operatorController.lt.onTrue(m_wrist.runWrist(-0.4));
+        m_operatorController.lt.onFalse(m_wrist.runWrist(0.0));
 
-        // m_operatorController.dpadDown.onTrue(new
-        // InstantCommand(() ->
-        // m_wrist.runToLowPosition()));
-        // m_operatorController.x.onTrue(new
-        // InstantCommand(() ->
-        // m_wrist.runToMediumPosition()));
-        // m_operatorController.dpadUp.onTrue(new InstantCommand(() ->
-        // m_wrist.runToHighPosition()));
+        //mode
+        m_operatorController.a.onTrue(new InstantCommand(()->RobotState.toggleClimb()));
+        m_operatorController.x.onTrue(new InstantCommand(()->RobotState.modeCube()));
+        m_operatorController.y.onTrue(new InstantCommand(()->RobotState.modeCone()));
+        m_operatorController.b.onTrue(new InstantCommand(()->RobotState.modeBlank()));
     }
-
+    
     private void initAutonChooser() {
         autoChooser.addDefaultOption("j path 1", m_autons.JPath1());
 
