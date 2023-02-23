@@ -131,16 +131,16 @@ public class RobotContainer {
                         m_drive));
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
-        m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED,Wrist.wristPositions.STOW, m_lowerArm, m_upperArm,m_wrist));
+        m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED,Wrist.WristPositions.STOW, m_lowerArm, m_upperArm,m_wrist));
         m_driverController.b.onTrue(new InstantCommand(()->{
             if(RobotState.getState()==RobotState.State.CONE){
-                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.wristPositions.INFEED_CONE, m_lowerArm, m_upperArm, m_wrist).schedule();
+                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm, m_upperArm, m_wrist).schedule();
             } else{
-                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.wristPositions.INFEED_CUBE, m_lowerArm, m_upperArm, m_wrist).schedule();
+                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm, m_upperArm, m_wrist).schedule();
             }
         }));
-        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.wristPositions.SCORE_MID,m_lowerArm,m_upperArm,m_wrist));
-        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH,Wrist.wristPositions.SCORE_HIGH , m_lowerArm, m_upperArm,m_wrist));
+        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,m_lowerArm,m_upperArm,m_wrist));
+        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_HIGH,Wrist.WristPositions.SCORE_HIGH , m_lowerArm, m_upperArm,m_wrist));
 
         m_driverController.lb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(-0.4)));
         m_driverController.lb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));

@@ -40,7 +40,7 @@ public class Infeed extends SubsystemBase {
     });
   }
 
-  public Command runInfeedOut(){
+  public Command runInfeedOut(){ //TODO: remove w/ wildstang infeed
     return runOnce(()->{
         if(RobotState.getState() == RobotState.State.CUBE){
             m_motor.set(-0.4);
