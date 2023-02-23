@@ -4,20 +4,37 @@
 
 package frc.robot.subsystems.manipulator;
 
-import edu.wpi.first.math.controller.PIDController;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.motor.BeakSparkMAX;
 
 public class Wrist extends SubsystemBase {
+    
+    public enum WristPositions {
+        STOW(0.0),
+        INFEED_CUBE(0.0), // TODO: FILL IN COOEFS. Also the different angles for INFEED_CUBE vs.
+                          // INFEED_CONE will become redundant after the installation of the wildstang
+                          // infeed
+        INFEED_CONE(0.0),
+        SCORE_HIGH(0.0),
+        SCORE_MID(0.0);
+
+        public double position;
+
+        private WristPositions(double position) {
+            this.position = position;
+        }
+    }
+
     private static Wrist m_instance;
     private BeakSparkMAX m_motor;
-
-    private DutyCycleEncoder m_dutyCycleEncoder;
-
-    private double m_targetPosition;
-    private PIDController m_pidController;
+    private DutyCycleEncoder m_absoluteEncoder;
+    private double m_targetPosition, kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+    private SparkMaxPIDController m_pid;
 
     /** Creates a new Wrist. */
     public Wrist() {
@@ -27,14 +44,30 @@ public class Wrist extends SubsystemBase {
         m_motor.setSmartCurrentLimit(25);
         m_motor.setInverted(false);
 
-        m_dutyCycleEncoder = new DutyCycleEncoder(0);
-        m_dutyCycleEncoder.setDutyCycleRange(1, 1024);
+        m_absoluteEncoder = new DutyCycleEncoder(0);
+        m_absoluteEncoder.setDutyCycleRange(1, 1024);
 
-        m_pidController = new PIDController(0.2, 0, 0);
+        m_pid = m_motor.getPIDController();
+        // PID Constants
+        kP = 0;
+        kI = 0;
+        kD = 0;
+        kIz = 0;
+        kFF = 0;
+        kMaxOutput = 0.9;
+        kMinOutput = -0.9;
+        m_pid.setP(kP);
+        m_pid.setI(kI);
+        m_pid.setD(kD);
+        m_pid.setIZone(kIz);
+        m_pid.setFF(kFF);
+        m_pid.setOutputRange(kMinOutput, kMaxOutput);
     }
 
+    // CONTROL METHODS
+
     public void getAbsoluteEncoderPosition() {
-        m_dutyCycleEncoder.getAbsolutePosition();
+        m_absoluteEncoder.getAbsolutePosition();
     }
 
     public Command runMotorUp() {
@@ -58,7 +91,7 @@ public class Wrist extends SubsystemBase {
                 });
     }
 
-    public Command runMotorToPosition(double position) {
+    public Command runToPosition(double position) {
         return runOnce(
                 () -> {
                     m_targetPosition = position;
@@ -68,21 +101,21 @@ public class Wrist extends SubsystemBase {
     public Command runToLowPosition() {
         return runOnce(
                 () -> {
-                    runMotorToPosition(0.);
+                    runToPosition(0.);
                 });
     }
 
     public Command runToMediumPosition() {
         return runOnce(
                 () -> {
-                    runMotorToPosition(10.);
+                    runToPosition(10.);
                 });
     }
 
     public Command runToHighPosition() {
         return runOnce(
                 () -> {
-                    runMotorToPosition(20.);
+                    runToPosition(20.);
                 });
     }
 
@@ -95,7 +128,6 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        m_motor.set(
-                m_pidController.calculate(m_targetPosition - m_dutyCycleEncoder.getAbsolutePosition()));
+        m_pid.setReference(m_targetPosition, ControlType.kPosition);
     }
 }
