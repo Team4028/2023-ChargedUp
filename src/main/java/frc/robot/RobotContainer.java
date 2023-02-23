@@ -19,7 +19,7 @@ import frc.robot.commands.Autons;
 import frc.robot.commands.CurrentZero;
 import frc.robot.commands.RunArm;
 import frc.robot.commands.RunArmsToPosition;
-import frc.robot.commands.Autons.TwoPiecePositions;
+import frc.robot.commands.Autons.AutonPositions;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.subsystems.arms.Arm;
@@ -202,12 +202,12 @@ public class RobotContainer {
         // autoChooser.addOption("j path 2", new JPath2(m_drive));
         // autoChooser.addOption("J Path", new JPath(m_drive));
 
-        autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(TwoPiecePositions.TOP));
-        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(TwoPiecePositions.TOP));
-        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(TwoPiecePositions.TOP));
-        autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(TwoPiecePositions.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(TwoPiecePositions.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(TwoPiecePositions.BOTTOM));
+        autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(AutonPositions.TOP));
+        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(AutonPositions.TOP));
+        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(AutonPositions.TOP));
+        autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(AutonPositions.BOTTOM));
+        autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(AutonPositions.BOTTOM));
+        autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(AutonPositions.BOTTOM));
     }
 
     public double speedScaledDriverLeftY() {

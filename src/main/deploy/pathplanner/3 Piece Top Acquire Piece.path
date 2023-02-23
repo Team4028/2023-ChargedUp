@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.7944909911172147,
-        "y": 4.9352750662796705
+        "x": 2.46,
+        "y": 4.42
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6693374383190065,
-        "y": 4.573925446783278
+        "x": 3.875630465546646,
+        "y": 4.85269784825284
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,15 +24,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.395025218621866,
-        "y": 4.566402989948838
+        "x": 6.480913676113066,
+        "y": 3.392594070902428
       },
       "prevControl": {
-        "x": 4.873553136531793,
-        "y": 4.547384588922712
+        "x": 6.395025218621866,
+        "y": 5.239195906963244
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 0.02,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -47,22 +47,22 @@
   ],
   "markers": [
     {
-      "position": 0.027272727272727258,
+      "position": 0.05454545454545455,
       "names": [
         "ArmRetract",
         "FrontLocalize"
       ]
     },
     {
-      "position": 0.4818181818181819,
+      "position": 0.7909090909090895,
       "names": [
         "RearLocalize"
       ]
     },
     {
-      "position": 0.8090909090909076,
+      "position": 0.3636363636363637,
       "names": [
-        "RearLocalize"
+        "ArmPickup"
       ]
     }
   ]

@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.45,
-        "y": 0.97
+        "x": 6.37,
+        "y": 2.13
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.4788816720490585,
-        "y": 0.6441634311840059
+        "x": 5.994212416996263,
+        "y": 0.6871076599296062
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 3.403243949345042,
-        "y": 0.7729961174208069
+        "x": 3.3602997205994414,
+        "y": 0.7300518886752065
       },
       "prevControl": {
-        "x": 3.918574694292246,
-        "y": 0.7729961174208069
+        "x": 5.178272070829854,
+        "y": 0.7873108603360077
       },
       "nextControl": {
-        "x": 3.153247711889109,
-        "y": 0.7729961174208069
+        "x": 2.4476332538505803,
+        "y": 0.701306488147683
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,15 +49,15 @@
     },
     {
       "anchorPoint": {
-        "x": 2.0433433724010306,
-        "y": 1.0879204615552087
+        "x": 2.04,
+        "y": 1.6032512065024138
       },
       "prevControl": {
-        "x": 2.830654232737038,
-        "y": 0.8588845749120063
+        "x": 2.0003991436554305,
+        "y": 0.3292390870496028
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 180.01,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -72,9 +72,28 @@
   ],
   "markers": [
     {
-      "position": 1.0545454545454545,
+      "position": 0.036363636363636334,
+      "names": [
+        "ArmRetract",
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 0.7636363636363638,
       "names": [
         "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.0545454545454542,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.7636363636363626,
+      "names": [
+        "ArmScoring"
       ]
     }
   ]

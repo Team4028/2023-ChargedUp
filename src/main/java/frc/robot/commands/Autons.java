@@ -33,7 +33,7 @@ public class Autons {
 
     private final Map<String, Command> m_eventMap;
 
-    public enum TwoPiecePositions {
+    public enum AutonPositions {
         BOTTOM, MIDDLE, TOP
     }
 
@@ -52,11 +52,13 @@ public class Autons {
         m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
         m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
 
-        m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
-        m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
+        // m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain,
+        // m_frontAprilTagVision));
+        // m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain,
+        // m_rearAprilTagVision));
     }
 
-    public BeakAutonCommand TwoPieceAcquire(TwoPiecePositions position) {
+    public BeakAutonCommand TwoPieceAcquire(AutonPositions position) {
         PathPlannerTrajectory traj;
         switch (position) {
             case BOTTOM:
@@ -71,23 +73,16 @@ public class Autons {
         }
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            // new AddVisionMeasurement(m_drivetrain, m_frontAprilTagVision),
             new RunArm(45., m_lowerArm),
             new WaitCommand(0.2),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap).deadlineWith(
-                // new RepeatCommand(new AddVisionMeasurement(m_drivetrain, m_frontAprilTagVision).alongWith(
-                //     new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision))
-                // //
-                // )
-            //
-            )
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
 
         return cmd;
     }
 
-    public BeakAutonCommand TwoPieceScore(TwoPiecePositions position) {
+    public BeakAutonCommand TwoPieceScore(AutonPositions position) {
         PathPlannerTrajectory traj;
         switch (position) {
             case BOTTOM:
@@ -102,26 +97,74 @@ public class Autons {
         }
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new RunArm(10., m_lowerArm),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
-                // .deadlineWith(
-                //     new RepeatCommand(new AddVisionMeasurement(m_drivetrain, m_frontAprilTagVision).alongWith(
-                //         new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision))
-                //     //
-                //     )
-                // //
-                // )
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap));
+
+        return cmd;
+    }
+
+    public BeakAutonCommand TwoPiece(AutonPositions position) {
+        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            TwoPieceScore(position)
         //
         );
 
         return cmd;
     }
 
-    public BeakAutonCommand TwoPiece(TwoPiecePositions position) {
-        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+    public BeakAutonCommand ThreePieceAcquire(AutonPositions position) {
+        PathPlannerTrajectory traj;
+        switch (position) {
+            case BOTTOM:
+                traj = Trajectories.ThreePieceBottomAcquirePiece(m_drivetrain);
+                break;
+            case TOP:
+                traj = Trajectories.ThreePieceTopAcquirePiece(m_drivetrain);
+                break;
+            default:
+                System.err.println("Bruh you code is broken " + position);
+                return null;
+        }
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+        //
+        );
+
+        return cmd;
+    }
+
+    public BeakAutonCommand ThreePieceScore(AutonPositions position) {
+        PathPlannerTrajectory traj;
+        switch (position) {
+            case BOTTOM:
+                traj = Trajectories.ThreePieceBottomScorePiece(m_drivetrain);
+                break;
+            case TOP:
+                traj = Trajectories.ThreePieceTopScorePiece(m_drivetrain);
+                break;
+            default:
+                System.err.println("Bruh you code is broken " + position);
+                return null;
+        }
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+        //
+        );
+
+        return cmd;
+    }
+
+    public BeakAutonCommand ThreePiece(AutonPositions position) {
+        BeakAutonCommand initialPath = TwoPiece(position);
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            TwoPieceScore(position));
+            ThreePieceAcquire(position),
+            ThreePieceScore(position)
+        //
+        );
 
         return cmd;
     }

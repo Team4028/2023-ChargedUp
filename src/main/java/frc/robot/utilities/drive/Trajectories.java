@@ -41,14 +41,38 @@ public class Trajectories {
 
     public static PathPlannerTrajectory TwoPieceBottomAcquirePiece(BeakDrivetrain drivetrain) {
         return PathPlanner.loadPath("2 Piece Bottom Acquire Piece",
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.45,
-                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.45);
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
     }
 
     public static PathPlannerTrajectory TwoPieceBottomScorePiece(BeakDrivetrain drivetrain) {
         return PathPlanner.loadPath("2 Piece Bottom Score Piece",
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.45,
                 drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.45);
+    }
+
+    public static PathPlannerTrajectory ThreePieceBottomAcquirePiece(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("3 Piece Bottom Acquire Piece",
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
+    }
+
+    public static PathPlannerTrajectory ThreePieceBottomScorePiece(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("3 Piece Bottom Score Piece",
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.45,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.45);
+    }
+
+    public static PathPlannerTrajectory ThreePieceTopAcquirePiece(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("3 Piece Top Acquire Piece",
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
+    }
+
+    public static PathPlannerTrajectory ThreePieceTopScorePiece(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("3 Piece Top Score Piece",
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
+                drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
     }
 
     // public static Trajectory getTrajectory(String path) {

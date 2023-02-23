@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.44,
-        "y": 4.75
+        "x": 6.4,
+        "y": 4.57
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.118981095105047,
-        "y": 5.210566421132842
+        "x": 4.078981095105047,
+        "y": 5.030566421132843
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -75,6 +75,12 @@
       "position": 1.0181818181818183,
       "names": [
         "ArmScoring"
+      ]
+    },
+    {
+      "position": 0.2909090909090909,
+      "names": [
+        "event"
       ]
     }
   ]
