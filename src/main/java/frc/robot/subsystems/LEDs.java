@@ -4,16 +4,21 @@
 
 package frc.robot.subsystems;
 
+import frc.robot.RobotState;
+
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+
+
 public class LEDs extends SubsystemBase {
-    private Color m_color;
+    private Color m_color, m_lastColor;
     private CANdle m_candle;
-    private int r, g, b;
+    private boolean m_blinking;
+
     private static LEDs m_instance;
 
     public enum Color {
@@ -41,14 +46,8 @@ public class LEDs extends SubsystemBase {
         m_candle.configLOSBehavior(true);
 
         setColor(Color.OFF);
-    }
 
-    public Command setLEDs() {
-        return runOnce(() -> {
-            this.r = m_color.r;
-            this.g = m_color.g;
-            this.b = m_color.b;
-        });
+        m_blinking = false;
     }
 
     public void setColor(Color color) {
@@ -56,18 +55,9 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setBlank() {
+        m_lastColor = m_color;
         setColor(Color.OFF);
-        setLEDs().ignoringDisable(true).schedule();
     }
-    
-    public Command setOff(){
-        return runOnce(()->{
-            r=0;
-            g=0;
-            b=0;
-        });
-    }
-
 
     public void setClimb() {
         setColor(Color.GREEN);
@@ -88,12 +78,48 @@ public class LEDs extends SubsystemBase {
         return m_instance;
     }
 
+    
+    public SequentialCommandGroup blink() {
+        return new SequentialCommandGroup(
+            new WaitCommand(0.1),
+            new InstantCommand(() -> m_blinking = true),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(m_lastColor)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(m_lastColor)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(m_lastColor)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(m_lastColor)),
+            new InstantCommand(() -> m_blinking = false)
+        );
+    }
+    
+
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("r", r);
-        SmartDashboard.putNumber("g", g);
-        SmartDashboard.putNumber("b", b);
-        //setLEDs().schedule();
-        m_candle.setLEDs(r, g, b);
+        if (m_blinking == false) {
+            if (RobotState.getClimb()) {
+                setColor(Color.GREEN);
+            }
+            else if (RobotState.getState() == RobotState.State.CONE) {
+                setColor(Color.YELLOW);
+            }
+            else if (RobotState.getState() == RobotState.State.CUBE) {
+                setColor(Color.PURPLE);
+            }
+            else {
+                setBlank();
+            }
+        }
+        // Set the physical CANdle LEDs to appropriate color.
+        m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
     }
 }

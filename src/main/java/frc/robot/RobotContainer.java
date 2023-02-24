@@ -53,7 +53,7 @@ public class RobotContainer {
     private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
 
     // Subsystems
-    private final BeakSwerveDrivetrain m_drive;
+    // private final BeakSwerveDrivetrain m_drive;
     private final Vision m_aprilTagVision;
     private final Vision m_gamePieceVision;
     private final UpperArm m_upperArm;
@@ -62,6 +62,7 @@ public class RobotContainer {
     private final Manipulator m_manipulator;
     private final Infeed m_infeed;
     private final Wrist m_wrist;
+    private final LEDs m_leds;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -69,7 +70,7 @@ public class RobotContainer {
 
     // Auton stuff
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    private final Autons m_autons;
+    // private final Autons m_autons;
     // private final LoggedDashboardNumber flywheelSpeedInput = new
     // LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
@@ -82,18 +83,19 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
-        // m_upperArm = UpperArm.getInstance();
-        // m_lowerArm  =  LowerArm.getInstance();
+        //m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
         m_aprilTagVision = new Vision(APRILTAG_CAMERA_NAME, APRILTAG_CAMERA_TO_ROBOT, true);
         m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME, GAME_PIECE_CAMERA_TO_ROBOT, false);
 
-        m_autons = new Autons(m_drive, m_aprilTagVision, m_gamePieceVision);
+        //m_autons = new Autons(m_drive, m_aprilTagVision, m_gamePieceVision);
         m_manipulator = Manipulator.getInstance();
         m_infeed = Infeed.getInstance();
         m_wrist = Wrist.getInstance();
         m_upperArm = UpperArm.getInstance();
         m_lowerArm = LowerArm.getInstance();
+        m_leds = LEDs.getInstance();
+
+        RobotState.addSubsystem(m_leds);
 
         switch (Constants.currentMode) {
             // TODO
@@ -140,15 +142,15 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        m_drive.setDefaultCommand(
-                new RunCommand(() -> m_drive.drive(
-                        -speedScaledDriverLeftY(),
-                        speedScaledDriverLeftX(),
-                        speedScaledDriverRightX(),
-                        true),
-                        m_drive));
+        // m_drive.setDefaultCommand(
+        //         new RunCommand(() -> m_drive.drive(
+        //                 -speedScaledDriverLeftY(),
+        //                 speedScaledDriverLeftX(),
+        //                 speedScaledDriverRightX(),
+        //                 true),
+        //                 m_drive));
 
-        m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
+        //m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
         // m_driverController.a.onTrue(new RunArmsToPosition(Arm.ArmPositions.RETRACTED,Wrist.WristPositions.STOW, m_lowerArm, m_upperArm,m_wrist));
         // m_driverController.b.onTrue(new InstantCommand(()->{
             if(RobotState.getState()==RobotState.State.CONE){
@@ -175,11 +177,11 @@ public class RobotContainer {
         // m_driverController.rt.whileTrue(new InstantCommand(()  ->  m_lowerArm.runArm(0.4)));
         // m_driverController.rt.onFalse(new InstantCommand(()  ->  m_lowerArm.runArm(0.0)));
 
-        m_driverController.dpadUp.onTrue(m_drive.generatePath(() -> m_gamePieceVision.getTargetPose(m_drive.getPoseMeters(),
-        new Transform3d(new Translation3d(Units.inchesToMeters(5.),
-                Units.inchesToMeters(-0.), 0.),
-                new Rotation3d()))));
-        m_driverController.dpadDown.onTrue(new InstantCommand(() -> m_gamePieceVision.togglePipeline()));
+        // m_driverController.dpadUp.onTrue(m_drive.generatePath(() -> m_gamePieceVision.getTargetPose(m_drive.getPoseMeters(),
+        // new Transform3d(new Translation3d(Units.inchesToMeters(5.),
+        //         Units.inchesToMeters(-0.), 0.),
+        //         new Rotation3d()))));
+        // m_driverController.dpadDown.onTrue(new InstantCommand(() -> m_gamePieceVision.togglePipeline()));
 
         m_driverController.rb.whileTrue(new InstantCommand(() -> m_upperArm.runArm(0.4)));
         m_driverController.rb.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
@@ -205,20 +207,20 @@ public class RobotContainer {
 
         //mode
         m_operatorController.a.onTrue(new InstantCommand(()->RobotState.toggleClimb()));
-        m_operatorController.x.onTrue(new InstantCommand(()->RobotState.modeCube()));
-        m_operatorController.y.onTrue(new InstantCommand(()->RobotState.modeCone()));
+        m_operatorController.x.onTrue(new InstantCommand(()->RobotState.setCubeMode()));
+        m_operatorController.y.onTrue(new InstantCommand(()->RobotState.setConeMode()));
         m_operatorController.b.onTrue(new InstantCommand(()->RobotState.modeBlank()));
     }
     
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("j path 1", m_autons.JPath1());
+        // autoChooser.addDefaultOption("j path 1", m_autons.JPath1());
 
-        // autoChooser.addOption("j path 2", new JPath2(m_drive));
-        // autoChooser.addOption("J Path", new JPath(m_drive));
+        // // autoChooser.addOption("j path 2", new JPath2(m_drive));
+        // // autoChooser.addOption("J Path", new JPath(m_drive));
 
-        autoChooser.addOption("Two Piece Top", m_autons.TwoPieceTop());
-        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceTopAcquire());
-        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceTopScore());
+        // autoChooser.addOption("Two Piece Top", m_autons.TwoPieceTop());
+        // autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceTopAcquire());
+        // autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceTopScore());
     }
 
     public double speedScaledDriverLeftY() {

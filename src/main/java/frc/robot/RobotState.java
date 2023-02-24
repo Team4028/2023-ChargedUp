@@ -1,6 +1,5 @@
 package frc.robot;
 
-import frc.robot.commands.BlinkLEDs;
 import frc.robot.subsystems.LEDs;
 public class RobotState {
     private static LEDs m_leds;
@@ -15,50 +14,21 @@ public class RobotState {
 
     public static void modeBlank(){
         m_currentState = State.OFF;
-        if(!climbMode){
-            m_leds.setBlank();
-        }
     }
 
-    public static void modeCone() {
+    public static void setConeMode() {
         m_currentState = State.CONE;
-        if(!climbMode){
-            m_leds.setCone();
-            new BlinkLEDs(m_leds).schedule();
-        }
+        m_leds.blink().schedule();
     }
 
-    public static void modeCube() {
+    public static void setCubeMode() {
         m_currentState = State.CUBE;
-        if(!climbMode){
-            m_leds.setCube();
-            new BlinkLEDs(m_leds).schedule();
-        }
+        m_leds.blink().schedule();
     }
     
     public static void toggleClimb() {
         climbMode = !climbMode;
-        if(climbMode){
-            m_leds.setClimb();
-        } else{
-            switch(getState()){
-                case OFF:
-                    m_leds.setBlank();
-                    break;
-                case CONE:
-                    m_leds.setCone();
-                    break;
-                case CUBE:
-                    m_leds.setCube();
-                    break;
-                default:
-                    m_leds.setCone();
-                    break;
-            }
-        }
-        if(getState()!=State.OFF){
-            new BlinkLEDs(m_leds).schedule();
-        }
+        m_leds.blink().schedule();
     }
 
     public static void toggle() {
