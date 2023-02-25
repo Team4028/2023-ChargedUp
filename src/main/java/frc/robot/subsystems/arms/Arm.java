@@ -29,13 +29,14 @@ public abstract class Arm extends SubsystemBase {
     public ElevatorFeedforward ffmodel;
 
     public enum ArmPositions {
-        RETRACTED(2., 2.),  //2.
-        SCORE_MID(44, 52.), //52
-        SCORE_HIGH(56, 80.),  //80
-        ACQUIRE_FLOOR(9, 40.),  //40
-        THIRTY(11.33, 2.),  //31.05
-        SIXTY(19.57, 2.), //53.62
-        NINETY(27.81, 2.);  //76.2
+        RETRACTED(0.5, 1.04166666667), // L: 2. U: 2.
+        SCORE_MID(11, 27.0833333333), // L: 44. U: 52.
+        SCORE_HIGH(14, 41.6666666667), // L: 56. U: 80.
+        ACQUIRE_FLOOR(2.25, 20.8333333333333), // L: 9. U: 40.
+        // We no longer care about these
+        THIRTY(2.8325, 16.171875), // L: 11.33 U: 31.05
+        SIXTY(4.8925, 27.92708333), // L: 19.57 U: 53.62
+        NINETY(6.9525, 39.6875); // L: 27.81 U: 76.2
 
         public double lowerPosition;
         public double upperPosition;
@@ -117,6 +118,10 @@ public abstract class Arm extends SubsystemBase {
         m_pidPos = position;
     }
 
+    abstract public double nativeUnitsToInches(double nativeUntis);
+
+    abstract public double inchesToNativeUnits(double inches);
+
     public double getError() {
         return Math.abs(this.getEncoderPosition() - m_pidPos);
     }
@@ -132,6 +137,8 @@ public abstract class Arm extends SubsystemBase {
     public double getTargetPosition() {
         return m_pidPos;
     }
+
+    abstract public double getTargetPositionInches();
 
     /**
      * Example command factory method.

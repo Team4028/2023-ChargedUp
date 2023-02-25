@@ -20,6 +20,11 @@ public class LowerArm extends Arm {
     private final double kS = 0.33069;
     private final double kG = 0.2554;
     private final double kV = 0.10667;
+    
+    /* Inches per revelution of sprocket: 6.25
+     * Gear reduction 25:1
+     */
+    public static final double NATIVE_UNITS_TO_INCHES = 6.25 / 25;
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
@@ -47,6 +52,21 @@ public class LowerArm extends Arm {
     public void armNintey() {
         m_pid.setReference(27.81, CANSparkMax.ControlType.kPosition);
         m_pidPos = 90;
+    }
+
+    @Override
+    public double nativeUnitsToInches(double nativeUntis) {
+        return nativeUntis * NATIVE_UNITS_TO_INCHES;
+    }
+
+    @Override
+    public double inchesToNativeUnits(double inches) {
+        return inches / NATIVE_UNITS_TO_INCHES;
+    }
+
+    @Override
+    public double getTargetPositionInches() {
+        return m_pidPos * NATIVE_UNITS_TO_INCHES;
     }
 
     /**

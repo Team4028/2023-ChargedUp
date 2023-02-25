@@ -7,7 +7,9 @@ package frc.robot.subsystems.manipulator;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.motor.BeakSparkMAX;
@@ -16,9 +18,7 @@ public class Wrist extends SubsystemBase {
     
     public enum WristPositions {
         STOW(0.0),
-        INFEED_CUBE(0.0), // TODO: FILL IN COOEFS. Also the different angles for INFEED_CUBE vs.
-                          // INFEED_CONE will become redundant after the installation of the wildstang
-                          // infeed
+        INFEED_CUBE(0.0),
         INFEED_CONE(0.0),
         SCORE_HIGH(0.0),
         SCORE_MID(0.0);
@@ -32,7 +32,7 @@ public class Wrist extends SubsystemBase {
 
     private static Wrist m_instance;
     private BeakSparkMAX m_motor;
-    private DutyCycleEncoder m_absoluteEncoder;
+    private SparkMaxAbsoluteEncoder m_absoluteEncoder;
     private double m_targetPosition, kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
     private SparkMaxPIDController m_pid;
 
@@ -44,8 +44,8 @@ public class Wrist extends SubsystemBase {
         m_motor.setSmartCurrentLimit(25);
         m_motor.setInverted(false);
 
-        m_absoluteEncoder = new DutyCycleEncoder(0);
-        m_absoluteEncoder.setDutyCycleRange(1, 1024);
+        m_absoluteEncoder.setZeroOffset(0);
+        m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 
         m_pid = m_motor.getPIDController();
         // PID Constants
@@ -66,8 +66,9 @@ public class Wrist extends SubsystemBase {
 
     // CONTROL METHODS
 
-    public void getAbsoluteEncoderPosition() {
-        m_absoluteEncoder.getAbsolutePosition();
+    public double getAbsoluteEncoderPosition() {
+        return m_absoluteEncoder.getPosition() * 360.;
+        
     }
 
     public Command runMotorUp() {
