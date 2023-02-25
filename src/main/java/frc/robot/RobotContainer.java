@@ -23,6 +23,7 @@ import frc.robot.commands.arm.RunArm;
 import frc.robot.commands.arm.RunArmsToPosition;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
+import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
@@ -33,6 +34,7 @@ import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
 /**
@@ -194,6 +196,7 @@ public class RobotContainer {
         // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new
         // CurrentZero(m_lowerArm)));4
         m_driverController.back.onTrue(new CurrentZero(m_lowerArm));
+        m_driverController.lb.toggleOnTrue(new RepeatCommand(new AddVisionMeasurement(m_drive, m_frontAprilTagVision)));
     }
 
     private void initAutonChooser() {

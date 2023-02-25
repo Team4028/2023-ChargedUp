@@ -26,6 +26,7 @@ public class AddVisionMeasurement extends InstantCommand {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        m_vision.checkAlliance();
         m_drivetrain.addVisionMeasurement(
             m_vision.getLatestEstimatedRobotPose(),
             m_vision.getLatestLatency());

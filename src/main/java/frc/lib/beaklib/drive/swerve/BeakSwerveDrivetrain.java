@@ -134,6 +134,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
             createDriveController(),
             createAutonThetaController(),
             this::drive,
+            true,
             this);
 
         return new FollowPathWithEvents(

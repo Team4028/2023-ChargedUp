@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.sql.Driver;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
@@ -14,11 +15,14 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,6 +50,7 @@ public class Vision extends SubsystemBase {
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+            System.out.println(DriverStation.getAlliance());
         } catch (IOException err) {
             throw new RuntimeException();
         }
@@ -53,6 +58,15 @@ public class Vision extends SubsystemBase {
 
     public void togglePipeline() {
         m_camera.setPipelineIndex(m_camera.getPipelineIndex() == 0 ? 1 : 0);
+    }
+
+    /**
+     * This method must be called every time a vision measurement is used.
+     */
+    public void checkAlliance() {
+        m_layout.setOrigin(DriverStation.getAlliance() == Alliance.Red //
+            ? OriginPosition.kRedAllianceWallRightSide
+            : OriginPosition.kBlueAllianceWallRightSide);
     }
 
     /**
