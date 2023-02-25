@@ -20,6 +20,11 @@ public class UpperArm extends Arm {
     private final double kG = 0.01;
     private final double kV = 0.05;
 
+    /* Inches per revelution of sprocket: 6.25
+     * Gear reduction 12:1
+     */
+    private static final double NATIVE_UNITS_TO_INCHES = 6.25 / 12;
+
     /** Creates a new UpperArm. */
     public UpperArm() {
         ffmodel = new ElevatorFeedforward(kS, kG, kV);
@@ -53,6 +58,21 @@ public class UpperArm extends Arm {
     public void armNintey() {
         m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
         m_pidPos = 90;
+    }
+
+    @Override
+    public double nativeUnitsToInches(double nativeUntis) {
+        return nativeUntis * NATIVE_UNITS_TO_INCHES;
+    }
+
+    @Override
+    public double inchesToNativeUnits(double inches) {
+        return inches / NATIVE_UNITS_TO_INCHES;
+    }
+
+    @Override
+    public double getTargetPositionInches() {
+        return m_pidPos * NATIVE_UNITS_TO_INCHES;
     }
 
     /**
