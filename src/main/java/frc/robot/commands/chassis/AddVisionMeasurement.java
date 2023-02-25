@@ -5,8 +5,8 @@
 package frc.robot.commands.chassis;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.subsystems.Vision;
-import frc.robot.utilities.drive.BeakDrivetrain;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:

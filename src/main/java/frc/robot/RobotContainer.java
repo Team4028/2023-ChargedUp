@@ -14,12 +14,14 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.lib.beaklib.BeakXBoxController;
+import frc.lib.beaklib.Util;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.Autons;
-import frc.robot.commands.CurrentZero;
-import frc.robot.commands.RunArm;
-import frc.robot.commands.RunArmsToPosition;
-import frc.robot.commands.Autons.AutonPositions;
+import frc.robot.commands.arm.CurrentZero;
+import frc.robot.commands.arm.RunArm;
+import frc.robot.commands.arm.RunArmsToPosition;
+import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.subsystems.arms.Arm;
@@ -28,9 +30,7 @@ import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.swerve.PoseEstimatorSwerveDrivetrain;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
-import frc.robot.utilities.BeakXBoxController;
-import frc.robot.utilities.Util;
-import frc.robot.utilities.drive.swerve.BeakSwerveDrivetrain;
+import frc.robot.utilities.Trajectories.PathPosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -202,12 +202,12 @@ public class RobotContainer {
         // autoChooser.addOption("j path 2", new JPath2(m_drive));
         // autoChooser.addOption("J Path", new JPath(m_drive));
 
-        autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(AutonPositions.TOP));
-        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(AutonPositions.TOP));
-        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(AutonPositions.TOP));
-        autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(AutonPositions.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(AutonPositions.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(AutonPositions.BOTTOM));
+        autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(PathPosition.TOP));
+        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(PathPosition.TOP));
+        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(PathPosition.TOP));
+        autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(PathPosition.BOTTOM));
+        autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(PathPosition.BOTTOM));
+        autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(PathPosition.BOTTOM));
     }
 
     public double speedScaledDriverLeftY() {

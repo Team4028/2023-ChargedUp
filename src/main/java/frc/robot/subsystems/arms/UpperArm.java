@@ -60,9 +60,9 @@ public class UpperArm extends Arm {
         // Inline construction of command goes here.
         // Subsystem::RunOnce implicitly requires `this` subsystem.
         return runOnce(
-                () -> {
-                    /* one-time action goes here */
-                });
+            () -> {
+                /* one-time action goes here */
+            });
     }
 
     /**

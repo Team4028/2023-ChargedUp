@@ -14,7 +14,7 @@ import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.units.Distance;
+import frc.lib.beaklib.units.Distance;
 
 /**
  * The upper Argos Arm
@@ -27,13 +27,8 @@ public abstract class Arm extends SubsystemBase {
     protected double m_pidPos, m_distanceToTravel = 0;
 
     public enum ArmPositions {
-        RETRACTED(2., 2.),
-        SCORE_MID(22, 52),
-        SCORE_HIGH(28, 80),
-        ACQUIRE_FLOOR(9, 45),
-        THIRTY(11.33, 31.05),
-        SIXTY(19.57, 53.62),
-        NINETY(27.81, 76.2);
+        RETRACTED(2., 2.), SCORE_MID(22, 52), SCORE_HIGH(28, 80), ACQUIRE_FLOOR(9, 45), THIRTY(11.33,
+            31.05), SIXTY(19.57, 53.62), NINETY(27.81, 76.2);
 
         public double lowerPosition;
         public double upperPosition;
@@ -51,8 +46,7 @@ public abstract class Arm extends SubsystemBase {
      * <p>
      * MUST be run after initializing the SparkMAX
      */
-    protected void initArm()
-    {
+    protected void initArm() {
         m_encoder = m_motor.getEncoder();
         m_motor.setSmartCurrentLimit(40);
         m_pid = m_motor.getPIDController();
@@ -100,7 +94,7 @@ public abstract class Arm extends SubsystemBase {
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = position;
-        m_distanceToTravel = Math.abs(position - getEncoderPosition());        
+        m_distanceToTravel = Math.abs(position - getEncoderPosition());
     }
 
     public double getError() {
@@ -127,7 +121,8 @@ public abstract class Arm extends SubsystemBase {
     public Command exampleMethodCommand() {
         // Inline construction of command goes here.
         // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return new InstantCommand(() -> {});
+        return new InstantCommand(() -> {
+        });
     }
 
     /**
@@ -145,6 +140,8 @@ public abstract class Arm extends SubsystemBase {
         return m_distanceToTravel;
     }
 
-    public static Arm getInstance() {return null;}
+    public static Arm getInstance() {
+        return null;
+    }
 
 }

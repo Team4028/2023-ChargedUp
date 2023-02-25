@@ -32,8 +32,11 @@ public class Vision extends SubsystemBase {
     private final Pose3d m_camToRobot;
     private final boolean m_inverted;
 
-    /** Creates a new Vision.
-     * @param inverted true for apriltags and false for others.
+    /**
+     * Creates a new Vision.
+     * 
+     * @param inverted
+     *            true for apriltags and false for others.
      */
     public Vision(String cameraName, Pose3d camToRobot, boolean inverted) {
         m_camera = new PhotonCamera(cameraName);
@@ -94,9 +97,11 @@ public class Vision extends SubsystemBase {
     /**
      * Gets the pose of a target.
      * 
-     * @param robotPose The current robot pose.
-     * @param offset    The offset of the desired pose from the target. Positive is
-     *                  backwards (X) and right (Y).
+     * @param robotPose
+     *            The current robot pose.
+     * @param offset
+     *            The offset of the desired pose from the target. Positive is
+     *            backwards (X) and right (Y).
      * @return The pose of the specified offset from the target.
      */
     public Pose2d getTargetPose(Pose2d robotPose, Transform3d offset) {
@@ -114,12 +119,13 @@ public class Vision extends SubsystemBase {
             // WARNING: The following code is scuffed. Please proceed with caution.
             Pose2d newPose = scoringPose.toPose2d();
 
-            Rotation2d newRotation = Rotation2d.fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
+            Rotation2d newRotation = Rotation2d
+                .fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
 
             Pose2d finalPose = new Pose2d(newPose.getTranslation(), newRotation).plus(
-                    new Transform2d(
-                            m_camToRobot.getTranslation().toTranslation2d(),
-                            m_camToRobot.getRotation().toRotation2d()));
+                new Transform2d(
+                    m_camToRobot.getTranslation().toTranslation2d(),
+                    m_camToRobot.getRotation().toRotation2d()));
 
             Field2d field = new Field2d();
             field.setRobotPose(finalPose);

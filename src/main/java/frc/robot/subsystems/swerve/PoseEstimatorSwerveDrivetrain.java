@@ -4,17 +4,17 @@
 
 package frc.robot.subsystems.swerve;
 
+import frc.lib.beaklib.drive.RobotPhysics;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
+import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
+import frc.lib.beaklib.drive.swerve.SwerveDrivetrainConfiguration;
+import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
+import frc.lib.beaklib.gyro.BeakPigeon2;
+import frc.lib.beaklib.units.AngularVelocity;
+import frc.lib.beaklib.units.Distance;
+import frc.lib.beaklib.units.Velocity;
 import frc.robot.Constants.PIDConstants;
-import frc.robot.utilities.drive.RobotPhysics;
-import frc.robot.utilities.drive.swerve.BeakSwerveDrivetrain;
-import frc.robot.utilities.drive.swerve.SwerveModuleConfiguration;
-import frc.robot.utilities.gyro.BeakPigeon2;
-import frc.robot.utilities.drive.swerve.SdsModuleConfiguration;
-import frc.robot.utilities.drive.swerve.SdsModuleConfigurations;
-import frc.robot.utilities.drive.swerve.SwerveDrivetrainConfiguration;
-import frc.robot.utilities.units.AngularVelocity;
-import frc.robot.utilities.units.Distance;
-import frc.robot.utilities.units.Velocity;
 
 import java.io.IOException;
 
@@ -53,7 +53,8 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
      * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and
      * radians.
      */
-    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(10));
+    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.25, 0.25,
+        Units.degreesToRadians(10));
 
     private int resetTimer = 0;
 
@@ -71,9 +72,9 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final String CAN_BUS = "DriveSubsystem";
 
     private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
-            (0.19 + 0.225 + 0.214 + 0.2256) / 4.0,
-            (2.2565 + 2.2785 + 2.2754 + 2.291) / 4.0,
-            (0.277 + 0.31) / 2.0);
+        (0.19 + 0.225 + 0.214 + 0.2256) / 4.0,
+        (2.2565 + 2.2785 + 2.2754 + 2.291) / 4.0,
+        (0.277 + 0.31) / 2.0);
 
     private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
 
@@ -85,13 +86,13 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final Distance WHEEL_BASE = Distance.fromInches(28.);
 
     private static final RobotPhysics PHYSICS = new RobotPhysics(
-            MAX_VELOCITY,
-            new AngularVelocity(),
-            TRACK_WIDTH,
-            WHEEL_BASE,
-            CONFIGURATION.wheelDiameter,
-            CONFIGURATION.driveGearRatio,
-            FEED_FORWARD);
+        MAX_VELOCITY,
+        new AngularVelocity(),
+        TRACK_WIDTH,
+        WHEEL_BASE,
+        CONFIGURATION.wheelDiameter,
+        CONFIGURATION.driveGearRatio,
+        FEED_FORWARD);
 
     private static PoseEstimatorSwerveDrivetrain m_instance;
 
@@ -102,28 +103,28 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int FL_ENCODER_ID = 1; // SHOULD BE 9
     private static final double FL_OFFSET = -Units.degreesToRadians(139.8);
     private static final Translation2d FL_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-            TRACK_WIDTH.getAsMeters() / 2); // TODO: Please God BeakTranslation2d
+        TRACK_WIDTH.getAsMeters() / 2); // TODO: Please God BeakTranslation2d
 
     private static final int FR_DRIVE_ID = 4;
     private static final int FR_TURN_ID = 3;
     private static final int FR_ENCODER_ID = 2; // SHOULD BE 10
     private static final double FR_OFFSET = -Math.toRadians(322.5);
     private static final Translation2d FR_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-            -TRACK_WIDTH.getAsMeters() / 2);
+        -TRACK_WIDTH.getAsMeters() / 2);
 
     private static final int BL_DRIVE_ID = 6;
     private static final int BL_TURN_ID = 5;
     private static final int BL_ENCODER_ID = 3; // SHOULD BE 11
     private static final double BL_OFFSET = -Math.toRadians(106.3);
     private static final Translation2d BL_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
-            TRACK_WIDTH.getAsMeters() / 2);
+        TRACK_WIDTH.getAsMeters() / 2);
 
     private static final int BR_DRIVE_ID = 8;
     private static final int BR_TURN_ID = 7;
     private static final int BR_ENCODER_ID = 4; // SHOULD BE 12
     private static final double BR_OFFSET = -Math.toRadians(53.7 + 180.);
     private static final Translation2d BR_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
-            -TRACK_WIDTH.getAsMeters() / 2);
+        -TRACK_WIDTH.getAsMeters() / 2);
 
     private static final double ALLOWED_CLOSED_LOOP_ERROR = 40.0;
 
@@ -134,69 +135,69 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
     private final static BeakPigeon2 m_gyro = new BeakPigeon2(PIGEON2_ID, CAN_BUS);
 
     private static final SwerveDrivetrainConfiguration DRIVE_CONFIG = new SwerveDrivetrainConfiguration(
-            DRIVE_kP,
-            TURN_kP,
-            TURN_kD,
-            ALLOWED_CLOSED_LOOP_ERROR,
-            TURN_CURRENT_LIMIT,
-            DRIVE_SUPPLY_LIMIT,
-            DRIVE_STATOR_LIMIT,
-            CAN_BUS,
-            FEED_FORWARD,
-            CONFIGURATION);
+        DRIVE_kP,
+        TURN_kP,
+        TURN_kD,
+        ALLOWED_CLOSED_LOOP_ERROR,
+        TURN_CURRENT_LIMIT,
+        DRIVE_SUPPLY_LIMIT,
+        DRIVE_STATOR_LIMIT,
+        CAN_BUS,
+        FEED_FORWARD,
+        CONFIGURATION);
 
     private static SwerveModuleConfiguration m_frontLeftConfig = new SwerveModuleConfiguration(
-            FL_DRIVE_ID,
-            FL_TURN_ID,
-            FL_ENCODER_ID,
-            FL_OFFSET,
-            FL_LOCATION,
-            DRIVE_CONFIG);
+        FL_DRIVE_ID,
+        FL_TURN_ID,
+        FL_ENCODER_ID,
+        FL_OFFSET,
+        FL_LOCATION,
+        DRIVE_CONFIG);
 
     private static SwerveModuleConfiguration m_frontRightConfig = new SwerveModuleConfiguration(
-            FR_DRIVE_ID,
-            FR_TURN_ID,
-            FR_ENCODER_ID,
-            FR_OFFSET,
-            FR_LOCATION,
-            DRIVE_CONFIG);
+        FR_DRIVE_ID,
+        FR_TURN_ID,
+        FR_ENCODER_ID,
+        FR_OFFSET,
+        FR_LOCATION,
+        DRIVE_CONFIG);
 
     private static SwerveModuleConfiguration m_backLeftConfig = new SwerveModuleConfiguration(
-            BL_DRIVE_ID,
-            BL_TURN_ID,
-            BL_ENCODER_ID,
-            BL_OFFSET,
-            BL_LOCATION,
-            DRIVE_CONFIG);
+        BL_DRIVE_ID,
+        BL_TURN_ID,
+        BL_ENCODER_ID,
+        BL_OFFSET,
+        BL_LOCATION,
+        DRIVE_CONFIG);
 
     private static SwerveModuleConfiguration m_backRightConfig = new SwerveModuleConfiguration(
-            BR_DRIVE_ID,
-            BR_TURN_ID,
-            BR_ENCODER_ID,
-            BR_OFFSET,
-            BR_LOCATION,
-            DRIVE_CONFIG);
+        BR_DRIVE_ID,
+        BR_TURN_ID,
+        BR_ENCODER_ID,
+        BR_OFFSET,
+        BR_LOCATION,
+        DRIVE_CONFIG);
 
     public PoseEstimatorSwerveDrivetrain() {
         super(
-                PHYSICS,
-                m_gyro,
-                false,
-                PIDConstants.Theta.gains,
-                AUTON_DRIVE_GAINS,
-                GENERATED_AUTON_DRIVE_GAINS,
-                m_frontLeftConfig,
-                m_frontRightConfig,
-                m_backLeftConfig,
-                m_backRightConfig);
-        
+            PHYSICS,
+            m_gyro,
+            false,
+            PIDConstants.Theta.gains,
+            AUTON_DRIVE_GAINS,
+            GENERATED_AUTON_DRIVE_GAINS,
+            m_frontLeftConfig,
+            m_frontRightConfig,
+            m_backLeftConfig,
+            m_backRightConfig);
+
         m_odom = new SwerveDrivePoseEstimator(
-                m_kinematics,
-                getGyroRotation2d(),
-                getModulePositions(),
-                new Pose2d(),
-                m_stateStdDevs,
-                m_visionMeasurementStdDevs);
+            m_kinematics,
+            getGyroRotation2d(),
+            getModulePositions(),
+            new Pose2d(),
+            m_stateStdDevs,
+            m_visionMeasurementStdDevs);
     }
 
     public static PoseEstimatorSwerveDrivetrain getInstance() {
@@ -223,7 +224,7 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
             updateOdometry();
             m_field.setRobotPose(getPoseMeters());
             SmartDashboard.putData(m_field);
-        
+
             logData();
         } else {
             resetTimer++;

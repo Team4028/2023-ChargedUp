@@ -4,6 +4,7 @@
 package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
@@ -21,6 +22,7 @@ public class LowerArm extends Arm {
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
         super.initArm();
+        // m_motor.setIdleMode(IdleMode.kCoast);
     }
 
     public void armTen() {
@@ -52,9 +54,9 @@ public class LowerArm extends Arm {
         // Inline construction of command goes here.
         // Subsystem::RunOnce implicitly requires `this` subsystem.
         return runOnce(
-                () -> {
-                    /* one-time action goes here */
-                });
+            () -> {
+                /* one-time action goes here */
+            });
     }
 
     /**

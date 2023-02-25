@@ -23,11 +23,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.utilities.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 
 /**
- * credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
- * <p> event marker logic extracted from {@link FollowPathWithEvents}
+ * credit:
+ * https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
+ * <p>
+ * event marker logic extracted from {@link FollowPathWithEvents}
  */
 public class RunPath extends CommandBase {
     private PIDController m_xController, m_yController, m_thetaController;
@@ -49,10 +51,9 @@ public class RunPath extends CommandBase {
 
     /** Creates a new RunPath. */
     public RunPath(
-            PathPlannerTrajectory traj,
-            Map<String, Command> eventMap,
-            BeakDrivetrain drivetrain
-        ) {
+        PathPlannerTrajectory traj,
+        Map<String, Command> eventMap,
+        BeakDrivetrain drivetrain) {
         m_drivetrain = drivetrain;
         m_traj = traj;
 
@@ -63,9 +64,9 @@ public class RunPath extends CommandBase {
         m_drivetrain.resetOdometry(traj.getInitialHolonomicPose());
 
         m_positionTolerance = new Pose2d(
-                0.1, // 4 inches
-                0.1,
-                Rotation2d.fromDegrees(2.0));
+            0.1, // 4 inches
+            0.1,
+            Rotation2d.fromDegrees(2.0));
 
         m_timer = new Timer();
 
@@ -95,9 +96,9 @@ public class RunPath extends CommandBase {
 
         // The drive controller takes in three PID controllers (x, y, theta)
         m_driveController = new PPHolonomicDriveController(
-                m_xController,
-                m_yController,
-                m_thetaController);
+            m_xController,
+            m_yController,
+            m_thetaController);
 
         // Note: we also have to enable the controller
         m_driveController.setTolerance(m_positionTolerance);
@@ -132,8 +133,8 @@ public class RunPath extends CommandBase {
         // This is then passed into the drivetrain's drive method.
 
         ChassisSpeeds speeds = m_driveController.calculate(
-                m_currentPose,
-                m_setpoint);
+            m_currentPose,
+            m_setpoint);
 
         m_drivetrain.drive(speeds);
     }

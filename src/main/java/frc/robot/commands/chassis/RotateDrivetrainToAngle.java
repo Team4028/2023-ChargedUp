@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-import frc.robot.utilities.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -25,21 +25,21 @@ public class RotateDrivetrainToAngle extends ProfiledPIDCommand {
     /** Creates a new RotateDrivetrainByAngle. */
     public RotateDrivetrainToAngle(Supplier<Rotation2d> goal, BeakDrivetrain drivetrain, boolean relative) {
         super(
-                // The ProfiledPIDController used by the command
-                // TODO: use createThetaController() and get rid of relative.
-                drivetrain.getThetaController(),
-                // This should return the measurement
-                () -> drivetrain.getRotation2d().getRadians(),
-                // This should return the goal (can also be a constant)
-                () -> drivetrain.getThetaController().getGoal(),
-                // This uses the output
-                (output, setpoint) -> {
-                    // Use the output (and setpoint, if desired) here
-                    drivetrain.drive(
-                            0.,
-                            0.,
-                            (output + setpoint.velocity) / drivetrain.getPhysics().maxAngularVelocity.getAsRadiansPerSecond());
-                });
+            // The ProfiledPIDController used by the command
+            // TODO: use createThetaController() and get rid of relative.
+            drivetrain.getThetaController(),
+            // This should return the measurement
+            () -> drivetrain.getRotation2d().getRadians(),
+            // This should return the goal (can also be a constant)
+            () -> drivetrain.getThetaController().getGoal(),
+            // This uses the output
+            (output, setpoint) -> {
+                // Use the output (and setpoint, if desired) here
+                drivetrain.drive(
+                    0.,
+                    0.,
+                    (output + setpoint.velocity) / drivetrain.getPhysics().maxAngularVelocity.getAsRadiansPerSecond());
+            });
         this.drivetrain = drivetrain;
         this.goal = goal;
         this.relative = relative;
@@ -66,6 +66,7 @@ public class RotateDrivetrainToAngle extends ProfiledPIDCommand {
         SmartDashboard.putNumber("Goal", getGoal());
         SmartDashboard.putNumber("measurement", drivetrain.getRotation2d().getRadians() - goal.get().getRadians());
         SmartDashboard.putBoolean("at goal", getController().atSetpoint());
-        return Math.abs(drivetrain.getRotation2d().getRadians() - goal.get().getRadians()) < getController().getPositionTolerance();
+        return Math.abs(drivetrain.getRotation2d().getRadians() - goal.get().getRadians()) < getController()
+            .getPositionTolerance();
     }
 }

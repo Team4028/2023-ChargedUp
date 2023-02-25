@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.utilities.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class NewNewGeneratePath extends CommandBase {
@@ -57,9 +57,9 @@ public class NewNewGeneratePath extends CommandBase {
         m_plannedTraj = traj;
 
         m_positionTolerance = new Pose2d(
-                0.1, // 4 inches
-                0.1,
-                Rotation2d.fromDegrees(1.0));
+            0.1, // 4 inches
+            0.1,
+            Rotation2d.fromDegrees(1.0));
 
         m_timer = new Timer();
 
@@ -83,9 +83,9 @@ public class NewNewGeneratePath extends CommandBase {
 
         // The drive controller takes in three PID controllers (x, y, theta)
         m_driveController = new PPHolonomicDriveController(
-                m_xController,
-                m_yController,
-                m_thetaController);
+            m_xController,
+            m_yController,
+            m_thetaController);
 
         // Note: we also have to enable the controller
         m_driveController.setTolerance(m_positionTolerance);
@@ -112,7 +112,7 @@ public class NewNewGeneratePath extends CommandBase {
         }
 
         if (m_markers.size() > 0
-                && m_timer.get() > m_markers.get(0).timeSeconds) {
+            && m_timer.get() > m_markers.get(0).timeSeconds) {
             // && m_currentPose.getTranslation().getNorm() >
             // m_markers.get(0).positionMeters.getNorm()) {
             PathPlannerTrajectory.EventMarker marker = m_markers.remove(0);
@@ -125,9 +125,9 @@ public class NewNewGeneratePath extends CommandBase {
 
                     m_traj = m_drivetrain.generateTrajectoryToPose(m_desiredPose);
                     m_driveController = new PPHolonomicDriveController(
-                            m_generatedXController,
-                            m_generatedYController,
-                            m_generatedThetaController);
+                        m_generatedXController,
+                        m_generatedYController,
+                        m_generatedThetaController);
                     m_timer.reset();
                 }
             }
@@ -149,8 +149,8 @@ public class NewNewGeneratePath extends CommandBase {
         // and the target position, and outputs a ChassisSpeeds object.
         // This is then passed into the drivetrain's drive method.
         ChassisSpeeds output = m_driveController.calculate(
-                m_currentPose,
-                m_setpoint);
+            m_currentPose,
+            m_setpoint);
 
         SmartDashboard.putNumber("vxMetersPerSecond", output.vxMetersPerSecond);
         SmartDashboard.putNumber("vyMetersPerSecond", output.vyMetersPerSecond);
@@ -185,7 +185,7 @@ public class NewNewGeneratePath extends CommandBase {
     public boolean isFinished() {
         // Ends when it's at the target while also not ending "too early"
         return (m_traj.getTotalTimeSeconds() < m_timer.get() &&
-                m_driveController.atReference());
+            m_driveController.atReference());
         // return false;
     }
 }
