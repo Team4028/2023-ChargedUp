@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.commands.chassis.AddVisionMeasurement;
+import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.utilities.Trajectories;
@@ -52,6 +53,9 @@ public class Autons {
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
         m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
+
+        m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
+        m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
     }
 
     public BeakAutonCommand TwoPieceAcquire(PathPosition position) {

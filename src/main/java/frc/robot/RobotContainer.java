@@ -53,11 +53,11 @@ public class RobotContainer {
 
     private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-5.),
         Units.inchesToMeters(6.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(14.), Units.degreesToRadians(0.)));
+        new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(180.)));
 
     private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-6.),
         Units.inchesToMeters(6.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(14.), Units.degreesToRadians(0.)));
+        new Rotation3d(0., Units.degreesToRadians(16.0), Units.degreesToRadians(0.)));
     // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
     // Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
 
@@ -90,8 +90,8 @@ public class RobotContainer {
         // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
         // m_upperArm = UpperArm.getInstance();
         m_lowerArm = LowerArm.getInstance();
-        m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, true);
-        m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, true);
+        m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
+        m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
         // m_gamePieceVision = new Vision(GAME_PIECE_CAMERA_NAME,
         // GAME_PIECE_CAMERA_TO_ROBOT, false);
 
@@ -196,7 +196,7 @@ public class RobotContainer {
         // m_driverController.back.onTrue(new CurrentZero(m_upperArm).andThen(new
         // CurrentZero(m_lowerArm)));4
         m_driverController.back.onTrue(new CurrentZero(m_lowerArm));
-        m_driverController.lb.toggleOnTrue(new RepeatCommand(new AddVisionMeasurement(m_drive, m_frontAprilTagVision)));
+        m_driverController.lb.toggleOnTrue(new RepeatCommand(new AddVisionMeasurement(m_drive, m_rearAprilTagVision)));
     }
 
     private void initAutonChooser() {
