@@ -31,6 +31,7 @@ import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
@@ -158,13 +159,13 @@ public class RobotContainer {
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
-        if (RobotState.getState() == RobotState.State.CONE) {
+        m_driverController.b.onTrue(new ConditionalCommand(
             new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm,
-                m_upperArm, m_wrist).schedule();
-        } else {
+                m_upperArm, m_wrist),
             new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
-                m_upperArm, m_wrist).schedule();
-        }
+                m_upperArm, m_wrist),
+            () -> RobotState.getState() == RobotState.State.CONE));
+        
         m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,
             m_lowerArm, m_upperArm, m_wrist));
 
