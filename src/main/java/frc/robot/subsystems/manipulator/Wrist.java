@@ -9,18 +9,17 @@ import com.revrobotics.CANSparkMax.ControlType;
 
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.motor.BeakSparkMAX;
+import frc.lib.beaklib.motor.BeakSparkMAX;
 
 public class Wrist extends SubsystemBase {
-    
+
     public enum WristPositions {
-        STOW(0.0),
-        INFEED_CUBE(0.0),
-        INFEED_CONE(0.0),
-        SCORE_HIGH(0.0),
+        STOW(0.0), //
+        INFEED_CUBE(0.0), //
+        INFEED_CONE(0.0), //
+        SCORE_HIGH(0.0), //
         SCORE_MID(0.0);
 
         public double position;
@@ -48,6 +47,7 @@ public class Wrist extends SubsystemBase {
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 
         m_pid = m_motor.getPIDController();
+
         // PID Constants
         kP = 0;
         kI = 0;
@@ -68,56 +68,56 @@ public class Wrist extends SubsystemBase {
 
     public double getAbsoluteEncoderPosition() {
         return m_absoluteEncoder.getPosition() * 360.;
-        
+
     }
 
     public Command runMotorUp() {
         return runOnce(
-                () -> {
-                    m_motor.set(0.4);
-                });
+            () -> {
+                m_motor.set(0.4);
+            });
     }
 
     public Command stopMotor() {
         return runOnce(
-                () -> {
-                    m_motor.set(0);
-                });
+            () -> {
+                m_motor.set(0);
+            });
     }
 
     public Command runMotorDown() {
         return runOnce(
-                () -> {
-                    m_motor.set(-0.15);
-                });
+            () -> {
+                m_motor.set(-0.15);
+            });
     }
 
     public Command runToPosition(double position) {
         return runOnce(
-                () -> {
-                    m_targetPosition = position;
-                });
+            () -> {
+                m_targetPosition = position;
+            });
     }
 
     public Command runToLowPosition() {
         return runOnce(
-                () -> {
-                    runToPosition(0.);
-                });
+            () -> {
+                runToPosition(0.);
+            });
     }
 
     public Command runToMediumPosition() {
         return runOnce(
-                () -> {
-                    runToPosition(10.);
-                });
+            () -> {
+                runToPosition(10.);
+            });
     }
 
     public Command runToHighPosition() {
         return runOnce(
-                () -> {
-                    runToPosition(20.);
-                });
+            () -> {
+                runToPosition(20.);
+            });
     }
 
     public static Wrist getInstance() {

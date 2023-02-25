@@ -14,7 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.utilities.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class RunGeneratedPath extends CommandBase {
@@ -42,10 +42,10 @@ public class RunGeneratedPath extends CommandBase {
         m_drivetrain.resetOdometry(traj.getInitialHolonomicPose());
 
         m_positionTolerance = new Pose2d(
-                0.1, // 4 inches
-                0.1,
-                Rotation2d.fromDegrees(2.0));
-        
+            0.1, // 4 inches
+            0.1,
+            Rotation2d.fromDegrees(2.0));
+
         m_timer = new Timer();
 
         // Use addRequirements() here to declare subsystem dependencies.
@@ -64,9 +64,9 @@ public class RunGeneratedPath extends CommandBase {
 
         // The drive controller takes in three PID controllers (x, y, theta)
         m_driveController = new PPHolonomicDriveController(
-                m_xController,
-                m_yController,
-                m_thetaController);
+            m_xController,
+            m_yController,
+            m_thetaController);
 
         // Note: we also have to enable the controller
         m_driveController.setTolerance(m_positionTolerance);
@@ -94,7 +94,7 @@ public class RunGeneratedPath extends CommandBase {
         ChassisSpeeds speeds = m_driveController.calculate(
             m_currentPose,
             m_setpoint);
-        
+
         m_drivetrain.drive(speeds);
     }
 

@@ -1,0 +1,69 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.7944909911172147,
+        "y": 4.9352750662796705
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.544359374433035,
+        "y": 4.423255560796836
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.466598933197867,
+        "y": 4.752494647846439
+      },
+      "prevControl": {
+        "x": 4.863347726695453,
+        "y": 5.053104249065641
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.027272727272727258,
+      "names": [
+        "ArmRetract",
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.34545454545454546,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 0.8090909090909076,
+      "names": [
+        "RearLocalize"
+      ]
+    }
+  ]
+}

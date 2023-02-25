@@ -10,6 +10,7 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 public class LEDs extends SubsystemBase {
     private Color m_color;
     private CANdle m_candle;
@@ -17,10 +18,7 @@ public class LEDs extends SubsystemBase {
     private static LEDs m_instance;
 
     public enum Color {
-        GREEN(0, 255, 0),
-        PURPLE(127, 0, 255),
-        YELLOW(255, 255, 0),
-        OFF(0, 0, 0);
+        GREEN(0, 255, 0), PURPLE(127, 0, 255), YELLOW(255, 255, 0), OFF(0, 0, 0);
 
         private int r;
         private int g;
@@ -32,6 +30,7 @@ public class LEDs extends SubsystemBase {
             this.b = b;
         }
     }
+
     /** Creates a new LEDs. */
     public LEDs() {
         m_candle = new CANdle(21, "rio");
@@ -59,15 +58,14 @@ public class LEDs extends SubsystemBase {
         setColor(Color.OFF);
         setLEDs().ignoringDisable(true).schedule();
     }
-    
-    public Command setOff(){
-        return runOnce(()->{
-            r=0;
-            g=0;
-            b=0;
+
+    public Command setOff() {
+        return runOnce(() -> {
+            r = 0;
+            g = 0;
+            b = 0;
         });
     }
-
 
     public void setClimb() {
         setColor(Color.GREEN);
@@ -93,7 +91,7 @@ public class LEDs extends SubsystemBase {
         SmartDashboard.putNumber("r", r);
         SmartDashboard.putNumber("g", g);
         SmartDashboard.putNumber("b", b);
-        //setLEDs().schedule();
+        // setLEDs().schedule();
         m_candle.setLEDs(r, g, b);
     }
 }

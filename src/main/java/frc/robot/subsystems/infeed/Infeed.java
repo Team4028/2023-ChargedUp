@@ -6,7 +6,7 @@ package frc.robot.subsystems.infeed;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.motor.BeakTalonSRX;
+import frc.lib.beaklib.motor.BeakTalonSRX;
 
 public class Infeed extends SubsystemBase {
     private static Infeed m_instance;
@@ -19,23 +19,23 @@ public class Infeed extends SubsystemBase {
 
     public Command runMotorIn() {
         return runOnce(
-                () -> {
-                    m_motor.set(0.4);
-                });
+            () -> {
+                m_motor.set(0.4);
+            });
     }
 
     public Command stopMotor() {
         return runOnce(
-                () -> {
-                    m_motor.set(0.0);
-                });
+            () -> {
+                m_motor.set(0.0);
+            });
     }
 
     public Command runMotorOut() {
         return runOnce(
-                () -> {
-                    m_motor.set(-0.4);
-                });
+            () -> {
+                m_motor.set(-0.4);
+            });
     }
 
     public static Infeed getInstance() {

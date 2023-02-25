@@ -11,12 +11,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.ctre.phoenix.led.CANdle;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.LEDs;
-import frc.robot.subsystems.Limelight;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,9 +25,8 @@ import frc.robot.subsystems.Limelight;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-    private CANdle m_candle;
-    private Limelight m_limelight;
     private LEDs m_leds;
+
     /**
      * This function is run when the robot is first started up and should be used
      * for any initialization code.
@@ -38,7 +34,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         Logger logger = Logger.getInstance();
-        m_limelight = Limelight.getInstance();
         m_leds = LEDs.getInstance();
         // Record metadata
         logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -104,7 +99,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         RobotState.modeBlank();
-        m_limelight.setLedMode(1.);
     }
 
     /** This function is called periodically when disabled. */
@@ -118,13 +112,12 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousInit() {
-        //autonomousCommand = robotContainer.getAutonomousCommand();
+        // autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
-        m_limelight.setLedMode(1.);
     }
 
     /** This function is called periodically during autonomous. */
@@ -135,7 +128,6 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        m_limelight.setLedMode(1.);
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove

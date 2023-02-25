@@ -5,17 +5,15 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.lib.beaklib.units.Distance;
 import frc.robot.commands.BlinkLEDs;
 import frc.robot.subsystems.LEDs;
-import frc.robot.utilities.units.Distance;
 
 public class RobotState {
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
 
     public enum State {
-        CONE,
-        OFF,
-        CUBE;
+        CONE, OFF, CUBE;
     }
 
     /**
@@ -29,30 +27,33 @@ public class RobotState {
 
         /**
          * Create a new Node.
-         * @param tagID The tag ID of the node. Set to 0 if none.
-         * @param pose  The BLUE pose of the node.
+         * 
+         * @param tagID
+         *            The tag ID of the node. Set to 0 if none.
+         * @param pose
+         *            The BLUE pose of the node.
          */
         public Node(int tagID, Pose2d pose) {
             this.TagID = tagID;
             this.BluePose = pose;
             this.RedPose = new Pose2d(
-                    pose.getX(),
-                    FIELD_WIDTH.getAsMeters() - pose.getY(),
-                    pose.getRotation());
+                pose.getX(),
+                FIELD_WIDTH.getAsMeters() - pose.getY(),
+                pose.getRotation());
         }
     }
 
     public static final List<Node> NODES = Arrays.asList(
-            // This list starts at the node nearest the opposing alliance's LOADING ZONE
-            new Node(0, new Pose2d(1.80, 4.94, new Rotation2d(Math.PI))), // 1
-            new Node(3, new Pose2d(1.80, 4.45, new Rotation2d(Math.PI))), // tag
-            new Node(0, new Pose2d(1.80, 3.86, new Rotation2d(Math.PI))),
-            new Node(0, new Pose2d(1.80, 3.30, new Rotation2d(Math.PI))),
-            new Node(2, new Pose2d(1.80, 2.75, new Rotation2d(Math.PI))),
-            new Node(0, new Pose2d(1.80, 2.21, new Rotation2d(Math.PI))),
-            new Node(0, new Pose2d(1.80, 1.63, new Rotation2d(Math.PI))),
-            new Node(1, new Pose2d(1.80, 1.08, new Rotation2d(Math.PI))),
-            new Node(0, new Pose2d(1.80, 0.50, new Rotation2d(Math.PI))) // 9
+        // This list starts at the node nearest the opposing alliance's LOADING ZONE
+        new Node(0, new Pose2d(1.80, 4.94, new Rotation2d(Math.PI))), // 1
+        new Node(3, new Pose2d(1.80, 4.45, new Rotation2d(Math.PI))), // tag
+        new Node(0, new Pose2d(1.80, 3.86, new Rotation2d(Math.PI))),
+        new Node(0, new Pose2d(1.80, 3.30, new Rotation2d(Math.PI))),
+        new Node(2, new Pose2d(1.80, 2.75, new Rotation2d(Math.PI))),
+        new Node(0, new Pose2d(1.80, 2.21, new Rotation2d(Math.PI))),
+        new Node(0, new Pose2d(1.80, 1.63, new Rotation2d(Math.PI))),
+        new Node(1, new Pose2d(1.80, 1.08, new Rotation2d(Math.PI))),
+        new Node(0, new Pose2d(1.80, 0.50, new Rotation2d(Math.PI))) // 9
     );
 
     private static Node m_currentNode = NODES.get(0);

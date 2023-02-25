@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * timer.
  *
  * <p>
- * This class is provided by the NewCommands VendorDep
+ * This class is not provided by the NewCommands VendorDep
  */
 public class SuppliedWaitCommand extends CommandBase {
     protected Timer m_timer = new Timer();
@@ -28,7 +28,8 @@ public class SuppliedWaitCommand extends CommandBase {
      * Creates a new WaitCommand. This command will do nothing, and end after the
      * specified duration.
      *
-     * @param timeSupplier the supplier of the time to wait, in seconds
+     * @param timeSupplier
+     *            the supplier of the time to wait, in seconds
      */
     public SuppliedWaitCommand(DoubleSupplier timeSupplier) {
         m_durationSupplier = timeSupplier;

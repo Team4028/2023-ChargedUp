@@ -21,8 +21,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.utilities.drive.BeakDrivetrain;
-import frc.robot.utilities.drive.BeakHolonomicDriveController;
+import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.BeakHolonomicDriveController;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class NewGeneratePath extends CommandBase {
@@ -58,9 +58,9 @@ public class NewGeneratePath extends CommandBase {
         m_plannedTraj = plannedTraj;
 
         m_positionTolerance = new Pose2d(
-                0.1, // 4 inches
-                0.1,
-                Rotation2d.fromDegrees(0.8));
+            0.1, // 4 inches
+            0.1,
+            Rotation2d.fromDegrees(0.8));
 
         m_timer = new Timer();
 
@@ -84,12 +84,12 @@ public class NewGeneratePath extends CommandBase {
 
         // The drive controller takes in three PID controllers (x, y, theta)
         m_driveController = new BeakHolonomicDriveController(
-                m_xController,
-                m_yController,
-                m_thetaController,
-                m_generatedXController,
-                m_generatedYController,
-                m_generatedThetaController);
+            m_xController,
+            m_yController,
+            m_thetaController,
+            m_generatedXController,
+            m_generatedYController,
+            m_generatedThetaController);
 
         // Note: we also have to enable the controller
         m_driveController.setTolerance(m_positionTolerance);
@@ -129,7 +129,7 @@ public class NewGeneratePath extends CommandBase {
         }
 
         if (m_markers.size() > 0
-                && m_timer.get() > m_markers.get(0).timeSeconds) {
+            && m_timer.get() > m_markers.get(0).timeSeconds) {
             // && m_currentPose.getTranslation().getNorm() >
             // m_markers.get(0).positionMeters.getNorm()) {
             PathPlannerTrajectory.EventMarker marker = m_markers.remove(0);
@@ -144,7 +144,7 @@ public class NewGeneratePath extends CommandBase {
         }
 
         if ((m_desiredPose != null && m_desiredPose != m_currentPose)
-                && (m_traj == null)) {
+            && (m_traj == null)) {
             m_traj = m_drivetrain.generateTrajectoryToPose(m_desiredPose);
         }
 
@@ -160,16 +160,16 @@ public class NewGeneratePath extends CommandBase {
         // and the target position, and outputs a ChassisSpeeds object.
         // This is then passed into the drivetrain's drive method.
         ChassisSpeeds output = m_driveController.calculate(
-                m_currentPose,
-                m_setpoint,
-                m_plannedSetpoint);
+            m_currentPose,
+            m_setpoint,
+            m_plannedSetpoint);
 
         SmartDashboard.putNumber("vxMetersPerSecond", output.vxMetersPerSecond);
         SmartDashboard.putNumber("vyMetersPerSecond", output.vyMetersPerSecond);
         SmartDashboard.putNumber("omegaRadiansPerSecond", output.omegaRadiansPerSecond);
 
         m_drivetrain.drive(
-                output);
+            output);
         SmartDashboard.putNumber("Weight", m_driveController.getWeight());
     }
 
@@ -200,11 +200,11 @@ public class NewGeneratePath extends CommandBase {
         // Ends when it's at the target while also not ending "too early"
         if (m_traj != null)
             return (m_traj.getTotalTimeSeconds() < m_timer.get() - 0.5 - m_timerOffset &&
-            m_driveController.atReference());
-            // return false;
+                m_driveController.atReference());
+        // return false;
         else
             return (m_plannedTraj.getTotalTimeSeconds() < m_timer.get() - 0.5 &&
-            m_driveController.atReference());
-            // return false;
+                m_driveController.atReference());
+        // return false;
     }
 }

@@ -5,12 +5,10 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * The lower Argos Arm
@@ -20,8 +18,9 @@ public class LowerArm extends Arm {
     private final double kS = 0.33069;
     private final double kG = 0.2554;
     private final double kV = 0.10667;
-    
-    /* Inches per revelution of sprocket: 6.25
+
+    /*
+     * Inches per revelution of sprocket: 6.25
      * Gear reduction 25:1
      */
     public static final double NATIVE_UNITS_TO_INCHES = 6.25 / 25;

@@ -14,13 +14,14 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,8 +35,11 @@ public class Vision extends SubsystemBase {
     private final Pose3d m_camToRobot;
     private final boolean m_inverted;
 
-    /** Creates a new Vision.
-     * @param inverted true for apriltags and false for others.
+    /**
+     * Creates a new Vision.
+     * 
+     * @param inverted
+     *            true for apriltags and false for others.
      */
     public Vision(String cameraName, Pose3d camToRobot, boolean inverted) {
         m_camera = new PhotonCamera(cameraName);
@@ -45,6 +49,7 @@ public class Vision extends SubsystemBase {
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+            System.out.println(DriverStation.getAlliance());
         } catch (IOException err) {
             throw new RuntimeException();
         }
@@ -52,6 +57,15 @@ public class Vision extends SubsystemBase {
 
     public void togglePipeline() {
         m_camera.setPipelineIndex(m_camera.getPipelineIndex() == 0 ? 1 : 0);
+    }
+
+    /**
+     * This method must be called every time a vision measurement is used.
+     */
+    public void checkAlliance() {
+        m_layout.setOrigin(DriverStation.getAlliance() == Alliance.Red //
+            ? OriginPosition.kRedAllianceWallRightSide
+            : OriginPosition.kBlueAllianceWallRightSide);
     }
 
     /**
@@ -96,9 +110,11 @@ public class Vision extends SubsystemBase {
     /**
      * Gets the pose of a target.
      * 
-     * @param robotPose The current robot pose.
-     * @param offset    The offset of the desired pose from the target. Positive is
-     *                  backwards (X) and right (Y).
+     * @param robotPose
+     *            The current robot pose.
+     * @param offset
+     *            The offset of the desired pose from the target. Positive is
+     *            backwards (X) and right (Y).
      * @return The pose of the specified offset from the target.
      */
     public Pose2d getTargetPose(Pose2d robotPose, Transform3d offset) {
@@ -116,12 +132,13 @@ public class Vision extends SubsystemBase {
             // WARNING: The following code is scuffed. Please proceed with caution.
             Pose2d newPose = scoringPose.toPose2d();
 
-            Rotation2d newRotation = Rotation2d.fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
+            Rotation2d newRotation = Rotation2d
+                .fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
 
             Pose2d finalPose = new Pose2d(newPose.getTranslation(), newRotation).plus(
-                    new Transform2d(
-                            m_camToRobot.getTranslation().toTranslation2d(),
-                            m_camToRobot.getRotation().toRotation2d()));
+                new Transform2d(
+                    m_camToRobot.getTranslation().toTranslation2d(),
+                    m_camToRobot.getRotation().toRotation2d()));
 
             Field2d field = new Field2d();
             field.setRobotPose(finalPose);

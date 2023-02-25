@@ -1,0 +1,101 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 2.04,
+        "y": 1.09
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.1026343481258394,
+        "y": 0.9734025182336087
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.4482201821546505,
+        "y": 0.7443666315904063
+      },
+      "prevControl": {
+        "x": 3.1046662366971614,
+        "y": 0.6080640574135585
+      },
+      "nextControl": {
+        "x": 5.435937443303458,
+        "y": 0.8445698319968078
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.3663957327914655,
+        "y": 2.1328966943648173
+      },
+      "prevControl": {
+        "x": 6.395025218621866,
+        "y": 0.6155339453536053
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.01818181818181818,
+      "names": [
+        "ArmRetract",
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.690909090909091,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.0000000000000002,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.8363636363636346,
+      "names": [
+        "ArmPickup",
+        "RearLocalize"
+      ]
+    }
+  ]
+}

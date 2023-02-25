@@ -8,34 +8,35 @@
 // import frc.robot.subsystems.manipulator.Wrist;
 
 // public class RunWrist extends CommandBase {
-//     private Wrist m_wrist;
-//     private double m_position;
-//   /** Creates a new RunWrist. */
-//   public RunWrist(double position, Wrist wrist) {
-//     m_wrist = wrist;
-//     m_position = position;
-//     // Use addRequirements() here to declare subsystem dependencies.
-//     addRequirements(wrist);
-//   }
+// private Wrist m_wrist;
+// private double m_position;
+// /** Creates a new RunWrist. */
+// public RunWrist(double position, Wrist wrist) {
+// m_wrist = wrist;
+// m_position = position;
+// // Use addRequirements() here to declare subsystem dependencies.
+// addRequirements(wrist);
+// }
 
-//   // Called when the command is initially scheduled.
-//   @Override
-//   public void initialize() {
-//     m_wrist.runToPosition(m_position);
-//   }
+// // Called when the command is initially scheduled.
+// @Override
+// public void initialize() {
+// m_wrist.runToPosition(m_position);
+// }
 
-//   // Called every time the scheduler runs while the command is scheduled.
-//   @Override
-//   public void execute() {}
+// // Called every time the scheduler runs while the command is scheduled.
+// @Override
+// public void execute() {}
 
-//   // Called once the command ends or is interrupted.
-//   @Override
-//   public void end(boolean interrupted) {}
+// // Called once the command ends or is interrupted.
+// @Override
+// public void end(boolean interrupted) {}
 
-//   // Returns true when the command should end.
-//   @Override
-//   public boolean isFinished() {
-//     return
-//     return Math.abs(m_wrist.getEncoderPosition() - m_wrist.getTargetPosition()) < 0.2);
-//   }
+// // Returns true when the command should end.
+// @Override
+// public boolean isFinished() {
+// return
+// return Math.abs(m_wrist.getEncoderPosition() - m_wrist.getTargetPosition()) <
+// 0.2);
+// }
 // }
