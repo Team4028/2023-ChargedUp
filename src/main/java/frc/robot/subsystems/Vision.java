@@ -30,7 +30,8 @@ public class Vision extends SubsystemBase {
     private final PhotonCamera m_camera;
     private final AprilTagFieldLayout m_layout;
 
-    private double m_latestLatency;
+    private double m_latestLatency = 0.;
+    private int m_latestTag = 0;
 
     private final Pose3d m_camToRobot;
     private final boolean m_inverted;
@@ -95,7 +96,8 @@ public class Vision extends SubsystemBase {
         if (target != null) {
             Transform3d cameraToTarget = target.getBestCameraToTarget();
 
-            Optional<Pose3d> tagPose = m_layout.getTagPose(target.getFiducialId());
+            m_latestTag = target.getFiducialId();
+            Optional<Pose3d> tagPose = m_layout.getTagPose(m_latestTag);
 
             Transform3d camToRobot = new Transform3d();
 
@@ -151,6 +153,11 @@ public class Vision extends SubsystemBase {
 
     public double getLatestLatency() {
         return m_latestLatency;
+    }
+
+    public int getLatestTagID() {
+        getBestTarget();
+        return m_latestTag;
     }
 
     @Override

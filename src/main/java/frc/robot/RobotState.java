@@ -5,8 +5,17 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.units.Distance;
 import frc.robot.commands.BlinkLEDs;
+import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
 
 public class RobotState {
@@ -24,6 +33,7 @@ public class RobotState {
         public Pose2d RedPose;
 
         public int TagID;
+        public int GridID;
 
         /**
          * Create a new Node.
@@ -33,7 +43,8 @@ public class RobotState {
          * @param pose
          *            The BLUE pose of the node.
          */
-        public Node(int tagID, Pose2d pose) {
+        public Node(int gridID, int tagID, Pose2d pose) {
+            this.GridID = gridID;
             this.TagID = tagID;
             this.BluePose = pose;
             this.RedPose = new Pose2d(
@@ -45,15 +56,15 @@ public class RobotState {
 
     public static final List<Node> NODES = Arrays.asList(
         // This list starts at the node nearest the opposing alliance's LOADING ZONE
-        new Node(0, new Pose2d(1.80, 4.94, new Rotation2d(Math.PI))), // 1
-        new Node(3, new Pose2d(1.80, 4.45, new Rotation2d(Math.PI))), // tag
-        new Node(0, new Pose2d(1.80, 3.86, new Rotation2d(Math.PI))),
-        new Node(0, new Pose2d(1.80, 3.30, new Rotation2d(Math.PI))),
-        new Node(2, new Pose2d(1.80, 2.75, new Rotation2d(Math.PI))),
-        new Node(0, new Pose2d(1.80, 2.21, new Rotation2d(Math.PI))),
-        new Node(0, new Pose2d(1.80, 1.63, new Rotation2d(Math.PI))),
-        new Node(1, new Pose2d(1.80, 1.08, new Rotation2d(Math.PI))),
-        new Node(0, new Pose2d(1.80, 0.50, new Rotation2d(Math.PI))) // 9
+        new Node(0, 0, new Pose2d(2.0, 4.94, new Rotation2d(Math.PI))), // 1
+        new Node(1, 3, new Pose2d(2.0, 4.45, new Rotation2d(Math.PI))), // tag
+        new Node(2, 0, new Pose2d(2.0, 3.86, new Rotation2d(Math.PI))),
+        new Node(3, 0, new Pose2d(2.0, 3.30, new Rotation2d(Math.PI))),
+        new Node(4, 2, new Pose2d(2.0, 2.75, new Rotation2d(Math.PI))),
+        new Node(5, 0, new Pose2d(2.0, 2.21, new Rotation2d(Math.PI))),
+        new Node(6, 0, new Pose2d(2.0, 1.63, new Rotation2d(Math.PI))),
+        new Node(7, 1, new Pose2d(2.0, 1.08, new Rotation2d(Math.PI))),
+        new Node(8, 0, new Pose2d(2.0, 0.50, new Rotation2d(Math.PI))) // 9
     );
 
     private static Node m_currentNode = NODES.get(0);
@@ -61,8 +72,12 @@ public class RobotState {
     private static State m_currentState = State.CONE;
 
     private static LEDs m_leds;
+    private static BeakDrivetrain m_drive;
 
     private static boolean climbMode = false;
+    private static boolean autoAlignMode = false;
+
+    private static Field2d field = new Field2d();
 
     public static void modeBlank() {
         m_currentState = State.OFF;
@@ -85,6 +100,10 @@ public class RobotState {
             m_leds.setCube();
             new BlinkLEDs(m_leds).schedule();
         }
+    }
+
+    public static void toggleAutoAlign() {
+        autoAlignMode = !autoAlignMode;
     }
 
     public static void toggleClimb() {
@@ -135,24 +154,82 @@ public class RobotState {
     }
 
     public static Node getNodeFromTagID(int id) {
+        if (id == 0) {
+            return m_currentNode;
+        }
         for (Node node : NODES) {
             if (node.TagID == id || 9 - node.TagID == id) {
                 return node;
             }
         }
 
-        return new Node(0, new Pose2d());
+        return NODES.get(0);
     }
 
     public static void setNode(Node node) {
         m_currentNode = node;
+        SmartDashboard.putNumber("Node", node.GridID);
+
+        field.setRobotPose(DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose);
+        SmartDashboard.putData("Node Pose", field);
+
+        if (autoAlignMode) {
+            new GeneratePathWithArc(
+                () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
+                m_drive).schedule();
+        }
+    }
+
+    public static Command setNodeFromTagID(int id) {
+        return new InstantCommand(() -> setNode(getNodeFromTagID(id)));
     }
 
     public static Node getCurrentNode() {
         return m_currentNode;
     }
 
-    public static void addSubsystem(LEDs leds) {
+    /**
+     * Increments the node index (moves FROM the side closest to the loading zone TO
+     * the other side)
+     * 
+     * @return A {@link Command} to increment the node.
+     */
+    public static Command incrementNode() {
+        return Commands.runOnce(
+            () -> {
+                Node node;
+                if (m_currentNode.GridID + 1 == NODES.size()) {
+                    node = m_currentNode;
+                } else {
+                    node = NODES.get(m_currentNode.GridID + 1);
+                }
+
+                setNode(node);
+            });
+    }
+
+    /**
+     * Decrements the node index (moves FROM the side closest to the cable cover TO
+     * the other side)
+     * 
+     * @return A {@link Command} to increment the node.
+     */
+    public static Command decrementNode() {
+        return Commands.runOnce(
+            () -> {
+                Node node;
+                if (m_currentNode.GridID - 1 < 0) {
+                    node = m_currentNode;
+                } else {
+                    node = NODES.get(m_currentNode.GridID);
+                }
+                
+                setNode(node);
+            });
+    }
+
+    public static void addSubsystem(LEDs leds, BeakDrivetrain drivetrain) {
         m_leds = leds;
+        m_drive = drivetrain;
     }
 }

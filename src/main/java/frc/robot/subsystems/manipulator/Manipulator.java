@@ -16,7 +16,7 @@ public class Manipulator extends SubsystemBase {
     /** Creates a new Manipulator. */
     public Manipulator() {
         // m_gripper = Gripper.getInstance();
-        m_wrist = Wrist.getInstance();
+        // m_wrist = Wrist.getInstance();
     }
 
     public Command lowCube() {
