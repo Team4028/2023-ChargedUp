@@ -21,7 +21,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 
@@ -45,6 +49,8 @@ public class GeneratePathWithArc extends CommandBase {
     private Pose2d m_positionTolerance;
 
     private BeakDrivetrain m_drivetrain;
+
+    Field2d field = new Field2d();
 
     /** Creates a new GeneratePath. */
     public GeneratePathWithArc(Supplier<Pose2d> desiredPose, BeakDrivetrain drivetrain) {
@@ -89,9 +95,12 @@ public class GeneratePathWithArc extends CommandBase {
         m_driveController.setEnabled(true);
 
         // Generate a trajectory and start the timer
-        m_traj = m_drivetrain.generateTrajectoryToPose(m_desiredPose);
+        m_traj = generateTrajectoryToPose(m_desiredPose);
 
         Logger.getInstance().recordOutput("Desired Pose", m_desiredPose);
+
+        field.setRobotPose(m_desiredPose);
+        SmartDashboard.putData("Node Pose", field);
 
         m_timer.reset();
         m_timer.start();
@@ -103,6 +112,7 @@ public class GeneratePathWithArc extends CommandBase {
         // Gets the setpoint--i.e. the next target position. This is used
         // by the drive controller to determine "where" it should be
         // on the next cycle.
+        SmartDashboard.putNumber("states", m_traj.getStates().size());
         if (m_traj.getStates().size() > 0) {
             m_setpoint = (PathPlannerState) m_traj.sample(m_timer.get() + 0.02);
 
@@ -131,6 +141,7 @@ public class GeneratePathWithArc extends CommandBase {
     @Override
     public boolean isFinished() {
         // Ends when it's at the target
+        SmartDashboard.putBoolean("at reference", m_driveController.atReference());
         return (m_driveController.atReference());
     }
 

@@ -30,6 +30,7 @@ import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
+import frc.robot.subsystems.swerve.PoseEstimatorSwerveDrivetrain;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
@@ -69,12 +70,12 @@ public class RobotContainer {
     private final BeakSwerveDrivetrain m_drive;
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
-    private final UpperArm m_upperArm;
-    private final LowerArm m_lowerArm;
+    // private final UpperArm m_upperArm;
+    // private final LowerArm m_lowerArm;
 
-    private final Manipulator m_manipulator;
-    private final Infeed m_infeed;
-    private final Wrist m_wrist;
+    // private final Manipulator m_manipulator;
+    // private final Infeed m_infeed;
+    // private final Wrist m_wrist;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -95,22 +96,22 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_drive = PracticeSwerveDrivetrain.getInstance();
-        // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
+        // m_drive = PracticeSwerveDrivetrain.getInstance();
+        m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
         // m_upperArm = UpperArm.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
-        m_manipulator = Manipulator.getInstance();
-        m_infeed = Infeed.getInstance();
-        m_wrist = Wrist.getInstance();
+        // m_manipulator = Manipulator.getInstance();
+        // m_infeed = Infeed.getInstance();
+        // m_wrist = Wrist.getInstance();
 
-        m_upperArm = UpperArm.getInstance();
-        m_lowerArm = LowerArm.getInstance();
+        // m_upperArm = UpperArm.getInstance();
+        // m_lowerArm = LowerArm.getInstance();
 
         RobotState.addSubsystem(null, m_drive);
 
-        m_autons = new Autons(m_drive, m_lowerArm, m_frontAprilTagVision, m_rearAprilTagVision);
+        m_autons = new Autons(m_drive, m_frontAprilTagVision, m_rearAprilTagVision);
 
         switch (Constants.currentMode) {
             // TODO
@@ -165,15 +166,15 @@ public class RobotContainer {
                 true),
                 m_drive));
 
-        m_driverController.b.onTrue(new ConditionalCommand(
-            new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm,
-                m_upperArm, m_wrist),
-            new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
-                m_upperArm, m_wrist),
-            () -> RobotState.getState() == RobotState.State.CONE));
+        // m_driverController.b.onTrue(new ConditionalCommand(
+        //     new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm,
+        //         m_upperArm, m_wrist),
+        //     new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
+        //         m_upperArm, m_wrist),
+        //     () -> RobotState.getState() == RobotState.State.CONE));
 
-        m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,
-            m_lowerArm, m_upperArm, m_wrist));
+        // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,
+        //     m_lowerArm, m_upperArm, m_wrist));
         m_driverController.y.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
 
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
@@ -185,7 +186,7 @@ public class RobotContainer {
         m_driverController.dpadRight.onTrue(RobotState.incrementNode());
         m_driverController.dpadLeft.onTrue(RobotState.decrementNode());
 
-        m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
+        // m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
         // // infeed

@@ -156,7 +156,7 @@ public class Vision extends SubsystemBase {
     }
 
     public int getLatestTagID() {
-        getBestTarget();
+        getLatestEstimatedRobotPose();
         return m_latestTag;
     }
 

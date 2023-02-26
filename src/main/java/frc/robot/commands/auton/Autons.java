@@ -27,7 +27,7 @@ import frc.robot.utilities.Trajectories.PathPosition;
 public class Autons {
     // Global Subsystems
     private final BeakDrivetrain m_drivetrain;
-    private final LowerArm m_lowerArm;
+    // private final LowerArm m_lowerArm;
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
 
@@ -36,11 +36,11 @@ public class Autons {
     // Subsystem & Event setup
     public Autons(
         BeakDrivetrain drivetrain,
-        LowerArm lowerArm,
+        // LowerArm lowerArm,
         Vision frontAprilTagVision,
         Vision rearAprilTagVision) {
         m_drivetrain = drivetrain;
-        m_lowerArm = lowerArm;
+        // m_lowerArm = lowerArm;
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 

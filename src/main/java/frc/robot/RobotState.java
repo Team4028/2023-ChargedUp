@@ -103,6 +103,7 @@ public class RobotState {
     }
 
     public static void toggleAutoAlign() {
+        SmartDashboard.putBoolean("Auto Align", autoAlignMode);
         autoAlignMode = !autoAlignMode;
     }
 
@@ -170,12 +171,9 @@ public class RobotState {
         m_currentNode = node;
         SmartDashboard.putNumber("Node", node.GridID);
 
-        field.setRobotPose(DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose);
-        SmartDashboard.putData("Node Pose", field);
-
         if (autoAlignMode) {
             new GeneratePathWithArc(
-                () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
+                () -> DriverStation.getAlliance() == Alliance.Red ? node.RedPose : node.BluePose,
                 m_drive).schedule();
         }
     }
@@ -221,7 +219,7 @@ public class RobotState {
                 if (m_currentNode.GridID - 1 < 0) {
                     node = m_currentNode;
                 } else {
-                    node = NODES.get(m_currentNode.GridID);
+                    node = NODES.get(m_currentNode.GridID - 1);
                 }
                 
                 setNode(node);
