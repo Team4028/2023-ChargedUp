@@ -19,7 +19,21 @@ public class UpperArm extends Arm {
 
     /** Creates a new UpperArm. */
     public UpperArm() {
+        kP = 8e-7;
+        kI = 1e-7;
+        kD = 5e-8;
+        kIz = 0;
+        kFF = 0.000156;
+
+        kMaxOutput = .9;
+        kMinOutput = -.9;
+        allowedErr = 0.1;
+
+        // smart motion coefficients
+        maxVel = 7000;
+        maxAcc = 21000;
         m_motor = new CANSparkMax(9, MotorType.kBrushless);
+        m_motor.setInverted(true);
         super.initArm();
 
     }
@@ -32,22 +46,22 @@ public class UpperArm extends Arm {
     }
 
     public void armTen() {
-        m_pid.setReference(2, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
+        m_pid.setReference(17.0/3.0, CANSparkMax.ControlType.kSmartMotion/* change to kPosition to disable smartMotion */);
         m_pidPos = 10;
     }
 
     public void armThirty() {
-        m_pid.setReference(31.0451, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(17, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = 30;
     }
 
     public void armSixty() {
-        m_pid.setReference(53.62151, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(34, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = 60;
     }
 
     public void armNintey() {
-        m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(51, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = 90;
     }
 

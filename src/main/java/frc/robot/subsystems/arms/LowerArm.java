@@ -20,26 +20,39 @@ public class LowerArm extends Arm {
     public LowerArm() {
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
+        kP = 8e-7;
+        kI = 1e-7;
+        kD = 5e-8;
+        kIz = 0;
+        kFF = 0.000156;
+
+        kMaxOutput = .9;
+        kMinOutput = -.9;
+        allowedErr = 0.1;
+
+        // smart motion coefficients
+        maxVel = 7000;
+        maxAcc = 21000;
         super.initArm();
     }
 
     public void armTen() {
-        m_pid.setReference(3.09, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
+        m_pid.setReference(3.09, CANSparkMax.ControlType.kSmartMotion/* change to kPosition to disable smartMotion */);
         m_pidPos = 10;
     }
 
     public void armThirty() {
-        m_pid.setReference(11.33103, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(11.33103, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = 10;
     }
 
     public void armSixty() {
-        m_pid.setReference(19.56897, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(19.56897, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = 60;
     }
 
     public void armNintey() {
-        m_pid.setReference(27.81, CANSparkMax.ControlType.kPosition);
+        m_pid.setReference(27.81, CANSparkMax.ControlType.kSmartMotion);
         m_pidPos = 90;
     }
 
