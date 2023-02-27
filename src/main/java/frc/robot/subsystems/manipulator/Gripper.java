@@ -22,6 +22,8 @@ public class Gripper {
         m_motor.config_kP(0, 0.2);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
+
+        m_motor.supplyCurrentLimit(40);
     }
 
     public void toggle() {
