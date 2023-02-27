@@ -6,7 +6,6 @@ package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.TrapezoidRunArm;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;

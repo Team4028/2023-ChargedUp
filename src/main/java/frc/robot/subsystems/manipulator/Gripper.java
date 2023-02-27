@@ -5,6 +5,7 @@
 package frc.robot.subsystems.manipulator;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -23,7 +24,10 @@ public class Gripper {
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
 
-        m_motor.supplyCurrentLimit(40);
+        m_motor.configPeakCurrentLimit(30);
+        m_motor.configPeakCurrentDuration(100);
+        m_motor.configContinuousCurrentLimit(20);
+        m_motor.enableCurrentLimit(true);
     }
 
     public void toggle() {

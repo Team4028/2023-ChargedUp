@@ -29,7 +29,9 @@ public abstract class Arm extends SubsystemBase {
         RETRACTED(0.5, 1.04166666667), // L: 2. U: 2.
         SCORE_MID(11, 27.0833333333), // L: 44. U: 52.
         SCORE_HIGH(14, 41.6666666667), // L: 56. U: 80.
-        ACQUIRE_FLOOR(2.25, 20.8333333333333), // L: 9. U: 40.
+        ACQUIRE_FLOOR_CUBE(2.25, 20.8333333333333), // L: 9. U: 40.
+        ACQUIRE_FLOOR_TIPPED_CONE(2.25,20.833333333333333333), //L: 9. U: 40. 
+        ACQUIRE_FLOOR_UPRIGHT_CONE(0.0,0.0),
         // We no longer care about these
         THIRTY(2.8325, 16.171875), // L: 11.33 U: 31.05
         SIXTY(4.8925, 27.92708333), // L: 19.57 U: 53.62
@@ -118,6 +120,11 @@ public abstract class Arm extends SubsystemBase {
         m_pidPos = position;
     }
 
+    /**
+     * 
+     * @param nativeUntis the native unit (in )
+     * @return
+     */
     abstract public double nativeUnitsToInches(double nativeUntis);
 
     abstract public double inchesToNativeUnits(double inches);

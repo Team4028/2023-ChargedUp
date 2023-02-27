@@ -161,13 +161,14 @@ public class RobotContainer {
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
+        m_driverController.a.onTrue(new InstantCommand(()->RobotState.toggleClimb()));
         m_driverController.b.onTrue(new ConditionalCommand(
-            new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm,
+            new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR_TIPPED_CONE, Wrist.WristPositions.INFEED_TIPPED_CONE, m_lowerArm,
                 m_upperArm, m_wrist),
-            new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
+            new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR_CUBE, Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
                 m_upperArm, m_wrist),
             () -> RobotState.getState() == RobotState.State.CONE));
-        
+        m_driverController.y.onTrue(new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, Wrist.WristPositions.INFEED_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
         m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,
             m_lowerArm, m_upperArm, m_wrist));
 
@@ -189,7 +190,6 @@ public class RobotContainer {
         m_operatorController.lt.onFalse(m_wrist.stopMotor());
 
         // mode
-        m_operatorController.a.onTrue(new InstantCommand(() -> RobotState.toggleClimb()));
         m_operatorController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
         m_operatorController.y.onTrue(new InstantCommand(() -> RobotState.modeCone()));
         m_operatorController.b.onTrue(new InstantCommand(() -> RobotState.modeBlank()));

@@ -18,9 +18,10 @@ public class Wrist extends SubsystemBase {
     public enum WristPositions {
         STOW(0.0), //
         INFEED_CUBE(0.0), //
-        INFEED_CONE(0.0), //
+        INFEED_TIPPED_CONE(0.0), //
+        INFEED_UPRIGHT_CONE(0.0), //
         SCORE_HIGH(0.0), //
-        SCORE_MID(0.0);
+        SCORE_MID(0.0); //
 
         public double position;
 
@@ -38,14 +39,13 @@ public class Wrist extends SubsystemBase {
     /** Creates a new Wrist. */
     public Wrist() {
         m_motor = new BeakSparkMAX(12);
-
         m_motor.restoreFactoryDefault();
         m_motor.setSmartCurrentLimit(25);
         m_motor.setInverted(false);
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setZeroOffset(0);
-
+        
         m_pid = m_motor.getPIDController();
 
         // PID Constants
