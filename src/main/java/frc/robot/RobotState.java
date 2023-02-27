@@ -167,19 +167,24 @@ public class RobotState {
         return NODES.get(0);
     }
 
-    public static void setNode(Node node) {
-        m_currentNode = node;
-        SmartDashboard.putNumber("Node", node.GridID);
+    public static Command setNode(Node node) {
+        return new InstantCommand(() -> m_currentNode = node);
+    }
+
+    public static Command runToNodePosition() {
+        SmartDashboard.putNumber("Node", m_currentNode.GridID);
 
         if (autoAlignMode) {
-            new GeneratePathWithArc(
-                () -> DriverStation.getAlliance() == Alliance.Red ? node.RedPose : node.BluePose,
-                m_drive).schedule();
+            return new GeneratePathWithArc(
+                () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
+                m_drive);
+        } else {
+            return Commands.none();
         }
     }
 
     public static Command setNodeFromTagID(int id) {
-        return new InstantCommand(() -> setNode(getNodeFromTagID(id)));
+        return setNode(getNodeFromTagID(id)).andThen(runToNodePosition());
     }
 
     public static Node getCurrentNode() {
@@ -193,7 +198,7 @@ public class RobotState {
      * @return A {@link Command} to increment the node.
      */
     public static Command incrementNode() {
-        return Commands.runOnce(
+        return new InstantCommand(
             () -> {
                 Node node;
                 if (m_currentNode.GridID + 1 == NODES.size()) {
@@ -202,8 +207,8 @@ public class RobotState {
                     node = NODES.get(m_currentNode.GridID + 1);
                 }
 
-                setNode(node);
-            });
+                setNode(node).schedule();
+            }).andThen(runToNodePosition());
     }
 
     /**
@@ -213,7 +218,7 @@ public class RobotState {
      * @return A {@link Command} to increment the node.
      */
     public static Command decrementNode() {
-        return Commands.runOnce(
+        return new InstantCommand(
             () -> {
                 Node node;
                 if (m_currentNode.GridID - 1 < 0) {
@@ -222,8 +227,8 @@ public class RobotState {
                     node = NODES.get(m_currentNode.GridID - 1);
                 }
                 
-                setNode(node);
-            });
+                setNode(node).schedule();
+            }).andThen(runToNodePosition());
     }
 
     public static void addSubsystem(LEDs leds, BeakDrivetrain drivetrain) {
