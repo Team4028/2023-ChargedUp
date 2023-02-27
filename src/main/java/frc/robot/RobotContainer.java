@@ -104,6 +104,8 @@ public class RobotContainer {
 
         m_autons = new Autons(m_drive, m_lowerArm, m_frontAprilTagVision, m_rearAprilTagVision);
 
+        RobotState.addSubsystem(null);
+
         switch (Constants.currentMode) {
             // TODO
             // Real robot, instantiate hardware IO implementations

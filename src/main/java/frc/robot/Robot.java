@@ -34,7 +34,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         Logger logger = Logger.getInstance();
-        m_leds = LEDs.getInstance();
+        // m_leds = LEDs.getInstance();
         // Record metadata
         logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -98,7 +98,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        RobotState.modeBlank();
+        // RobotState.modeBlank();
     }
 
     /** This function is called periodically when disabled. */
