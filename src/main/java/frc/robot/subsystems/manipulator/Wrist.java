@@ -43,8 +43,8 @@ public class Wrist extends SubsystemBase {
         m_motor.setSmartCurrentLimit(25);
         m_motor.setInverted(false);
 
-        m_absoluteEncoder.setZeroOffset(0);
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+        m_absoluteEncoder.setZeroOffset(0);
 
         m_pid = m_motor.getPIDController();
 
