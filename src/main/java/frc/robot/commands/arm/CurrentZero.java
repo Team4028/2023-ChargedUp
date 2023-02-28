@@ -22,6 +22,8 @@ public class CurrentZero extends CommandBase {
     public CurrentZero(Arm arm, double vbus) {
         m_arm = arm;
         this.vbus = vbus;
+        
+        addRequirements(arm);
         // Use addRequirements() here to declare subsystem dependencies.
 
     }

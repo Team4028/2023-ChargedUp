@@ -12,6 +12,9 @@ import frc.robot.subsystems.LEDs;
 public class RobotState {
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
 
+    /**
+     * the states of the robot
+     */
     public enum State {
         CONE, OFF, CUBE;
     }
@@ -64,6 +67,9 @@ public class RobotState {
 
     private static boolean climbMode = false;
 
+    /**
+     * Turns of the CANdle
+     */
     public static void modeBlank() {
         m_currentState = State.OFF;
         if (!climbMode) {
@@ -71,6 +77,9 @@ public class RobotState {
         }
     }
 
+    /**
+     * sets the robot mode to cone mode
+     */
     public static void modeCone() {
         m_currentState = State.CONE;
         if (!climbMode) {
@@ -79,6 +88,9 @@ public class RobotState {
         }
     }
 
+    /**
+     * sets the robot mode to cube mode 
+     */
     public static void modeCube() {
         m_currentState = State.CUBE;
         if (!climbMode) {
@@ -87,6 +99,9 @@ public class RobotState {
         }
     }
 
+    /**
+     * toggles the robot mode between climb mode
+     */
     public static void toggleClimb() {
         climbMode = !climbMode;
         if (climbMode) {
@@ -112,6 +127,9 @@ public class RobotState {
         }
     }
 
+    /**
+     * switches between cone and cube mode
+     */
     public static void toggle() {
         switch (m_currentState) {
             case CONE:
@@ -126,10 +144,18 @@ public class RobotState {
         }
     }
 
+    /**
+     * 
+     * @return the state of the robot
+     */
     public static State getState() {
         return m_currentState;
     }
 
+    /**
+     * 
+     * @return whether or not the robot is in climb mode
+     */
     public static boolean getClimb() {
         return climbMode;
     }

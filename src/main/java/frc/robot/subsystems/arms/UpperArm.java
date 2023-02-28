@@ -30,6 +30,7 @@ public class UpperArm extends Arm {
     public UpperArm() {
         ffmodel = new ElevatorFeedforward(kS, kG, kV);
         m_motor = new CANSparkMax(9, MotorType.kBrushless);
+        m_motor.setInverted(true);
         super.initArm();
 
     }
@@ -103,7 +104,7 @@ public class UpperArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("UpArmEncoderPos", this.getEncoderPosition());
+        SmartDashboard.putNumber("UpArmEncoderPos", nativeUnitsToInches(getEncoderPosition()));
         SmartDashboard.putNumber("UpArmErr", this.getError());
         SmartDashboard.putNumber("UpArmCurrentAmps", this.getMotorCurrent());
         // This method will be called once per scheduler run

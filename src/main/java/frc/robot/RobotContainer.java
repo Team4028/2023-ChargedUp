@@ -18,8 +18,9 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
-import frc.robot.subsystems.infeed.Infeed;
-import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.arms.Arm.ArmPositions;
+import frc.robot.subsystems.manipulator.Gripper;
+//import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.arm.RunArmsToPosition;
@@ -66,8 +67,8 @@ public class RobotContainer {
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
 
-    private final Manipulator m_manipulator;
-    private final Infeed m_infeed;
+    //private final Manipulator m_manipulator;
+    private final Gripper m_gripper;
     private final Wrist m_wrist;
 
     // Controller
@@ -95,8 +96,8 @@ public class RobotContainer {
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
-        m_manipulator = Manipulator.getInstance();
-        m_infeed = Infeed.getInstance();
+        //m_manipulator = Manipulator.getInstance();
+        m_gripper = Gripper.getInstance();
         m_wrist = Wrist.getInstance();
 
         m_upperArm = UpperArm.getInstance();
@@ -175,13 +176,14 @@ public class RobotContainer {
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
         m_driverController.lb.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
 
-        m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
+        m_driverController.back.onTrue(m_wrist.runToAngle(Wrist.WristPositions.STOW.position).andThen(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)))
+        .andThen(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, Wrist.WristPositions.STOW, m_lowerArm, m_upperArm, m_wrist)));
 
         // infeed
-        m_operatorController.rb.onTrue(m_infeed.runMotorIn());
-        m_operatorController.rb.onFalse(m_infeed.stopMotor());
-        m_operatorController.lb.onTrue(m_infeed.runMotorOut());
-        m_operatorController.lb.onFalse(m_infeed.stopMotor());
+        m_operatorController.rb.onTrue(m_gripper.runMotorIn());
+        m_operatorController.rb.onFalse(m_gripper.stopMotor());
+        m_operatorController.lb.onTrue(m_gripper.runMotorOut());
+        m_operatorController.lb.onFalse(m_gripper.stopMotor());
 
         // wrist
         m_operatorController.rt.onTrue(m_wrist.runMotorUp());
@@ -190,9 +192,17 @@ public class RobotContainer {
         m_operatorController.lt.onFalse(m_wrist.stopMotor());
 
         // mode
-        m_operatorController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
-        m_operatorController.y.onTrue(new InstantCommand(() -> RobotState.modeCone()));
-        m_operatorController.b.onTrue(new InstantCommand(() -> RobotState.modeBlank()));
+        // m_operatorController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
+        // m_operatorController.y.onTrue(new InstantCommand(() -> RobotState.modeCone()));
+        // m_operatorController.b.onTrue(new InstantCommand(() -> RobotState.modeBlank()));
+        m_operatorController.a.onTrue(new InstantCommand(() -> m_upperArm.runArm(0.15)));
+        m_operatorController.a.onFalse(new InstantCommand(() -> m_upperArm.runArm(0)));
+        m_operatorController.b.onTrue(new InstantCommand(() -> m_upperArm.runArm(-0.15)));
+        m_operatorController.b.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
+        m_operatorController.x.onTrue(new InstantCommand(() -> m_lowerArm.runArm(0.15)));
+        m_operatorController.x.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
+        m_operatorController.y.onTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.15)));
+        m_operatorController.y.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
     }
 
     private void initAutonChooser() {

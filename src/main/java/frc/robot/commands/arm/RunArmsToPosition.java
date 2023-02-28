@@ -23,7 +23,6 @@ public class RunArmsToPosition extends SequentialCommandGroup {
         LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
-
         addCommands(
             new ConditionalCommand(
                 // EXTENDING COMMAND
@@ -38,14 +37,14 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                          */
                         .andThen(new TrapezoidRunArm(maxVel, maxAccel, upperArm.getEncoderPosition(),
                             targetArmPositions.upperPosition, upperArm)
-                                .alongWith(wrist.runToPosition(targetWristPosition.position))),
+                                .alongWith(wrist.runToAngle(targetWristPosition.position))),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
                 new TrapezoidRunArm(maxVel, maxAccel, upperArm.getEncoderPosition(), targetArmPositions.upperPosition,
                     upperArm)
-                        .alongWith(wrist.runToPosition(targetWristPosition.position))
+                        .alongWith(wrist.runToAngle(targetWristPosition.position))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
@@ -53,5 +52,6 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                         .andThen(new TrapezoidRunArm(maxVel, maxAccel, lowerArm.getEncoderPosition(),
                             targetArmPositions.lowerPosition, lowerArm)),
                 () -> upperArm.inchesToNativeUnits(targetArmPositions.upperPosition) > upperArm.getEncoderPosition()));
+                addRequirements(upperArm, lowerArm, wrist);
     }
 }

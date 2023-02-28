@@ -25,12 +25,15 @@ public abstract class Arm extends SubsystemBase {
     protected double m_pidPos, m_distanceToTravel = 0;
     public ElevatorFeedforward ffmodel;
 
+    /**
+     * the enum containing the desired positions of the arm
+     */
     public enum ArmPositions {
         RETRACTED(0.5, 1.04166666667), // L: 2. U: 2.
         SCORE_MID(11, 27.0833333333), // L: 44. U: 52.
         SCORE_HIGH(14, 41.6666666667), // L: 56. U: 80.
-        ACQUIRE_FLOOR_CUBE(2.25, 20.8333333333333), // L: 9. U: 40.
-        ACQUIRE_FLOOR_TIPPED_CONE(2.25,20.833333333333333333), //L: 9. U: 40. 
+        ACQUIRE_FLOOR_CUBE(2.25, 20), // L: 9. U: 40.
+        ACQUIRE_FLOOR_TIPPED_CONE(2.25, 20), //L: 9. U: 40. 
         ACQUIRE_FLOOR_UPRIGHT_CONE(0.0,0.0),
         // We no longer care about these
         THIRTY(2.8325, 16.171875), // L: 11.33 U: 31.05
@@ -56,6 +59,7 @@ public abstract class Arm extends SubsystemBase {
     protected void initArm() {
         m_encoder = m_motor.getEncoder();
         m_motor.setSmartCurrentLimit(40);
+        m_motor.setIdleMode(IdleMode.kBrake);
         m_pid = m_motor.getPIDController();
 
         kP = .1;
@@ -88,10 +92,18 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setClosedLoopRampRate(0.1);
     }
 
+    /**
+     * runs the arm with raw vbus
+     * @param speed the speed at which to run the arm
+     */
     public void runArm(double speed) {
         m_motor.set(speed);
     }
 
+    /**
+     * 
+     * @return the motor current of the arm motor in amps
+     */
     public double getMotorCurrent() {
         return m_motor.getOutputCurrent();
     }
@@ -122,29 +134,49 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * 
-     * @param nativeUntis the native unit (in )
+     * @param nativeUntis the native unit (in this case rotations)
      * @return
      */
     abstract public double nativeUnitsToInches(double nativeUntis);
 
+    /**
+     * 
+     * @param inches the inches to convert
+     * @return the converted inches
+     */
     abstract public double inchesToNativeUnits(double inches);
 
     public double getError() {
         return Math.abs(this.getEncoderPosition() - m_pidPos);
     }
 
+    /**
+     * zeros the encoder
+     */
     public void zeroEncoder() {
         m_encoder.setPosition(0.0);
     }
 
+    /**
+     * 
+     * @return the position of the arm's encoder
+     */
     public double getEncoderPosition() {
         return m_encoder.getPosition();
     }
 
+    /**
+     * 
+     * @return the target position of the arm in rotations 
+     */
     public double getTargetPosition() {
         return m_pidPos;
     }
 
+    /**
+     * 
+     * @return the double value of the target position of the arm in inches
+     */
     abstract public double getTargetPositionInches();
 
     /**
@@ -170,10 +202,18 @@ public abstract class Arm extends SubsystemBase {
         return false;
     }
 
+    /**
+     * 
+     * @return the double value of the distance the arm needs to travel
+     */
     public double getDistanceToTravel() {
         return m_distanceToTravel;
     }
 
+    /**
+     * sets the distance to travel
+     * @param dist the distance to travel
+     */
     public void setDistanceToTravel(double dist) {
         m_distanceToTravel = dist;
     }
