@@ -20,9 +20,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -60,7 +59,7 @@ public class GeneratePathWithArc extends CommandBase {
         m_positionTolerance = new Pose2d(
             0.0254, // 1 inch
             0.0254,
-            Rotation2d.fromDegrees(1.0));
+            Rotation2d.fromDegrees(0.5));
 
         m_timer = new Timer();
 
@@ -112,7 +111,6 @@ public class GeneratePathWithArc extends CommandBase {
         // Gets the setpoint--i.e. the next target position. This is used
         // by the drive controller to determine "where" it should be
         // on the next cycle.
-        SmartDashboard.putNumber("states", m_traj.getStates().size());
         if (m_traj.getStates().size() > 0) {
             m_setpoint = (PathPlannerState) m_traj.sample(m_timer.get() + 0.02);
 
@@ -141,8 +139,20 @@ public class GeneratePathWithArc extends CommandBase {
     @Override
     public boolean isFinished() {
         // Ends when it's at the target
-        SmartDashboard.putBoolean("at reference", m_driveController.atReference());
-        return (m_driveController.atReference());
+
+        Transform2d error = m_desiredPose.minus(m_drivetrain.getPoseMeters()); // TODO: why
+        Translation2d translationError = error.getTranslation();
+        Rotation2d rotationError = error.getRotation();
+
+        Translation2d translationTolerance = m_positionTolerance.getTranslation();
+        Rotation2d rotationTolerance = m_positionTolerance.getRotation();
+
+        // return (m_driveController.atReference());
+        // TODO: bruh
+
+        return Math.abs(translationError.getX()) < translationTolerance.getX()
+            && Math.abs(translationError.getY()) < translationTolerance.getY()
+            && Math.abs(rotationError.getRadians()) < rotationTolerance.getRadians();
     }
 
     /**
@@ -171,18 +181,40 @@ public class GeneratePathWithArc extends CommandBase {
         // pose.
         List<PathPoint> points = new ArrayList<PathPoint>();
 
-        points.add(new PathPoint(robotPose.getTranslation(), robotPose.getRotation(), robotPose.getRotation()));
+        // This is essentially fancy logic to ensure the heading (direction of travel)
+        // is correct.
+        Translation2d midpointTranslation = desiredPose.getTranslation().plus(robotPose.getTranslation()).div(2)
+            .plus(new Translation2d(0.15, 0.));
+
+        // The heading should be the angle between the desired point and the current
+        // point.
+        Rotation2d midpointHeading = new Rotation2d(Math.atan2(
+            desiredPose.getTranslation().getY() - midpointTranslation.getY(),
+            desiredPose.getTranslation().getX() - midpointTranslation.getX()));
+
+        PathPoint startPoint = new PathPoint(
+            robotPose.getTranslation(),
+            new Rotation2d(Math.atan2(
+                midpointTranslation.getY() - robotPose.getTranslation().getY(),
+                midpointTranslation.getX() - robotPose.getTranslation().getX())),
+            robotPose.getRotation());
+
+        PathPoint midpoint = new PathPoint(
+            midpointTranslation,
+            midpointHeading,
+            desiredPose.getRotation());
+
+        PathPoint endPoint = new PathPoint(
+            desiredPose.getTranslation(),
+            midpointHeading.minus(new Rotation2d(-Math.PI)), // The end heading should be the opposite of the previous heading
+            desiredPose.getRotation());
         
-        points.add(new PathPoint(robotPose.getTranslation().plus(new Translation2d(0.2, 0.)), robotPose.getRotation(), robotPose.getRotation()));
+        points.add(startPoint);
+        points.add(midpoint);
+        points.add(endPoint);
 
-
-        // // A path point halfway in between the two points, but arced a little bit out
-        // points.add(new PathPoint(
-        //     (desiredPose.getTranslation().plus(robotPose.getTranslation()).div(2)).plus(new Translation2d(0.15, 0.)),
-        //     (desiredPose.getRotation().plus(robotPose.getRotation()).div(2)),
-        //     (desiredPose.getRotation().plus(robotPose.getRotation()).div(2))
-        // //
-        // ));
+        // points.add(new PathPoint(robotPose.getTranslation().plus(new
+        // Translation2d(0.2, 0.)), robotPose.getRotation(), robotPose.getRotation()));
 
         points.add(new PathPoint(desiredPose.getTranslation(), desiredPose.getRotation(), desiredPose.getRotation()));
 

@@ -48,17 +48,19 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  */
 public class RobotContainer {
     // Constants
-    private static final String FRONT_APRILTAG_CAMERA_NAME = "Global_Shutter_Camera"; //"Front_AprilTag_Camera";
+    private static final String FRONT_APRILTAG_CAMERA_NAME = "Global_Shutter_Camera"; // "Front_AprilTag_Camera";
     private static final String REAR_APRILTAG_CAMERA_NAME = "Rear_AprilTag_Camera";
     // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; //
     // Very much subject to change.
 
-    // private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.),
-    //     Units.inchesToMeters(6.), 0.,
-    //     new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(180.)));
+    // private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new
+    // Pose3d(Units.inchesToMeters(5.),
+    // Units.inchesToMeters(6.), 0.,
+    // new Rotation3d(0., Units.degreesToRadians(11.0),
+    // Units.degreesToRadians(180.)));
     private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.),
         Units.inchesToMeters(0.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(0.)));
+        new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(2.)));
 
     private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(6.),
         Units.inchesToMeters(6.), 0.,
@@ -79,7 +81,8 @@ public class RobotContainer {
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-    // private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
+    // private final BeakXBoxController m_operatorController = new
+    // BeakXBoxController(1);
 
     // Auton stuff
     private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
@@ -98,7 +101,6 @@ public class RobotContainer {
     public RobotContainer() {
         // m_drive = PracticeSwerveDrivetrain.getInstance();
         m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
-        // m_upperArm = UpperArm.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
@@ -109,7 +111,7 @@ public class RobotContainer {
         // m_upperArm = UpperArm.getInstance();
         // m_lowerArm = LowerArm.getInstance();
 
-        RobotState.addSubsystem(null, m_drive);
+        RobotState.addSubsystem(null, m_drive, m_frontAprilTagVision);
 
         m_autons = new Autons(m_drive, m_frontAprilTagVision, m_rearAprilTagVision);
 
@@ -167,26 +169,33 @@ public class RobotContainer {
                 m_drive));
 
         // m_driverController.b.onTrue(new ConditionalCommand(
-        //     new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE, m_lowerArm,
-        //         m_upperArm, m_wrist),
-        //     new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
-        //         m_upperArm, m_wrist),
-        //     () -> RobotState.getState() == RobotState.State.CONE));
+        // new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR,
+        // Wrist.WristPositions.INFEED_CONE, m_lowerArm,
+        // m_upperArm, m_wrist),
+        // new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR,
+        // Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
+        // m_upperArm, m_wrist),
+        // () -> RobotState.getState() == RobotState.State.CONE));
 
-        // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,
-        //     m_lowerArm, m_upperArm, m_wrist));
-        m_driverController.y.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
+        // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID,
+        // Wrist.WristPositions.SCORE_MID,
+        // m_lowerArm, m_upperArm, m_wrist));
+        // m_driverController.y.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
+        m_driverController.y.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
 
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
 
-        m_driverController.lb.onTrue(RobotState.setNodeFromTagID(m_frontAprilTagVision.getLatestTagID()))
-            .onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision))
-            .onTrue(new InstantCommand(() -> RobotState.toggleAutoAlign()));
+        m_driverController.lb.onTrue(new InstantCommand(() -> RobotState.toggleAutoAlign())
+            .andThen(new ResetPoseToVision(m_drive, m_frontAprilTagVision)
+                .andThen(RobotState.setNodeFromTagID(() -> m_frontAprilTagVision.getLatestTagID()))));
 
         m_driverController.dpadRight.onTrue(RobotState.incrementNode());
         m_driverController.dpadLeft.onTrue(RobotState.decrementNode());
+        m_driverController.dpadDown.onTrue(RobotState.runToNodePosition());
+        m_driverController.dpadUp.onTrue(RobotState.setNodeFromTagID(() -> m_frontAprilTagVision.getLatestTagID()));
 
-        // m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
+        // m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new
+        // CurrentZero(m_lowerArm, -0.1)));
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
         // // infeed
@@ -202,10 +211,14 @@ public class RobotContainer {
         // m_operatorController.lt.onFalse(m_wrist.stopMotor());
 
         // // mode
-        // m_operatorController.a.onTrue(new InstantCommand(() -> RobotState.toggleClimb()));
-        // m_operatorController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
-        // m_operatorController.y.onTrue(new InstantCommand(() -> RobotState.modeCone()));
-        // m_operatorController.b.onTrue(new InstantCommand(() -> RobotState.modeBlank()));
+        // m_operatorController.a.onTrue(new InstantCommand(() ->
+        // RobotState.toggleClimb()));
+        // m_operatorController.x.onTrue(new InstantCommand(() ->
+        // RobotState.modeCube()));
+        // m_operatorController.y.onTrue(new InstantCommand(() ->
+        // RobotState.modeCone()));
+        // m_operatorController.b.onTrue(new InstantCommand(() ->
+        // RobotState.modeBlank()));
     }
 
     private void initAutonChooser() {

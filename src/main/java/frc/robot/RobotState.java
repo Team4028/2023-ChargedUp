@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,12 +12,16 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.units.Distance;
 import frc.robot.commands.BlinkLEDs;
 import frc.robot.commands.auton.GeneratePathWithArc;
+import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Vision;
 
 public class RobotState {
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
@@ -56,15 +61,15 @@ public class RobotState {
 
     public static final List<Node> NODES = Arrays.asList(
         // This list starts at the node nearest the opposing alliance's LOADING ZONE
-        new Node(0, 0, new Pose2d(2.0, 4.94, new Rotation2d(Math.PI))), // 1
-        new Node(1, 3, new Pose2d(2.0, 4.45, new Rotation2d(Math.PI))), // tag
-        new Node(2, 0, new Pose2d(2.0, 3.86, new Rotation2d(Math.PI))),
-        new Node(3, 0, new Pose2d(2.0, 3.30, new Rotation2d(Math.PI))),
-        new Node(4, 2, new Pose2d(2.0, 2.75, new Rotation2d(Math.PI))),
-        new Node(5, 0, new Pose2d(2.0, 2.21, new Rotation2d(Math.PI))),
-        new Node(6, 0, new Pose2d(2.0, 1.63, new Rotation2d(Math.PI))),
-        new Node(7, 1, new Pose2d(2.0, 1.08, new Rotation2d(Math.PI))),
-        new Node(8, 0, new Pose2d(2.0, 0.50, new Rotation2d(Math.PI))) // 9
+        new Node(0, 0, new Pose2d(1.9, 4.94, new Rotation2d(Math.PI))), // 1
+        new Node(1, 3, new Pose2d(1.9, 4.45, new Rotation2d(Math.PI))), // tag
+        new Node(2, 0, new Pose2d(1.9, 3.86, new Rotation2d(Math.PI))),
+        new Node(3, 0, new Pose2d(1.9, 3.30, new Rotation2d(Math.PI))),
+        new Node(4, 2, new Pose2d(1.9, 2.75, new Rotation2d(Math.PI))),
+        new Node(5, 0, new Pose2d(1.9, 2.21, new Rotation2d(Math.PI))),
+        new Node(6, 0, new Pose2d(1.9, 1.63, new Rotation2d(Math.PI))),
+        new Node(7, 1, new Pose2d(1.9, 1.08, new Rotation2d(Math.PI))),
+        new Node(8, 0, new Pose2d(1.9, 0.50, new Rotation2d(Math.PI))) // 9
     );
 
     private static Node m_currentNode = NODES.get(0);
@@ -73,6 +78,7 @@ public class RobotState {
 
     private static LEDs m_leds;
     private static BeakDrivetrain m_drive;
+    private static Vision m_vision;
 
     private static boolean climbMode = false;
     private static boolean autoAlignMode = false;
@@ -103,8 +109,8 @@ public class RobotState {
     }
 
     public static void toggleAutoAlign() {
-        SmartDashboard.putBoolean("Auto Align", autoAlignMode);
         autoAlignMode = !autoAlignMode;
+        SmartDashboard.putBoolean("Auto Align", autoAlignMode);
     }
 
     public static void toggleClimb() {
@@ -167,24 +173,27 @@ public class RobotState {
         return NODES.get(0);
     }
 
-    public static Command setNode(Node node) {
-        return new InstantCommand(() -> m_currentNode = node);
+    public static Command setNode(Supplier<Node> node) {
+        return new InstantCommand(() -> {
+            m_currentNode = node.get();
+            SmartDashboard.putNumber("Node", m_currentNode.GridID);
+        });
     }
 
     public static Command runToNodePosition() {
-        SmartDashboard.putNumber("Node", m_currentNode.GridID);
-
-        if (autoAlignMode) {
-            return new GeneratePathWithArc(
-                () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
-                m_drive);
-        } else {
-            return Commands.none();
-        }
+        // Add measurements to the pose estimator before and after to ensure relative accuracy
+        return new ConditionalCommand(
+            new AddVisionMeasurement(m_drive, m_vision).andThen(
+                new GeneratePathWithArc(
+                    () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
+                    m_drive)//.deadlineWith(new RepeatCommand(new AddVisionMeasurement(m_drive, m_vision))),
+                    .andThen(new AddVisionMeasurement(m_drive, m_vision))),
+            Commands.none(),
+            () -> autoAlignMode);
     }
 
-    public static Command setNodeFromTagID(int id) {
-        return setNode(getNodeFromTagID(id)).andThen(runToNodePosition());
+    public static Command setNodeFromTagID(Supplier<Integer> id) {
+        return setNode(() -> getNodeFromTagID(id.get())).andThen(runToNodePosition());
     }
 
     public static Node getCurrentNode() {
@@ -200,14 +209,17 @@ public class RobotState {
     public static Command incrementNode() {
         return new InstantCommand(
             () -> {
+                SmartDashboard.putNumber("bruhe", Math.random());
+
                 Node node;
                 if (m_currentNode.GridID + 1 == NODES.size()) {
                     node = m_currentNode;
                 } else {
                     node = NODES.get(m_currentNode.GridID + 1);
+                    m_currentNode = node;
                 }
-
-                setNode(node).schedule();
+                // SmartDashboard.putNumber("Node", m_currentNode.GridID);
+                setNode(() -> node).schedule();
             }).andThen(runToNodePosition());
     }
 
@@ -220,19 +232,24 @@ public class RobotState {
     public static Command decrementNode() {
         return new InstantCommand(
             () -> {
+                SmartDashboard.putNumber("bruhe", Math.random());
+
                 Node node;
                 if (m_currentNode.GridID - 1 < 0) {
                     node = m_currentNode;
                 } else {
                     node = NODES.get(m_currentNode.GridID - 1);
+                    m_currentNode = node;
                 }
-                
-                setNode(node).schedule();
+
+                // SmartDashboard.putNumber("Node", m_currentNode.GridID);4
+                setNode(() -> node).schedule();
             }).andThen(runToNodePosition());
     }
 
-    public static void addSubsystem(LEDs leds, BeakDrivetrain drivetrain) {
+    public static void addSubsystem(LEDs leds, BeakDrivetrain drivetrain, Vision vision) {
         m_leds = leds;
         m_drive = drivetrain;
+        m_vision = vision;
     }
 }
