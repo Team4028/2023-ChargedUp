@@ -48,19 +48,20 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  */
 public class RobotContainer {
     // Constants
-    private static final String FRONT_APRILTAG_CAMERA_NAME = "Global_Shutter_Camera"; // "Front_AprilTag_Camera";
+    private static final String FRONT_APRILTAG_CAMERA_NAME = Constants.PRACTICE_CHASSIS ? "Front_AprilTag_Camera"
+        : "Global_Shutter_Camera";
     private static final String REAR_APRILTAG_CAMERA_NAME = "Rear_AprilTag_Camera";
     // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; //
     // Very much subject to change.
 
-    // private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new
-    // Pose3d(Units.inchesToMeters(5.),
-    // Units.inchesToMeters(6.), 0.,
-    // new Rotation3d(0., Units.degreesToRadians(11.0),
-    // Units.degreesToRadians(180.)));
-    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(12.),
-        Units.inchesToMeters(0.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(2.)));
+    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = Constants.PRACTICE_CHASSIS
+        ? new Pose3d(Units.inchesToMeters(5.),
+            Units.inchesToMeters(6.), 0.,
+            new Rotation3d(0., Units.degreesToRadians(11.0),
+                Units.degreesToRadians(180.)))
+        : new Pose3d(Units.inchesToMeters(-12.),
+            Units.inchesToMeters(0.), 0.,
+            new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(-3.)));
 
     private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(6.),
         Units.inchesToMeters(6.), 0.,
@@ -72,12 +73,12 @@ public class RobotContainer {
     private final BeakSwerveDrivetrain m_drive;
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
-    // private final UpperArm m_upperArm;
-    // private final LowerArm m_lowerArm;
+    private final UpperArm m_upperArm;
+    private final LowerArm m_lowerArm;
 
-    // private final Manipulator m_manipulator;
-    // private final Infeed m_infeed;
-    // private final Wrist m_wrist;
+    private final Manipulator m_manipulator;
+    private final Infeed m_infeed;
+    private final Wrist m_wrist;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -104,16 +105,25 @@ public class RobotContainer {
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
-        // m_manipulator = Manipulator.getInstance();
-        // m_infeed = Infeed.getInstance();
-        // m_wrist = Wrist.getInstance();
+        if (Constants.PRACTICE_CHASSIS) {
+            m_manipulator = Manipulator.getInstance();
+            m_infeed = Infeed.getInstance();
+            m_wrist = Wrist.getInstance();
 
-        // m_upperArm = UpperArm.getInstance();
-        // m_lowerArm = LowerArm.getInstance();
+            m_upperArm = UpperArm.getInstance();
+            m_lowerArm = LowerArm.getInstance();
+        } else {
+            m_manipulator = null;
+            m_infeed = null;
+            m_wrist = null;
+
+            m_upperArm = null;
+            m_lowerArm = null;
+        }
 
         RobotState.addSubsystem(null, m_drive, m_frontAprilTagVision);
 
-        m_autons = new Autons(m_drive, m_frontAprilTagVision, m_rearAprilTagVision);
+        m_autons = new Autons(m_drive, m_lowerArm, m_frontAprilTagVision, m_rearAprilTagVision);
 
         switch (Constants.currentMode) {
             // TODO
@@ -168,19 +178,21 @@ public class RobotContainer {
                 true),
                 m_drive));
 
-        // m_driverController.b.onTrue(new ConditionalCommand(
-        // new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR,
-        // Wrist.WristPositions.INFEED_CONE, m_lowerArm,
-        // m_upperArm, m_wrist),
-        // new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR,
-        // Wrist.WristPositions.INFEED_CUBE, m_lowerArm,
-        // m_upperArm, m_wrist),
-        // () -> RobotState.getState() == RobotState.State.CONE));
+        if (Constants.PRACTICE_CHASSIS) {
+            m_driverController.b.onTrue(new ConditionalCommand(
+                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CONE,
+                    m_lowerArm, m_upperArm, m_wrist),
+                new RunArmsToPosition(Arm.ArmPositions.ACQUIRE_FLOOR, Wrist.WristPositions.INFEED_CUBE,
+                    m_lowerArm, m_upperArm, m_wrist),
+                () -> RobotState.getState() == RobotState.State.CONE));
 
-        // m_driverController.x.onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID,
-        // Wrist.WristPositions.SCORE_MID,
-        // m_lowerArm, m_upperArm, m_wrist));
-        // m_driverController.y.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
+            m_driverController.x
+                .onTrue(new RunArmsToPosition(Arm.ArmPositions.SCORE_MID, Wrist.WristPositions.SCORE_MID,
+                    m_lowerArm, m_upperArm, m_wrist));
+        } else {
+            m_driverController.b.onTrue(new InstantCommand(() -> RobotState.modeCone()));
+            m_driverController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
+        }
         m_driverController.y.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
 
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
@@ -194,8 +206,10 @@ public class RobotContainer {
         m_driverController.dpadDown.onTrue(RobotState.runToNodePosition());
         m_driverController.dpadUp.onTrue(RobotState.setNodeFromTagID(() -> m_frontAprilTagVision.getLatestTagID()));
 
-        // m_driverController.back.onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new
-        // CurrentZero(m_lowerArm, -0.1)));
+        if (Constants.PRACTICE_CHASSIS) {
+            m_driverController.back
+                .onTrue(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1)));
+        }
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
         // // infeed
@@ -237,19 +251,19 @@ public class RobotContainer {
 
     public double speedScaledDriverLeftY() {
         return m_yLimiter.calculate(Util.speedScale(m_driverController.getLeftYAxis(),
-            DriveConstants.SPEED_SCALE,
+            RobotState.getAutoAlign() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverRightX() {
         return m_rotLimiter.calculate(-Util.speedScale(m_driverController.getRightXAxis(),
-            DriveConstants.SPEED_SCALE,
+            RobotState.getAutoAlign() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverLeftX() {
         return m_xLimiter.calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
-            DriveConstants.SPEED_SCALE,
+            RobotState.getAutoAlign() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 

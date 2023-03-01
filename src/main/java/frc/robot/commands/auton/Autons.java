@@ -16,6 +16,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.robot.Constants;
+import frc.robot.commands.arm.RunArm;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
@@ -23,11 +25,19 @@ import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.utilities.Trajectories;
 import frc.robot.utilities.Trajectories.PathPosition;
 
-/** Stores all autonomous routines and helper functions. */
+/**
+ * The Autons class stores all autonomous routines and helper functions.
+ * 
+ * <p>
+ * Auton routines are typed as {@link BeakAutonCommand}s. Autons are stored as
+ * functions that construct an inline sequential command routine. Pickup,
+ * scoring, and localization logic is all done through PathPlanner's event
+ * support, though with a few exceptions.
+ */
 public class Autons {
-    // Global Subsystems
+    // Global Subsystems -- initialized in the constructor
     private final BeakDrivetrain m_drivetrain;
-    // private final LowerArm m_lowerArm;
+    private final LowerArm m_lowerArm;
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
 
@@ -36,20 +46,22 @@ public class Autons {
     // Subsystem & Event setup
     public Autons(
         BeakDrivetrain drivetrain,
-        // LowerArm lowerArm,
+        LowerArm lowerArm,
         Vision frontAprilTagVision,
         Vision rearAprilTagVision) {
         m_drivetrain = drivetrain;
-        // m_lowerArm = lowerArm;
+        m_lowerArm = lowerArm;
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
         m_eventMap = new HashMap<String, Command>();
-        // m_eventMap.put("ArmScoring", new RunArm(45., m_lowerArm));
-        // m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
-        // m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
+        if (Constants.PRACTICE_CHASSIS) {
+            m_eventMap.put("ArmScoring", new RunArm(45., m_lowerArm));
+            m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
+            m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
+        }
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
         m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));

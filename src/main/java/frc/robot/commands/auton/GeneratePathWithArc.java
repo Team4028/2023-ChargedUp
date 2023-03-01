@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.units.Velocity;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class GeneratePathWithArc extends CommandBase {
@@ -171,11 +172,13 @@ public class GeneratePathWithArc extends CommandBase {
             return new PathPlannerTrajectory();
         }
 
+        double drivetrainMaxVelocity = m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25;
+
         // PathPlanner takes in these constraints to determine maximum speed and
         // acceleration. In order to maximize precision, we go at quarter speed.
         PathConstraints constraints = new PathConstraints(
-            m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
-            m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
+            drivetrainMaxVelocity,
+            drivetrainMaxVelocity);
 
         // Add our path points--start at the current robot pose and end at the desired
         // pose.
@@ -202,19 +205,18 @@ public class GeneratePathWithArc extends CommandBase {
         PathPoint midpoint = new PathPoint(
             midpointTranslation,
             midpointHeading,
-            desiredPose.getRotation());
+            desiredPose.getRotation(),
+            drivetrainMaxVelocity);
 
         PathPoint endPoint = new PathPoint(
             desiredPose.getTranslation(),
-            midpointHeading.minus(new Rotation2d(-Math.PI)), // The end heading should be the opposite of the previous heading
+            new Rotation2d(Math.PI).minus(midpointHeading), // The end heading should be the opposite of the previous
+                                                             // heading
             desiredPose.getRotation());
-        
+
         points.add(startPoint);
         points.add(midpoint);
         points.add(endPoint);
-
-        // points.add(new PathPoint(robotPose.getTranslation().plus(new
-        // Translation2d(0.2, 0.)), robotPose.getRotation(), robotPose.getRotation()));
 
         points.add(new PathPoint(desiredPose.getTranslation(), desiredPose.getRotation(), desiredPose.getRotation()));
 

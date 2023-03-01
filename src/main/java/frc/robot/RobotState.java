@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -8,13 +9,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.units.Distance;
 import frc.robot.commands.BlinkLEDs;
@@ -40,17 +41,26 @@ public class RobotState {
         public int TagID;
         public int GridID;
 
+        public State GamePiece;
+
         /**
          * Create a new Node.
          * 
+         * @param gridID
+         *            This should be equivalent to the array index.
          * @param tagID
          *            The tag ID of the node. Set to 0 if none.
+         * @param gamePiece
+         *            Whether this node stores a cone or a cube.
          * @param pose
          *            The BLUE pose of the node.
          */
-        public Node(int gridID, int tagID, Pose2d pose) {
+        public Node(int gridID, int tagID, State gamePiece, Pose2d pose) {
             this.GridID = gridID;
             this.TagID = tagID;
+
+            this.GamePiece = gamePiece;
+
             this.BluePose = pose;
             this.RedPose = new Pose2d(
                 pose.getX(),
@@ -61,15 +71,15 @@ public class RobotState {
 
     public static final List<Node> NODES = Arrays.asList(
         // This list starts at the node nearest the opposing alliance's LOADING ZONE
-        new Node(0, 0, new Pose2d(1.9, 4.94, new Rotation2d(Math.PI))), // 1
-        new Node(1, 3, new Pose2d(1.9, 4.45, new Rotation2d(Math.PI))), // tag
-        new Node(2, 0, new Pose2d(1.9, 3.86, new Rotation2d(Math.PI))),
-        new Node(3, 0, new Pose2d(1.9, 3.30, new Rotation2d(Math.PI))),
-        new Node(4, 2, new Pose2d(1.9, 2.75, new Rotation2d(Math.PI))),
-        new Node(5, 0, new Pose2d(1.9, 2.21, new Rotation2d(Math.PI))),
-        new Node(6, 0, new Pose2d(1.9, 1.63, new Rotation2d(Math.PI))),
-        new Node(7, 1, new Pose2d(1.9, 1.08, new Rotation2d(Math.PI))),
-        new Node(8, 0, new Pose2d(1.9, 0.50, new Rotation2d(Math.PI))) // 9
+        new Node(0, 0, State.CONE, new Pose2d(2.05, 4.94, new Rotation2d(Math.PI))), // 1
+        new Node(1, 3, State.CUBE, new Pose2d(2.05, 4.45, new Rotation2d(Math.PI))), // tag
+        new Node(2, 0, State.CONE, new Pose2d(2.05, 3.86, new Rotation2d(Math.PI))),
+        new Node(3, 0, State.CONE, new Pose2d(2.05, 3.30, new Rotation2d(Math.PI))),
+        new Node(4, 2, State.CUBE, new Pose2d(2.05, 2.75, new Rotation2d(Math.PI))),
+        new Node(5, 0, State.CONE, new Pose2d(2.05, 2.21, new Rotation2d(Math.PI))),
+        new Node(6, 0, State.CONE, new Pose2d(2.05, 1.63, new Rotation2d(Math.PI))),
+        new Node(7, 1, State.CUBE, new Pose2d(2.05, 1.08, new Rotation2d(Math.PI))),
+        new Node(8, 0, State.CONE, new Pose2d(2.05, 0.42, new Rotation2d(Math.PI))) // 9
     );
 
     private static Node m_currentNode = NODES.get(0);
@@ -80,42 +90,40 @@ public class RobotState {
     private static BeakDrivetrain m_drive;
     private static Vision m_vision;
 
-    private static boolean climbMode = false;
-    private static boolean autoAlignMode = false;
-
-    private static Field2d field = new Field2d();
+    private static boolean m_climbMode = false;
+    private static boolean m_autoAlignMode = false;
 
     public static void modeBlank() {
         m_currentState = State.OFF;
-        if (!climbMode) {
+        if (!m_climbMode) {
             m_leds.setBlank();
         }
     }
 
     public static void modeCone() {
         m_currentState = State.CONE;
-        if (!climbMode) {
-            m_leds.setCone();
-            new BlinkLEDs(m_leds).schedule();
+        if (!m_climbMode) {
+            // m_leds.setCone();
+            // new BlinkLEDs(m_leds).schedule();
         }
     }
 
     public static void modeCube() {
         m_currentState = State.CUBE;
-        if (!climbMode) {
-            m_leds.setCube();
-            new BlinkLEDs(m_leds).schedule();
+        if (!m_climbMode) {
+            // m_leds.setCube();
+            // new BlinkLEDs(m_leds).schedule();
         }
     }
 
     public static void toggleAutoAlign() {
-        autoAlignMode = !autoAlignMode;
-        SmartDashboard.putBoolean("Auto Align", autoAlignMode);
+        m_autoAlignMode = !m_autoAlignMode;
+        SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
     }
 
     public static void toggleClimb() {
-        climbMode = !climbMode;
-        if (climbMode) {
+        m_climbMode = !m_climbMode;
+        if (m_climbMode) {
             m_leds.setClimb();
         } else {
             switch (getState()) {
@@ -157,7 +165,11 @@ public class RobotState {
     }
 
     public static boolean getClimb() {
-        return climbMode;
+        return m_climbMode;
+    }
+
+    public static boolean getAutoAlign() {
+        return m_autoAlignMode;
     }
 
     public static Node getNodeFromTagID(int id) {
@@ -181,15 +193,19 @@ public class RobotState {
     }
 
     public static Command runToNodePosition() {
-        // Add measurements to the pose estimator before and after to ensure relative accuracy
+        // Add measurements to the pose estimator before and after to ensure relative
+        // accuracy
         return new ConditionalCommand(
-            new AddVisionMeasurement(m_drive, m_vision).andThen(
-                new GeneratePathWithArc(
-                    () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
-                    m_drive)//.deadlineWith(new RepeatCommand(new AddVisionMeasurement(m_drive, m_vision))),
-                    .andThen(new AddVisionMeasurement(m_drive, m_vision))),
+            // new AddVisionMeasurement(m_drive, m_vision).andThen(
+            new GeneratePathWithArc(
+                () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
+                m_drive).deadlineWith(
+                    new RepeatCommand(new AddVisionMeasurement(m_drive,
+                        m_vision)))
+                    .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
+            // .andThen(new AddVisionMeasurement(m_drive, m_vision))),
             Commands.none(),
-            () -> autoAlignMode);
+            () -> m_autoAlignMode);
     }
 
     public static Command setNodeFromTagID(Supplier<Integer> id) {
@@ -209,17 +225,19 @@ public class RobotState {
     public static Command incrementNode() {
         return new InstantCommand(
             () -> {
-                SmartDashboard.putNumber("bruhe", Math.random());
+                // weird solution but it works
+                List<Node> nodeToSet = new ArrayList<Node>();
+                nodeToSet.add(m_currentNode);
 
-                Node node;
-                if (m_currentNode.GridID + 1 == NODES.size()) {
-                    node = m_currentNode;
-                } else {
-                    node = NODES.get(m_currentNode.GridID + 1);
-                    m_currentNode = node;
+                // Searches for the next node with the same state.
+                for (Node node : NODES) {
+                    if (node.GridID > m_currentNode.GridID && node.GamePiece == m_currentState) {
+                        nodeToSet.set(0, node);
+                        break;
+                    }
                 }
-                // SmartDashboard.putNumber("Node", m_currentNode.GridID);
-                setNode(() -> node).schedule();
+
+                setNode(() -> nodeToSet.get(0)).schedule();
             }).andThen(runToNodePosition());
     }
 
@@ -232,18 +250,20 @@ public class RobotState {
     public static Command decrementNode() {
         return new InstantCommand(
             () -> {
-                SmartDashboard.putNumber("bruhe", Math.random());
+                // weird solution but it works
+                List<Node> nodeToSet = new ArrayList<Node>();
+                nodeToSet.add(m_currentNode);
 
-                Node node;
-                if (m_currentNode.GridID - 1 < 0) {
-                    node = m_currentNode;
-                } else {
-                    node = NODES.get(m_currentNode.GridID - 1);
-                    m_currentNode = node;
+                // Searches for the next node (BACKWARDS!) with the same state.
+                for (int i = NODES.size() - 1; i > -1; i--) {
+                    Node node = NODES.get(i);
+                    if (node.GridID < m_currentNode.GridID && node.GamePiece == m_currentState) {
+                        nodeToSet.set(0, node);
+                        break;
+                    }
                 }
 
-                // SmartDashboard.putNumber("Node", m_currentNode.GridID);4
-                setNode(() -> node).schedule();
+                setNode(() -> nodeToSet.get(0)).schedule();
             }).andThen(runToNodePosition());
     }
 

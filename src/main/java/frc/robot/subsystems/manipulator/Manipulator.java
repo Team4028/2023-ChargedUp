@@ -13,6 +13,8 @@ public class Manipulator extends SubsystemBase {
     private Gripper m_gripper;
     private Wrist m_wrist;
 
+    // TODO: The constructor and possibly getInstance should take in the wrist and
+    // gripper subsystems as parameters.
     /** Creates a new Manipulator. */
     public Manipulator() {
         // m_gripper = Gripper.getInstance();
