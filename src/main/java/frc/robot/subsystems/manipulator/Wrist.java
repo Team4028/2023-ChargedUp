@@ -22,20 +22,6 @@ public class Wrist extends SubsystemBase {
     /**
      * the desired positions of the wrist in degrees
      */
-    public enum WristPositions {
-        STOW(10), //
-        INFEED_CUBE(240), //
-        INFEED_TIPPED_CONE(240), //
-        INFEED_UPRIGHT_CONE(0.0), //
-        SCORE_HIGH(0.0), //
-        SCORE_MID(0.0); //
-
-        public double position;
-
-        private WristPositions(double position) {
-            this.position = position;
-        }
-    }
 
     private static Wrist m_instance;
     private BeakSparkMAX m_motor;
@@ -52,23 +38,24 @@ public class Wrist extends SubsystemBase {
         m_motor = new BeakSparkMAX(12);
         m_motor.restoreFactoryDefault();
         m_motor.setSmartCurrentLimit(25);
-        m_motor.setInverted(false);
-        m_motor.setIdleMode(IdleMode.kBrake);
+        m_motor.setInverted(true);
+        m_motor.setIdleMode(IdleMode.kCoast);
 
-        //m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-        //m_absoluteEncoder.setZeroOffset(0);
+        m_absoluteEncoder.setPositionConversionFactor(360.0);
+        m_absoluteEncoder.setZeroOffset(112.0);
+        m_absoluteEncoder.setInverted(false);
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);
 
         //PID Constants
-        kP = 0.4;
+        kP = 0.01;
         kI = 0;
-        kD = 0;
+        kD = 0.4;
         kIz = 0;
         kFF = 0;
-        kMaxOutput = 0.9;
-        kMinOutput = -0.9;
+        kMaxOutput = 0.4;
+        kMinOutput = -0.4;
         m_pid.setP(kP);
         m_pid.setI(kI);
         m_pid.setD(kD);
@@ -84,7 +71,7 @@ public class Wrist extends SubsystemBase {
      * @return the absolute position of the absolute encoder in degrees
      */
     public double getAbsoluteEncoderPosition() {
-        return Units.rotationsToDegrees(m_absoluteEncoder.getPosition());
+        return m_absoluteEncoder.getPosition();
 
     }
 
@@ -170,5 +157,8 @@ public class Wrist extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Wrist abs pos", getAbsoluteEncoderPosition());
         SmartDashboard.putNumber("Raw Wrist", m_absoluteEncoder.getPosition());
+        SmartDashboard.putNumber("Wrist AppliedOutput", m_motor.getAppliedOutput());
+        SmartDashboard.putNumber("Wrist Relative Position", m_motor.getPositionNU());
+        SmartDashboard.putNumber("Wrist Current Output", m_motor.getOutputCurrent());
     }
 }

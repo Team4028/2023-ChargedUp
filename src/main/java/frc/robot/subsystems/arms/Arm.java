@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public abstract class Arm extends SubsystemBase {
     protected SparkMaxPIDController m_pid;
-    protected double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, allowedErr;
+    protected double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, minVel, allowedErr;
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
     protected double m_pidPos, m_distanceToTravel = 0;
@@ -28,26 +28,6 @@ public abstract class Arm extends SubsystemBase {
     /**
      * the enum containing the desired positions of the arm
      */
-    public enum ArmPositions {
-        RETRACTED(0.5, 1.04166666667), // L: 2. U: 2.
-        SCORE_MID(11, 27.0833333333), // L: 44. U: 52.
-        SCORE_HIGH(14, 41.6666666667), // L: 56. U: 80.
-        ACQUIRE_FLOOR_CUBE(2.25, 20), // L: 9. U: 40.
-        ACQUIRE_FLOOR_TIPPED_CONE(2.25, 20), //L: 9. U: 40. 
-        ACQUIRE_FLOOR_UPRIGHT_CONE(0.0,0.0),
-        // We no longer care about these
-        THIRTY(2.8325, 16.171875), // L: 11.33 U: 31.05
-        SIXTY(4.8925, 27.92708333), // L: 19.57 U: 53.62
-        NINETY(6.9525, 39.6875); // L: 27.81 U: 76.2
-
-        public double lowerPosition;
-        public double upperPosition;
-
-        private ArmPositions(double lowerPosition, double upperPosition) {
-            this.lowerPosition = lowerPosition;
-            this.upperPosition = upperPosition;
-        }
-    }
 
     /**
      * Runs the initial setup that would ordinarily
@@ -60,33 +40,6 @@ public abstract class Arm extends SubsystemBase {
         m_encoder = m_motor.getEncoder();
         m_motor.setSmartCurrentLimit(40);
         m_motor.setIdleMode(IdleMode.kBrake);
-        m_pid = m_motor.getPIDController();
-
-        kP = .1;
-        kI = 0.0;
-        kD = 0.;
-        kIz = 0.0;
-        kFF = 0.0;
-        kMaxOutput = .9;
-        kMinOutput = -.9;
-        // smart motion coefficients
-        maxVel = 7000;
-        maxAcc = 14000;
-        allowedErr = 0.1;
-
-        m_pid.setP(kP);
-        m_pid.setI(kI);
-        m_pid.setD(kD);
-        m_pid.setIZone(kIz);
-        m_pid.setFF(kFF);
-        m_pid.setOutputRange(kMinOutput, kMaxOutput);
-
-        m_motor.setIdleMode(IdleMode.kBrake);
-        // Smart Motion
-        m_pid.setSmartMotionMaxVelocity(maxVel, 0);
-        m_pid.setSmartMotionMinOutputVelocity(minVel, 0);
-        m_pid.setSmartMotionMaxAccel(maxAcc, 0);
-        m_pid.setSmartMotionAllowedClosedLoopError(allowedErr, 0);
 
         m_motor.setOpenLoopRampRate(0.5);
         m_motor.setClosedLoopRampRate(0.1);

@@ -2,7 +2,7 @@ package frc.robot;
 
 import java.util.Arrays;
 import java.util.List;
-
+import frc.robot.Constants.ScoringPositions;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.beaklib.units.Distance;
@@ -11,7 +11,7 @@ import frc.robot.subsystems.LEDs;
 
 public class RobotState {
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
-
+    private static ScoringPositions currentPosition = ScoringPositions.STOWED;
     /**
      * the states of the robot
      */
@@ -180,5 +180,13 @@ public class RobotState {
 
     public static void addSubsystem(LEDs leds) {
         m_leds = leds;
+    }
+    
+    public static void setScoringPosition(ScoringPositions pos){
+        currentPosition = pos;
+    }
+
+    public static ScoringPositions geScoringPosition(){
+        return currentPosition;
     }
 }

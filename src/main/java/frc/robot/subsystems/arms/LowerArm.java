@@ -5,7 +5,7 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import frc.robot.Constants.ArmConstants.LowerArmConstants;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -15,9 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  */
 public class LowerArm extends Arm {
     private static LowerArm m_instance;
-    private final double kS = 0.33069;
-    private final double kG = 0.2554;
-    private final double kV = 0.10667;
+    public final double maxVel,maxAccel;
 
     /*
      * Inches per revelution of sprocket: 6.25
@@ -27,9 +25,18 @@ public class LowerArm extends Arm {
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
-        ffmodel = new ElevatorFeedforward(kS, kG, kV);
+        maxVel = 3500;//7000;
+        maxAccel = 3500;//14000;
+        ffmodel = new ElevatorFeedforward(LowerArmConstants.kS, LowerArmConstants.kG, LowerArmConstants.kV);
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
+        m_pid = m_motor.getPIDController();
+        m_pid.setP(LowerArmConstants.kP);
+        m_pid.setI(LowerArmConstants.kI);
+        m_pid.setD(LowerArmConstants.kD);
+        m_pid.setIZone(LowerArmConstants.kIz);
+        m_pid.setFF(LowerArmConstants.kFF);
+        m_pid.setOutputRange(LowerArmConstants.kMinOutput, LowerArmConstants.kMaxOutput);
         super.initArm();
     }
 

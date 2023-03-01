@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems.arms;
-
+import frc.robot.Constants.ArmConstants.UpperArmConstants;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -16,21 +16,27 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class UpperArm extends Arm {
 
     private static UpperArm m_instance;
-    private final double kS = 0.6;
-    private final double kG = 0.01;
-    private final double kV = 0.05;
 
     /*
      * Inches per revelution of sprocket: 6.25
      * Gear reduction 12:1
      */
     private static final double NATIVE_UNITS_TO_INCHES = 6.25 / 12;
-
+    public final double maxVel,maxAccel;
     /** Creates a new UpperArm. */
     public UpperArm() {
-        ffmodel = new ElevatorFeedforward(kS, kG, kV);
+        maxVel = 3500;//7000;
+        maxAccel = 3500;//14000;
+        ffmodel = new ElevatorFeedforward(UpperArmConstants.kS, UpperArmConstants.kG, UpperArmConstants.kV);
         m_motor = new CANSparkMax(9, MotorType.kBrushless);
         m_motor.setInverted(true);
+        m_pid = m_motor.getPIDController();
+        m_pid.setP(UpperArmConstants.kP);
+        m_pid.setI(UpperArmConstants.kI);
+        m_pid.setD(UpperArmConstants.kD);
+        m_pid.setIZone(UpperArmConstants.kIz);
+        m_pid.setFF(UpperArmConstants.kFF);
+        m_pid.setOutputRange(UpperArmConstants.kMinOutput, UpperArmConstants.kMaxOutput);
         super.initArm();
 
     }
