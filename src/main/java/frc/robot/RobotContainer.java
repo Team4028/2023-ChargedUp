@@ -69,7 +69,7 @@ public class RobotContainer {
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
 
-    //private final Manipulator m_manipulator;
+    // private final Manipulator m_manipulator;
     private final Gripper m_gripper;
     private final Wrist m_wrist;
 
@@ -98,7 +98,7 @@ public class RobotContainer {
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
-        //m_manipulator = Manipulator.getInstance();
+        // m_manipulator = Manipulator.getInstance();
         m_gripper = Gripper.getInstance();
         m_wrist = Wrist.getInstance();
 
@@ -166,6 +166,8 @@ public class RobotContainer {
 
         m_driverController.a.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
         m_driverController.b.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist)));
+        m_driverController.a.onTrue(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist));
+        m_driverController.b.onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist));
         m_driverController.y.onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
         m_driverController.x.onTrue(new RunArmsToPosition(ScoringPositions.SCORE_MID,
             m_lowerArm, m_upperArm, m_wrist));
@@ -173,9 +175,13 @@ public class RobotContainer {
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
         m_driverController.lb.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
 
-        m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle).andThen(new CurrentZero(m_upperArm, -0.2).andThen(new CurrentZero(m_lowerArm, -0.1))));
+        m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
+        .andThen(new CurrentZero(m_upperArm, -0.2)
+        .andThen(new CurrentZero(m_lowerArm, -0.1)
+        .andThen(new WaitCommand(3.0))))
+        .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
         //.andThen(new WaitCommand(1.0)).andThen(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, Wrist.WristPositions.STOW, m_lowerArm, m_upperArm, m_wrist)));
-
+       
         // infeed
         m_operatorController.rb.onTrue(m_gripper.runMotorIn());
         m_operatorController.rb.onFalse(m_gripper.stopMotor());
