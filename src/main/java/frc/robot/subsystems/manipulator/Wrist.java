@@ -70,7 +70,6 @@ public class Wrist extends SubsystemBase {
      */
     public double getAbsoluteEncoderPosition() {
         return m_absoluteEncoder.getPosition();
-
     }
 
     /**
@@ -120,27 +119,6 @@ public class Wrist extends SubsystemBase {
         return runOnce(
             () -> {
                 m_pid.setReference(angle, ControlType.kPosition);
-            });
-    }
-
-    public Command runToLowPosition() {
-        return runOnce(
-            () -> {
-                runToAngle(0.);
-            });
-    }
-
-    public Command runToMediumPosition() {
-        return runOnce(
-            () -> {
-                runToAngle(10.);
-            });
-    }
-
-    public Command runToHighPosition() {
-        return runOnce(
-            () -> {
-                runToAngle(20.);
             });
     }
 
