@@ -20,6 +20,9 @@ public class RobotState {
         CONE, OFF, CUBE;
     }
 
+    /**
+     * The inch/degree PID positons for the wrist and arms
+     */
     public enum ScoringPositions {
         STOWED(2, 1.5, 320.0), // L: 2. U: 2.
         INTERMEDIATE_LOW(3,6,286.0),

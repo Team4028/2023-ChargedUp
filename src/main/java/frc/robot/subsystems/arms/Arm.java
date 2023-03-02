@@ -18,14 +18,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * The upper Argos Arm
  */
 public abstract class Arm extends SubsystemBase {
-
+ 
     public static final double EXTEND_COEFFICIENT = 116.1;
     public static final double RETRACT_COEFFICIENT = 156.58;
     public static final double EXTEND_WAIT_INTERVAL = 0.2;
     public static final double RETRACT_WAIT_INTERVAL = 0.4;
 
     protected SparkMaxPIDController m_pid;
-    
+
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
     protected double m_targetPosition, m_distanceToTravel = 0;
@@ -56,7 +56,9 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * runs the arm with raw vbus
-     * @param speed the speed at which to run the arm
+     * 
+     * @param speed
+     *            the speed at which to run the arm
      */
     public void runArm(double speed) {
         m_motor.set(speed);
@@ -96,15 +98,17 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * 
-     * @param nativeUntis the native unit (in this case rotations)
-     * @return
+     * @param nativeUntis
+     *            the native unit (in this case rotations)
+     * @return the inch conversion
      */
     abstract public double nativeUnitsToInches(double nativeUntis);
 
     /**
      * 
-     * @param inches the inches to convert
-     * @return the converted inches
+     * @param inches
+     *            the inches to convert
+     * @return the converted inches -> rotations
      */
     abstract public double inchesToNativeUnits(double inches);
 
@@ -129,7 +133,7 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * 
-     * @return the target position of the arm in rotations 
+     * @return the target position of the arm in rotations
      */
     public double getTargetPosition() {
         return m_targetPosition;
@@ -174,7 +178,9 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * sets the distance to travel
-     * @param dist the distance to travel
+     * 
+     * @param dist
+     *            the distance to travel
      */
     public void setDistanceToTravel(double dist) {
         m_distanceToTravel = dist;
@@ -184,10 +190,20 @@ public abstract class Arm extends SubsystemBase {
         return null;
     }
 
+    /**
+     * The CurrentZero vbus to run the arm at
+     * 
+     * @return the speed of the motor, (vbus)
+     */
     public double getZeroVbus() {
         return 0.0;
     }
 
+    /**
+     * The current threshold for CurrentZero of this arm
+     * 
+     * @return the current threshold to run the arm at
+     */
     public double getZeroCurrentThreshold() {
         return 0.0;
     }

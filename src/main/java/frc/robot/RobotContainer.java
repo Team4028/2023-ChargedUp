@@ -160,11 +160,11 @@ public class RobotContainer {
                 speedScaledDriverRightX(),
                 true),
                 m_drive));
-
+        //zeros the drivetrain
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
         
-
+        //Arm positions
         m_driverController.a.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
         m_driverController.b.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist)));
         m_driverController.y.onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
@@ -174,6 +174,7 @@ public class RobotContainer {
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
         m_driverController.lb.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
 
+        //Zeros the arms
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm)
             .andThen(new CurrentZero(m_lowerArm))));
@@ -197,6 +198,8 @@ public class RobotContainer {
         // m_operatorController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
         // m_operatorController.y.onTrue(new InstantCommand(() -> RobotState.modeCone()));
         // m_operatorController.b.onTrue(new InstantCommand(() -> RobotState.modeBlank()));
+
+        //raw vbus runs the arms
         m_operatorController.a.onTrue(new InstantCommand(() -> m_upperArm.runArm(0.15)));
         m_operatorController.a.onFalse(new InstantCommand(() -> m_upperArm.runArm(0)));
         m_operatorController.b.onTrue(new InstantCommand(() -> m_upperArm.runArm(-0.15)));
