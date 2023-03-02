@@ -9,27 +9,30 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 
 public class Wrist extends SubsystemBase {
+    private static final double kP = 0.01;
+    private static final double kI = 0;
+    private static final double kD = 0.4;
+    private static final double kIz = 0;
+    private static final double kFF = 0;
 
-    /**
-     * the desired positions of the wrist in degrees
-     */
+    private static final double kMaxOutput = 0.2;
+    private static final double kMinOutput = -0.2;
 
     private static Wrist m_instance;
+
     private BeakSparkMAX m_motor;
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
-    private double m_targetPosition, kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
     private SparkMaxPIDController m_pid;
+
+    // encoder in RIO:
     // private DutyCycleEncoder m_absEncoder;
-    private PIDController my_pid;
+    // private PIDController my_pid;
     //private boolean pidEnabled;
 
     /** Creates a new Wrist. */
@@ -43,25 +46,20 @@ public class Wrist extends SubsystemBase {
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
-        m_absoluteEncoder.setZeroOffset(112.0);
+        m_absoluteEncoder.setZeroOffset(270.0);
         m_absoluteEncoder.setInverted(false);
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);
 
-        //PID Constants
-        kP = 0.01;
-        kI = 0;
-        kD = 0.4;
-        kIz = 0;
-        kFF = 0;
-        kMaxOutput = 0.4;
-        kMinOutput = -0.4;
         m_pid.setP(kP);
         m_pid.setI(kI);
         m_pid.setD(kD);
         m_pid.setIZone(kIz);
         m_pid.setFF(kFF);
+
         m_pid.setOutputRange(kMinOutput, kMaxOutput);
+
+        m_motor.setClosedLoopRampRate(0.1);
     }
 
     // CONTROL METHODS

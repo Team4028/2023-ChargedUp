@@ -5,7 +5,6 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import frc.robot.Constants.ArmConstants.LowerArmConstants;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -14,8 +13,21 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The lower Argos Arm
  */
 public class LowerArm extends Arm {
+    private static final double kP = 0.1;
+    private static final double kI = 0.0;
+    private static final double kD = 0.0;
+    private static final double kIz = 0.0;
+    private static final double kFF = 0.0;
+
+    private static final double kMaxOutput = 0.2;
+    private static final double kMinOutput = -0.2;
+
+    private static final double kS = 0.33069;
+    private static final double kG = 0.2554;
+    private static final double kV = 0.10667;
+
     private static LowerArm m_instance;
-    public final double maxVel,maxAccel;
+    public final double maxVel, maxAccel;
 
     /*
      * Inches per revelution of sprocket: 6.25
@@ -25,18 +37,24 @@ public class LowerArm extends Arm {
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
-        maxVel = 3500;//7000;
-        maxAccel = 3500;//14000;
-        ffmodel = new ElevatorFeedforward(LowerArmConstants.kS, LowerArmConstants.kG, LowerArmConstants.kV);
+        maxVel = 3500;// 7000;
+        maxAccel = 3500;// 14000;
+
+        ffmodel = new ElevatorFeedforward(kS, kG, kV);
+
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
+
         m_pid = m_motor.getPIDController();
-        m_pid.setP(LowerArmConstants.kP);
-        m_pid.setI(LowerArmConstants.kI);
-        m_pid.setD(LowerArmConstants.kD);
-        m_pid.setIZone(LowerArmConstants.kIz);
-        m_pid.setFF(LowerArmConstants.kFF);
-        m_pid.setOutputRange(LowerArmConstants.kMinOutput, LowerArmConstants.kMaxOutput);
+        m_pid.setP(kP);
+        m_pid.setI(kI);
+        m_pid.setD(kD);
+        m_pid.setIZone(kIz);
+        m_pid.setFF(kFF);
+
+        m_pid.setOutputRange(kMinOutput, kMaxOutput);
+
+        // TODO: initArm should take in the constants we have and configure directly.
         super.initArm();
     }
 

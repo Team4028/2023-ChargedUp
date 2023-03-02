@@ -42,7 +42,9 @@ public class CurrentZero extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        System.out.println("This works");
         m_arm.zeroEncoder();
+        //m_arm.runToPosition(2);
         m_arm.runArm(0.0);
     }
 

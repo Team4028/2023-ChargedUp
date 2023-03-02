@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public abstract class Arm extends SubsystemBase {
     protected SparkMaxPIDController m_pid;
+    
     protected double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, minVel, allowedErr;
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
@@ -38,11 +39,14 @@ public abstract class Arm extends SubsystemBase {
      */
     protected void initArm() {
         m_encoder = m_motor.getEncoder();
+
         m_motor.setSmartCurrentLimit(40);
         m_motor.setIdleMode(IdleMode.kBrake);
 
         m_motor.setOpenLoopRampRate(0.5);
         m_motor.setClosedLoopRampRate(0.1);
+
+        m_motor.burnFlash();
     }
 
     /**
