@@ -13,23 +13,23 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TrapezoidRunArm extends TrapezoidProfileCommand {
     /** Creates a new TrapezoidRunArm. */
-    public TrapezoidRunArm(double maxVel, double maxAccel, double startRotations, double endInches, Arm m_arm) {
+    public TrapezoidRunArm(double maxVel, double maxAccel, double startRotations, double endInches, Arm arm) {
         super(
             // The motion profile to be executed
             new TrapezoidProfile(
                 // The motion profile constraints
                 new TrapezoidProfile.Constraints(maxVel, maxAccel),
                 // Goal state
-                new TrapezoidProfile.State(m_arm.inchesToNativeUnits(endInches), 0),
+                new TrapezoidProfile.State(arm.inchesToNativeUnits(endInches), 0),
                 // Initial state
                 new TrapezoidProfile.State(startRotations, 0)),
             state -> {
-
-                m_arm.runToPosition(state.position, m_arm.ffmodel.calculate(state.velocity));
+                arm.runToPosition(state.position, arm.ffmodel.calculate(state.velocity));
                 // Use current trajectory state here
                 SmartDashboard.putNumber("Position Trapezoid:", state.position);
                 SmartDashboard.putNumber("Trapezoid Vel", state.velocity);
             });
-        m_arm.setDistanceToTravel(Math.abs(endInches - startRotations));
+        arm.setDistanceToTravel(Math.abs(endInches - startRotations));
+        addRequirements(arm);
     }
 }

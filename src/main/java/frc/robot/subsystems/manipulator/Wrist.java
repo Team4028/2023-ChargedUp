@@ -41,7 +41,7 @@ public class Wrist extends SubsystemBase {
         m_motor = new BeakSparkMAX(12);
         m_motor.restoreFactoryDefault();
         m_motor.setSmartCurrentLimit(25);
-        m_motor.setInverted(true);
+        m_motor.setInverted(false);
         m_motor.setIdleMode(IdleMode.kCoast);
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
@@ -81,7 +81,7 @@ public class Wrist extends SubsystemBase {
     public Command runMotorUp() {
         return runOnce(
             () -> {
-                m_motor.set(-0.15);
+                m_motor.set(0.15);
             });
     }
 
@@ -105,7 +105,7 @@ public class Wrist extends SubsystemBase {
     public Command runMotorDown() {
         return runOnce(
             () -> {
-                m_motor.set(0.15);
+                m_motor.set(-0.15);
             });
     }
 

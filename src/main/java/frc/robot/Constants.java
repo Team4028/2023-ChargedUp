@@ -38,31 +38,5 @@ public final class Constants {
 
     public static final class DriveConstants {
         public static final double SPEED_SCALE = 0.25;
-    }
-
-    public static final class ArmConstants {
-        public static final double EXTEND_COEFFICIENT = 116.1;
-        public static final double RETRACT_COEFFICIENT = 156.58;
-        public static final double EXTEND_WAIT_INTERVAL = 0.2;
-        public static final double RETRACT_WAIT_INTERVAL = 0.4;
-    }
-        public enum ScoringPositions {
-            STOWED(2, 1.5, 300.0), // L: 2. U: 2.
-            INTERMEDIATE_LOW(3,6,250),
-            SCORE_MID(13., 3., 50.), // L: 44. U: 52.
-            SCORE_HIGH(13., 19., 50.), // L: 56. U: 80.
-            ACQUIRE_FLOOR_CUBE(1.5, 16., 170.), // L: 9. U: 40.
-            ACQUIRE_FLOOR_TIPPED_CONE(1.5, 16., 170), //L: 9. U: 40. 
-            ACQUIRE_FLOOR_UPRIGHT_CONE(4.5, 10, 130);
-    
-            public double lowerPosition;
-            public double upperPosition;
-            public double wristAngle;
-    
-            private ScoringPositions(double lowerPosition, double upperPosition, double wristAngle) {
-                this.lowerPosition = lowerPosition;
-                this.upperPosition = upperPosition;
-                this.wristAngle=wristAngle;
-            }
-        }
+    }   
 }

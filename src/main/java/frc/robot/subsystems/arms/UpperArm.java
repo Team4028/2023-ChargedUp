@@ -23,9 +23,12 @@ public class UpperArm extends Arm {
     private static final double kMaxOutput = 0.2;
     private static final double kMinOutput = -0.2;
 
-    private static final double kS = 0.33069;
-    private static final double kG = 0.2554;
-    private static final double kV = 0.10667;
+    private static final double kS = 0.1; // 0.33069;
+    private static final double kG = 0.1; // 0.2554;
+    private static final double kV = 0.1; // 0.10667;
+
+    private static final double ZEROING_VBUS = -0.1;
+    private static final double ZEROING_CURRENT_THRESHOLD = 25.0;
 
     private static UpperArm m_instance;
 
@@ -68,22 +71,22 @@ public class UpperArm extends Arm {
 
     public void armTen() {
         m_pid.setReference(2, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
-        m_pidPos = 10;
+        m_targetPosition = 10;
     }
 
     public void armThirty() {
         m_pid.setReference(31.0451, CANSparkMax.ControlType.kPosition);
-        m_pidPos = 30;
+        m_targetPosition = 30;
     }
 
     public void armSixty() {
         m_pid.setReference(53.62151, CANSparkMax.ControlType.kPosition);
-        m_pidPos = 60;
+        m_targetPosition = 60;
     }
 
     public void armNintey() {
         m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
-        m_pidPos = 90;
+        m_targetPosition = 90;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class UpperArm extends Arm {
 
     @Override
     public double getTargetPositionInches() {
-        return m_pidPos * NATIVE_UNITS_TO_INCHES;
+        return m_targetPosition * NATIVE_UNITS_TO_INCHES;
     }
 
     /**
@@ -137,5 +140,15 @@ public class UpperArm extends Arm {
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
+    }
+
+    @Override
+    public double getZeroCurrentThreshold() {
+        return ZEROING_CURRENT_THRESHOLD;
+    }
+
+    @Override
+    public double getZeroVbus() {
+        return ZEROING_VBUS;
     }
 }

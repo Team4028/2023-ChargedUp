@@ -2,7 +2,6 @@ package frc.robot;
 
 import java.util.Arrays;
 import java.util.List;
-import frc.robot.Constants.ScoringPositions;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.beaklib.units.Distance;
@@ -10,13 +9,35 @@ import frc.robot.commands.BlinkLEDs;
 import frc.robot.subsystems.LEDs;
 
 public class RobotState {
+    
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
+
     private static ScoringPositions currentPosition = ScoringPositions.STOWED;
     /**
      * the states of the robot
      */
-    public enum State {
+    public enum GamePieceMode {
         CONE, OFF, CUBE;
+    }
+
+    public enum ScoringPositions {
+        STOWED(2, 1.5, 320.0), // L: 2. U: 2.
+        INTERMEDIATE_LOW(3,6,286.0),
+        SCORE_MID(13., 3.0, 153.0), // L: 44. U: 52.
+        SCORE_HIGH(13., 19.0, 153.0), // L: 56. U: 80.
+        ACQUIRE_FLOOR_CUBE(1.5, 16.0, 233.0), // L: 9. U: 40.
+        ACQUIRE_FLOOR_TIPPED_CONE(1.5, 16.0, 170.0), //L: 9. U: 40. 
+        ACQUIRE_FLOOR_UPRIGHT_CONE(4.5, 10.0, 130.0);
+
+        public double lowerPosition;
+        public double upperPosition;
+        public double wristAngle;
+
+        private ScoringPositions(double lowerPosition, double upperPosition, double wristAngle) {
+            this.lowerPosition = lowerPosition;
+            this.upperPosition = upperPosition;
+            this.wristAngle=wristAngle;
+        }
     }
 
     /**
@@ -61,7 +82,7 @@ public class RobotState {
 
     private static Node m_currentNode = NODES.get(0);
 
-    private static State m_currentState = State.CONE;
+    private static GamePieceMode m_currentMode = GamePieceMode.CONE;
 
     private static LEDs m_leds;
 
@@ -71,7 +92,7 @@ public class RobotState {
      * Turns of the CANdle
      */
     public static void modeBlank() {
-        m_currentState = State.OFF;
+        m_currentMode = GamePieceMode.OFF;
         if (!climbMode) {
             m_leds.setBlank();
         }
@@ -81,7 +102,7 @@ public class RobotState {
      * sets the robot mode to cone mode
      */
     public static void modeCone() {
-        m_currentState = State.CONE;
+        m_currentMode = GamePieceMode.CONE;
         if (!climbMode) {
             m_leds.setCone();
             new BlinkLEDs(m_leds).schedule();
@@ -92,7 +113,7 @@ public class RobotState {
      * sets the robot mode to cube mode 
      */
     public static void modeCube() {
-        m_currentState = State.CUBE;
+        m_currentMode = GamePieceMode.CUBE;
         if (!climbMode) {
             m_leds.setCube();
             new BlinkLEDs(m_leds).schedule();
@@ -122,7 +143,7 @@ public class RobotState {
                     break;
             }
         }
-        if (getState() != State.OFF) {
+        if (getState() != GamePieceMode.OFF) {
             new BlinkLEDs(m_leds).schedule();
         }
     }
@@ -131,15 +152,15 @@ public class RobotState {
      * switches between cone and cube mode
      */
     public static void toggle() {
-        switch (m_currentState) {
+        switch (m_currentMode) {
             case CONE:
-                m_currentState = State.CUBE;
+                m_currentMode = GamePieceMode.CUBE;
                 break;
             case CUBE:
-                m_currentState = State.CONE;
+                m_currentMode = GamePieceMode.CONE;
                 break;
             default:
-                m_currentState = State.CONE;
+                m_currentMode = GamePieceMode.CONE;
                 break;
         }
     }
@@ -148,8 +169,8 @@ public class RobotState {
      * 
      * @return the state of the robot
      */
-    public static State getState() {
-        return m_currentState;
+    public static GamePieceMode getState() {
+        return m_currentMode;
     }
 
     /**

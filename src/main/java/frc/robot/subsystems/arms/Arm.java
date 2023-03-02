@@ -18,12 +18,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * The upper Argos Arm
  */
 public abstract class Arm extends SubsystemBase {
+
+    public static final double EXTEND_COEFFICIENT = 116.1;
+    public static final double RETRACT_COEFFICIENT = 156.58;
+    public static final double EXTEND_WAIT_INTERVAL = 0.2;
+    public static final double RETRACT_WAIT_INTERVAL = 0.4;
+
     protected SparkMaxPIDController m_pid;
     
-    protected double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, minVel, allowedErr;
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
-    protected double m_pidPos, m_distanceToTravel = 0;
+    protected double m_targetPosition, m_distanceToTravel = 0;
     public ElevatorFeedforward ffmodel;
 
     /**
@@ -44,7 +49,7 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setIdleMode(IdleMode.kBrake);
 
         m_motor.setOpenLoopRampRate(0.5);
-        m_motor.setClosedLoopRampRate(0.1);
+        m_motor.setClosedLoopRampRate(0.2);
 
         m_motor.burnFlash();
     }
@@ -73,7 +78,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        m_pidPos = position;
+        m_targetPosition = position;
     }
 
     /**
@@ -86,7 +91,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position, double feedForward) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
-        m_pidPos = position;
+        m_targetPosition = position;
     }
 
     /**
@@ -104,7 +109,7 @@ public abstract class Arm extends SubsystemBase {
     abstract public double inchesToNativeUnits(double inches);
 
     public double getError() {
-        return Math.abs(this.getEncoderPosition() - m_pidPos);
+        return Math.abs(this.getEncoderPosition() - m_targetPosition);
     }
 
     /**
@@ -127,7 +132,7 @@ public abstract class Arm extends SubsystemBase {
      * @return the target position of the arm in rotations 
      */
     public double getTargetPosition() {
-        return m_pidPos;
+        return m_targetPosition;
     }
 
     /**
@@ -179,4 +184,11 @@ public abstract class Arm extends SubsystemBase {
         return null;
     }
 
+    public double getZeroVbus() {
+        return 0.0;
+    }
+
+    public double getZeroCurrentThreshold() {
+        return 0.0;
+    }
 }

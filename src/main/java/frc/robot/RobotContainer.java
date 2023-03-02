@@ -19,9 +19,7 @@ import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.Constants;
-import frc.robot.Constants.ScoringPositions;
 import frc.robot.subsystems.manipulator.Gripper;
-//import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.arm.RunArmsToPosition;
@@ -32,6 +30,7 @@ import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
+import frc.robot.RobotState.ScoringPositions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -164,10 +163,10 @@ public class RobotContainer {
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
+        
+
         m_driverController.a.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
         m_driverController.b.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist)));
-        m_driverController.a.onTrue(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist));
-        m_driverController.b.onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist));
         m_driverController.y.onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
         m_driverController.x.onTrue(new RunArmsToPosition(ScoringPositions.SCORE_MID,
             m_lowerArm, m_upperArm, m_wrist));
@@ -176,10 +175,10 @@ public class RobotContainer {
         m_driverController.lb.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
 
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
-        .andThen(new CurrentZero(m_upperArm, -0.2)
-        .andThen(new CurrentZero(m_lowerArm, -0.1)
-        .andThen(new WaitCommand(3.0))))
-        .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
+            .andThen(new CurrentZero(m_upperArm)
+            .andThen(new CurrentZero(m_lowerArm))));
+            // .andThen(new WaitCommand(3.0))))
+            // .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
         //.andThen(new WaitCommand(1.0)).andThen(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, Wrist.WristPositions.STOW, m_lowerArm, m_upperArm, m_wrist)));
        
         // infeed
