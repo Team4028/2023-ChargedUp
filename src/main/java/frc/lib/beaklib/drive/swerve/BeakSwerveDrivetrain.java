@@ -166,7 +166,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     }
 
     public void resetOdometry(Pose2d pose) {
-        m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), pose);
+        if (!pose.equals(new Pose2d()))
+            m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), pose);
     }
 
     public void drive(double x, double y, double rot, boolean fieldRelative) {
@@ -272,7 +273,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      */
     public void zero() {
         resetTurningMotors();
-        resetOdometry(new Pose2d());
+        m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), new Pose2d());
     }
 
     private ChassisSpeeds getChassisSpeeds() {

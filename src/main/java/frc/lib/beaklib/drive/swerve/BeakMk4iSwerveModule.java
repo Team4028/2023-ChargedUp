@@ -59,16 +59,16 @@ public class BeakMk4iSwerveModule extends BeakSwerveModule {
         return angle;
     }
 
-    public void setDesiredState(SwerveModuleState desiredState) {
-        // Calculate Arb Feed Forward for drive motor
-        double arbFeedforward = m_feedforward.calculate(desiredState.speedMetersPerSecond);
+    // public void setDesiredState(SwerveModuleState desiredState) {
+    //     // Calculate Arb Feed Forward for drive motor
+    //     double arbFeedforward = m_feedforward.calculate(desiredState.speedMetersPerSecond);
 
-        m_driveMotor.setVelocityNU(
-            desiredState.speedMetersPerSecond / 10.0 / driveEncoderDistancePerPulse,
-            arbFeedforward,
-            0);
+    //     m_driveMotor.setVelocityNU(
+    //         desiredState.speedMetersPerSecond / 10.0 / driveEncoderDistancePerPulse,
+    //         arbFeedforward,
+    //         0);
 
-        // Set the turning motor to the correct position.
-        setAngle(desiredState.angle.getDegrees());
-    }
+    //     // Set the turning motor to the correct position.
+    //     setAngle(desiredState.angle.getDegrees());
+    // }
 }
