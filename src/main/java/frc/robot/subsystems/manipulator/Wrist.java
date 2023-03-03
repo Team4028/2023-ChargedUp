@@ -21,8 +21,8 @@ public class Wrist extends SubsystemBase {
     private static final double kIz = 0;
     private static final double kFF = 0;
 
-    private static final double kMaxOutput = 0.2;
-    private static final double kMinOutput = -0.2;
+    private static final double kMaxOutput = 0.75;
+    private static final double kMinOutput = -0.75;
 
     private static Wrist m_instance;
 
@@ -41,12 +41,11 @@ public class Wrist extends SubsystemBase {
         m_motor = new BeakSparkMAX(12);
         m_motor.restoreFactoryDefault();
         m_motor.setSmartCurrentLimit(25);
-        m_motor.setInverted(false);
+        m_motor.setInverted(true);
         m_motor.setIdleMode(IdleMode.kCoast);
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
-        m_absoluteEncoder.setZeroOffset(270.0);
         m_absoluteEncoder.setInverted(false);
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);
@@ -60,6 +59,7 @@ public class Wrist extends SubsystemBase {
         m_pid.setOutputRange(kMinOutput, kMaxOutput);
 
         m_motor.setClosedLoopRampRate(0.1);
+        m_motor.burnFlash();
     }
 
     // CONTROL METHODS

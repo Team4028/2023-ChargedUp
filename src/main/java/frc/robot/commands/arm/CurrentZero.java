@@ -34,14 +34,14 @@ public class CurrentZero extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        m_arm.runArm(m_arm.getZeroVbus());
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        System.out.println("This works");
         m_arm.zeroEncoder();
-        m_arm.runToPosition(3.0);
+        m_arm.runArm(0.0);
     }
 
     // Returns true when the command should end.

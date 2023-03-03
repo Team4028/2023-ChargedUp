@@ -20,15 +20,15 @@ public class UpperArm extends Arm {
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.2;
-    private static final double kMinOutput = -0.2;
+    private static final double kMaxOutput = 0.4;
+    private static final double kMinOutput = -0.4;
 
-    private static final double kS = 0.1; // 0.33069;
-    private static final double kG = 0.1; // 0.2554;
-    private static final double kV = 0.1; // 0.10667;
+    private static final double kS = 0.; // 0.33069;
+    private static final double kG = 0.; // 0.2554;
+    private static final double kV = 0.; // 0.10667;
 
     private static final double ZEROING_VBUS = -0.1;
-    private static final double ZEROING_CURRENT_THRESHOLD = 25.0;
+    private static final double ZEROING_CURRENT_THRESHOLD = 19.0;
 
     private static UpperArm m_instance;
 
@@ -41,8 +41,8 @@ public class UpperArm extends Arm {
 
     /** Creates a new UpperArm. */
     public UpperArm() {
-        maxVel = 3500;// 7000;
-        maxAccel = 3500;// 14000;
+        maxVel = 5000;// 7000;
+        maxAccel = 7000;// 14000;
 
         ffmodel = new ElevatorFeedforward(kS, kG, kV);
 

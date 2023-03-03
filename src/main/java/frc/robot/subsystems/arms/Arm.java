@@ -127,6 +127,14 @@ public abstract class Arm extends SubsystemBase {
         return m_encoder.getPosition();
     }
 
+        /**
+     * 
+     * @return the position of the arm's encoder
+     */
+    public double getEncoderInches() {
+        return nativeUnitsToInches(m_encoder.getPosition());
+    }
+
     /**
      * 
      * @return the target position of the arm in rotations 

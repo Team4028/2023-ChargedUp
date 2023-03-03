@@ -161,30 +161,47 @@ public class RobotContainer {
                 true),
                 m_drive));
 
+        m_gripper.setDefaultCommand(
+            new RunCommand(() -> m_gripper.holdGamePiece(),
+                m_gripper));
+
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
-        
-
-        m_driverController.a.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
-        m_driverController.b.onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist).andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist)));
-        m_driverController.y.onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
+        m_driverController.a
+            .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
+                .andThen(new WaitCommand(0.25))
+                .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
+        m_driverController.b
+            .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
+                .andThen(new WaitCommand(0.25)).andThen(new RunArmsToPosition(
+                    ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm, m_wrist)));
+        m_driverController.y.onTrue(
+            new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
         m_driverController.x.onTrue(new RunArmsToPosition(ScoringPositions.SCORE_MID,
             m_lowerArm, m_upperArm, m_wrist));
 
-        m_driverController.rb.onTrue(new AutoBalance(m_drive));
-        m_driverController.lb.onTrue(new AddVisionMeasurement(m_drive, m_frontAprilTagVision));
+        // m_driverController.rb.onTrue(new AutoBalance(m_drive));
+        // m_driverController.lb.onTrue(new AddVisionMeasurement(m_drive,
+        // m_frontAprilTagVision));
+        // m_driverController.rb.onTrue(m_gripper.doInfeed());
+        // m_driverController.lb.onTrue(m_gripper.doOutfeed());
+        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThreshold())
+            .andThen(new InstantCommand(() -> m_gripper.holdGamePiece())));
 
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm)
-            .andThen(new CurrentZero(m_lowerArm))));
-            // .andThen(new WaitCommand(3.0))))
-            // .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
-        //.andThen(new WaitCommand(1.0)).andThen(new RunArmsToPosition(Arm.ArmPositions.RETRACTED, Wrist.WristPositions.STOW, m_lowerArm, m_upperArm, m_wrist)));
-       
+                .andThen(new CurrentZero(m_lowerArm))));
+        // .andThen(new WaitCommand(3.0))))
+        // .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm,
+        // m_upperArm, m_wrist)));
+        // .andThen(new WaitCommand(1.0)).andThen(new
+        // RunArmsToPosition(Arm.ArmPositions.RETRACTED, Wrist.WristPositions.STOW,
+        // m_lowerArm, m_upperArm, m_wrist)));
+
         // infeed
         m_operatorController.rb.onTrue(m_gripper.runMotorIn());
         m_operatorController.rb.onFalse(m_gripper.stopMotor());
-        m_operatorController.lb.onTrue(m_gripper.runMotorOut());
+        m_operatorController.lb.onTrue(m_gripper.runMotorOut().withTimeout(0.8));
         m_operatorController.lb.onFalse(m_gripper.stopMotor());
 
         // wrist
@@ -194,9 +211,12 @@ public class RobotContainer {
         m_operatorController.lt.onFalse(m_wrist.stopMotor());
 
         // mode
-        // m_operatorController.x.onTrue(new InstantCommand(() -> RobotState.modeCube()));
-        // m_operatorController.y.onTrue(new InstantCommand(() -> RobotState.modeCone()));
-        // m_operatorController.b.onTrue(new InstantCommand(() -> RobotState.modeBlank()));
+        // m_operatorController.x.onTrue(new InstantCommand(() ->
+        // RobotState.modeCube()));
+        // m_operatorController.y.onTrue(new InstantCommand(() ->
+        // RobotState.modeCone()));
+        // m_operatorController.b.onTrue(new InstantCommand(() ->
+        // RobotState.modeBlank()));
         m_operatorController.a.onTrue(new InstantCommand(() -> m_upperArm.runArm(0.15)));
         m_operatorController.a.onFalse(new InstantCommand(() -> m_upperArm.runArm(0)));
         m_operatorController.b.onTrue(new InstantCommand(() -> m_upperArm.runArm(-0.15)));

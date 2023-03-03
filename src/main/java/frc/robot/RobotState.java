@@ -21,13 +21,13 @@ public class RobotState {
     }
 
     public enum ScoringPositions {
-        STOWED(2, 1.5, 320.0), // L: 2. U: 2.
-        INTERMEDIATE_LOW(3,6,286.0),
-        SCORE_MID(13., 3.0, 153.0), // L: 44. U: 52.
-        SCORE_HIGH(13., 19.0, 153.0), // L: 56. U: 80.
-        ACQUIRE_FLOOR_CUBE(1.5, 16.0, 233.0), // L: 9. U: 40.
-        ACQUIRE_FLOOR_TIPPED_CONE(1.5, 16.0, 170.0), //L: 9. U: 40. 
-        ACQUIRE_FLOOR_UPRIGHT_CONE(4.5, 10.0, 130.0);
+        STOWED(1., 1., 320.0),
+        INTERMEDIATE_LOW(3., 6.,286.0),
+        SCORE_MID(13., 0.5, 190.0), 
+        SCORE_HIGH(13., 19.0, 255.0),
+        ACQUIRE_FLOOR_CUBE(2.0, 15.0, 245.0),
+        ACQUIRE_FLOOR_TIPPED_CONE(2.0, 15.0, 245.0),
+        ACQUIRE_FLOOR_UPRIGHT_CONE(2.0, 4.5, 241.);
 
         public double lowerPosition;
         public double upperPosition;
