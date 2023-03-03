@@ -25,7 +25,7 @@ import frc.robot.subsystems.LEDs;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-    private LEDs m_leds;
+    // private LEDs m_leds;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -112,7 +112,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousInit() {
-        // autonomousCommand = robotContainer.getAutonomousCommand();
+        autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null) {

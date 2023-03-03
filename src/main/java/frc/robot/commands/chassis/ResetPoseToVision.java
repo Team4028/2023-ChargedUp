@@ -25,6 +25,6 @@ public class ResetPoseToVision extends InstantCommand {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_drivetrain.resetOdometry(m_vision.getLatestEstimatedRobotPose());
+        m_drivetrain.resetOdometry(m_vision.getLatestEstimatedRobotPose(m_drivetrain.getRotation2d()));
     }
 }

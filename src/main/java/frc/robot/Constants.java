@@ -28,6 +28,8 @@ public final class Constants {
         REPLAY
     }
 
+    public static final boolean PRACTICE_CHASSIS = false;
+
     public static final class PIDConstants {
         public static final class Theta { // TODO: put in drivetrains
             public static final double kP = 6.3;
@@ -38,6 +40,7 @@ public final class Constants {
 
     public static final class DriveConstants {
         public static final double SPEED_SCALE = 0.25;
+        public static final double AUTO_ALIGN_SPEED_SCALE = 0.125;
     }
 
     public static final class ArmConstants {

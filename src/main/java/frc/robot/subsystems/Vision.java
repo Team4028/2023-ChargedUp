@@ -30,7 +30,8 @@ public class Vision extends SubsystemBase {
     private final PhotonCamera m_camera;
     private final AprilTagFieldLayout m_layout;
 
-    private double m_latestLatency;
+    private double m_latestLatency = 0.;
+    private int m_latestTag = 0;
 
     private final Pose3d m_camToRobot;
     private final boolean m_inverted;
@@ -84,24 +85,33 @@ public class Vision extends SubsystemBase {
 
         if (hasTarget) {
             target = result.getBestTarget();
+            target = target.getPoseAmbiguity() > 0.65 ? null : target;
         }
 
         return target;
     }
 
-    public Pose2d getLatestEstimatedRobotPose() {
+    public Pose2d getLatestEstimatedRobotPose(Rotation2d rotation) {
         PhotonTrackedTarget target = getBestTarget();
 
         if (target != null) {
             Transform3d cameraToTarget = target.getBestCameraToTarget();
 
-            Optional<Pose3d> tagPose = m_layout.getTagPose(target.getFiducialId());
+            m_latestTag = target.getFiducialId();
+            Optional<Pose3d> tagPose = m_layout.getTagPose(m_latestTag);
 
-            Transform3d camToRobot = new Transform3d();
+            // alternate way to convert a pose to a transform
+            Transform3d camToRobot = m_camToRobot.minus(new Pose3d());
 
             if (tagPose.isPresent()) {
                 Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose.get(), camToRobot);
-                return robotPose.toPose2d();
+                Pose2d odomPose = robotPose.toPose2d();
+
+                if (target.getPoseAmbiguity() > 0.02 && rotation != null) {
+                    odomPose = new Pose2d(odomPose.getTranslation(), rotation);
+                }
+
+                return odomPose;
             }
         }
         return new Pose2d();
@@ -151,6 +161,11 @@ public class Vision extends SubsystemBase {
 
     public double getLatestLatency() {
         return m_latestLatency;
+    }
+
+    public int getLatestTagID() {
+        getLatestEstimatedRobotPose(null);
+        return m_latestTag;
     }
 
     @Override

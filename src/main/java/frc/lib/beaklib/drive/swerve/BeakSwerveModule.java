@@ -135,25 +135,22 @@ public class BeakSwerveModule {
      */
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the state to avoid spinning more than 90 degrees.
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState,
+        SwerveModuleState optimizedState = SwerveUtil.optimize(desiredState,
             new Rotation2d(getTurningEncoderRadians()));
 
         // Calculate Arb Feed Forward for drive motor
-        // TODO: calc from SysId
         // NOTE: feedforward MUST be in meters!
         double arbFeedforward = m_feedforward.calculate(optimizedState.speedMetersPerSecond);
 
         m_driveMotor.setVelocityNU(
-            // m_driveMotor.setRate(
             optimizedState.speedMetersPerSecond / 10.0 / driveEncoderDistancePerPulse,
-            // optimizedState.speedMetersPerSecond,
             arbFeedforward,
             0);
 
-        SmartDashboard.putNumber("bruh " + bruh, m_driveMotor.getOutputVoltage());
-
         // Set the turning motor to the correct position.
-        setAngle(optimizedState.angle.getDegrees());
+        if (desiredState.speedMetersPerSecond > 0.01) {
+            setAngle(optimizedState.angle.getDegrees());
+        }
     }
 
     /** Encoders & Heading */

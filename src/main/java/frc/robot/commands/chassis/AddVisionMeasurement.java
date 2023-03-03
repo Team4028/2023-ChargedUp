@@ -14,9 +14,9 @@ import frc.robot.subsystems.Vision;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AddVisionMeasurement extends InstantCommand {
-    private BeakDrivetrain m_drivetrain;
-    private Vision m_vision;
-    private Field2d m_field;
+    private final BeakDrivetrain m_drivetrain;
+    private final Vision m_vision;
+    private final Field2d m_field;
 
     public AddVisionMeasurement(BeakDrivetrain drivetrain, Vision vision) {
         m_drivetrain = drivetrain;
@@ -32,7 +32,7 @@ public class AddVisionMeasurement extends InstantCommand {
     public void initialize() {
         m_vision.checkAlliance();
         m_drivetrain.addVisionMeasurement(
-            m_vision.getLatestEstimatedRobotPose(),
+            m_vision.getLatestEstimatedRobotPose(m_drivetrain.getRotation2d()),
             m_vision.getLatestLatency());
         m_field.setRobotPose(m_drivetrain.getPoseMeters());
         SmartDashboard.putData("AprilTag thing", m_field);

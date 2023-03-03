@@ -49,11 +49,11 @@
     },
     {
       "anchorPoint": {
-        "x": 7.82,
+        "x": 6.52,
         "y": 0.9304582894880083
       },
       "prevControl": {
-        "x": 6.932485939257593,
+        "x": 5.6324859392575926,
         "y": 0.9161435465728075
       },
       "nextControl": null,
@@ -72,7 +72,7 @@
   ],
   "markers": [
     {
-      "position": 1.072727272727273,
+      "position": 1.1636363636363636,
       "names": [
         "ArmPickup",
         "FrontReset"
@@ -95,6 +95,12 @@
       "position": 1.8363636363636333,
       "names": [
         "RearLocalize"
+      ]
+    },
+    {
+      "position": 0.6727272727272728,
+      "names": [
+        "FrontLocalize"
       ]
     }
   ]
