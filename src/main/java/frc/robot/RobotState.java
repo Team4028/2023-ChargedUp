@@ -25,10 +25,35 @@ import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 
 public class RobotState {
+    
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
 
-    public enum State {
+    private static ScoringPositions currentPosition = ScoringPositions.STOWED;
+    /**
+     * the states of the robot
+     */
+    public enum GamePieceMode {
         CONE, OFF, CUBE;
+    }
+
+    public enum ScoringPositions {
+        STOWED(1., 1., 320.0),
+        INTERMEDIATE_LOW(3., 6.,286.0),
+        SCORE_MID(13., 0.5, 190.0), 
+        SCORE_HIGH(13., 19.0, 255.0),
+        ACQUIRE_FLOOR_CUBE(2.0, 15.0, 245.0),
+        ACQUIRE_FLOOR_TIPPED_CONE(2.0, 15.0, 245.0),
+        ACQUIRE_FLOOR_UPRIGHT_CONE(2.0, 4.5, 241.);
+
+        public double lowerPosition;
+        public double upperPosition;
+        public double wristAngle;
+
+        private ScoringPositions(double lowerPosition, double upperPosition, double wristAngle) {
+            this.lowerPosition = lowerPosition;
+            this.upperPosition = upperPosition;
+            this.wristAngle = wristAngle;
+        }
     }
 
     /**
@@ -41,7 +66,7 @@ public class RobotState {
         public int TagID;
         public int GridID;
 
-        public State GamePiece;
+        public GamePieceMode GamePiece;
 
         /**
          * Create a new Node.
@@ -55,7 +80,7 @@ public class RobotState {
          * @param pose
          *            The BLUE pose of the node.
          */
-        public Node(int gridID, int tagID, State gamePiece, Pose2d pose) {
+        public Node(int gridID, int tagID, GamePieceMode gamePiece, Pose2d pose) {
             this.GridID = gridID;
             this.TagID = tagID;
 
@@ -71,20 +96,20 @@ public class RobotState {
 
     public static final List<Node> NODES = Arrays.asList(
         // This list starts at the node nearest the opposing alliance's LOADING ZONE
-        new Node(0, 0, State.CONE, new Pose2d(2.05, 4.94, new Rotation2d(Math.PI))), // 1
-        new Node(1, 3, State.CUBE, new Pose2d(2.05, 4.45, new Rotation2d(Math.PI))), // tag
-        new Node(2, 0, State.CONE, new Pose2d(2.05, 3.86, new Rotation2d(Math.PI))),
-        new Node(3, 0, State.CONE, new Pose2d(2.05, 3.30, new Rotation2d(Math.PI))),
-        new Node(4, 2, State.CUBE, new Pose2d(2.05, 2.75, new Rotation2d(Math.PI))),
-        new Node(5, 0, State.CONE, new Pose2d(2.05, 2.21, new Rotation2d(Math.PI))),
-        new Node(6, 0, State.CONE, new Pose2d(2.05, 1.63, new Rotation2d(Math.PI))),
-        new Node(7, 1, State.CUBE, new Pose2d(2.05, 1.08, new Rotation2d(Math.PI))),
-        new Node(8, 0, State.CONE, new Pose2d(2.05, 0.42, new Rotation2d(Math.PI))) // 9
+        new Node(0, 0, GamePieceMode.CONE, new Pose2d(2.05, 4.94, new Rotation2d(Math.PI))), // 1
+        new Node(1, 3, GamePieceMode.CUBE, new Pose2d(2.05, 4.45, new Rotation2d(Math.PI))), // tag
+        new Node(2, 0, GamePieceMode.CONE, new Pose2d(2.05, 3.86, new Rotation2d(Math.PI))),
+        new Node(3, 0, GamePieceMode.CONE, new Pose2d(2.05, 3.30, new Rotation2d(Math.PI))),
+        new Node(4, 2, GamePieceMode.CUBE, new Pose2d(2.05, 2.75, new Rotation2d(Math.PI))),
+        new Node(5, 0, GamePieceMode.CONE, new Pose2d(2.05, 2.21, new Rotation2d(Math.PI))),
+        new Node(6, 0, GamePieceMode.CONE, new Pose2d(2.05, 1.63, new Rotation2d(Math.PI))),
+        new Node(7, 1, GamePieceMode.CUBE, new Pose2d(2.05, 1.08, new Rotation2d(Math.PI))),
+        new Node(8, 0, GamePieceMode.CONE, new Pose2d(2.05, 0.42, new Rotation2d(Math.PI))) // 9
     );
 
     private static Node m_currentNode = NODES.get(0);
 
-    private static State m_currentState = State.CONE;
+    private static GamePieceMode m_currentMode = GamePieceMode.CONE;
 
     private static LEDs m_leds;
     private static BeakDrivetrain m_drive;
@@ -93,26 +118,35 @@ public class RobotState {
     private static boolean m_climbMode = false;
     private static boolean m_autoAlignMode = false;
 
+    /**
+     * Turns of the CANdle
+     */
     public static void modeBlank() {
-        m_currentState = State.OFF;
+        m_currentMode = GamePieceMode.OFF;
         if (!m_climbMode) {
             m_leds.setBlank();
         }
     }
 
+    /**
+     * sets the robot mode to cone mode
+     */
     public static void modeCone() {
-        m_currentState = State.CONE;
+        m_currentMode = GamePieceMode.CONE;
         if (!m_climbMode) {
-            // m_leds.setCone();
-            // new BlinkLEDs(m_leds).schedule();
+            m_leds.setCone();
+            new BlinkLEDs(m_leds).schedule();
         }
     }
 
+    /**
+     * sets the robot mode to cube mode 
+     */
     public static void modeCube() {
-        m_currentState = State.CUBE;
+        m_currentMode = GamePieceMode.CUBE;
         if (!m_climbMode) {
-            // m_leds.setCube();
-            // new BlinkLEDs(m_leds).schedule();
+            m_leds.setCube();
+            new BlinkLEDs(m_leds).schedule();
         }
     }
 
@@ -141,29 +175,40 @@ public class RobotState {
                     break;
             }
         }
-        if (getState() != State.OFF) {
+        if (getState() != GamePieceMode.OFF) {
             new BlinkLEDs(m_leds).schedule();
         }
     }
 
+    /**
+     * switches between cone and cube mode
+     */
     public static void toggle() {
-        switch (m_currentState) {
+        switch (m_currentMode) {
             case CONE:
-                m_currentState = State.CUBE;
+                m_currentMode = GamePieceMode.CUBE;
                 break;
             case CUBE:
-                m_currentState = State.CONE;
+                m_currentMode = GamePieceMode.CONE;
                 break;
             default:
-                m_currentState = State.CONE;
+                m_currentMode = GamePieceMode.CONE;
                 break;
         }
     }
 
-    public static State getState() {
-        return m_currentState;
+    /**
+     * 
+     * @return the state of the robot
+     */
+    public static GamePieceMode getState() {
+        return m_currentMode;
     }
 
+    /**
+     * 
+     * @return whether or not the robot is in climb mode
+     */
     public static boolean getClimb() {
         return m_climbMode;
     }
@@ -231,7 +276,7 @@ public class RobotState {
 
                 // Searches for the next node with the same state.
                 for (Node node : NODES) {
-                    if (node.GridID > m_currentNode.GridID && node.GamePiece == m_currentState) {
+                    if (node.GridID > m_currentNode.GridID && node.GamePiece == m_currentMode) {
                         nodeToSet.set(0, node);
                         break;
                     }
@@ -257,7 +302,7 @@ public class RobotState {
                 // Searches for the next node (BACKWARDS!) with the same state.
                 for (int i = NODES.size() - 1; i > -1; i--) {
                     Node node = NODES.get(i);
-                    if (node.GridID < m_currentNode.GridID && node.GamePiece == m_currentState) {
+                    if (node.GridID < m_currentNode.GridID && node.GamePiece == m_currentMode) {
                         nodeToSet.set(0, node);
                         break;
                     }
@@ -271,5 +316,13 @@ public class RobotState {
         m_leds = leds;
         m_drive = drivetrain;
         m_vision = vision;
+    }
+    
+    public static void setScoringPosition(ScoringPositions pos){
+        currentPosition = pos;
+    }
+
+    public static ScoringPositions geScoringPosition(){
+        return currentPosition;
     }
 }

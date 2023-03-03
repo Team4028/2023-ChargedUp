@@ -5,7 +5,6 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -14,10 +13,24 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The lower Argos Arm
  */
 public class LowerArm extends Arm {
+    private static final double kP = 0.05;
+    private static final double kI = 0.0;
+    private static final double kD = 0.0;
+    private static final double kIz = 0.0;
+    private static final double kFF = 0.0;
+
+    private static final double kMaxOutput = 0.5;
+    private static final double kMinOutput = -0.5;
+
+    private static final double kS = 0.1; // 0.33069;
+    private static final double kG = 0.1; // 0.2554;
+    private static final double kV = 0.1; // 0.10667;
+
+    public static final double ZEROING_VBUS = -0.1;
+    public static final double ZEROING_CURRENT_THRESHOLD = 20.0;
+
     private static LowerArm m_instance;
-    private final double kS = 0.33069;
-    private final double kG = 0.2554;
-    private final double kV = 0.10667;
+    public final double maxVel, maxAccel;
 
     /*
      * Inches per revelution of sprocket: 6.25
@@ -27,30 +40,45 @@ public class LowerArm extends Arm {
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
+        maxVel = 5000;// 7000;
+        maxAccel = 7000;// 14000;
+
         ffmodel = new ElevatorFeedforward(kS, kG, kV);
+
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
+
+        m_pid = m_motor.getPIDController();
+        m_pid.setP(kP);
+        m_pid.setI(kI);
+        m_pid.setD(kD);
+        m_pid.setIZone(kIz);
+        m_pid.setFF(kFF);
+
+        m_pid.setOutputRange(kMinOutput, kMaxOutput);
+
+        // TODO: initArm should take in the constants we have and configure directly.
         super.initArm();
     }
 
     public void armTen() {
         m_pid.setReference(3.09, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
-        m_pidPos = 10;
+        m_targetPosition = 10;
     }
 
     public void armThirty() {
         m_pid.setReference(11.33103, CANSparkMax.ControlType.kPosition);
-        m_pidPos = 10;
+        m_targetPosition = 10;
     }
 
     public void armSixty() {
         m_pid.setReference(19.56897, CANSparkMax.ControlType.kPosition);
-        m_pidPos = 60;
+        m_targetPosition = 60;
     }
 
     public void armNintey() {
         m_pid.setReference(27.81, CANSparkMax.ControlType.kPosition);
-        m_pidPos = 90;
+        m_targetPosition = 90;
     }
 
     @Override
@@ -65,7 +93,7 @@ public class LowerArm extends Arm {
 
     @Override
     public double getTargetPositionInches() {
-        return m_pidPos * NATIVE_UNITS_TO_INCHES;
+        return m_targetPosition * NATIVE_UNITS_TO_INCHES;
     }
 
     /**
@@ -107,7 +135,7 @@ public class LowerArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("LowArmEncoderPos", this.getEncoderPosition());
+        SmartDashboard.putNumber("LowArmEncoderPos", nativeUnitsToInches(getEncoderPosition()));
         SmartDashboard.putNumber("LowArmErr", this.getError());
         SmartDashboard.putNumber("LowArmCurrentAmps", this.getMotorCurrent());
         // This method will be called once per scheduler run
@@ -116,5 +144,15 @@ public class LowerArm extends Arm {
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
+    }
+
+    @Override
+    public double getZeroCurrentThreshold() {
+        return ZEROING_CURRENT_THRESHOLD;
+    }
+
+    @Override
+    public double getZeroVbus() {
+        return ZEROING_VBUS;
     }
 }

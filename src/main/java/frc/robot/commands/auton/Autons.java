@@ -58,13 +58,14 @@ public class Autons {
         // Almost all pickup, scoring, and localization logic is done through events.
         m_eventMap = new HashMap<String, Command>();
         if (Constants.PRACTICE_CHASSIS) {
-            m_eventMap.put("ArmScoring", new RunArm(45., m_lowerArm));
-            m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
-            m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
+            // TODO
+            // m_eventMap.put("ArmScoring", new RunArm(m45., m_lowerArm));
+            // m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
+            // m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
         }
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
-        // m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
+        m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
 
         m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
         m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));

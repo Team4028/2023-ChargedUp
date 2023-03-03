@@ -17,6 +17,9 @@ public class LEDs extends SubsystemBase {
     private int r, g, b;
     private static LEDs m_instance;
 
+    /**
+     * the colors that the CANdle needs to be set to
+     */
     public enum Color {
         GREEN(0, 255, 0), PURPLE(127, 0, 255), YELLOW(255, 255, 0), OFF(0, 0, 0);
 
@@ -42,6 +45,10 @@ public class LEDs extends SubsystemBase {
         setColor(Color.OFF);
     }
 
+    /**
+     * sets the leds to the color entered in {@link frc.robot.subsystems.LEDs}'s {@code setColor()}
+     * @return a command that does the above task
+     */
     public Command setLEDs() {
         return runOnce(() -> {
             this.r = m_color.r;
@@ -50,15 +57,26 @@ public class LEDs extends SubsystemBase {
         });
     }
 
+    /**
+     * sets the color of the LED class
+     * @param color the color to set
+     */
     public void setColor(Color color) {
         m_color = color;
     }
 
+    /**
+     * sets the color to blank and runs {@code setLEDs()}
+     */
     public void setBlank() {
         setColor(Color.OFF);
         setLEDs().ignoringDisable(true).schedule();
     }
 
+    /**
+     * sets the LEDs r, g, and b fields to 0
+     * @return a command that does the above task
+     */
     public Command setOff() {
         return runOnce(() -> {
             r = 0;
@@ -67,14 +85,23 @@ public class LEDs extends SubsystemBase {
         });
     }
 
+    /**
+     * sets the color to the climb color (green)
+     */
     public void setClimb() {
         setColor(Color.GREEN);
     }
 
+    /**
+     * sets the color to the cone color (yellow)
+     */
     public void setCone() {
         setColor(Color.YELLOW);
     }
 
+    /**
+     * sets the color to the cube color (purple)
+     */
     public void setCube() {
         setColor(Color.PURPLE);
     }

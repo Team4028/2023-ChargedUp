@@ -18,31 +18,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * The upper Argos Arm
  */
 public abstract class Arm extends SubsystemBase {
+
+    public static final double EXTEND_COEFFICIENT = 116.1;
+    public static final double RETRACT_COEFFICIENT = 156.58;
+    public static final double EXTEND_WAIT_INTERVAL = 0.2;
+    public static final double RETRACT_WAIT_INTERVAL = 0.4;
+
     protected SparkMaxPIDController m_pid;
-    protected double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxVel, maxAcc, minVel, allowedErr;
+    
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
-    protected double m_pidPos, m_distanceToTravel = 0;
+    protected double m_targetPosition, m_distanceToTravel = 0;
     public ElevatorFeedforward ffmodel;
 
-    public enum ArmPositions {
-        RETRACTED(0.5, 1.04166666667), // L: 2. U: 2.
-        SCORE_MID(11, 27.0833333333), // L: 44. U: 52.
-        SCORE_HIGH(14, 41.6666666667), // L: 56. U: 80.
-        ACQUIRE_FLOOR(2.25, 20.8333333333333), // L: 9. U: 40.
-        // We no longer care about these
-        THIRTY(2.8325, 16.171875), // L: 11.33 U: 31.05
-        SIXTY(4.8925, 27.92708333), // L: 19.57 U: 53.62
-        NINETY(6.9525, 39.6875); // L: 27.81 U: 76.2
-
-        public double lowerPosition;
-        public double upperPosition;
-
-        private ArmPositions(double lowerPosition, double upperPosition) {
-            this.lowerPosition = lowerPosition;
-            this.upperPosition = upperPosition;
-        }
-    }
+    /**
+     * the enum containing the desired positions of the arm
+     */
 
     /**
      * Runs the initial setup that would ordinarily
@@ -53,43 +44,28 @@ public abstract class Arm extends SubsystemBase {
      */
     protected void initArm() {
         m_encoder = m_motor.getEncoder();
+
         m_motor.setSmartCurrentLimit(40);
-        m_pid = m_motor.getPIDController();
-
-        kP = .1;
-        kI = 0.0;
-        kD = 0.;
-        kIz = 0.0;
-        kFF = 0.0;
-        kMaxOutput = .9;
-        kMinOutput = -.9;
-        // smart motion coefficients
-        maxVel = 7000;
-        maxAcc = 14000;
-        allowedErr = 0.1;
-
-        m_pid.setP(kP);
-        m_pid.setI(kI);
-        m_pid.setD(kD);
-        m_pid.setIZone(kIz);
-        m_pid.setFF(kFF);
-        m_pid.setOutputRange(kMinOutput, kMaxOutput);
-
         m_motor.setIdleMode(IdleMode.kBrake);
-        // Smart Motion
-        m_pid.setSmartMotionMaxVelocity(maxVel, 0);
-        m_pid.setSmartMotionMinOutputVelocity(minVel, 0);
-        m_pid.setSmartMotionMaxAccel(maxAcc, 0);
-        m_pid.setSmartMotionAllowedClosedLoopError(allowedErr, 0);
 
         m_motor.setOpenLoopRampRate(0.5);
-        m_motor.setClosedLoopRampRate(0.1);
+        m_motor.setClosedLoopRampRate(0.2);
+
+        m_motor.burnFlash();
     }
 
+    /**
+     * runs the arm with raw vbus
+     * @param speed the speed at which to run the arm
+     */
     public void runArm(double speed) {
         m_motor.set(speed);
     }
 
+    /**
+     * 
+     * @return the motor current of the arm motor in amps
+     */
     public double getMotorCurrent() {
         return m_motor.getOutputCurrent();
     }
@@ -102,7 +78,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        m_pidPos = position;
+        m_targetPosition = position;
     }
 
     /**
@@ -115,29 +91,62 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position, double feedForward) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
-        m_pidPos = position;
+        m_targetPosition = position;
     }
 
+    /**
+     * 
+     * @param nativeUntis the native unit (in this case rotations)
+     * @return
+     */
     abstract public double nativeUnitsToInches(double nativeUntis);
 
+    /**
+     * 
+     * @param inches the inches to convert
+     * @return the converted inches
+     */
     abstract public double inchesToNativeUnits(double inches);
 
     public double getError() {
-        return Math.abs(this.getEncoderPosition() - m_pidPos);
+        return Math.abs(this.getEncoderPosition() - m_targetPosition);
     }
 
+    /**
+     * zeros the encoder
+     */
     public void zeroEncoder() {
         m_encoder.setPosition(0.0);
     }
 
+    /**
+     * 
+     * @return the position of the arm's encoder
+     */
     public double getEncoderPosition() {
         return m_encoder.getPosition();
     }
 
-    public double getTargetPosition() {
-        return m_pidPos;
+        /**
+     * 
+     * @return the position of the arm's encoder
+     */
+    public double getEncoderInches() {
+        return nativeUnitsToInches(m_encoder.getPosition());
     }
 
+    /**
+     * 
+     * @return the target position of the arm in rotations 
+     */
+    public double getTargetPosition() {
+        return m_targetPosition;
+    }
+
+    /**
+     * 
+     * @return the double value of the target position of the arm in inches
+     */
     abstract public double getTargetPositionInches();
 
     /**
@@ -163,10 +172,18 @@ public abstract class Arm extends SubsystemBase {
         return false;
     }
 
+    /**
+     * 
+     * @return the double value of the distance the arm needs to travel
+     */
     public double getDistanceToTravel() {
         return m_distanceToTravel;
     }
 
+    /**
+     * sets the distance to travel
+     * @param dist the distance to travel
+     */
     public void setDistanceToTravel(double dist) {
         m_distanceToTravel = dist;
     }
@@ -175,4 +192,11 @@ public abstract class Arm extends SubsystemBase {
         return null;
     }
 
+    public double getZeroVbus() {
+        return 0.0;
+    }
+
+    public double getZeroCurrentThreshold() {
+        return 0.0;
+    }
 }
