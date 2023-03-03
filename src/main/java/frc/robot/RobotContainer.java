@@ -59,9 +59,9 @@ public class RobotContainer {
             Units.inchesToMeters(6.), 0.,
             new Rotation3d(0., Units.degreesToRadians(11.0),
                 Units.degreesToRadians(180.)))
-        : new Pose3d(Units.inchesToMeters(-12.),
-            Units.inchesToMeters(0.), 0.,
-            new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(-3.)));
+        : new Pose3d(Units.inchesToMeters(-2.),
+            Units.inchesToMeters(-2.), 0.,
+            new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(-8.)));
 
     private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(6.),
         Units.inchesToMeters(6.), 0.,
