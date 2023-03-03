@@ -14,14 +14,19 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants;
-import frc.robot.commands.arm.RunArm;
+import frc.robot.RobotState.ScoringPositions;
+import frc.robot.commands.arm.RunArmsToPosition;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
+import frc.robot.subsystems.arms.UpperArm;
+import frc.robot.subsystems.manipulator.Gripper;
+import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.utilities.Trajectories;
 import frc.robot.utilities.Trajectories.PathPosition;
 
@@ -37,7 +42,12 @@ import frc.robot.utilities.Trajectories.PathPosition;
 public class Autons {
     // Global Subsystems -- initialized in the constructor
     private final BeakDrivetrain m_drivetrain;
+
     private final LowerArm m_lowerArm;
+    private final UpperArm m_upperArm;
+    private final Wrist m_wrist;
+    private final Gripper m_gripper;
+
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
 
@@ -47,10 +57,18 @@ public class Autons {
     public Autons(
         BeakDrivetrain drivetrain,
         LowerArm lowerArm,
+        UpperArm upperArm,
+        Wrist wrist,
+        Gripper gripper,
         Vision frontAprilTagVision,
         Vision rearAprilTagVision) {
         m_drivetrain = drivetrain;
+
         m_lowerArm = lowerArm;
+        m_upperArm = upperArm;
+        m_wrist = wrist;
+        m_gripper = gripper;
+
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 
@@ -59,9 +77,17 @@ public class Autons {
         m_eventMap = new HashMap<String, Command>();
         if (Constants.PRACTICE_CHASSIS) {
             // TODO
-            // m_eventMap.put("ArmScoring", new RunArm(m45., m_lowerArm));
-            // m_eventMap.put("ArmPickup", new RunArm(10., m_lowerArm));
-            // m_eventMap.put("ArmRetract", new RunArm(2., m_lowerArm));
+            m_eventMap.put("HighScoring", new RunArmsToPosition(ScoringPositions.SCORE_HIGH, m_lowerArm, m_upperArm, m_wrist));
+            m_eventMap.put("MidScoring", new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist));
+
+            m_eventMap.put("CubePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_CUBE, lowerArm, upperArm, wrist));
+            m_eventMap.put("ConePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_CUBE, lowerArm, upperArm, wrist));
+
+            m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
+            m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
+            m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.holdGamePiece()));
+
+            m_eventMap.put("ArmRetract", new RunArmsToPosition(ScoringPositions.STOWED, lowerArm, upperArm, wrist));
         }
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
@@ -77,8 +103,10 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            // new RunArm(45., m_lowerArm),
-            // new WaitCommand(0.2),
+            // TODO: fast zero
+            new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist),
+            new WaitCommand(1.5),
+            m_gripper.runMotorOut().withTimeout(0.4),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
@@ -90,7 +118,9 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            new WaitCommand(0.2),
+            m_gripper.runMotorOut().withTimeout(0.4)
         //
         );
 
@@ -104,6 +134,7 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
+            new WaitCommand(0.5),
             TwoPieceScore(position)
         //
         );

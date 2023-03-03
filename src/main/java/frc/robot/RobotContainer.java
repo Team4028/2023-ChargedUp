@@ -114,7 +114,7 @@ public class RobotContainer {
 
         RobotState.addSubsystems(null, m_drive, m_frontAprilTagVision);
 
-        m_autons = new Autons(m_drive, m_lowerArm, m_frontAprilTagVision, m_rearAprilTagVision);
+        m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision, m_rearAprilTagVision);
 
         switch (Constants.currentMode) {
             // TODO

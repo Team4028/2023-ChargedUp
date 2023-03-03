@@ -56,13 +56,15 @@
     {
       "position": 0.34545454545454546,
       "names": [
-        "RearLocalize"
+        "FrontLocalize"
       ]
     },
     {
       "position": 0.8090909090909076,
       "names": [
-        "RearLocalize"
+        "RearLocalize",
+        "CubePickup",
+        "RunGripperIn"
       ]
     }
   ]

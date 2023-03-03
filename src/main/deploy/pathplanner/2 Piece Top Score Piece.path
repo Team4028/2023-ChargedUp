@@ -74,13 +74,16 @@
     {
       "position": 1.0181818181818183,
       "names": [
-        "ArmScoring"
+        "MidScoring",
+        "FrontLocalize"
       ]
     },
     {
-      "position": 0.2909090909090909,
+      "position": 0.1272727272727272,
       "names": [
-        "event"
+        "StopGripper",
+        "ArmRetract",
+        "RearLocalize"
       ]
     }
   ]
