@@ -100,8 +100,8 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        // m_drive = PracticeSwerveDrivetrain.getInstance();
-        m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
+        m_drive = PracticeSwerveDrivetrain.getInstance();
+        // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
@@ -121,11 +121,9 @@ public class RobotContainer {
             m_lowerArm = null;
         }
 
-        RobotState.addSubsystem(null, m_drive, m_frontAprilTagVision);
+        RobotState.addSubsystems(null, m_drive, m_frontAprilTagVision);
 
         m_autons = new Autons(m_drive, m_lowerArm, m_frontAprilTagVision, m_rearAprilTagVision);
-
-        RobotState.addSubsystem(null);
 
         switch (Constants.currentMode) {
             // TODO

@@ -267,7 +267,7 @@ public class RobotState {
             }).andThen(runToNodePosition());
     }
 
-    public static void addSubsystem(LEDs leds, BeakDrivetrain drivetrain, Vision vision) {
+    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision) {
         m_leds = leds;
         m_drive = drivetrain;
         m_vision = vision;
