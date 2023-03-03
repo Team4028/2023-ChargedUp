@@ -19,8 +19,8 @@ public class LowerArm extends Arm {
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.5;
-    private static final double kMinOutput = -0.5;
+    private static final double kMaxOutput = 0.8;
+    private static final double kMinOutput = -0.8;
 
     private static final double kS = 0.1; // 0.33069;
     private static final double kG = 0.1; // 0.2554;
