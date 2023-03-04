@@ -17,19 +17,19 @@ public class RunArmsToPositionStowOrLow extends SequentialCommandGroup {
 
     /** Creates a new RunArmsToPositionStowOrLow. */
     public RunArmsToPositionStowOrLow(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
-        ScoringPositions currentScoringPosition = OneMechanism.getScoringPosition();
         addCommands(
             new ConditionalCommand(
                 new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
                     .andThen(new WaitCommand(.125))
                     .andThen(new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist)),
                 new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist),
-                () -> (currentScoringPosition.equals(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE)
-                    || currentScoringPosition.equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)
-                    || currentScoringPosition.equals(ScoringPositions.STOWED))
+                () -> (OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE)
+                    || OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)
+                    || OneMechanism.getScoringPosition().equals(ScoringPositions.STOWED))
                     && (targetPos.equals(ScoringPositions.STOWED)
                         || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE)
-                        || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_CUBE))));
+                        || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_CUBE))
+                    && targetPos != OneMechanism.getScoringPosition()));
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(lowerArm, upperArm, wrist);
 
