@@ -19,10 +19,14 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.units.Distance;
 import frc.robot.commands.BlinkLEDs;
+import frc.robot.commands.arm.RunArmsToPositionStowOrLow;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.arms.LowerArm;
+import frc.robot.subsystems.arms.UpperArm;
+import frc.robot.subsystems.manipulator.Wrist;
 
 /**
  * "This game looks like it'll be one mechanism and a controls game"
@@ -121,6 +125,9 @@ public class OneMechanism {
     private static LEDs m_leds;
     private static BeakDrivetrain m_drive;
     private static Vision m_vision;
+    private static UpperArm m_upperArm;
+    private static LowerArm m_lowerArm;
+    private static Wrist m_wrist;
 
     private static boolean m_climbMode = false;
     private static boolean m_autoAlignMode = false;
@@ -319,17 +326,24 @@ public class OneMechanism {
             }).andThen(runToNodePosition());
     }
 
-    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision) {
+    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         m_leds = leds;
         m_drive = drivetrain;
         m_vision = vision;
+        m_upperArm = upperArm;
+        m_lowerArm = lowerArm;
+        m_wrist = wrist;
     }
     
     public static void setScoringPosition(ScoringPositions pos) {
         currentPosition = pos;
     }
 
-    public static ScoringPositions geScoringPosition() {
+    public static ScoringPositions getScoringPosition() {
         return currentPosition;
+    }
+
+    public static Command runArms(ScoringPositions targetPos) {
+        return new RunArmsToPositionStowOrLow(targetPos, m_lowerArm, m_upperArm, m_wrist);
     }
 }

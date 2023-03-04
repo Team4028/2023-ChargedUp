@@ -4,13 +4,12 @@
 
 package frc.robot.commands.arm;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.manipulator.Wrist;
+import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
-import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 
@@ -22,6 +21,8 @@ public class RunArmsToPosition extends SequentialCommandGroup {
     /** Creates a new RunArmsToPosition. */
     public RunArmsToPosition(ScoringPositions targetPos,
         LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
+        
+        //set the scoring pos for OneMechanism to track
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
@@ -52,7 +53,8 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                          */
                         .andThen(new RunArm(lowerArm.maxVel, lowerArm.maxAccel, lowerArm.getEncoderPosition(),
                             targetPos.lowerPosition, lowerArm)),
-                () -> lowerArm.inchesToNativeUnits(targetPos.lowerPosition) > lowerArm.getEncoderPosition()));
+                () -> lowerArm.inchesToNativeUnits(targetPos.lowerPosition) > lowerArm.getEncoderPosition())
+            , new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);
     }
 }

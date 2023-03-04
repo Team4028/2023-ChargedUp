@@ -21,6 +21,7 @@ import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.arm.RunArmsToPosition;
+import frc.robot.commands.arm.RunArmsToPositionStowOrLow;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
@@ -115,7 +116,7 @@ public class RobotContainer {
             m_lowerArm = null;
         }
 
-        OneMechanism.addSubsystems(null, m_drive, m_frontAprilTagVision);
+        OneMechanism.addSubsystems(null, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
 
         m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
             m_rearAprilTagVision);
@@ -214,40 +215,35 @@ public class RobotContainer {
         // STOWED
         // ================================================
         m_operatorController.a
-            .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
-                .andThen(new WaitCommand(0.125))
-                .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
+            .onTrue(OneMechanism.runArms(ScoringPositions.STOWED));
 
         // ================================================
         // OPERATOR CONTROLLER - B
         // ACQUIRE_SINGLE_SUBSTATION
         // ================================================
         m_operatorController.b
-            .onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION, m_lowerArm, m_upperArm, m_wrist));
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
         // ACQUIRE_FLOOR_TIPPED_CONE
         // ================================================
         m_operatorController.lb
-            .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
-                .andThen(new WaitCommand(0.125))
-                .andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm,
-                    m_wrist)));
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE));
 
         // ================================================
         // OPERATOR CONTROLLER - RB
         // ACQUIRE_FLOOR_UPRIGHT_CONE
         // ================================================
         m_operatorController.rb.onTrue(
-            new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
+            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE));
 
         // ================================================
         // OPERATOR CONTROLLER - X
         // SCORE_MID
         // ================================================
         m_operatorController.x
-            .onTrue(new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist));
+            .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_MID));
 
         // ================================================
         // OPERATOR CONTROLLER - RT
