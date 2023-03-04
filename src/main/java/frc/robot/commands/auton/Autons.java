@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants;
+import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
-import frc.robot.commands.arm.RunArmsToPosition;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
@@ -82,17 +82,17 @@ public class Autons {
         m_eventMap = new HashMap<String, Command>();
         if (Constants.PRACTICE_CHASSIS) {
             // TODO
-            m_eventMap.put("HighScoring", new RunArmsToPosition(ScoringPositions.SCORE_HIGH, m_lowerArm, m_upperArm, m_wrist));
-            m_eventMap.put("MidScoring", new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist));
+            m_eventMap.put("HighScoring", OneMechanism.runArms(ScoringPositions.SCORE_HIGH));
+            m_eventMap.put("MidScoring", OneMechanism.runArms(ScoringPositions.SCORE_MID));
 
-            m_eventMap.put("CubePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_CUBE, lowerArm, upperArm, wrist));
-            m_eventMap.put("ConePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, lowerArm, upperArm, wrist));
+            m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
+            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
             m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.beIdleMode()));
 
-            m_eventMap.put("ArmRetract", new RunArmsToPosition(ScoringPositions.STOWED, lowerArm, upperArm, wrist));
+            m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
         }
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
@@ -109,10 +109,10 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             // TODO: fast zero
-            new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist),
+            OneMechanism.runArms(ScoringPositions.SCORE_MID).until(m_armsAtPosition),
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4),
-            new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist).until(m_armsAtPosition),
+            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //
@@ -128,7 +128,7 @@ public class Autons {
             new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new WaitCommand(0.2),
-            new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist).until(m_armsAtPosition),
+            OneMechanism.runArms(ScoringPositions.SCORE_MID).until(m_armsAtPosition),
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4)
         //
