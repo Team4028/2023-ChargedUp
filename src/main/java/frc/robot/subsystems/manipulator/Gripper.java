@@ -17,15 +17,17 @@ public class Gripper extends SubsystemBase {
 
     private final double RUN_SPEED = 0.85;
     private final double HOLD_SPEED = 0.32;
-    private final double HOLD_THRESHOLD = 50.0;
+    private final double HOLD_THRESHOLD = 35.0;
     // private final double HOLDING_PIECE_THRESH = 4.0;
 
     private enum GripState {
-        INFEED, 
-        HOLD, 
-        BEGIN_OUTFEED, 
-        OUTFEED, 
-        IDLE
+        INFEED("INFEED"), HOLD("HOLD"), BEGIN_OUTFEED("BEGIN OUTFEED"), OUTFEED("OUTFEED"), IDLE("IDLE");
+
+        public String name;
+
+        private GripState(String name) {
+            this.name = name;
+        }
     }
 
     private GripState m_currentState;
@@ -47,7 +49,6 @@ public class Gripper extends SubsystemBase {
 
     /** @return A Command to run the motor in. */
     public Command runMotorIn() {
-        m_currentState=GripState.HOLD;
         return run(() -> {
             m_motor.set(RUN_SPEED);
         });
@@ -70,14 +71,14 @@ public class Gripper extends SubsystemBase {
      * @return a command that does the above mentioned task
      */
     public Command runMotorOut() {
-        m_currentState=GripState.IDLE;
         return run(() -> {
+            m_currentState = GripState.IDLE;
             m_motor.set(-1.0 * RUN_SPEED);
         });
     }
 
     public void holdGamePiece() {
-        switch(m_currentState){
+        switch (m_currentState) {
             case HOLD:
                 m_motor.set(HOLD_SPEED);
                 break;
@@ -87,8 +88,17 @@ public class Gripper extends SubsystemBase {
         }
     }
 
+    private boolean atCurrentThresholdBool() {
+        if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
+            m_currentState = GripState.HOLD;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public BooleanSupplier atCurrentThreshold() {
-        return () -> m_motor.getSupplyCurrent() > HOLD_THRESHOLD;
+        return () -> atCurrentThresholdBool();
     }
 
     public static Gripper getInstance() {
@@ -98,7 +108,12 @@ public class Gripper extends SubsystemBase {
         return m_instance;
     }
 
+    public GripState getGripState() {
+        return m_currentState;
+    }
+
     public void periodic() {
         SmartDashboard.putNumber("GripperAmps", m_motor.getSupplyCurrent());
+        SmartDashboard.putString("Gripper Mode: ", getGripState().name);
     }
 }
