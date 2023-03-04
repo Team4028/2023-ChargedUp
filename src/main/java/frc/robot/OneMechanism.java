@@ -9,10 +9,11 @@ import frc.robot.commands.BlinkLEDs;
 import frc.robot.subsystems.LEDs;
 
 public class OneMechanism {
-    
+
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
 
     private static ScoringPositions currentPosition = ScoringPositions.STOWED;
+
     /**
      * the states of the robot
      */
@@ -20,6 +21,7 @@ public class OneMechanism {
         CONE, OFF, CUBE;
     }
 
+    // @formatter:off
     public enum ScoringPositions {
         STOWED(                     1.0, 1.0, 320.0),
         INTERMEDIATE_LOW(           3.0, 6.0, 320.0),
@@ -40,6 +42,7 @@ public class OneMechanism {
             this.wristAngle = wristAngle;
         }
     }
+    // @formatter:on
 
     /**
      * Represents a scoring node on the field.
@@ -111,7 +114,7 @@ public class OneMechanism {
     }
 
     /**
-     * sets the robot mode to cube mode 
+     * sets the robot mode to cube mode
      */
     public static void modeCube() {
         m_currentMode = GamePieceMode.CUBE;
@@ -203,12 +206,12 @@ public class OneMechanism {
     public static void addSubsystem(LEDs leds) {
         m_leds = leds;
     }
-    
-    public static void setScoringPosition(ScoringPositions pos){
+
+    public static void setScoringPosition(ScoringPositions pos) {
         currentPosition = pos;
     }
 
-    public static ScoringPositions geScoringPosition(){
+    public static ScoringPositions geScoringPosition() {
         return currentPosition;
     }
 }
