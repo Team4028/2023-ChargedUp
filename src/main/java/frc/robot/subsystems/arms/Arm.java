@@ -4,9 +4,12 @@
 
 package frc.robot.subsystems.arms;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -23,6 +26,8 @@ public abstract class Arm extends SubsystemBase {
     public static final double RETRACT_COEFFICIENT = 156.58;
     public static final double EXTEND_WAIT_INTERVAL = 0.2;
     public static final double RETRACT_WAIT_INTERVAL = 0.4;
+    protected static final double OPEN_LOOP_RAMP_RATE = 0.5;
+    protected static final double RAMP_RATE = 0.25;
 
     protected SparkMaxPIDController m_pid;
     
@@ -48,8 +53,8 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setSmartCurrentLimit(40);
         m_motor.setIdleMode(IdleMode.kBrake);
 
-        m_motor.setOpenLoopRampRate(0.5);
-        m_motor.setClosedLoopRampRate(0.2);
+        m_motor.setOpenLoopRampRate(OPEN_LOOP_RAMP_RATE);
+        m_motor.setClosedLoopRampRate(RAMP_RATE);
 
         m_motor.burnFlash();
     }
@@ -58,7 +63,7 @@ public abstract class Arm extends SubsystemBase {
      * runs the arm with raw vbus
      * @param speed the speed at which to run the arm
      */
-    public void runArm(double speed) {
+    public void runArmVbus(double speed) {
         m_motor.set(speed);
     }
 
@@ -78,7 +83,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        m_targetPosition = position;
+        //m_targetPosition = position;
     }
 
     /**
@@ -91,7 +96,19 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position, double feedForward) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
-        m_targetPosition = position;
+        //m_targetPosition = position;
+    }
+
+    public void setTargetInches(double inches) {
+        m_targetPosition = inches;
+    }
+
+    public boolean atTargetPosition() {
+        return Math.abs(getEncoderInches() - m_targetPosition) < 0.1;
+    }
+
+    public BooleanSupplier atTargetPositionSupplier() {
+        return (() -> atTargetPosition());
     }
 
     /**
@@ -144,12 +161,6 @@ public abstract class Arm extends SubsystemBase {
     }
 
     /**
-     * 
-     * @return the double value of the target position of the arm in inches
-     */
-    abstract public double getTargetPositionInches();
-
-    /**
      * Example command factory method.
      *
      * @return a command
@@ -198,5 +209,12 @@ public abstract class Arm extends SubsystemBase {
 
     public double getZeroCurrentThreshold() {
         return 0.0;
+    }
+
+    /**@return A Command to hold the arm at its current position. Used after running open loop to stay put and not drop with gravity. */
+    public Command holdArmPosition() {
+        return runOnce(() -> {
+            runToPosition(getEncoderInches());
+        });
     }
 }

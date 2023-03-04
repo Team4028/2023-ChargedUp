@@ -98,7 +98,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        // RobotState.modeBlank();
+        // OneMechanism.modeBlank();
     }
 
     /** This function is called periodically when disabled. */

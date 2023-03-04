@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants;
-import frc.robot.RobotState.ScoringPositions;
+import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.RunArmsToPosition;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.ResetPoseToVision;

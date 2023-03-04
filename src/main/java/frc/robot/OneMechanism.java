@@ -24,7 +24,7 @@ import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 
-public class RobotState {
+public class OneMechanism {
     
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
 
@@ -36,14 +36,16 @@ public class RobotState {
         CONE, OFF, CUBE;
     }
 
+    // @formatter:off
     public enum ScoringPositions {
-        STOWED(1., 1., 320.0),
-        INTERMEDIATE_LOW(3., 6.,286.0),
-        SCORE_MID(13., 0.5, 190.0), 
-        SCORE_HIGH(13., 19.0, 255.0),
-        ACQUIRE_FLOOR_CUBE(2.0, 15.0, 245.0),
-        ACQUIRE_FLOOR_TIPPED_CONE(2.0, 15.0, 245.0),
-        ACQUIRE_FLOOR_UPRIGHT_CONE(2.0, 4.5, 241.);
+        STOWED(                     1.0, 1.0, 320.0),
+        INTERMEDIATE_LOW(           3.0, 6.0, 320.0),
+        SCORE_MID(                  13., 0.5, 190.0), 
+        SCORE_HIGH(                 13., 19., 255.0),
+        ACQUIRE_FLOOR_CUBE(         2.0, 15., 245.0),
+        ACQUIRE_FLOOR_TIPPED_CONE(  2.0, 15., 245.0),
+        ACQUIRE_SINGLE_SUBSTATION(  2.6, 0.2, 320.0),
+        ACQUIRE_FLOOR_UPRIGHT_CONE( 2.0, 4.5, 239.0);
 
         public double lowerPosition;
         public double upperPosition;
@@ -55,6 +57,7 @@ public class RobotState {
             this.wristAngle = wristAngle;
         }
     }
+    // @formatter:on
 
     /**
      * Represents a scoring node on the field.
@@ -318,11 +321,11 @@ public class RobotState {
         m_vision = vision;
     }
     
-    public static void setScoringPosition(ScoringPositions pos){
+    public static void setScoringPosition(ScoringPositions pos) {
         currentPosition = pos;
     }
 
-    public static ScoringPositions geScoringPosition(){
+    public static ScoringPositions geScoringPosition() {
         return currentPosition;
     }
 }

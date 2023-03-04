@@ -21,8 +21,9 @@ public class Wrist extends SubsystemBase {
     private static final double kIz = 0;
     private static final double kFF = 0;
 
-    private static final double kMaxOutput = 0.75;
-    private static final double kMinOutput = -0.75;
+    private static final double kMaxOutput = 0.9;
+    private static final double kMinOutput = -0.9;
+    private static final double RAMP_RATE = 0.25;
 
     private static Wrist m_instance;
 
@@ -58,7 +59,7 @@ public class Wrist extends SubsystemBase {
 
         m_pid.setOutputRange(kMinOutput, kMaxOutput);
 
-        m_motor.setClosedLoopRampRate(0.1);
+        m_motor.setClosedLoopRampRate(RAMP_RATE);
         m_motor.burnFlash();
     }
 
@@ -120,6 +121,15 @@ public class Wrist extends SubsystemBase {
             () -> {
                 m_pid.setReference(angle, ControlType.kPosition);
             });
+    }
+
+    /**@return A Command to hold the wrist at its current angle. Used after running open loop to stay put and not drop with gravity. */
+    public Command holdWristAngle() {
+        return runOnce(
+            () -> {
+                runToAngle(getAbsoluteEncoderPosition());
+            }
+        );
     }
 
     public static Wrist getInstance() {

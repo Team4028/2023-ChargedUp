@@ -4,10 +4,12 @@
 
 package frc.robot.commands.arm;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.manipulator.Wrist;
-import frc.robot.RobotState.ScoringPositions;
+import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -34,6 +36,7 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                          * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                          * Constants.ArmConstants.EXTEND_COEFFICIENT)
                          */
+                        .andThen(new InstantCommand(() -> SmartDashboard.putNumber("runArm finished", Math.random())))
                         .andThen(new RunArm(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(),
                             targetPos.upperPosition, upperArm)
                                 .alongWith(wrist.runToAngle(targetPos.wristAngle))),
@@ -44,6 +47,7 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                 new RunArm(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(), targetPos.upperPosition,
                     upperArm)
                         .alongWith(wrist.runToAngle(targetPos.wristAngle))
+                        .andThen(new InstantCommand(() -> SmartDashboard.putNumber("runArm finished", Math.random())))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
