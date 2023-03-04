@@ -85,7 +85,7 @@ public class Autons {
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
-            m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.holdGamePiece()));
+            m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.beIdleMode()));
 
             m_eventMap.put("ArmRetract", new RunArmsToPosition(ScoringPositions.STOWED, lowerArm, upperArm, wrist));
         }
