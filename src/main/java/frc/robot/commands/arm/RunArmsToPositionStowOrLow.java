@@ -24,11 +24,14 @@ public class RunArmsToPositionStowOrLow extends SequentialCommandGroup {
                     .andThen(new WaitCommand(.125))
                     .andThen(new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist)),
                 new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist),
-                () -> currentScoringPosition.equals(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE)
+                () -> (currentScoringPosition.equals(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE)
                     || currentScoringPosition.equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)
-                    || currentScoringPosition.equals(ScoringPositions.STOWED)));
+                    || currentScoringPosition.equals(ScoringPositions.STOWED))
+                    && (targetPos.equals(ScoringPositions.STOWED)
+                        || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE)
+                        || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_CUBE))));
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(lowerArm, upperArm, wrist);
-        
+
     }
 }
