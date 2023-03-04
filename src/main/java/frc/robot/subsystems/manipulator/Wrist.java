@@ -23,6 +23,7 @@ public class Wrist extends SubsystemBase {
 
     private static final double kMaxOutput = 0.9;
     private static final double kMinOutput = -0.9;
+    private static final double RAMP_RATE = 0.25;
 
     private static Wrist m_instance;
 
@@ -58,7 +59,7 @@ public class Wrist extends SubsystemBase {
 
         m_pid.setOutputRange(kMinOutput, kMaxOutput);
 
-        m_motor.setClosedLoopRampRate(0.1);
+        m_motor.setClosedLoopRampRate(RAMP_RATE);
         m_motor.burnFlash();
     }
 

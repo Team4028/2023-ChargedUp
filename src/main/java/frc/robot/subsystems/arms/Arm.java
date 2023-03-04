@@ -24,6 +24,8 @@ public abstract class Arm extends SubsystemBase {
     public static final double RETRACT_COEFFICIENT = 156.58;
     public static final double EXTEND_WAIT_INTERVAL = 0.2;
     public static final double RETRACT_WAIT_INTERVAL = 0.4;
+    protected static final double OPEN_LOOP_RAMP_RATE = 0.5;
+    protected static final double RAMP_RATE = 0.25;
 
     protected SparkMaxPIDController m_pid;
     
@@ -49,8 +51,8 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setSmartCurrentLimit(40);
         m_motor.setIdleMode(IdleMode.kBrake);
 
-        m_motor.setOpenLoopRampRate(0.5);
-        m_motor.setClosedLoopRampRate(0.2);
+        m_motor.setOpenLoopRampRate(OPEN_LOOP_RAMP_RATE);
+        m_motor.setClosedLoopRampRate(RAMP_RATE);
 
         m_motor.burnFlash();
     }
