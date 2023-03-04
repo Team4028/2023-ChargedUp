@@ -7,6 +7,7 @@ package frc.robot.subsystems.arms;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -58,7 +59,7 @@ public abstract class Arm extends SubsystemBase {
      * runs the arm with raw vbus
      * @param speed the speed at which to run the arm
      */
-    public void runArm(double speed) {
+    public void runArmVbus(double speed) {
         m_motor.set(speed);
     }
 
@@ -198,5 +199,12 @@ public abstract class Arm extends SubsystemBase {
 
     public double getZeroCurrentThreshold() {
         return 0.0;
+    }
+
+    /**@return A Command to hold the arm at its current position. Used after running open loop to stay put and not drop with gravity. */
+    public Command holdArmPosition() {
+        return runOnce(() -> {
+            runToPosition(getEncoderInches());
+        });
     }
 }

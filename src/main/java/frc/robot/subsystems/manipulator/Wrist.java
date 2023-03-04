@@ -122,6 +122,15 @@ public class Wrist extends SubsystemBase {
             });
     }
 
+    /**@return A Command to hold the wrist at its current angle. Used after running open loop to stay put and not drop with gravity. */
+    public Command holdWristAngle() {
+        return runOnce(
+            () -> {
+                runToAngle(getAbsoluteEncoderPosition());
+            }
+        );
+    }
+
     public static Wrist getInstance() {
         if (m_instance == null) {
             m_instance = new Wrist();

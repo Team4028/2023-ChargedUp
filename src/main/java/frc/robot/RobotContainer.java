@@ -67,8 +67,6 @@ public class RobotContainer {
     private final Vision m_rearAprilTagVision;
     private final UpperArm m_upperArm;
     private final LowerArm m_lowerArm;
-
-    // private final Manipulator m_manipulator;
     private final Gripper m_gripper;
     private final Wrist m_wrist;
 
@@ -93,14 +91,11 @@ public class RobotContainer {
     public RobotContainer() {
         m_drive = PracticeSwerveDrivetrain.getInstance();
         // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
-        // m_upperArm = UpperArm.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
 
-        // m_manipulator = Manipulator.getInstance();
         m_gripper = Gripper.getInstance();
         m_wrist = Wrist.getInstance();
-
         m_upperArm = UpperArm.getInstance();
         m_lowerArm = LowerArm.getInstance();
 
@@ -133,14 +128,6 @@ public class RobotContainer {
                 break;
         }
 
-        // Set up auto routines
-        // autoChooser.addDefaultOption("Do Nothing", new InstantCommand());
-        // autoChooser.addOption("Spin", new SpinAuto(drive));
-        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive,
-        // flywheel));
-        // autoChooser.addOption("Drive With Flywheel", new DriveWithFlywheelAuto(drive,
-        // flywheel));
-
         // Configure the button bindings
         configureButtonBindings();
         initAutonChooser();
@@ -153,6 +140,9 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        // ==================
+        // DEFAULT COMMANDS
+        // ==================
         m_drive.setDefaultCommand(
             new RunCommand(() -> m_drive.drive(
                 -speedScaledDriverLeftY(),
@@ -162,58 +152,105 @@ public class RobotContainer {
                 m_drive));
 
         m_gripper.setDefaultCommand(
-            new RunCommand(() -> m_gripper.holdGamePiece(),
-                m_gripper));
+            new RunCommand(() -> m_gripper.beIdleMode(), m_gripper));
 
-        // drive zero
+        // ================================================
+        // DRIVER CONTROLLER - START
+        // ZERO DRIVETRAIN
+        // ================================================
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
-        // infeed
-        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThreshold())
-            .andThen(new InstantCommand(() -> m_gripper.holdGamePiece())));
-
-        // current zero
+        // ================================================
+        // DRIVER CONTROLLER - BACK
+        // CURRENT-ZERO ROUTINE
+        // ================================================
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm)
                 .andThen(new CurrentZero(m_lowerArm))));
 
-        // arm poses
+        // ================================================
+        // DRIVER CONTROLLER - LT
+        // RUN GRIPPER IN (WITH SMART HOLDING)
+        // ================================================
+        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThreshold())
+            .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
+
+        // ===========
+        // ARM POSES
+        // ===========
+
+        // ================================================
+        // OPERATOR CONTROLLER - A
+        // STOWED
+        // ================================================
         m_operatorController.a
             .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
                 .andThen(new WaitCommand(0.25))
                 .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
+
+        // ================================================
+        // OPERATOR CONTROLLER - B
+        // ACQUIRE_SINGLE_SUBSTATION
+        // ================================================
         m_operatorController.b
-            .onTrue(new RunArmsToPosition(ScoringPositions.AQUIRE_SINGLE_STATION, m_lowerArm, m_upperArm, m_wrist));
-        m_operatorController.lt
+            .onTrue(new RunArmsToPosition(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION, m_lowerArm, m_upperArm, m_wrist));
+
+        // ================================================
+        // OPERATOR CONTROLLER - LB
+        // ACQUIRE_FLOOR_TIPPED_CONE
+        // ================================================
+        m_operatorController.lb
             .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
                 .andThen(new WaitCommand(0.25))
                 .andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm,
                     m_wrist)));
-        m_operatorController.rt
-            .onTrue(
-                new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
-        m_operatorController.x.onTrue(new RunArmsToPosition(ScoringPositions.SCORE_MID,
-            m_lowerArm, m_upperArm, m_wrist));
 
-        // outfeed
-        m_operatorController.lb.onTrue(m_gripper.runMotorOut().withTimeout(0.8));
-        m_operatorController.lb.onFalse(m_gripper.stopMotor());
+        // ================================================
+        // OPERATOR CONTROLLER - RB
+        // ACQUIRE_FLOOR_UPRIGHT_CONE
+        // ================================================
+        m_operatorController.rb.onTrue(
+            new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, m_lowerArm, m_upperArm, m_wrist));
 
-        // raw wrist
-        m_operatorController.rt.onTrue(m_wrist.runMotorUp());
-        m_operatorController.rt.onFalse(m_wrist.stopMotor());
-        m_operatorController.lt.onTrue(m_wrist.runMotorDown());
-        m_operatorController.lt.onFalse(m_wrist.stopMotor());
+        // ================================================
+        // OPERATOR CONTROLLER - X
+        // SCORE_MID
+        // ================================================
+        m_operatorController.x
+            .onTrue(new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist));
 
-        // raw arms
-        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_upperArm.runArm(0.15)));
-        m_operatorController.dpadDown.onFalse(new InstantCommand(() -> m_upperArm.runArm(0)));
-        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArm(-0.15)));
-        m_operatorController.dpadRight.onFalse(new InstantCommand(() -> m_upperArm.runArm(0.0)));
-        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_lowerArm.runArm(0.15)));
-        m_operatorController.dpadLeft.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
-        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArm(-0.15)));
-        m_operatorController.dpadUp.onFalse(new InstantCommand(() -> m_lowerArm.runArm(0.0)));
+        // ================================================
+        // OPERATOR CONTROLLER - RT
+        // SPIT OUT GAMEPIECE
+        // ================================================
+        m_operatorController.rt.onTrue(m_gripper.runMotorOut().withTimeout(0.8));
+        m_operatorController.rt.onFalse(m_gripper.stopMotor());
+
+        // ================================================
+        // OPERATOR CONTROLLER - WRIST MANUAL CONTROLS
+        // START - RUN ANGLE UP     BACK - RUN ANGLE DOWN
+        // ================================================
+        m_operatorController.start.onTrue(m_wrist.runMotorUp());
+        m_operatorController.start.onFalse(m_wrist.holdWristAngle());
+        m_operatorController.back.onTrue(m_wrist.runMotorDown());
+        m_operatorController.back.onFalse(m_wrist.holdWristAngle());
+        
+        // ================================================
+        // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
+        // RIGHT - RUN ARM OUT     LEFT - RUN ARM IN
+        // ================================================
+        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.15)));
+        m_operatorController.dpadRight.onFalse(new InstantCommand(() -> m_upperArm.holdArmPosition()));
+        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.15)));
+        m_operatorController.dpadLeft.onFalse(new InstantCommand(() -> m_upperArm.holdArmPosition()));
+        // ================================================
+        // OPERATOR CONTROLLER - LOWER ARM MANUAL CONTROLS
+        // UP - RUN ARM UP     DOWN - RUN ARM DOWN
+        // ================================================
+        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.15)));
+        m_operatorController.dpadUp.onFalse(new InstantCommand(() -> m_lowerArm.holdArmPosition()));
+        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.15)));
+        m_operatorController.dpadDown.onFalse(new InstantCommand(() -> m_lowerArm.holdArmPosition()));
     }
 
     private void initAutonChooser() {

@@ -27,7 +27,7 @@ public class RobotState {
         SCORE_HIGH(13., 19.0, 255.0),
         ACQUIRE_FLOOR_CUBE(2.0, 15.0, 245.0),
         ACQUIRE_FLOOR_TIPPED_CONE(2.0, 15.0, 245.0),
-        AQUIRE_SINGLE_STATION(2.6,0.2,320),
+        ACQUIRE_SINGLE_SUBSTATION(2.6,0.2,320),
         ACQUIRE_FLOOR_UPRIGHT_CONE(2.0, 4.5, 239.);
 
         public double lowerPosition;

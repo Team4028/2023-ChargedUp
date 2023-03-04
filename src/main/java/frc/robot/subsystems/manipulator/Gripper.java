@@ -17,8 +17,8 @@ public class Gripper extends SubsystemBase {
 
     private final double RUN_SPEED = 0.85;
     private final double HOLD_SPEED = 0.32;
+    private final double IDLE_SPEED = 0.12;
     private final double HOLD_THRESHOLD = 35.0;
-    // private final double HOLDING_PIECE_THRESH = 4.0;
 
     private enum GripState {
         INFEED("INFEED"), HOLD("HOLD"), BEGIN_OUTFEED("BEGIN OUTFEED"), OUTFEED("OUTFEED"), IDLE("IDLE");
@@ -55,8 +55,8 @@ public class Gripper extends SubsystemBase {
     }
 
     /**
-     * stops the motor
-     * 
+     * Stops the Motor.
+     * <p> This is deprecated and should not be used. Use beIdleMode() instead.
      * @return a command that does the above mentioned task
      */
     public Command stopMotor() {
@@ -77,13 +77,17 @@ public class Gripper extends SubsystemBase {
         });
     }
 
-    public void holdGamePiece() {
-        switch (m_currentState) {
+    /** If the Gripper is in HOLD state, run the motor at the holding speed. 
+     * <p> Else, run at the idle speed.
+     */
+    public void beIdleMode() {
+        switch(m_currentState){
             case HOLD:
                 m_motor.set(HOLD_SPEED);
                 break;
+            case IDLE:
             default:
-                m_motor.set(0.0);
+                m_motor.set(IDLE_SPEED);
                 break;
         }
     }
