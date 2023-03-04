@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.arms;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -81,7 +83,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        m_targetPosition = position;
+        //m_targetPosition = position;
     }
 
     /**
@@ -94,7 +96,19 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position, double feedForward) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
-        m_targetPosition = position;
+        //m_targetPosition = position;
+    }
+
+    public void setTargetInches(double inches) {
+        m_targetPosition = inches;
+    }
+
+    public boolean atTargetPosition() {
+        return Math.abs(getEncoderInches() - m_targetPosition) < 0.1;
+    }
+
+    public BooleanSupplier atTargetPositionSupplier() {
+        return (() -> atTargetPosition());
     }
 
     /**
@@ -145,12 +159,6 @@ public abstract class Arm extends SubsystemBase {
     public double getTargetPosition() {
         return m_targetPosition;
     }
-
-    /**
-     * 
-     * @return the double value of the target position of the arm in inches
-     */
-    abstract public double getTargetPositionInches();
 
     /**
      * Example command factory method.

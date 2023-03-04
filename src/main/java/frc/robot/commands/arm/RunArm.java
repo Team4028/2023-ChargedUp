@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class RunArm extends TrapezoidProfileCommand {
+    private Arm m_arm;
+    private double m_endInches;
     /** Creates a new RunArm. */
     public RunArm(double maxVel, double maxAccel, double startRotations, double endInches, Arm arm) {
         super(
@@ -29,10 +31,18 @@ public class RunArm extends TrapezoidProfileCommand {
                 SmartDashboard.putNumber("RunArm Position:", arm.nativeUnitsToInches(state.position));
                 SmartDashboard.putNumber("RunArm Vel", state.velocity);
             });
+        m_arm = arm;
+        m_endInches = endInches;
+        arm.setTargetInches(endInches);
         arm.setDistanceToTravel(Math.abs(endInches - arm.nativeUnitsToInches(startRotations)));
         // PLEASE READ THE FOLLOWING
         // MUST ALWAYS ADD REQUIREMENTS
         // ALWAYS
         addRequirements(arm);
     }
+
+    // @Override
+    // public boolean isFinished() {
+    //     return m_arm.atTargetPosition();
+    // }
 }

@@ -21,7 +21,11 @@ public class Gripper extends SubsystemBase {
     private final double HOLD_THRESHOLD = 35.0;
 
     private enum GripState {
-        INFEED("INFEED"), HOLD("HOLD"), BEGIN_OUTFEED("BEGIN OUTFEED"), OUTFEED("OUTFEED"), IDLE("IDLE");
+        INFEED("INFEED"), //
+        HOLD("HOLD"), //
+        BEGIN_OUTFEED("BEGIN OUTFEED"), //
+        OUTFEED("OUTFEED"), //
+        IDLE("IDLE");
 
         public String name;
 
@@ -56,7 +60,9 @@ public class Gripper extends SubsystemBase {
 
     /**
      * Stops the Motor.
-     * <p> This is deprecated and should not be used. Use beIdleMode() instead.
+     * <p>
+     * This is deprecated and should not be used. Use beIdleMode() instead.
+     * 
      * @return a command that does the above mentioned task
      */
     public Command stopMotor() {
@@ -77,11 +83,13 @@ public class Gripper extends SubsystemBase {
         });
     }
 
-    /** If the Gripper is in HOLD state, run the motor at the holding speed. 
-     * <p> Else, run at the idle speed.
+    /**
+     * If the Gripper is in HOLD state, run the motor at the holding speed.
+     * <p>
+     * Else, run at the idle speed.
      */
     public void beIdleMode() {
-        switch(m_currentState){
+        switch (m_currentState) {
             case HOLD:
                 m_motor.set(HOLD_SPEED);
                 break;
@@ -92,7 +100,7 @@ public class Gripper extends SubsystemBase {
         }
     }
 
-    private boolean atCurrentThresholdBool() {
+    private boolean atCurrentThreshold() {
         if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
             m_currentState = GripState.HOLD;
             return true;
@@ -101,8 +109,8 @@ public class Gripper extends SubsystemBase {
         }
     }
 
-    public BooleanSupplier atCurrentThreshold() {
-        return () -> atCurrentThresholdBool();
+    public BooleanSupplier atCurrentThresholdSupplier() {
+        return () -> atCurrentThreshold();
     }
 
     public static Gripper getInstance() {

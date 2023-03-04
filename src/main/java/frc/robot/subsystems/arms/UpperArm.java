@@ -69,26 +69,6 @@ public class UpperArm extends Arm {
         return m_instance;
     }
 
-    public void armTen() {
-        m_pid.setReference(2, CANSparkMax.ControlType.kPosition/* change to kPosition to disable smartMotion */);
-        m_targetPosition = 10;
-    }
-
-    public void armThirty() {
-        m_pid.setReference(31.0451, CANSparkMax.ControlType.kPosition);
-        m_targetPosition = 30;
-    }
-
-    public void armSixty() {
-        m_pid.setReference(53.62151, CANSparkMax.ControlType.kPosition);
-        m_targetPosition = 60;
-    }
-
-    public void armNintey() {
-        m_pid.setReference(76.203, CANSparkMax.ControlType.kPosition);
-        m_targetPosition = 90;
-    }
-
     @Override
     public double nativeUnitsToInches(double nativeUntis) {
         return nativeUntis * NATIVE_UNITS_TO_INCHES;
@@ -97,11 +77,6 @@ public class UpperArm extends Arm {
     @Override
     public double inchesToNativeUnits(double inches) {
         return inches / NATIVE_UNITS_TO_INCHES;
-    }
-
-    @Override
-    public double getTargetPositionInches() {
-        return m_targetPosition * NATIVE_UNITS_TO_INCHES;
     }
 
     /**

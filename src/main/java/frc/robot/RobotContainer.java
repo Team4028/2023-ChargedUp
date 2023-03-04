@@ -30,7 +30,7 @@ import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
-import frc.robot.RobotState.ScoringPositions;
+import frc.robot.OneMechanism.ScoringPositions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -101,7 +101,7 @@ public class RobotContainer {
 
         m_autons = new Autons(m_drive, m_lowerArm, m_frontAprilTagVision, m_rearAprilTagVision);
 
-        RobotState.addSubsystem(null);
+        OneMechanism.addSubsystem(null);
 
         switch (Constants.currentMode) {
             // TODO
@@ -165,14 +165,15 @@ public class RobotContainer {
         // CURRENT-ZERO ROUTINE
         // ================================================
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
-            .andThen(new CurrentZero(m_upperArm)
-                .andThen(new CurrentZero(m_lowerArm))));
+            .andThen(new CurrentZero(m_upperArm))
+                .andThen(new CurrentZero(m_lowerArm))
+                .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
 
         // ================================================
         // DRIVER CONTROLLER - LT
         // RUN GRIPPER IN (WITH SMART HOLDING)
         // ================================================
-        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThreshold())
+        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier())
             .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ===========
