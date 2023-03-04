@@ -14,14 +14,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The upper Argos Arm
  */
 public class UpperArm extends Arm {
-    private static final double kP = 0.2;
+    private static final double kP = 0.08;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.7;
-    private static final double kMinOutput = -0.7;
+    private static final double kMaxOutput = 0.9;
+    private static final double kMinOutput = -0.9;
 
     private static final double kS = 0.; // 0.33069;
     private static final double kG = 0.; // 0.2554;
@@ -41,8 +41,8 @@ public class UpperArm extends Arm {
 
     /** Creates a new UpperArm. */
     public UpperArm() {
-        maxVel = 3500;// 7000;
-        maxAccel = 5000;// 14000;
+        maxVel = 125.; // RPS
+        maxAccel = 250.; // RPS^2
 
         ffmodel = new ElevatorFeedforward(kS, kG, kV);
 

@@ -6,6 +6,7 @@ package frc.robot.commands.auton;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 
@@ -53,6 +54,8 @@ public class Autons {
 
     private final Map<String, Command> m_eventMap;
 
+    private final BooleanSupplier m_armsAtPosition;
+
     // Subsystem & Event setup
     public Autons(
         BeakDrivetrain drivetrain,
@@ -71,6 +74,8 @@ public class Autons {
 
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
+
+        m_armsAtPosition = () -> (m_lowerArm.atTargetPosition() && m_upperArm.atTargetPosition());
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
@@ -105,8 +110,9 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             // TODO: fast zero
             new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist),
-            new WaitCommand(1.5),
+            new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4),
+            new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist).until(m_armsAtPosition),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
@@ -119,6 +125,8 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            new WaitCommand(0.2),
+            new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist).until(m_armsAtPosition),
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4)
         //

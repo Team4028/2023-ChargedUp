@@ -24,6 +24,10 @@ import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 
+/**
+ * "This game looks like it'll be one mechanism and a controls game"
+ * - Carson, correctly
+ */
 public class OneMechanism {
     
     private static final Distance FIELD_WIDTH = new Distance(8.0137);
@@ -40,12 +44,12 @@ public class OneMechanism {
     public enum ScoringPositions {
         STOWED(                     1.0, 1.0, 320.0),
         INTERMEDIATE_LOW(           3.0, 6.0, 320.0),
-        SCORE_MID(                  13., 0.5, 190.0), 
+        SCORE_MID(                  14., 5.0, 180.0), 
         SCORE_HIGH(                 13., 19., 255.0),
-        ACQUIRE_FLOOR_CUBE(         2.0, 15., 245.0),
-        ACQUIRE_FLOOR_TIPPED_CONE(  2.0, 15., 245.0),
+        ACQUIRE_FLOOR_CUBE(         2.0, 14., 245.0),
+        ACQUIRE_FLOOR_TIPPED_CONE(  2.0, 14., 245.0),
         ACQUIRE_SINGLE_SUBSTATION(  2.6, 0.2, 320.0),
-        ACQUIRE_FLOOR_UPRIGHT_CONE( 2.0, 4.5, 239.0);
+        ACQUIRE_FLOOR_UPRIGHT_CONE( 1.75, 5.5, 239.0);
 
         public double lowerPosition;
         public double upperPosition;

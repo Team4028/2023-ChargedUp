@@ -24,6 +24,7 @@ import frc.robot.commands.arm.RunArmsToPosition;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
+import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
@@ -52,20 +53,20 @@ public class RobotContainer {
         ? new Pose3d(Units.inchesToMeters(5.),
             Units.inchesToMeters(6.), 0.,
             new Rotation3d(0., Units.degreesToRadians(11.0),
-                Units.degreesToRadians(180.)))
+                Units.degreesToRadians(0.)))
         : new Pose3d(Units.inchesToMeters(-2.),
             Units.inchesToMeters(-2.), 0.,
             new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(-8.)));
 
     private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(6.),
         Units.inchesToMeters(6.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(16.0), Units.degreesToRadians(0.)));
+        new Rotation3d(0., Units.degreesToRadians(16.0), Units.degreesToRadians(180.)));
     // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
     // Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
-    
+
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
 
@@ -116,7 +117,8 @@ public class RobotContainer {
 
         OneMechanism.addSubsystems(null, m_drive, m_frontAprilTagVision);
 
-        m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision, m_rearAprilTagVision);
+        m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
+            m_rearAprilTagVision);
 
         switch (Constants.currentMode) {
             // TODO
@@ -181,8 +183,12 @@ public class RobotContainer {
         // ================================================
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm))
-                .andThen(new CurrentZero(m_lowerArm))
-                .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
+            .andThen(new CurrentZero(m_lowerArm))
+            .andThen(new WaitCommand(0.5))
+            .andThen(m_lowerArm.holdArmPosition()
+                .alongWith(m_upperArm.holdArmPosition())));
+        // .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm,
+        // m_upperArm, m_wrist)));
 
         // ================================================
         // DRIVER CONTROLLER - LT
@@ -197,6 +203,8 @@ public class RobotContainer {
         // ================================================
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
 
+        m_driverController.y.onTrue(new ResetPoseToVision(m_drive, m_rearAprilTagVision));
+
         // ===========
         // ARM POSES
         // ===========
@@ -207,7 +215,7 @@ public class RobotContainer {
         // ================================================
         m_operatorController.a
             .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
-                .andThen(new WaitCommand(0.25))
+                .andThen(new WaitCommand(0.125))
                 .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist)));
 
         // ================================================
@@ -223,7 +231,7 @@ public class RobotContainer {
         // ================================================
         m_operatorController.lb
             .onTrue(new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, m_lowerArm, m_upperArm, m_wrist)
-                .andThen(new WaitCommand(0.25))
+                .andThen(new WaitCommand(0.125))
                 .andThen(new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE, m_lowerArm, m_upperArm,
                     m_wrist)));
 
@@ -250,24 +258,24 @@ public class RobotContainer {
 
         // ================================================
         // OPERATOR CONTROLLER - WRIST MANUAL CONTROLS
-        // START - RUN ANGLE UP     BACK - RUN ANGLE DOWN
+        // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
         // ================================================
         m_operatorController.start.onTrue(m_wrist.runMotorUp());
         m_operatorController.start.onFalse(m_wrist.holdWristAngle());
         m_operatorController.back.onTrue(m_wrist.runMotorDown());
         m_operatorController.back.onFalse(m_wrist.holdWristAngle());
-        
+
         // ================================================
         // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
-        // RIGHT - RUN ARM OUT     LEFT - RUN ARM IN
+        // RIGHT - RUN ARM OUT LEFT - RUN ARM IN
         // ================================================
-        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.15)));
-        m_operatorController.dpadRight.onFalse(new InstantCommand(() -> m_upperArm.holdArmPosition()));
-        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.15)));
-        m_operatorController.dpadLeft.onFalse(new InstantCommand(() -> m_upperArm.holdArmPosition()));
+        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(1.0)));
+        m_operatorController.dpadRight.onFalse(new InstantCommand(() -> m_upperArm.runArmVbus(0.0)));
+        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-1.0)));
+        m_operatorController.dpadLeft.onFalse(new InstantCommand(() -> m_upperArm.runArmVbus(0.0)));
         // ================================================
         // OPERATOR CONTROLLER - LOWER ARM MANUAL CONTROLS
-        // UP - RUN ARM UP     DOWN - RUN ARM DOWN
+        // UP - RUN ARM UP DOWN - RUN ARM DOWN
         // ================================================
         m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.15)));
         m_operatorController.dpadUp.onFalse(new InstantCommand(() -> m_lowerArm.holdArmPosition()));

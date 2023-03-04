@@ -15,15 +15,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 
 public class Wrist extends SubsystemBase {
-    private static final double kP = 0.01;
+    private static final double kP = 0.05;
     private static final double kI = 0;
     private static final double kD = 0.4;
     private static final double kIz = 0;
     private static final double kFF = 0;
 
-    private static final double kMaxOutput = 0.9;
-    private static final double kMinOutput = -0.9;
-    private static final double RAMP_RATE = 0.25;
+    private static final double kMaxOutput = 0.95;
+    private static final double kMinOutput = -0.95;
+    private static final double RAMP_RATE = 0.15;
 
     private static Wrist m_instance;
 
@@ -117,10 +117,11 @@ public class Wrist extends SubsystemBase {
      * @return a command that does above mentioned task
      */
     public Command runToAngle(double angle) {
-        return runOnce(
+        return run(
             () -> {
                 m_pid.setReference(angle, ControlType.kPosition);
-            });
+            }).until(
+                () -> Math.abs(getAbsoluteEncoderPosition() - angle) < 1.0);
     }
 
     /**@return A Command to hold the wrist at its current angle. Used after running open loop to stay put and not drop with gravity. */

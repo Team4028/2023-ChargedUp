@@ -107,7 +107,7 @@ public class Vision extends SubsystemBase {
                 Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose.get(), camToRobot);
                 Pose2d odomPose = robotPose.toPose2d();
 
-                if (target.getPoseAmbiguity() > 0.02 && rotation != null) {
+                if ((target.getPoseAmbiguity() != 0. && rotation != null)) {
                     odomPose = new Pose2d(odomPose.getTranslation(), rotation);
                 }
 

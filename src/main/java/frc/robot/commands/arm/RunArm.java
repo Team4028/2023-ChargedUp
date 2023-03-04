@@ -26,7 +26,7 @@ public class RunArm extends TrapezoidProfileCommand {
                 // Initial state
                 new TrapezoidProfile.State(startRotations, 0)),
             state -> {
-                arm.runToPosition(state.position, arm.ffmodel.calculate(state.velocity));
+                arm.runToPosition(state.position);//, arm.ffmodel.calculate(state.velocity));
                 // Use current trajectory state here
                 SmartDashboard.putNumber("RunArm Position:", arm.nativeUnitsToInches(state.position));
                 SmartDashboard.putNumber("RunArm Vel", state.velocity);
@@ -40,6 +40,11 @@ public class RunArm extends TrapezoidProfileCommand {
         // ALWAYS
         addRequirements(arm);
     }
+
+    // @Override
+    // public void initialize() {
+        
+    // }
 
     // @Override
     // public boolean isFinished() {

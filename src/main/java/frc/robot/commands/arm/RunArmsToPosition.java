@@ -36,25 +36,23 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                          * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                          * Constants.ArmConstants.EXTEND_COEFFICIENT)
                          */
-                        .andThen(new InstantCommand(() -> SmartDashboard.putNumber("runArm finished", Math.random())))
                         .andThen(new RunArm(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(),
-                            targetPos.upperPosition, upperArm)
-                                .alongWith(wrist.runToAngle(targetPos.wristAngle))),
+                            targetPos.upperPosition, upperArm))
+                        .alongWith(wrist.runToAngle(targetPos.wristAngle)),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
                 new RunArm(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(), targetPos.upperPosition,
                     upperArm)
-                        .alongWith(wrist.runToAngle(targetPos.wristAngle))
-                        .andThen(new InstantCommand(() -> SmartDashboard.putNumber("runArm finished", Math.random())))
+                        .raceWith(wrist.runToAngle(targetPos.wristAngle))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
                          */
                         .andThen(new RunArm(lowerArm.maxVel, lowerArm.maxAccel, lowerArm.getEncoderPosition(),
                             targetPos.lowerPosition, lowerArm)),
-                () -> upperArm.inchesToNativeUnits(targetPos.upperPosition) > upperArm.getEncoderPosition()));
-                addRequirements(upperArm, lowerArm, wrist);
+                () -> lowerArm.inchesToNativeUnits(targetPos.lowerPosition) > lowerArm.getEncoderPosition()));
+        addRequirements(upperArm, lowerArm, wrist);
     }
 }

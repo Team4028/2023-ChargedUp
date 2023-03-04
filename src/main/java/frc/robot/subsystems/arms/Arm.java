@@ -104,7 +104,7 @@ public abstract class Arm extends SubsystemBase {
     }
 
     public boolean atTargetPosition() {
-        return Math.abs(getEncoderInches() - m_targetPosition) < 0.1;
+        return Math.abs(getEncoderInches() - m_targetPosition) < 0.05;
     }
 
     public BooleanSupplier atTargetPositionSupplier() {

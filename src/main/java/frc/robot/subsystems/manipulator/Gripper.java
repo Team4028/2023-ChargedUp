@@ -15,10 +15,10 @@ public class Gripper extends SubsystemBase {
     private static Gripper m_instance;
     private final BeakTalonSRX m_motor;
 
-    private final double RUN_SPEED = 0.85;
+    private final double RUN_SPEED = 0.95;
     private final double HOLD_SPEED = 0.32;
     private final double IDLE_SPEED = 0.12;
-    private final double HOLD_THRESHOLD = 35.0;
+    private final double HOLD_THRESHOLD = 45.0;
 
     private enum GripState {
         INFEED("INFEED"), //
