@@ -86,7 +86,7 @@ public class Autons {
             m_eventMap.put("MidScoring", new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist));
 
             m_eventMap.put("CubePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_CUBE, lowerArm, upperArm, wrist));
-            m_eventMap.put("ConePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_CUBE, lowerArm, upperArm, wrist));
+            m_eventMap.put("ConePickup", new RunArmsToPosition(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE, lowerArm, upperArm, wrist));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
@@ -113,7 +113,8 @@ public class Autons {
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4),
             new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm, m_upperArm, m_wrist).until(m_armsAtPosition),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //
         );
 
@@ -124,6 +125,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new WaitCommand(0.2),
             new RunArmsToPosition(ScoringPositions.SCORE_MID, m_lowerArm, m_upperArm, m_wrist).until(m_armsAtPosition),

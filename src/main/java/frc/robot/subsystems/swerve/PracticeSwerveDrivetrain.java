@@ -48,8 +48,8 @@ public class PracticeSwerveDrivetrain extends BeakSwerveDrivetrain {
      * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and
      * radians.
      */
-    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.25, 0.25,
-        Units.degreesToRadians(10));
+    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
+        Units.degreesToRadians(25));
 
     private static final double DRIVE_kP = 0.0125;
     private static final double TURN_kP = 0.2;
