@@ -5,13 +5,22 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
+import com.ctre.phoenix.led.TwinkleAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDs extends SubsystemBase {
+    private enum CANdleMode {
+        VICTORY_SPIN, IDLE, ACTIVE;
+    }
+
+    private CANdleMode m_currentMode;
     private Color m_color;
     private CANdle m_candle;
     private int r, g, b;
@@ -36,6 +45,7 @@ public class LEDs extends SubsystemBase {
 
     /** Creates a new LEDs. */
     public LEDs() {
+        m_currentMode = CANdleMode.IDLE;
         m_candle = new CANdle(21, "rio");
 
         m_candle.configBrightnessScalar(1.0);
@@ -46,7 +56,9 @@ public class LEDs extends SubsystemBase {
     }
 
     /**
-     * sets the leds to the color entered in {@link frc.robot.subsystems.LEDs}'s {@code setColor()}
+     * sets the leds to the color entered in {@link frc.robot.subsystems.LEDs}'s
+     * {@code setColor()}
+     * 
      * @return a command that does the above task
      */
     public Command setLEDs() {
@@ -59,7 +71,9 @@ public class LEDs extends SubsystemBase {
 
     /**
      * sets the color of the LED class
-     * @param color the color to set
+     * 
+     * @param color
+     *            the color to set
      */
     public void setColor(Color color) {
         m_color = color;
@@ -75,6 +89,7 @@ public class LEDs extends SubsystemBase {
 
     /**
      * sets the LEDs r, g, and b fields to 0
+     * 
      * @return a command that does the above task
      */
     public Command setOff() {
@@ -113,12 +128,38 @@ public class LEDs extends SubsystemBase {
         return m_instance;
     }
 
+    public void setIdle() {
+        m_currentMode = CANdleMode.IDLE;
+    }
+
+    public void setVictorySpin() {
+        m_currentMode = CANdleMode.VICTORY_SPIN;
+    }
+
+    public void setActive() {
+        m_currentMode = CANdleMode.ACTIVE;
+    }
+
+    public CANdleMode getMode() {
+        return m_currentMode;
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("r", r);
         SmartDashboard.putNumber("g", g);
         SmartDashboard.putNumber("b", b);
         // setLEDs().schedule();
-        m_candle.setLEDs(r, g, b);
+        switch (m_currentMode) {
+            case ACTIVE:
+                m_candle.setLEDs(r, g, b);
+                break;
+            case VICTORY_SPIN:
+                m_candle.animate(new RainbowAnimation(1, 0.1, 8));
+                break;
+            default:
+                m_candle.animate(new TwinkleAnimation(64, 2, 105, 0, 0.1, 8, TwinklePercent.Percent42)); //64, 2, 105
+                break;
+        }
     }
 }
