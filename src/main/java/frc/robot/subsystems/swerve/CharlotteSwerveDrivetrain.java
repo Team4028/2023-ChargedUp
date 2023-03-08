@@ -32,7 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
-public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
+public class CharlotteSwerveDrivetrain extends BeakSwerveDrivetrain {
     // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
     // you trust your various sensors. Smaller numbers will cause the filter to
     // "trust" the estimate from that particular component more than the others.
@@ -94,7 +94,7 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
         CONFIGURATION.driveGearRatio,
         FEED_FORWARD);
 
-    private static PoseEstimatorSwerveDrivetrain m_instance;
+    private static CharlotteSwerveDrivetrain m_instance;
 
     private Field2d m_field = new Field2d();
 
@@ -178,7 +178,7 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
         BR_LOCATION,
         DRIVE_CONFIG);
 
-    public PoseEstimatorSwerveDrivetrain() {
+    public CharlotteSwerveDrivetrain() {
         super(
             PHYSICS,
             m_gyro,
@@ -200,9 +200,9 @@ public class PoseEstimatorSwerveDrivetrain extends BeakSwerveDrivetrain {
             m_visionMeasurementStdDevs);
     }
 
-    public static PoseEstimatorSwerveDrivetrain getInstance() {
+    public static CharlotteSwerveDrivetrain getInstance() {
         if (m_instance == null) {
-            m_instance = new PoseEstimatorSwerveDrivetrain();
+            m_instance = new CharlotteSwerveDrivetrain();
         }
         return m_instance;
     }

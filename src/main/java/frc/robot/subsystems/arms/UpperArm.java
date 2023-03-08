@@ -27,8 +27,8 @@ public class UpperArm extends Arm {
     private static final double kG = 0.; // 0.2554;
     private static final double kV = 0.; // 0.10667;
 
-    private static final double ZEROING_VBUS = -0.1;
-    private static final double ZEROING_CURRENT_THRESHOLD = 20.0;
+    private static final double ZEROING_VBUS = -0.15;
+    private static final double ZEROING_CURRENT_THRESHOLD = 28.0;
 
     private static UpperArm m_instance;
 
@@ -36,7 +36,7 @@ public class UpperArm extends Arm {
      * Inches per revelution of sprocket: 6.25
      * Gear reduction 12:1
      */
-    private static final double NATIVE_UNITS_TO_INCHES = 6.25 / 12;
+    private static final double NATIVE_UNITS_TO_INCHES = 6.25 / 9;
     public final double maxVel, maxAccel;
 
     /** Creates a new UpperArm. */

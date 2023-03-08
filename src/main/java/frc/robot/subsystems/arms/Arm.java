@@ -214,7 +214,7 @@ public abstract class Arm extends SubsystemBase {
     /**@return A Command to hold the arm at its current position. Used after running open loop to stay put and not drop with gravity. */
     public Command holdArmPosition() {
         return runOnce(() -> {
-            runToPosition(getEncoderInches());
+            runToPosition(m_encoder.getPosition());
         });
     }
 }

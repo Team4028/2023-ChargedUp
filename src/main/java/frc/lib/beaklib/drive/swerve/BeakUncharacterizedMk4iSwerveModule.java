@@ -6,6 +6,7 @@ package frc.lib.beaklib.drive.swerve;
 
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.lib.beaklib.encoder.BeakCANCoder;
@@ -61,10 +62,13 @@ public class BeakUncharacterizedMk4iSwerveModule extends BeakSwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
+        SwerveModuleState optimizedState = SwerveUtil.optimize(desiredState,
+            new Rotation2d(getTurningEncoderRadians()));
+            
         // TODO: put in config
-        m_driveMotor.set(desiredState.speedMetersPerSecond / Units.feetToMeters(16.3));
+        m_driveMotor.set(optimizedState.speedMetersPerSecond / Units.feetToMeters(16.3));
 
         // Set the turning motor to the correct position.
-        setAngle(desiredState.angle.getDegrees());
+        setAngle(optimizedState.angle.getDegrees());
     }
 }

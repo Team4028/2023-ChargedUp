@@ -15,43 +15,66 @@ import frc.lib.beaklib.units.AngularVelocity;
 import frc.lib.beaklib.units.Distance;
 import frc.lib.beaklib.units.Velocity;
 import frc.robot.Constants.PIDConstants;
-
-import java.io.IOException;
-
-import org.littletonrobotics.junction.LoggedRobot;
-
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class SwerveDrivetrain extends BeakSwerveDrivetrain {
-    private int resetTimer = 0;
+    // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
+    // you trust your various sensors. Smaller numbers will cause the filter to
+    // "trust" the estimate from that particular component more than the others.
+    // This in turn means the particualr component will have a stronger influence
+    // on the final pose estimate.
+
+    /**
+     * Standard deviations of model states. Increase these numbers to trust your
+     * model's state estimates less. This
+     * matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then
+     * meters.
+     */
+    private static final Vector<N3> m_stateStdDevs = VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+
+    /**
+     * Standard deviations of the vision measurements. Increase these numbers to
+     * trust global measurements from vision
+     * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and
+     * radians.
+     */
+    private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
+        Units.degreesToRadians(25));
 
     private static final double DRIVE_kP = 0.0125;
     private static final double TURN_kP = 0.2;
     private static final double TURN_kD = 0.0;
 
-    private static final double AUTON_kP = 3.;// 7.5;
-    private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0.01 };
+    private static final double AUTON_kP = 3.;
+    private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0. };
 
-    private static final double GENERATED_AUTON_kP = 4.25;// 8.5;
-    private static final double[] GENERATED_AUTON_DRIVE_GAINS = { GENERATED_AUTON_kP, 0., 0.0125 };
+    private static final double GENERATED_AUTON_kP = 7.5;
+    private static final double[] GENERATED_AUTON_DRIVE_GAINS = { GENERATED_AUTON_kP, 0., 0.01 };
 
-    private static final int PIGEON2_ID = 1;
-    private static final String CAN_BUS = "DriveSubsystem";
+    private static final int PIGEON2_ID = 0;
+    private static final String CAN_BUS = "rio";
 
     private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
-        (0.19 + 0.225 + 0.214 + 0.2256) / 4.0,
-        (2.2565 + 2.2785 + 2.2754 + 2.291) / 4.0,
-        (0.277 + 0.31) / 2.0);
+        0.,
+        0.,
+        0.);
 
-    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
+    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.UNCHARACTERIZED_MK4I_L2;
 
     private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
 
     // distance from the right to left wheels on the robot
-    private static final Distance TRACK_WIDTH = Distance.fromInches(26.);
+    private static final Distance TRACK_WIDTH = Distance.fromInches(24.);
     // distance from the front to back wheels on the robot
     private static final Distance WHEEL_BASE = Distance.fromInches(28.);
 
@@ -66,31 +89,33 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     private static SwerveDrivetrain m_instance;
 
+    private Field2d m_field = new Field2d();
+
     private static final int FL_DRIVE_ID = 2;
     private static final int FL_TURN_ID = 1;
     private static final int FL_ENCODER_ID = 1; // SHOULD BE 9
-    private static final double FL_OFFSET = -Units.degreesToRadians(139.8);
+    private static final double FL_OFFSET = -Units.degreesToRadians(357.4);
     private static final Translation2d FL_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
         TRACK_WIDTH.getAsMeters() / 2); // TODO: Please God BeakTranslation2d
 
     private static final int FR_DRIVE_ID = 4;
     private static final int FR_TURN_ID = 3;
     private static final int FR_ENCODER_ID = 2; // SHOULD BE 10
-    private static final double FR_OFFSET = -Math.toRadians(322.5);
+    private static final double FR_OFFSET = -Math.toRadians(271.3);
     private static final Translation2d FR_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
         -TRACK_WIDTH.getAsMeters() / 2);
 
     private static final int BL_DRIVE_ID = 6;
     private static final int BL_TURN_ID = 5;
     private static final int BL_ENCODER_ID = 3; // SHOULD BE 11
-    private static final double BL_OFFSET = -Math.toRadians(106.3);
+    private static final double BL_OFFSET = -Math.toRadians(327.3);
     private static final Translation2d BL_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
         TRACK_WIDTH.getAsMeters() / 2);
 
     private static final int BR_DRIVE_ID = 8;
     private static final int BR_TURN_ID = 7;
     private static final int BR_ENCODER_ID = 4; // SHOULD BE 12
-    private static final double BR_OFFSET = -Math.toRadians(53.7 + 180.);
+    private static final double BR_OFFSET = -Math.toRadians(160.5);
     private static final Translation2d BR_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
         -TRACK_WIDTH.getAsMeters() / 2);
 
@@ -158,6 +183,14 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
             m_frontRightConfig,
             m_backLeftConfig,
             m_backRightConfig);
+
+        m_odom = new SwerveDrivePoseEstimator(
+            m_kinematics,
+            getGyroRotation2d(),
+            getModulePositions(),
+            new Pose2d(),
+            m_stateStdDevs,
+            m_visionMeasurementStdDevs);
     }
 
     public static SwerveDrivetrain getInstance() {
@@ -169,24 +202,13 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     @Override
     public void periodic() {
-        if (LoggedRobot.isReal()) {
-            if (resetTimer == 100) {
-                String resetCaniv = "caniv -r -d " + CAN_BUS;
-                try {
-                    Runtime.getRuntime().exec(resetCaniv);
-                } catch (IOException excep) {
-                    System.out.println("Something went wrong resetting canivore");
-                }
-            }
-        }
+        updateOdometry();
 
-        if (resetTimer > 200 || LoggedRobot.isSimulation()) {
-            updateOdometry();
+        m_field.setRobotPose(getPoseMeters());
+        SmartDashboard.putData(m_field);
 
-            logData();
-        } else {
-            resetTimer++;
-        }
+        logData();
 
+        SmartDashboard.putNumber("Pitch", getGyroRollRotation2d().getDegrees());
     }
 }

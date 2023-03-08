@@ -36,7 +36,7 @@ public class LowerArm extends Arm {
      * Inches per revelution of sprocket: 6.25
      * Gear reduction 25:1
      */
-    public static final double NATIVE_UNITS_TO_INCHES = 6.25 / 25;
+    public static final double NATIVE_UNITS_TO_INCHES = 6.25 / 20;
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
