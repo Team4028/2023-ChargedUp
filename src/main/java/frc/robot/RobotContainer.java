@@ -249,6 +249,13 @@ public class RobotContainer {
             .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_MID));
 
         // ================================================
+        // OPERATOR CONTROLLER - Y
+        // SCORE_HIGH
+        // ================================================
+        m_operatorController.y
+            .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_HIGH));
+
+        // ================================================
         // OPERATOR CONTROLLER - RT
         // SPIT OUT GAMEPIECE
         // ================================================

@@ -20,13 +20,13 @@ public class AutoBalance extends PIDCommand {
             // The controller that the command will use
             new PIDController(2.0, 0, 0),
             // This should return the measurement
-            () -> drivetrain.getGyroRollRotation2d().getRadians(),
+            () -> drivetrain.getGyroPitchRotation2d().getRadians(),
             // This should return the setpoint (can also be a constant)
             () -> 0,
             // This uses the output
             output -> {
                 drivetrain.drive(new ChassisSpeeds(
-                    output,
+                    -output,
                     0.,
                     0.));
             });

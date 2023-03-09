@@ -13,14 +13,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The lower Argos Arm
  */
 public class LowerArm extends Arm {
-    private static final double kP = 0.05;
+    private static final double kP = 0.1;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.9;
-    private static final double kMinOutput = -0.9;
+    private static final double kMaxOutput = 0.3;
+    private static final double kMinOutput = -0.3;
 
     private static final double kS = 0.1; // 0.33069;
     private static final double kG = 0.1; // 0.2554;
@@ -31,12 +31,6 @@ public class LowerArm extends Arm {
 
     private static LowerArm m_instance;
     public final double maxVel, maxAccel;
-
-    /*
-     * Inches per revelution of sprocket: 6.25
-     * Gear reduction 25:1
-     */
-    public static final double NATIVE_UNITS_TO_INCHES = 6.25 / 20;
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
@@ -59,16 +53,6 @@ public class LowerArm extends Arm {
 
         // TODO: initArm should take in the constants we have and configure directly.
         super.initArm();
-    }
-
-    @Override
-    public double nativeUnitsToInches(double nativeUnits) {
-        return nativeUnits * NATIVE_UNITS_TO_INCHES;
-    }
-
-    @Override
-    public double inchesToNativeUnits(double inches) {
-        return inches / NATIVE_UNITS_TO_INCHES;
     }
 
     /**
@@ -110,7 +94,7 @@ public class LowerArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("LowArmEncoderPos", nativeUnitsToInches(getEncoderPosition()));
+        SmartDashboard.putNumber("LowArmEncoderPos", getEncoderPosition());
         SmartDashboard.putNumber("LowArmErr", this.getError());
         SmartDashboard.putNumber("LowArmCurrentAmps", this.getMotorCurrent());
         // This method will be called once per scheduler run

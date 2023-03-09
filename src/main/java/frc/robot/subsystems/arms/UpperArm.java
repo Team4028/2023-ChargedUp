@@ -14,14 +14,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The upper Argos Arm
  */
 public class UpperArm extends Arm {
-    private static final double kP = 0.08;
+    private static final double kP = 0.1;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.9;
-    private static final double kMinOutput = -0.9;
+    private static final double kMaxOutput = 0.3;
+    private static final double kMinOutput = -0.3;
 
     private static final double kS = 0.; // 0.33069;
     private static final double kG = 0.; // 0.2554;
@@ -32,11 +32,6 @@ public class UpperArm extends Arm {
 
     private static UpperArm m_instance;
 
-    /*
-     * Inches per revelution of sprocket: 6.25
-     * Gear reduction 12:1
-     */
-    private static final double NATIVE_UNITS_TO_INCHES = 6.25 / 9;
     public final double maxVel, maxAccel;
 
     /** Creates a new UpperArm. */
@@ -69,16 +64,6 @@ public class UpperArm extends Arm {
         return m_instance;
     }
 
-    @Override
-    public double nativeUnitsToInches(double nativeUntis) {
-        return nativeUntis * NATIVE_UNITS_TO_INCHES;
-    }
-
-    @Override
-    public double inchesToNativeUnits(double inches) {
-        return inches / NATIVE_UNITS_TO_INCHES;
-    }
-
     /**
      * Example command factory method.
      *
@@ -106,7 +91,7 @@ public class UpperArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("UpArmEncoderPos", nativeUnitsToInches(getEncoderPosition()));
+        SmartDashboard.putNumber("UpArmEncoderPos", getEncoderPosition());
         SmartDashboard.putNumber("UpArmErr", this.getError());
         SmartDashboard.putNumber("UpArmCurrentAmps", this.getMotorCurrent());
         // This method will be called once per scheduler run

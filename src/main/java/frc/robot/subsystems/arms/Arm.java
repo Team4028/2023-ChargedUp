@@ -57,6 +57,7 @@ public abstract class Arm extends SubsystemBase {
         m_motor.setClosedLoopRampRate(RAMP_RATE);
 
         m_motor.burnFlash();
+        m_targetPosition = 3.0;
     }
 
     /**
@@ -83,7 +84,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        //m_targetPosition = position;
+        m_targetPosition = position;
     }
 
     /**
@@ -99,31 +100,13 @@ public abstract class Arm extends SubsystemBase {
         //m_targetPosition = position;
     }
 
-    public void setTargetInches(double inches) {
-        m_targetPosition = inches;
-    }
-
     public boolean atTargetPosition() {
-        return Math.abs(getEncoderInches() - m_targetPosition) < 0.05;
+        return Math.abs(getEncoderPosition() - m_targetPosition) < 0.05;
     }
 
     public BooleanSupplier atTargetPositionSupplier() {
         return (() -> atTargetPosition());
     }
-
-    /**
-     * 
-     * @param nativeUntis the native unit (in this case rotations)
-     * @return
-     */
-    abstract public double nativeUnitsToInches(double nativeUntis);
-
-    /**
-     * 
-     * @param inches the inches to convert
-     * @return the converted inches
-     */
-    abstract public double inchesToNativeUnits(double inches);
 
     public double getError() {
         return Math.abs(this.getEncoderPosition() - m_targetPosition);
@@ -144,17 +127,9 @@ public abstract class Arm extends SubsystemBase {
         return m_encoder.getPosition();
     }
 
-        /**
-     * 
-     * @return the position of the arm's encoder
-     */
-    public double getEncoderInches() {
-        return nativeUnitsToInches(getEncoderPosition());
-    }
-
     /**
      * 
-     * @return the target position of the arm in inches
+     * @return the target position of the arm in rotations
      */
     public double getTargetPosition() {
         return m_targetPosition;

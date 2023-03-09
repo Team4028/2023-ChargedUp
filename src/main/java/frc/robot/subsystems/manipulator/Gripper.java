@@ -40,6 +40,8 @@ public class Gripper extends SubsystemBase {
     public Gripper() {
         m_motor = new BeakTalonSRX(11);
 
+        m_motor.configFactoryDefault();
+
         m_motor.config_kP(0, 0.2);
         m_motor.config_kI(0, 0);
         m_motor.config_kD(0, 0);
