@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -130,7 +129,6 @@ public class Wrist extends SubsystemBase {
     public Command holdWristAngle() {
         return runOnce(
             () -> {
-                m_motor.set(0.0);
                 runToAngle(getAbsoluteEncoderPosition());
             }
         );
