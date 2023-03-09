@@ -187,8 +187,10 @@ public class RobotContainer {
         // ================================================
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm))
-            .andThen(new CurrentZero(m_lowerArm)));
-            //.andThen(new WaitCommand(0.5))
+            .andThen(new CurrentZero(m_lowerArm))
+            .andThen(new WaitCommand(0.5))
+            .andThen(m_upperArm.holdArmPosition())
+            .andThen(m_lowerArm.holdArmPosition()));
         // .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm,
         // m_upperArm, m_wrist)));
 
@@ -258,26 +260,26 @@ public class RobotContainer {
         // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
         // ================================================
         m_operatorController.start.onTrue(m_wrist.runMotorUp());
-        m_operatorController.start.onFalse(m_wrist.stopMotor());
+        m_operatorController.start.onFalse(m_wrist.holdWristAngle());
         m_operatorController.back.onTrue(m_wrist.runMotorDown());
-        m_operatorController.back.onFalse(m_wrist.stopMotor());
+        m_operatorController.back.onFalse(m_wrist.holdWristAngle());
 
         // ================================================
         // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
         // RIGHT - RUN ARM OUT LEFT - RUN ARM IN
         // ================================================
         m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.15)));
-        m_operatorController.dpadRight.onFalse(new InstantCommand(() -> m_upperArm.runArmVbus(0.0)));
+        m_operatorController.dpadRight.onFalse(m_upperArm.holdArmPosition());
         m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.15)));
-        m_operatorController.dpadLeft.onFalse(new InstantCommand(() -> m_upperArm.runArmVbus(0.0)));
+        m_operatorController.dpadLeft.onFalse(m_upperArm.holdArmPosition());
         // ================================================
         // OPERATOR CONTROLLER - LOWER ARM MANUAL CONTROLS
         // UP - RUN ARM UP DOWN - RUN ARM DOWN
         // ================================================
         m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.15)));
-        m_operatorController.dpadUp.onFalse(new InstantCommand(() -> m_lowerArm.runArmVbus(0.0)));
+        m_operatorController.dpadUp.onFalse(m_lowerArm.holdArmPosition());
         m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.15)));
-        m_operatorController.dpadDown.onFalse(new InstantCommand(() -> m_lowerArm.runArmVbus(0.0)));
+        m_operatorController.dpadDown.onFalse(m_lowerArm.holdArmPosition());
     }
 
     private void initAutonChooser() {

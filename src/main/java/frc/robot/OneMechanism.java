@@ -50,10 +50,10 @@ public class OneMechanism {
         INTERMEDIATE_LOW(           3.0, 6.0, 320.0),
         SCORE_MID(                  14., 5.0, 180.0), 
         SCORE_HIGH(                 13., 19., 255.0),
-        ACQUIRE_FLOOR_CUBE(         2.0, 14., 245.0),
+        ACQUIRE_FLOOR_CUBE(         2.89, 10.764, 249.39),
         ACQUIRE_FLOOR_TIPPED_CONE(  2.0, 14., 245.0),
         ACQUIRE_SINGLE_SUBSTATION(  2.6, 0.2, 320.0),
-        ACQUIRE_FLOOR_UPRIGHT_CONE( 1.75, 5.5, 239.0);
+        ACQUIRE_FLOOR_UPRIGHT_CONE( 2.723, 19.643, 272.228);
 
         public double lowerPosition;
         public double upperPosition;

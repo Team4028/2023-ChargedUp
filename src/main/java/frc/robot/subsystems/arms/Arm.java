@@ -149,12 +149,12 @@ public abstract class Arm extends SubsystemBase {
      * @return the position of the arm's encoder
      */
     public double getEncoderInches() {
-        return nativeUnitsToInches(m_encoder.getPosition());
+        return nativeUnitsToInches(getEncoderPosition());
     }
 
     /**
      * 
-     * @return the target position of the arm in rotations 
+     * @return the target position of the arm in inches
      */
     public double getTargetPosition() {
         return m_targetPosition;
@@ -214,6 +214,7 @@ public abstract class Arm extends SubsystemBase {
     /**@return A Command to hold the arm at its current position. Used after running open loop to stay put and not drop with gravity. */
     public Command holdArmPosition() {
         return runOnce(() -> {
+            m_motor.set(0.0);
             runToPosition(m_encoder.getPosition());
         });
     }

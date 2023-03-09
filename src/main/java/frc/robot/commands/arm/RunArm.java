@@ -15,26 +15,26 @@ public class RunArm extends TrapezoidProfileCommand {
     private Arm m_arm;
     private double m_endInches;
     /** Creates a new RunArm. */
-    public RunArm(double maxVel, double maxAccel, double startRotations, double endInches, Arm arm) {
+    public RunArm(double maxVel, double maxAccel, double startInches, double endInches, Arm arm) {
         super(
             // The motion profile to be executed
             new TrapezoidProfile(
                 // The motion profile constraints
                 new TrapezoidProfile.Constraints(maxVel, maxAccel),
                 // Goal state
-                new TrapezoidProfile.State(arm.inchesToNativeUnits(endInches), 0),
+                new TrapezoidProfile.State(endInches, 0),
                 // Initial state
-                new TrapezoidProfile.State(startRotations, 0)),
+                new TrapezoidProfile.State(startInches, 0)),
             state -> {
                 arm.runToPosition(state.position);//, arm.ffmodel.calculate(state.velocity));
                 // Use current trajectory state here
-                SmartDashboard.putNumber("RunArm Position:", arm.nativeUnitsToInches(state.position));
+                SmartDashboard.putNumber("RunArm Position:", state.position);
                 SmartDashboard.putNumber("RunArm Vel", state.velocity);
             });
         m_arm = arm;
         m_endInches = endInches;
         arm.setTargetInches(endInches);
-        arm.setDistanceToTravel(Math.abs(endInches - arm.nativeUnitsToInches(startRotations)));
+        arm.setDistanceToTravel(Math.abs(endInches - startInches));
         // PLEASE READ THE FOLLOWING
         // MUST ALWAYS ADD REQUIREMENTS
         // ALWAYS
