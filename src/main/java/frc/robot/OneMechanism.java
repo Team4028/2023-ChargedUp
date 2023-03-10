@@ -18,8 +18,7 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.units.Distance;
-import frc.robot.commands.BlinkLEDs;
-import frc.robot.commands.arm.RunArmsToPositionStowOrLow;
+import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
@@ -46,14 +45,14 @@ public class OneMechanism {
 
     // @formatter:off
     public enum ScoringPositions {
-        STOWED(                     10., 7.0, 320.0),
-        INTERMEDIATE_LOW(           12., 5.0, 320.0),
-        SCORE_MID(                  21., 12., 180.0), 
-        SCORE_HIGH(                 42., 35., 255.0),
-        ACQUIRE_FLOOR_CUBE(         2.9, 10.8, 249.4),
-        ACQUIRE_FLOOR_TIPPED_CONE(  2.0, 14., 245.0),
-        ACQUIRE_SINGLE_SUBSTATION(  2.6, 0.2, 320.0),
-        ACQUIRE_FLOOR_UPRIGHT_CONE( 2.7, 19.6, 272.228);
+        STOWED(                     5.00,       5.00,       305.0),
+        INTERMEDIATE_LOW(           15.0,       15.0,       305.0),
+        SCORE_MID(                  39.0,       6.00,       215.0), 
+        SCORE_HIGH(                 51.0,       34.0,       203.0),
+        ACQUIRE_FLOOR_CUBE(         9.50,       22.0,       250.0),
+        ACQUIRE_FLOOR_TIPPED_CONE(  9.50,       24.5,       255.0),
+        ACQUIRE_SINGLE_SUBSTATION(  2.60,       1.00,       320.0),
+        ACQUIRE_FLOOR_UPRIGHT_CONE( 8.30,       19.6,       262.0);
 
         public double lowerPosition;
         public double upperPosition;
@@ -149,7 +148,7 @@ public class OneMechanism {
         m_currentMode = GamePieceMode.CONE;
         if (!m_climbMode) {
             m_leds.setCone();
-            new BlinkLEDs(m_leds).schedule();
+            m_leds.blink();
         }
     }
 
@@ -160,7 +159,7 @@ public class OneMechanism {
         m_currentMode = GamePieceMode.CUBE;
         if (!m_climbMode) {
             m_leds.setCube();
-            new BlinkLEDs(m_leds).schedule();
+            m_leds.blink();
         }
     }
 
@@ -190,7 +189,7 @@ public class OneMechanism {
             }
         }
         if (getState() != GamePieceMode.OFF) {
-            new BlinkLEDs(m_leds).schedule();
+            m_leds.blink();
         }
     }
 
@@ -344,6 +343,6 @@ public class OneMechanism {
     }
 
     public static Command runArms(ScoringPositions targetPos) {
-        return new RunArmsToPositionStowOrLow(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
     }
 }

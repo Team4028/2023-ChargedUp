@@ -21,7 +21,7 @@ import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.arm.RunArmsToPosition;
-import frc.robot.commands.arm.RunArmsToPositionStowOrLow;
+import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
@@ -228,20 +228,6 @@ public class RobotContainer {
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
 
         // ================================================
-        // OPERATOR CONTROLLER - LB
-        // ACQUIRE_FLOOR_TIPPED_CONE
-        // ================================================
-        m_operatorController.lb
-            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE));
-
-        // ================================================
-        // OPERATOR CONTROLLER - RB
-        // ACQUIRE_FLOOR_UPRIGHT_CONE
-        // ================================================
-        m_operatorController.rb.onTrue(
-            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE));
-
-        // ================================================
         // OPERATOR CONTROLLER - X
         // SCORE_MID
         // ================================================
@@ -254,6 +240,20 @@ public class RobotContainer {
         // ================================================
         m_operatorController.y
             .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_HIGH));
+
+        // ================================================
+        // OPERATOR CONTROLLER - LB
+        // ACQUIRE_FLOOR_TIPPED_CONE
+        // ================================================
+        m_operatorController.lb
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE));
+
+        // ================================================
+        // OPERATOR CONTROLLER - RB
+        // ACQUIRE_FLOOR_UPRIGHT_CONE
+        // ================================================
+        m_operatorController.rb.onTrue(
+            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE));
 
         // ================================================
         // OPERATOR CONTROLLER - RT

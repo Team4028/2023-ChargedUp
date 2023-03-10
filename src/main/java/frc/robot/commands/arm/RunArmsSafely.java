@@ -13,10 +13,10 @@ import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Wrist;
 
-public class RunArmsToPositionStowOrLow extends SequentialCommandGroup {
+public class RunArmsSafely extends SequentialCommandGroup {
 
     /** Creates a new RunArmsToPositionStowOrLow. */
-    public RunArmsToPositionStowOrLow(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
+    public RunArmsSafely(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         addCommands(
             new ConditionalCommand(
                 new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)

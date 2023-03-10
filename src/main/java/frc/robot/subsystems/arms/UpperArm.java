@@ -36,8 +36,8 @@ public class UpperArm extends Arm {
 
     /** Creates a new UpperArm. */
     public UpperArm() {
-        maxVel = 125.; // RPS
-        maxAccel = 250.; // RPS^2
+        maxVel = 45.0; // RPS
+        maxAccel = 90.0; // RPS^2
 
         ffmodel = new ElevatorFeedforward(kS, kG, kV);
 
