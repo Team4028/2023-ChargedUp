@@ -82,8 +82,8 @@ public class Autons {
         m_eventMap = new HashMap<String, Command>();
         if (Constants.PRACTICE_CHASSIS) {
             // TODO
-            m_eventMap.put("HighScoring", OneMechanism.runArms(ScoringPositions.SCORE_HIGH));
-            m_eventMap.put("MidScoring", OneMechanism.runArms(ScoringPositions.SCORE_MID));
+            m_eventMap.put("HighScoring", OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE));
+            m_eventMap.put("MidScoring", OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE));
 
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
             m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
@@ -109,7 +109,7 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             // TODO: fast zero
-            OneMechanism.runArms(ScoringPositions.SCORE_MID).until(m_armsAtPosition),
+            OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE).until(m_armsAtPosition),
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
@@ -128,7 +128,7 @@ public class Autons {
             new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new WaitCommand(0.2),
-            OneMechanism.runArms(ScoringPositions.SCORE_MID).until(m_armsAtPosition),
+            OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE).until(m_armsAtPosition),
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4)
         //
