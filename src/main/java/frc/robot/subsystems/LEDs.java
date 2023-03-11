@@ -5,32 +5,40 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
-import com.ctre.phoenix.led.StrobeAnimation;
-import com.ctre.phoenix.led.TwinkleAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
-import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
+import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDs extends SubsystemBase {
     private enum CANdleMode {
-        VICTORY_SPIN, IDLE, ACTIVE;
+        VICTORY_SPIN("Victory"), IDLE("idle"), ACTIVE("on");
+
+        public String name;
+
+        private CANdleMode(String name) {
+            this.name = name;
+        }
     }
 
     private CANdleMode m_currentMode;
     private Color m_color;
+    private final int NUM_LEDS = 128; // 8 for candle + 120 for 2 strips
     private CANdle m_candle;
-    private int r, g, b;
+    // private int r, g, b;
     private static LEDs m_instance;
+    private Timer scrollTimer = new Timer();
+    private double scrollVar = 0;
 
     /**
      * the colors that the CANdle needs to be set to
      */
     public enum Color {
-        GREEN(0, 255, 0), PURPLE(127, 0, 255), YELLOW(255, 255, 0), OFF(0, 0, 0);
+        GREEN(0, 254, 0), PURPLE(118, 0, 254), ORANGE(254, 55, 0), OFF(0, 0, 0);
 
         private int r;
         private int g;
@@ -45,28 +53,13 @@ public class LEDs extends SubsystemBase {
 
     /** Creates a new LEDs. */
     public LEDs() {
-        m_currentMode = CANdleMode.IDLE;
+        m_currentMode = CANdleMode.ACTIVE;
         m_candle = new CANdle(21, "rio");
-
-        m_candle.configBrightnessScalar(1.0);
+        m_candle.configBrightnessScalar(0.5);
         m_candle.configLEDType(LEDStripType.GRB);
         m_candle.configLOSBehavior(true);
 
         setColor(Color.OFF);
-    }
-
-    /**
-     * sets the leds to the color entered in {@link frc.robot.subsystems.LEDs}'s
-     * {@code setColor()}
-     * 
-     * @return a command that does the above task
-     */
-    public Command setLEDs() {
-        return runOnce(() -> {
-            this.r = m_color.r;
-            this.g = m_color.g;
-            this.b = m_color.b;
-        });
     }
 
     /**
@@ -84,20 +77,7 @@ public class LEDs extends SubsystemBase {
      */
     public void setBlank() {
         setColor(Color.OFF);
-        setLEDs().ignoringDisable(true).schedule();
-    }
-
-    /**
-     * sets the LEDs r, g, and b fields to 0
-     * 
-     * @return a command that does the above task
-     */
-    public Command setOff() {
-        return runOnce(() -> {
-            r = 0;
-            g = 0;
-            b = 0;
-        });
+        // setLEDs().ignoringDisable(true).schedule();
     }
 
     /**
@@ -111,7 +91,7 @@ public class LEDs extends SubsystemBase {
      * sets the color to the cone color (yellow)
      */
     public void setCone() {
-        setColor(Color.YELLOW);
+        setColor(Color.ORANGE);
     }
 
     /**
@@ -130,36 +110,52 @@ public class LEDs extends SubsystemBase {
 
     public void setIdle() {
         m_currentMode = CANdleMode.IDLE;
+        m_candle.clearAnimation(0);
+        m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
+            BounceMode.Front, 8, 0), 0);
+        m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
+            BounceMode.Front, 8, 8), 1);
+        m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
+            BounceMode.Front, 8, 16), 2);
+        m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
+            BounceMode.Front, 8, 24), 3);
     }
 
     public void setVictorySpin() {
+        scrollTimer.restart();
+        scrollTimer.stop();
         m_currentMode = CANdleMode.VICTORY_SPIN;
+        for (int i = 0; i < 4; i++) {
+            m_candle.clearAnimation(i);
+        }
+        m_candle.animate(new RainbowAnimation(1, 1, NUM_LEDS), 0);
     }
 
     public void setActive() {
+        scrollTimer.restart();
+        scrollTimer.stop();
         m_currentMode = CANdleMode.ACTIVE;
+        for (int i = 0; i < 4; i++) {
+            m_candle.clearAnimation(i);
+        }
     }
 
     public CANdleMode getMode() {
         return m_currentMode;
     }
 
+    public Color getColor() {
+        return m_color;
+    }
+
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("r", r);
-        SmartDashboard.putNumber("g", g);
-        SmartDashboard.putNumber("b", b);
         // setLEDs().schedule();
-        switch (m_currentMode) {
-            case ACTIVE:
-                m_candle.setLEDs(r, g, b);
-                break;
-            case VICTORY_SPIN:
-                m_candle.animate(new RainbowAnimation(1, 0.1, 8));
-                break;
-            default:
-                m_candle.animate(new TwinkleAnimation(64, 2, 105, 0, 0.1, 8, TwinklePercent.Percent42)); //64, 2, 105
-                break;
+        SmartDashboard.putString("Mode: ", m_currentMode.name);
+        SmartDashboard.putNumber("Timer", scrollTimer.get());
+        SmartDashboard.putNumber("scrollVar", scrollVar);
+        if (m_currentMode == CANdleMode.ACTIVE) {
+            m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
         }
     }
 }

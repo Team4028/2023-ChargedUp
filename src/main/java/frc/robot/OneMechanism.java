@@ -149,7 +149,7 @@ public class OneMechanism {
         m_currentMode = GamePieceMode.CONE;
         if (!m_climbMode) {
             m_leds.setCone();
-            new BlinkLEDs(m_leds).schedule();
+            new BlinkLEDs(m_leds, LEDs.Color.ORANGE).schedule();
         }
     }
 
@@ -160,7 +160,7 @@ public class OneMechanism {
         m_currentMode = GamePieceMode.CUBE;
         if (!m_climbMode) {
             m_leds.setCube();
-            new BlinkLEDs(m_leds).schedule();
+            new BlinkLEDs(m_leds, LEDs.Color.PURPLE).schedule();
         }
     }
 
@@ -190,7 +190,7 @@ public class OneMechanism {
             }
         }
         if (getState() != GamePieceMode.OFF) {
-            new BlinkLEDs(m_leds).schedule();
+            new BlinkLEDs(m_leds, LEDs.Color.OFF).schedule();
         }
     }
 
@@ -200,13 +200,16 @@ public class OneMechanism {
     public static void toggle() {
         switch (m_currentMode) {
             case CONE:
-                m_currentMode = GamePieceMode.CUBE;
+                modeCube();
                 break;
             case CUBE:
-                m_currentMode = GamePieceMode.CONE;
+                modeCone();
+                break;
+            case OFF:
+                modeCone();
                 break;
             default:
-                m_currentMode = GamePieceMode.CONE;
+                modeBlank();
                 break;
         }
     }
@@ -326,13 +329,8 @@ public class OneMechanism {
             }).andThen(runToNodePosition());
     }
 
-    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
+    public static void addSubsystems(LEDs leds) {
         m_leds = leds;
-        m_drive = drivetrain;
-        m_vision = vision;
-        m_upperArm = upperArm;
-        m_lowerArm = lowerArm;
-        m_wrist = wrist;
     }
     
     public static void setScoringPosition(ScoringPositions pos) {

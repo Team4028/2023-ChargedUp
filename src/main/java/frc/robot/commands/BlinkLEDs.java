@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LEDs;
@@ -13,23 +14,23 @@ import frc.robot.subsystems.LEDs;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class BlinkLEDs extends SequentialCommandGroup {
     /** Creates a new BlinkLEDs. */
-    public BlinkLEDs(LEDs leds) {
+    public BlinkLEDs(LEDs leds, LEDs.Color color) {
         addCommands(
             // TODO: I hate this why is there no way to repeat a command a few times
-            leds.setOff(),
+            new InstantCommand(() -> leds.setBlank()),
             new WaitCommand(0.2),
-            leds.setLEDs(),
+            new InstantCommand(() -> leds.setColor(color)),
             new WaitCommand(0.2),
-            leds.setOff(),
+            new InstantCommand(() -> leds.setBlank()),
             new WaitCommand(0.2),
-            leds.setLEDs(),
+            new InstantCommand(() -> leds.setColor(color)),
             new WaitCommand(0.2),
-            leds.setOff(),
+            new InstantCommand(() -> leds.setBlank()),
             new WaitCommand(0.2),
-            leds.setLEDs(),
+            new InstantCommand(() -> leds.setColor(color)),
             new WaitCommand(0.2),
-            leds.setOff(),
+            new InstantCommand(() -> leds.setBlank()),
             new WaitCommand(0.2),
-            leds.setLEDs());
+            new InstantCommand(() -> leds.setColor(color)));
     }
 }
