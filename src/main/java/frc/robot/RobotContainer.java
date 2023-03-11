@@ -20,13 +20,10 @@ import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
-import frc.robot.commands.arm.RunArmsToPosition;
-import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
-import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
@@ -266,10 +263,10 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - WRIST MANUAL CONTROLS
         // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
         // ================================================
-        m_operatorController.start.onTrue(m_wrist.runMotorUp());
-        m_operatorController.start.onFalse(m_wrist.holdWristAngle());
-        m_operatorController.back.onTrue(m_wrist.runMotorDown());
-        m_operatorController.back.onFalse(m_wrist.holdWristAngle());
+        m_operatorController.start.whileTrue(m_wrist.runMotorUp());
+        m_operatorController.start.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
+        m_operatorController.back.whileTrue(m_wrist.runMotorDown());
+        m_operatorController.back.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
 
         // ================================================
         // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS

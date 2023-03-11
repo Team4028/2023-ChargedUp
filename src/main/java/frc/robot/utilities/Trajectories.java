@@ -20,7 +20,7 @@ public class Trajectories {
     public enum PathPosition {
         BOTTOM("Bottom", 0.25, 0.4, 0.25), // Over the cable cover
         MIDDLE("Middle", 0.5, 0.5, 0.25), // Over the charge station
-        TOP("Top", 0.5, 0.6, 0.25); // Short side
+        TOP("Top", 0.6, 0.65, 0.25); // Short side
 
         /**
          * The name of the position, used in loading trajectories.
