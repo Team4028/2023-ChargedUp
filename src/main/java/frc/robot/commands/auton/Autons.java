@@ -86,7 +86,7 @@ public class Autons {
             m_eventMap.put("MidScoring", OneMechanism.runArms(ScoringPositions.SCORE_MID));
 
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
-            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE));
+            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());

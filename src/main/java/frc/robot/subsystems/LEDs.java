@@ -25,7 +25,10 @@ public class LEDs extends SubsystemBase {
      * the colors that the CANdle needs to be set to
      */
     public enum Color {
-        GREEN(0, 255, 0), PURPLE(127, 0, 255), YELLOW(255, 255, 0), OFF(0, 0, 0);
+        GREEN(0, 254, 0), 
+        PURPLE(118, 0, 254), 
+        ORANGE(254, 55, 0), 
+        OFF(0, 0, 0);
 
         private int r;
         private int g;
@@ -42,7 +45,8 @@ public class LEDs extends SubsystemBase {
     public LEDs() {
         m_candle = new CANdle(21, "rio");
 
-        m_candle.configBrightnessScalar(1.0);
+        // If the brightness needs to go up, go NO HIGHER than 0.75
+        m_candle.configBrightnessScalar(0.5); 
         m_candle.configLEDType(LEDStripType.GRB);
         m_candle.configLOSBehavior(true);
 
@@ -67,21 +71,21 @@ public class LEDs extends SubsystemBase {
         setColor(Color.OFF);
     }
 
-    public void setClimb() {
+    public void setClimbColor() {
         setColor(Color.GREEN);
     }
 
     /**
      * sets the color to the cone color (yellow)
      */
-    public void setCone() {
-        setColor(Color.YELLOW);
+    public void setOrangeConeColor() {
+        setColor(Color.ORANGE);
     }
 
     /**
      * sets the color to the cube color (purple)
      */
-    public void setCube() {
+    public void setPurpleCubeColor() {
         setColor(Color.PURPLE);
     }
 
@@ -91,7 +95,6 @@ public class LEDs extends SubsystemBase {
         }
         return m_instance;
     }
-
     
     public SequentialCommandGroup blink() {
         return new SequentialCommandGroup(
@@ -168,13 +171,13 @@ public class LEDs extends SubsystemBase {
     @Override
     public void periodic() {
         if (m_blinking == false) {
-            if (OneMechanism.getClimb()) {
+            if (OneMechanism.getClimbMode()) {
                 setColor(Color.GREEN);
             }
-            else if (OneMechanism.getState() == OneMechanism.GamePieceMode.CONE) {
-                setColor(Color.YELLOW);
+            else if (OneMechanism.getGamePieceMode() == OneMechanism.GamePieceMode.ORANGE_CONE) {
+                setColor(Color.ORANGE);
             }
-            else if (OneMechanism.getState() == OneMechanism.GamePieceMode.CUBE) {
+            else if (OneMechanism.getGamePieceMode() == OneMechanism.GamePieceMode.PURPLE_CUBE) {
                 setColor(Color.PURPLE);
             }
             else {

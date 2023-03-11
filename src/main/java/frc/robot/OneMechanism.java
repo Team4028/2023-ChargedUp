@@ -40,23 +40,27 @@ public class OneMechanism {
      * the states of the robot
      */
     public enum GamePieceMode {
-        CONE, OFF, CUBE;
+        ORANGE_CONE, 
+        PURPLE_CUBE;
     }
 
     // @formatter:off
     public enum ScoringPositions {
         STOWED(                     5.00,       5.00,       305.0),
         INTERMEDIATE_LOW(           15.0,       15.0,       305.0),
-        SCORE_MID(                  39.0,       6.00,       215.0), 
-        SCORE_HIGH(                 51.0,       34.0,       203.0),
+        SCORE_MID_CONE(                  39.0,       6.00,       215.0), 
+        SCORE_MID_CUBE(                  39.0,       6.00,       215.0), 
+        SCORE_HIGH_CONE(                 51.0,       34.0,       203.0),
+        SCORE_HIGH_CUBE(                 51.0,       34.0,       203.0),
         ACQUIRE_FLOOR_CUBE(         9.50,       22.0,       250.0),
-        ACQUIRE_FLOOR_TIPPED_CONE(  9.50,       24.5,       255.0),
-        ACQUIRE_SINGLE_SUBSTATION(  2.60,       1.00,       320.0),
-        ACQUIRE_FLOOR_UPRIGHT_CONE( 8.30,       19.6,       262.0);
+        ACQUIRE_FLOOR_CONE_TIPPED(  9.50,       24.5,       255.0),
+        ACQUIRE_FLOOR_CONE_UPRIGHT( 8.30,       19.6,       262.0),
+        ACQUIRE_SINGLE_SUBSTATION(  2.60,       1.00,       320.0);
 
         public double lowerPosition;
         public double upperPosition;
         public double wristAngle;
+        
 
         private ScoringPositions(double lowerPosition, double upperPosition, double wristAngle) {
             this.lowerPosition = lowerPosition;
@@ -106,20 +110,20 @@ public class OneMechanism {
 
     public static final List<Node> NODES = Arrays.asList(
         // This list starts at the node nearest the opposing alliance's LOADING ZONE
-        new Node(0, 0, GamePieceMode.CONE, new Pose2d(2.05, 4.94, new Rotation2d(Math.PI))), // 1
-        new Node(1, 3, GamePieceMode.CUBE, new Pose2d(2.05, 4.45, new Rotation2d(Math.PI))), // tag
-        new Node(2, 0, GamePieceMode.CONE, new Pose2d(2.05, 3.86, new Rotation2d(Math.PI))),
-        new Node(3, 0, GamePieceMode.CONE, new Pose2d(2.05, 3.30, new Rotation2d(Math.PI))),
-        new Node(4, 2, GamePieceMode.CUBE, new Pose2d(2.05, 2.75, new Rotation2d(Math.PI))),
-        new Node(5, 0, GamePieceMode.CONE, new Pose2d(2.05, 2.21, new Rotation2d(Math.PI))),
-        new Node(6, 0, GamePieceMode.CONE, new Pose2d(2.05, 1.63, new Rotation2d(Math.PI))),
-        new Node(7, 1, GamePieceMode.CUBE, new Pose2d(2.05, 1.08, new Rotation2d(Math.PI))),
-        new Node(8, 0, GamePieceMode.CONE, new Pose2d(2.05, 0.42, new Rotation2d(Math.PI))) // 9
+        new Node(0, 0, GamePieceMode.ORANGE_CONE, new Pose2d(2.05, 4.94, new Rotation2d(Math.PI))), // 1
+        new Node(1, 3, GamePieceMode.PURPLE_CUBE, new Pose2d(2.05, 4.45, new Rotation2d(Math.PI))), // tag
+        new Node(2, 0, GamePieceMode.ORANGE_CONE, new Pose2d(2.05, 3.86, new Rotation2d(Math.PI))),
+        new Node(3, 0, GamePieceMode.ORANGE_CONE, new Pose2d(2.05, 3.30, new Rotation2d(Math.PI))),
+        new Node(4, 2, GamePieceMode.PURPLE_CUBE, new Pose2d(2.05, 2.75, new Rotation2d(Math.PI))),
+        new Node(5, 0, GamePieceMode.ORANGE_CONE, new Pose2d(2.05, 2.21, new Rotation2d(Math.PI))),
+        new Node(6, 0, GamePieceMode.ORANGE_CONE, new Pose2d(2.05, 1.63, new Rotation2d(Math.PI))),
+        new Node(7, 1, GamePieceMode.PURPLE_CUBE, new Pose2d(2.05, 1.08, new Rotation2d(Math.PI))),
+        new Node(8, 0, GamePieceMode.ORANGE_CONE, new Pose2d(2.05, 0.42, new Rotation2d(Math.PI))) // 9
     );
 
     private static Node m_currentNode = NODES.get(0);
 
-    private static GamePieceMode m_currentMode = GamePieceMode.CONE;
+    private static GamePieceMode m_currentMode = GamePieceMode.ORANGE_CONE;
 
     private static LEDs m_leds;
     private static BeakDrivetrain m_drive;
@@ -130,35 +134,38 @@ public class OneMechanism {
 
     private static boolean m_climbMode = false;
     private static boolean m_autoAlignMode = false;
+    private static boolean m_areTheLightsOn = false;
 
     /**
      * Turns of the CANdle
      */
-    public static void modeBlank() {
-        m_currentMode = GamePieceMode.OFF;
+    public static void killTheLights() {
+        m_areTheLightsOn = false;
         if (!m_climbMode) {
             m_leds.setBlank();
         }
     }
 
     /**
-     * sets the robot mode to cone mode
+     * sets the robot mode to Orange (cone) mode
      */
-    public static void modeCone() {
-        m_currentMode = GamePieceMode.CONE;
+    public static void becomeOrangeMode() {
+        m_areTheLightsOn = true;
+        m_currentMode = GamePieceMode.ORANGE_CONE;
         if (!m_climbMode) {
-            m_leds.setCone();
+            m_leds.setOrangeConeColor();
             m_leds.blink();
         }
     }
 
     /**
-     * sets the robot mode to cube mode 
+     * sets the robot mode to Purple (cube) mode 
      */
-    public static void modeCube() {
-        m_currentMode = GamePieceMode.CUBE;
+    public static void becomePurpleMode() {
+        m_areTheLightsOn = true;
+        m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
-            m_leds.setCube();
+            m_leds.setPurpleCubeColor();
             m_leds.blink();
         }
     }
@@ -171,24 +178,21 @@ public class OneMechanism {
     public static void toggleClimb() {
         m_climbMode = !m_climbMode;
         if (m_climbMode) {
-            m_leds.setClimb();
+            m_leds.setClimbColor();
         } else {
-            switch (getState()) {
-                case OFF:
-                    m_leds.setBlank();
+            switch (getGamePieceMode()) {
+                case ORANGE_CONE:
+                    m_leds.setOrangeConeColor();
                     break;
-                case CONE:
-                    m_leds.setCone();
-                    break;
-                case CUBE:
-                    m_leds.setCube();
+                case PURPLE_CUBE:
+                    m_leds.setPurpleCubeColor();
                     break;
                 default:
-                    m_leds.setCone();
+                    m_leds.setOrangeConeColor();
                     break;
             }
         }
-        if (getState() != GamePieceMode.OFF) {
+        if (m_areTheLightsOn == true) {
             m_leds.blink();
         }
     }
@@ -196,38 +200,18 @@ public class OneMechanism {
     /**
      * switches between cone and cube mode
      */
-    public static void toggle() {
+    public static void toggleGamePieceMode() {
         switch (m_currentMode) {
-            case CONE:
-                m_currentMode = GamePieceMode.CUBE;
+            case ORANGE_CONE:
+                m_currentMode = GamePieceMode.PURPLE_CUBE;
                 break;
-            case CUBE:
-                m_currentMode = GamePieceMode.CONE;
+            case PURPLE_CUBE:
+                m_currentMode = GamePieceMode.ORANGE_CONE;
                 break;
             default:
-                m_currentMode = GamePieceMode.CONE;
+                m_currentMode = GamePieceMode.ORANGE_CONE;
                 break;
         }
-    }
-
-    /**
-     * 
-     * @return the state of the robot
-     */
-    public static GamePieceMode getState() {
-        return m_currentMode;
-    }
-
-    /**
-     * 
-     * @return whether or not the robot is in climb mode
-     */
-    public static boolean getClimb() {
-        return m_climbMode;
-    }
-
-    public static boolean getAutoAlign() {
-        return m_autoAlignMode;
     }
 
     public static Node getNodeFromTagID(int id) {
@@ -340,6 +324,30 @@ public class OneMechanism {
 
     public static ScoringPositions getScoringPosition() {
         return currentPosition;
+    }
+    
+    /**
+     * 
+     * @return the state of the robot
+     */
+    public static GamePieceMode getGamePieceMode() {
+        return m_currentMode;
+    }
+
+    /**
+     * 
+     * @return whether or not the robot is in climb mode
+     */
+    public static boolean getClimbMode() {
+        return m_climbMode;
+    }
+
+    public static boolean getAutoAlignMode() {
+        return m_autoAlignMode;
+    }
+
+    public static boolean getLightMode() {
+        return m_areTheLightsOn;
     }
 
     public static Command runArms(ScoringPositions targetPos) {

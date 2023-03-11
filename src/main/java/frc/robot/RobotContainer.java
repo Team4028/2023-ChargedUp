@@ -30,8 +30,10 @@ import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
+import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -185,14 +187,15 @@ public class RobotContainer {
         // DRIVER CONTROLLER - BACK
         // CURRENT-ZERO ROUTINE
         // ================================================
+        // TODO - Actual Competition control will be Back to toggle GamePiece Mode.
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm))
             .andThen(new CurrentZero(m_lowerArm))
             .andThen(new WaitCommand(0.5))
             .andThen(m_upperArm.holdArmPosition())
             .andThen(m_lowerArm.holdArmPosition()));
-        // .andThen(new RunArmsToPosition(ScoringPositions.STOWED, m_lowerArm,
-        // m_upperArm, m_wrist)));
+            // We cannot do .andThen runArmsToPosition because the encoder zeroes are not read properly
+            // by the SequentialCommandGroup.
 
         // ================================================
         // DRIVER CONTROLLER - LT
@@ -202,11 +205,21 @@ public class RobotContainer {
             .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ================================================
+        // DRIVER CONTROLLER - LB
+        // TOGGLE GAME PIECE MODE
+        // ================================================
+        m_driverController.lb.onTrue(new InstantCommand(() -> OneMechanism.toggleGamePieceMode()));
+
+        // ================================================
         // DRIVER CONTROLLER - RB
         // AUTO BALANCE
         // ================================================
         m_driverController.rb.onTrue(new AutoBalance(m_drive));
 
+        // ================================================
+        // DRIVER CONTROLLER - Y
+        // RESET POSE TO VISION
+        // ================================================
         m_driverController.y.onTrue(new ResetPoseToVision(m_drive, m_rearAprilTagVision));
 
         // ===========
@@ -222,38 +235,44 @@ public class RobotContainer {
 
         // ================================================
         // OPERATOR CONTROLLER - B
-        // ACQUIRE_SINGLE_SUBSTATION
+        // ACQUIRE_SINGLE_SUBSTATION (WALL)
         // ================================================
         m_operatorController.b
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
 
         // ================================================
         // OPERATOR CONTROLLER - X
-        // SCORE_MID
+        // SCORE MID
         // ================================================
         m_operatorController.x
-            .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_MID));
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_MID_CUBE), // Cubes if Purple Mode
+                                                OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE), // Cones Otherwise
+                                                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
         // OPERATOR CONTROLLER - Y
-        // SCORE_HIGH
+        // SCORE HIGH
         // ================================================
         m_operatorController.y
-            .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_HIGH));
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE), // Cubes if Purple Mode
+                                                OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE), // Cones Otherwise
+                                                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
-        // ACQUIRE_FLOOR_TIPPED_CONE
+        // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBES
         // ================================================
         m_operatorController.lb
-            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_TIPPED_CONE));
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE), // Cubes if Purple Mode
+                                                OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED), // Cones Otherwise
+                                                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
         // OPERATOR CONTROLLER - RB
         // ACQUIRE_FLOOR_UPRIGHT_CONE
         // ================================================
         m_operatorController.rb.onTrue(
-            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_UPRIGHT_CONE));
+            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
 
         // ================================================
         // OPERATOR CONTROLLER - RT
@@ -305,19 +324,19 @@ public class RobotContainer {
 
     public double speedScaledDriverLeftY() {
         return m_yLimiter.calculate(Util.speedScale(m_driverController.getLeftYAxis(),
-            OneMechanism.getAutoAlign() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+            OneMechanism.getAutoAlignMode() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverRightX() {
         return m_rotLimiter.calculate(-Util.speedScale(m_driverController.getRightXAxis(),
-            OneMechanism.getAutoAlign() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+            OneMechanism.getAutoAlignMode() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverLeftX() {
         return m_xLimiter.calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
-            OneMechanism.getAutoAlign() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+            OneMechanism.getAutoAlignMode() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
