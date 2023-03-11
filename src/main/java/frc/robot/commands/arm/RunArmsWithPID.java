@@ -16,11 +16,10 @@ import frc.robot.subsystems.arms.UpperArm;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class RunArmsToPosition extends SequentialCommandGroup {
+public class RunArmsWithPID extends SequentialCommandGroup {
 
     /** Creates a new RunArmsToPosition. */
-    public RunArmsToPosition(ScoringPositions targetPos,
-        LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
+    public RunArmsWithPID(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         
         //set the scoring pos for OneMechanism to track
         // Add your commands in the addCommands() call, e.g.
@@ -31,28 +30,24 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                 // Begins extending lower arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
-                new RunArmProfiled(lowerArm.maxVel, lowerArm.maxAccel, lowerArm.getEncoderPosition(), targetPos.lowerPosition,
-                    lowerArm)
+                new RunArmPID(targetPos.lowerPosition, lowerArm)
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                          * Constants.ArmConstants.EXTEND_COEFFICIENT)
                          */
-                        .andThen(new RunArmProfiled(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(),
-                            targetPos.upperPosition, upperArm))
-                        .alongWith(wrist.runToAngle(targetPos.wristAngle)),
+                        .andThen(new RunArmPID(targetPos.upperPosition, upperArm)
+                        .alongWith(wrist.runToAngle(targetPos.wristAngle))),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
-                new RunArmProfiled(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(), targetPos.upperPosition,
-                    upperArm)
+                new RunArmPID(targetPos.upperPosition, upperArm)
                         .raceWith(wrist.runToAngle(targetPos.wristAngle))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
                          */
-                        .andThen(new RunArmProfiled(lowerArm.maxVel, lowerArm.maxAccel, lowerArm.getEncoderPosition(),
-                            targetPos.lowerPosition, lowerArm)),
+                        .andThen(new RunArmPID(targetPos.lowerPosition, lowerArm)),
                 () -> targetPos.lowerPosition > lowerArm.getEncoderPosition()),
                 new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);

@@ -23,6 +23,7 @@ import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.LEDs.Color;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Wrist;
@@ -47,14 +48,14 @@ public class OneMechanism {
     // @formatter:off
     public enum ScoringPositions {
         STOWED(                     5.00,       5.00,       305.0),
-        INTERMEDIATE_LOW(           15.0,       15.0,       305.0),
-        SCORE_MID_CONE(                  39.0,       6.00,       215.0), 
-        SCORE_MID_CUBE(                  39.0,       6.00,       215.0), 
-        SCORE_HIGH_CONE(                 51.0,       34.0,       203.0),
-        SCORE_HIGH_CUBE(                 51.0,       34.0,       203.0),
-        ACQUIRE_FLOOR_CUBE(         9.50,       22.0,       250.0),
-        ACQUIRE_FLOOR_CONE_TIPPED(  9.50,       24.5,       255.0),
-        ACQUIRE_FLOOR_CONE_UPRIGHT( 8.30,       19.6,       262.0),
+        INTERMEDIATE_LOW(           15.0,       13.0,       275.0),
+        ACQUIRE_FLOOR_CUBE(         10.0,       22.0,       250.0),
+        SCORE_MID_CUBE(             39.0,       6.00,       215.0), 
+        SCORE_HIGH_CUBE(            51.0,       34.0,       203.0),
+        ACQUIRE_FLOOR_CONE_TIPPED(  10.0,       24.5,       255.0),
+        ACQUIRE_FLOOR_CONE_UPRIGHT( 8.50,       19.6,       262.0),
+        SCORE_MID_CONE(             39.0,       6.00,       215.0), 
+        SCORE_HIGH_CONE(            51.0,       34.0,       203.0),
         ACQUIRE_SINGLE_SUBSTATION(  2.60,       1.00,       320.0);
 
         public double lowerPosition;
@@ -352,5 +353,9 @@ public class OneMechanism {
 
     public static Command runArms(ScoringPositions targetPos) {
         return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
+    }
+
+    public static void signalAcquisition() {
+        m_leds.alternateBlink(Color.WHITE);
     }
 }

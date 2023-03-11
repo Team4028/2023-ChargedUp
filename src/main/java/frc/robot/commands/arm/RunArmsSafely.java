@@ -15,14 +15,14 @@ import frc.robot.subsystems.manipulator.Wrist;
 
 public class RunArmsSafely extends SequentialCommandGroup {
 
-    /** Creates a new RunArmsToPositionStowOrLow. */
+    /** Creates a new RunArmsSafely. */
     public RunArmsSafely(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         addCommands(
             new ConditionalCommand(
-                new RunArmsToPosition(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
+                new RunArmsWithPID(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
                     .andThen(new WaitCommand(.125))
-                    .andThen(new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist)),
-                new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist),
+                    .andThen(new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist)),
+                new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist),
                 () -> (OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.STOWED))

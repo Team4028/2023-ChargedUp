@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The lower Argos Arm
  */
 public class LowerArm extends Arm {
-    private static final double kP = 0.1;
+    private static final double kP = 0.3;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;

@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class RunArm extends TrapezoidProfileCommand {
+public class RunArmProfiled extends TrapezoidProfileCommand {
     private Arm m_arm;
     private double m_endPos;
     private double m_startPos;
     /** Creates a new RunArm. */
-    public RunArm(double maxVel, double maxAccel, double startPos, double endPos, Arm arm) {
+    public RunArmProfiled(double maxVel, double maxAccel, double startPos, double endPos, Arm arm) {
         super(
             // The motion profile to be executed
             new TrapezoidProfile(

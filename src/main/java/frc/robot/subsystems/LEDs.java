@@ -28,6 +28,7 @@ public class LEDs extends SubsystemBase {
         GREEN(0, 254, 0), 
         PURPLE(118, 0, 254), 
         ORANGE(254, 55, 0), 
+        WHITE(254, 254, 254),
         OFF(0, 0, 0);
 
         private int r;

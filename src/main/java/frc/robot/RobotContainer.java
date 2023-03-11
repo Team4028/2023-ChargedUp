@@ -294,17 +294,17 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
         // RIGHT - RUN ARM OUT LEFT - RUN ARM IN
         // ================================================
-        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.15)));
+        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3)));
         m_operatorController.dpadRight.onFalse(m_upperArm.holdArmPosition());
-        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.15)));
+        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)));
         m_operatorController.dpadLeft.onFalse(m_upperArm.holdArmPosition());
         // ================================================
         // OPERATOR CONTROLLER - LOWER ARM MANUAL CONTROLS
         // UP - RUN ARM UP DOWN - RUN ARM DOWN
         // ================================================
-        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.15)));
+        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)));
         m_operatorController.dpadUp.onFalse(m_lowerArm.holdArmPosition());
-        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.15)));
+        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.3)));
         m_operatorController.dpadDown.onFalse(m_lowerArm.holdArmPosition());
     }
 

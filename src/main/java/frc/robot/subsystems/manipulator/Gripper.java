@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakTalonSRX;
+import frc.robot.OneMechanism;
 
 public class Gripper extends SubsystemBase {
     private static Gripper m_instance;
@@ -105,6 +106,7 @@ public class Gripper extends SubsystemBase {
     private boolean atCurrentThreshold() {
         if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
             m_currentState = GripState.HOLD;
+            OneMechanism.signalAcquisition();
             return true;
         } else {
             return false;
