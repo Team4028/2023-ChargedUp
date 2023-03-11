@@ -246,6 +246,13 @@ public class RobotContainer {
             .onTrue(OneMechanism.runArms(ScoringPositions.SCORE_MID));
 
         // ================================================
+        // OPERATOR CONTROLLER - Y
+        // ACQUIRE_FLOOR_CUBE
+        // ================================================
+        m_operatorController.lb
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
+
+        // ================================================
         // OPERATOR CONTROLLER - RT
         // SPIT OUT GAMEPIECE
         // ================================================
@@ -256,10 +263,10 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - WRIST MANUAL CONTROLS
         // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
         // ================================================
-        m_operatorController.start.onTrue(m_wrist.runMotorUp());
-        m_operatorController.start.onFalse(m_wrist.holdWristAngle());
-        m_operatorController.back.onTrue(m_wrist.runMotorDown());
-        m_operatorController.back.onFalse(m_wrist.holdWristAngle());
+        m_operatorController.start.whileTrue(m_wrist.runMotorUp());
+        m_operatorController.start.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
+        m_operatorController.back.whileTrue(m_wrist.runMotorDown());
+        m_operatorController.back.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
 
         // ================================================
         // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
@@ -273,9 +280,9 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - LOWER ARM MANUAL CONTROLS
         // UP - RUN ARM UP DOWN - RUN ARM DOWN
         // ================================================
-        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.15)));
+        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)));
         m_operatorController.dpadUp.onFalse(new InstantCommand(() -> m_lowerArm.holdArmPosition()));
-        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.15)));
+        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.3)));
         m_operatorController.dpadDown.onFalse(new InstantCommand(() -> m_lowerArm.holdArmPosition()));
     }
 

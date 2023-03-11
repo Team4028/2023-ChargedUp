@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4871004027722345,
-        "y": 4.494829275372837
+        "x": 2.6302478319242355,
+        "y": 4.394626074966436
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -25,11 +25,11 @@
     {
       "anchorPoint": {
         "x": 6.53,
-        "y": 4.61
+        "y": 4.51
       },
       "prevControl": {
-        "x": 5.63634384411626,
-        "y": 4.824068362422439
+        "x": 5.521825900794659,
+        "y": 4.86721579157444
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -53,22 +53,27 @@
       ]
     },
     {
-      "position": 0.34545454545454546,
+      "position": 0.3090909090909091,
       "names": [
         "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.44545454545454544,
+      "names": [
+        "CubePickup",
+        "RunGripperIn"
       ]
     },
     {
       "position": 0.8545454545454537,
       "names": [
-        "FrontLocalize"
+        "RearLocalize"
       ]
     },
     {
       "position": 0.6999999999999993,
       "names": [
-        "CubePickup",
-        "RunGripperIn",
         "RearLocalize"
       ]
     }

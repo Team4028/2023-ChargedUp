@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
@@ -69,51 +71,58 @@ public class Vision extends SubsystemBase {
             : OriginPosition.kBlueAllianceWallRightSide);
     }
 
-    /**
-     * Get the best target from the camera.
-     * 
-     * @return The target data, or null if none are found.
-     */
     public PhotonTrackedTarget getBestTarget() {
+        return getTargets().isEmpty() ? null : getTargets().get(0);
+    }
+
+    /**
+     * Get all targets from the camera.
+     * 
+     * @return The target data, or a blank list if none are found.
+     */
+    public List<PhotonTrackedTarget> getTargets() {
         PhotonPipelineResult result = m_camera.getLatestResult();
 
         m_latestLatency = result.getLatencyMillis() / 1000.;
 
-        boolean hasTarget = result.hasTargets();
+        List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
 
-        PhotonTrackedTarget target = null;
+        for (PhotonTrackedTarget target : result.getTargets())
+            if (target.getPoseAmbiguity() < 0.5) {
+                targets.add(target);
+            }
 
-        if (hasTarget) {
-            target = result.getBestTarget();
-            target = target.getPoseAmbiguity() > 0.65 ? null : target;
-        }
-
-        return target;
+        return targets;
     }
 
+    /**
+     * Gets the best estimated pose of the robot in the current frame.
+     * 
+     * @param rotation
+     *            The current rotation of the robot.
+     * @return An estimated {@link Pose2d} of the robot.
+     */
     public Pose2d getLatestEstimatedRobotPose(Rotation2d rotation) {
         PhotonTrackedTarget target = getBestTarget();
 
-        if (target != null) {
-            Transform3d cameraToTarget = target.getBestCameraToTarget();
+        Transform3d cameraToTarget = target.getBestCameraToTarget();
 
-            m_latestTag = target.getFiducialId();
-            Optional<Pose3d> tagPose = m_layout.getTagPose(m_latestTag);
+        m_latestTag = target.getFiducialId();
+        Optional<Pose3d> tagPose = m_layout.getTagPose(m_latestTag);
 
-            // alternate way to convert a pose to a transform
-            Transform3d camToRobot = m_camToRobot.minus(new Pose3d());
+        // alternate way to convert a pose to a transform
+        Transform3d camToRobot = m_camToRobot.minus(new Pose3d());
 
-            if (tagPose.isPresent()) {
-                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose.get(), camToRobot);
-                Pose2d odomPose = robotPose.toPose2d();
+        if (tagPose.isPresent()) {
+            Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose.get(), camToRobot);
+            Pose2d odomPose = robotPose.toPose2d();
 
-                if ((target.getPoseAmbiguity() != 0. && rotation != null)) {
-                    odomPose = new Pose2d(odomPose.getTranslation(), rotation);
-                }
-
-                return odomPose;
+            if ((target.getPoseAmbiguity() != 0. && rotation != null)) {
+                odomPose = new Pose2d(odomPose.getTranslation(), rotation);
             }
+            return odomPose;
         }
+
         return new Pose2d();
     }
 

@@ -110,7 +110,7 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             // TODO: fast zero
             OneMechanism.runArms(ScoringPositions.SCORE_MID).until(m_armsAtPosition),
-            new WaitCommand(0.2),
+            new WaitCommand(0.3),
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
@@ -125,7 +125,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
+            // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new WaitCommand(0.2),
             OneMechanism.runArms(ScoringPositions.SCORE_MID).until(m_armsAtPosition),
