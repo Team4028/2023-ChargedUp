@@ -95,11 +95,11 @@ public class Autons {
             m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
         }
 
-        m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
-        m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
+        // m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
+        // m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
 
-        m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
-        m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
+        // m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
+        // m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
     }
 
     public BeakAutonCommand TwoPieceAcquire(PathPosition position) {
@@ -113,8 +113,8 @@ public class Autons {
             new WaitCommand(0.3),
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
-            new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+            // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //
         );
 

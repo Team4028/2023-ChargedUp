@@ -105,6 +105,10 @@ public class Vision extends SubsystemBase {
     public Pose2d getLatestEstimatedRobotPose(Rotation2d rotation) {
         PhotonTrackedTarget target = getBestTarget();
 
+        if (target == null) {
+            return new Pose2d(0, 0, rotation);
+        }
+        
         Transform3d cameraToTarget = target.getBestCameraToTarget();
 
         m_latestTag = target.getFiducialId();
