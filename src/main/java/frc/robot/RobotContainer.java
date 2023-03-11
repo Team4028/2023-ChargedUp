@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -17,17 +18,16 @@ import frc.robot.subsystems.LEDs;
  * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    //LED
+    // LED
     private final LEDs m_leds = LEDs.getInstance();
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        //Add Subsystems
+        // Add Subsystems
         OneMechanism.addSubsystems(m_leds);
         // Configure the button bindings
         configureButtonBindings();
@@ -40,11 +40,11 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        m_driverController.a.onTrue(new InstantCommand(() -> m_leds.setActive()));
-        m_driverController.b.onTrue(new InstantCommand(() -> m_leds.setVictorySpin()));
-        m_driverController.x.onTrue(new InstantCommand(() -> m_leds.setIdle()));
+        m_driverController.a.onTrue(OneMechanism.setActive());
+        m_driverController.b.onTrue(OneMechanism.setVictorySpin());
+        m_driverController.x.onTrue(OneMechanism.setIdle());
         m_driverController.y.onTrue(new InstantCommand(() -> OneMechanism.toggle()));
-        m_driverController.lb.onTrue(new InstantCommand(() -> m_leds.setActive())
-                                        .andThen(new InstantCommand(() -> OneMechanism.modeBlank())));
+        m_driverController.lb
+            .onTrue(OneMechanism.setActive().andThen(new InstantCommand(() -> OneMechanism.modeBlank())));
     }
 }

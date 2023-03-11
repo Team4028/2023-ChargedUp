@@ -153,6 +153,18 @@ public class OneMechanism {
         }
     }
 
+    public static Command setActive(){
+        return new InstantCommand(() -> m_leds.setActive());
+    }
+
+    public static Command setIdle(){
+        return new InstantCommand(() -> m_leds.setIdle());
+    }
+
+    public static Command setVictorySpin(){
+        return new InstantCommand(() -> m_leds.setVictorySpin());
+    }
+
     /**
      * sets the robot mode to cube mode 
      */
