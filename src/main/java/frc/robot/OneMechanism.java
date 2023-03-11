@@ -42,7 +42,7 @@ public class OneMechanism {
 
     // @formatter:off
     public enum ScoringPositions {
-        STOWED(                     5.00,       5.00,       305.0),
+        STOWED(                     2.00,       3.50,       305.0),
         INTERMEDIATE_LOW(           15.0,       15.0,       305.0),
         SCORE_MID(                  39.0,       6.00,       215.0), 
         SCORE_HIGH(                 51.0,       34.0,       203.0),

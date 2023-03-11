@@ -67,11 +67,17 @@ public class Trajectories {
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
     }
 
-    public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
+    public static PathPlannerTrajectory OnePieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
         // All autons are named with the same scheme. We multiply the max speed of the
         // drivetrain by the position's desired multiplier to ensure that each position
         // can run at the necessary speed.
 
+        return PathPlanner.loadPath("1 Piece " + position.name + " Balance",
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
+    }
+
+    public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
         return PathPlanner.loadPath("2 Piece " + position.name + " Balance",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);

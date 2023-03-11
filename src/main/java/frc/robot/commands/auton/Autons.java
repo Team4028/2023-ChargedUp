@@ -22,6 +22,7 @@ import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.chassis.AddVisionMeasurement;
+import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
@@ -102,6 +103,50 @@ public class Autons {
         // m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
     }
 
+    // ================================================
+    // ONE PIECE AUTONS
+    // ================================================
+
+    public BeakAutonCommand OnePieceBalance(PathPosition position) {
+        // Acquire and Score already have existing paths, so the full two piece is
+        // simply a combination of the two.
+        PathPlannerTrajectory traj = Trajectories.OnePieceBalance(m_drivetrain, position);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
+            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
+            m_gripper.stopMotor(),
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            // BALANCE
+            new WaitCommand(0.15),
+            new AutoBalance(m_drivetrain, true)
+        //
+        );
+
+        return cmd;
+    }
+
+    /**
+     * The One Piece... IS REAL!
+     * @return
+     */
+    public BeakAutonCommand OnePiece(PathPosition position) {
+        // Score a piece, acquire a piece, then balance.
+        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            new WaitCommand(0.5),
+            OnePieceBalance(position)
+        //
+        );
+
+        return cmd;
+    }
+
+    // ================================================
+    // TWO PIECE AUTONS
+    // ================================================
+
     public BeakAutonCommand TwoPieceAcquire(PathPosition position) {
         // The Trajectories class lets you pass in a position, and that position will be
         // used to choose the path to load.
@@ -152,6 +197,28 @@ public class Autons {
         return cmd;
     }
 
+    public BeakAutonCommand TwoPieceBalance(PathPosition position) {
+        // Acquire and Score already have existing paths, so the full two piece is
+        // simply a combination of the two.
+        BeakAutonCommand initialPath = TwoPieceBalance(position);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            // Auto balance a few times
+            new WaitCommand(0.5),
+            new AutoBalance(m_drivetrain, true),
+            new WaitCommand(2.0),
+            new AutoBalance(m_drivetrain, true)
+        //
+        );
+
+        return cmd;
+    }
+
+    // ================================================
+    // THREE PIECE AUTONS
+    // ================================================
+
     public BeakAutonCommand ThreePieceAcquire(PathPosition position) {
         PathPlannerTrajectory traj = Trajectories.ThreePieceAcquirePiece(m_drivetrain, position);
 
@@ -189,6 +256,10 @@ public class Autons {
 
         return cmd;
     }
+
+    // ================================================
+    // THIS IS NOT REAL
+    // ================================================
 
     public BeakAutonCommand JPath1() {
         // example

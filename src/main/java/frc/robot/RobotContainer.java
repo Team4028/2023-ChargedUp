@@ -202,7 +202,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER - RB
         // AUTO BALANCE
         // ================================================
-        m_driverController.rb.onTrue(new AutoBalance(m_drive));
+        m_driverController.rb.toggleOnTrue(new AutoBalance(m_drive, false));
 
         m_driverController.y.onTrue(new ResetPoseToVision(m_drive, m_rearAprilTagVision));
 
@@ -292,9 +292,16 @@ public class RobotContainer {
         // autoChooser.addOption("j path 2", new JPath2(m_drive));
         // autoChooser.addOption("J Path", new JPath(m_drive));
 
+        autoChooser.addOption("One Piece Top", m_autons.OnePiece(PathPosition.TOP));
+        autoChooser.addOption("One Piece Top Balance", m_autons.OnePieceBalance(PathPosition.TOP));
+
+        autoChooser.addOption("One Piece Bottom", m_autons.OnePiece(PathPosition.BOTTOM));
+        autoChooser.addOption("One Piece Bottom Balance", m_autons.OnePieceBalance(PathPosition.BOTTOM));
+
         autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(PathPosition.TOP));
         autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(PathPosition.TOP));
         autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(PathPosition.TOP));
+
         autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(PathPosition.BOTTOM));
         autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(PathPosition.BOTTOM));
         autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(PathPosition.BOTTOM));

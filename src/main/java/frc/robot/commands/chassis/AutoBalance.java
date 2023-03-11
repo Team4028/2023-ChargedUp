@@ -14,11 +14,13 @@ import frc.lib.beaklib.drive.BeakDrivetrain;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AutoBalance extends PIDCommand {
+    private boolean m_continuous;
+
     /** Creates a new AutoBalance. */
-    public AutoBalance(BeakDrivetrain drivetrain) {
+    public AutoBalance(BeakDrivetrain drivetrain, boolean continuous) {
         super(
             // The controller that the command will use
-            new PIDController(2.0, 0, 0),
+            new PIDController(1.8, 0, 0),
             // This should return the measurement
             () -> drivetrain.getGyroPitchRotation2d().getRadians(),
             // This should return the setpoint (can also be a constant)
@@ -34,11 +36,13 @@ public class AutoBalance extends PIDCommand {
         // Configure additional PID options by calling `getController` here.
         addRequirements(drivetrain);
         getController().setTolerance(Units.degreesToRadians(1.0));
+
+        m_continuous = continuous;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return getController().atSetpoint();
+        return m_continuous ? false : getController().atSetpoint();
     }
 }
