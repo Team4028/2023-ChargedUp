@@ -51,20 +51,17 @@ public class RobotContainer {
     // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; //
     // Very much subject to change.
 
-    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = Constants.PRACTICE_CHASSIS
-        ? new Pose3d(Units.inchesToMeters(5.),
-            Units.inchesToMeters(6.), 0.,
-            new Rotation3d(0., Units.degreesToRadians(11.0),
-                Units.degreesToRadians(0.)))
-        : new Pose3d(Units.inchesToMeters(-2.),
-            Units.inchesToMeters(-2.), 0.,
-            new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(-8.)));
+    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.5),
+            Units.inchesToMeters(-3.25), 0.,
+            new Rotation3d(0., Units.degreesToRadians(0.),
+                Units.degreesToRadians(180.)));
 
-    private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(6.),
-        Units.inchesToMeters(6.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(16.0), Units.degreesToRadians(180.)));
-    // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
-    // Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
+    private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.5),
+        Units.inchesToMeters(-5.75), 0.,
+        new Rotation3d(0., Units.degreesToRadians(0.), Units.degreesToRadians(0.)));
+
+    private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
+        Pose3d(Units.inchesToMeters(-6), Units.inchesToMeters(-3), 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
@@ -206,10 +203,10 @@ public class RobotContainer {
             .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ================================================
-        // DRIVER CONTROLLER - LB
+        // DRIVER CONTROLLER - Y
         // TOGGLE GAME PIECE MODE
         // ================================================
-        m_driverController.lb.onTrue(new InstantCommand(() -> OneMechanism.toggleGamePieceMode()));
+        m_driverController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleGamePieceMode()));
 
         // ================================================
         // DRIVER CONTROLLER - RB
@@ -219,9 +216,19 @@ public class RobotContainer {
 
         // ================================================
         // DRIVER CONTROLLER - Y
-        // RESET POSE TO VISION
+        // TOGGLE AUTO ALIGN MODE
         // ================================================
-        m_driverController.y.onTrue(new ResetPoseToVision(m_drive, m_rearAprilTagVision));
+        m_driverController.lb.onTrue(new InstantCommand(() -> OneMechanism.toggleAutoAlign()));
+
+        // ================================================
+        // DRIVER CONTROLLER - DPAD
+        // NODE CONTROL
+        // ================================================
+        m_driverController.dpadRight.onTrue(OneMechanism.incrementNode());
+        m_driverController.dpadLeft.onTrue(OneMechanism.decrementNode());
+        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition());
+        m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision)
+            .andThen(OneMechanism.setNodeFromTagID(() -> m_frontAprilTagVision.getLatestTagID())));
 
         // ===========
         // ARM POSES
