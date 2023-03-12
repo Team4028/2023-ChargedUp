@@ -28,6 +28,7 @@ import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
+import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
 import frc.robot.OneMechanism.GamePieceMode;
@@ -80,6 +81,8 @@ public class RobotContainer {
     private final Gripper m_gripper;
     private final Wrist m_wrist;
 
+    private final LEDs m_candle;
+
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
     private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
@@ -105,6 +108,7 @@ public class RobotContainer {
         m_drive = SwerveDrivetrain.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
+        m_candle = LEDs.getInstance();
 
         if (Constants.PRACTICE_CHASSIS) {
             // m_manipulator = Manipulator.getInstance();
@@ -121,7 +125,7 @@ public class RobotContainer {
             m_lowerArm = null;
         }
 
-        OneMechanism.addSubsystems(null, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
+        OneMechanism.addSubsystems(m_candle, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
 
         m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
             m_rearAprilTagVision);
