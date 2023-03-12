@@ -349,15 +349,6 @@ public class RobotContainer {
         m_operatorController.back.onTrue(m_kickstand.deacitvateKickstand());
 
         // ================================================
-        // EMERGENCY CONTROLLER - WRIST MANUAL CONTROLS
-        // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
-        // ================================================
-        m_emergencyController.start.onTrue(m_wrist.runMotorUp());
-        m_emergencyController.start.onFalse(m_wrist.holdWristAngle());
-        m_emergencyController.back.onTrue(m_wrist.runMotorDown());
-        m_emergencyController.back.onFalse(m_wrist.holdWristAngle());
-
-        // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================

@@ -16,8 +16,8 @@ import frc.lib.beaklib.motor.BeakSparkMAX;
 import frc.robot.OneMechanism;
 
 public class Kickstand extends SubsystemBase {
-    private final double RETRACTED_POSITION=0.0;
-    private final double ACTIVE_POSITION=110.0;
+    private final double RETRACTED_POSITION = 0.0;
+    private final double ACTIVE_POSITION = 110.0;
     private BeakSparkMAX m_motor;
     private static Kickstand m_instance;
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
@@ -30,6 +30,7 @@ public class Kickstand extends SubsystemBase {
     private static final double kFF = 0.0;
     private static final double kMaxOutput = 0.0;
     private static final double kMinOutput = 0.0;
+
     /** Creates a new Kickstand. */
     public Kickstand() {
         m_motor = new BeakSparkMAX(21);
@@ -43,7 +44,7 @@ public class Kickstand extends SubsystemBase {
         m_pid.setIZone(kIz);
         m_pid.setFF(kFF);
         m_pid.setOutputRange(kMinOutput, kMaxOutput);
-        
+
         m_pid.setFeedbackDevice(m_absoluteEncoder);
     }
 
@@ -56,14 +57,14 @@ public class Kickstand extends SubsystemBase {
         });
     }
 
-    public Command runToPosition(double degrees){
+    public Command runToPosition(double degrees) {
         return runOnce(() -> {
             m_pid.setReference(Units.degreesToRotations(degrees), ControlType.kPosition);
         });
     }
 
-    public double getAbsoluteEncoderPosition(){
-        return m_absoluteEncoder.getPosition()*360;
+    public double getAbsoluteEncoderPosition() {
+        return m_absoluteEncoder.getPosition();
     }
 
     public static Kickstand getInstance() {
@@ -73,13 +74,13 @@ public class Kickstand extends SubsystemBase {
         return m_instance;
     }
 
-    public Command activateKickstand(){
+    public Command activateKickstand() {
         return runOnce(() -> {
             runToPosition(ACTIVE_POSITION);
         });
     }
 
-    public Command deacitvateKickstand(){
+    public Command deacitvateKickstand() {
         return runOnce(() -> {
             runToPosition(RETRACTED_POSITION);
         });
