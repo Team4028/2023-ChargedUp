@@ -358,23 +358,23 @@ public class RobotContainer {
         m_emergencyController.back.onFalse(m_wrist.holdWristAngle());
 
         // ================================================
-        // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
+        // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
-        m_emergencyController.axisGreaterThan(1, 0).onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3)));
+        m_emergencyController.axisGreaterThan(1, 0).onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)));
         m_emergencyController.axisGreaterThan(1, 0)
-            .onFalse(new ConditionalCommand(new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
-                m_upperArm.holdArmPosition(),
+            .onFalse(new ConditionalCommand(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.3)),
+                m_lowerArm.holdArmPosition(),
                 () -> m_emergencyController.axisLessThan(1, 0).getAsBoolean()));
 
         // ================================================
-        // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
+        // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
         // RSX
         // ================================================
-        m_emergencyController.axisGreaterThan(4, 0).onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)));
+        m_emergencyController.axisGreaterThan(4, 0).onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3)));
         m_emergencyController.axisGreaterThan(4, 0)
-            .onFalse(new ConditionalCommand(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.3)),
-                m_lowerArm.holdArmPosition(),
+            .onFalse(new ConditionalCommand(new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
+                m_upperArm.holdArmPosition(),
                 () -> m_emergencyController.axisLessThan(4, 0).getAsBoolean()));
 
         // ================================================

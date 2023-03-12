@@ -17,7 +17,7 @@ import frc.robot.OneMechanism;
 
 public class Kickstand extends SubsystemBase {
     private final double RETRACTED_POSITION=0.0;
-    private final double ACTIVE_POSITION=0.0;
+    private final double ACTIVE_POSITION=110.0;
     private BeakSparkMAX m_motor;
     private static Kickstand m_instance;
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
@@ -29,11 +29,12 @@ public class Kickstand extends SubsystemBase {
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
     private static final double kMaxOutput = 0.0;
-    private static final double kMinOutput = 0.0; 
+    private static final double kMinOutput = 0.0;
     /** Creates a new Kickstand. */
     public Kickstand() {
         m_motor = new BeakSparkMAX(21);
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+        m_absoluteEncoder.setPositionConversionFactor(360.0);
         m_pid = m_motor.getPIDController();
 
         m_pid.setP(kP);
