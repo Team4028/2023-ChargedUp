@@ -65,11 +65,12 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final String CAN_BUS = "rio";
 
     private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
-        0.,
-        0.,
-        0.);
+        (.2212 + .151 + .163) / 3.,
+        (2.3 + 2.32 + 2.33) / 3.,
+        (.421 + .849 + .708) / 3.
+    );
 
-    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.UNCHARACTERIZED_MK4I_L2;
+    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
 
     private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
 

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import frc.lib.beaklib.units.Distance;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -48,6 +50,9 @@ public final class Constants {
         public static final double RETRACT_COEFFICIENT = 156.58;
         public static final double EXTEND_WAIT_INTERVAL = 0.2;
         public static final double RETRACT_WAIT_INTERVAL = 0.4;
+    }
 
+    public static final class FieldConstants {
+        public static final Distance FIELD_WIDTH = new Distance(8.0137);
     }
 }

@@ -20,13 +20,10 @@ import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
-import frc.robot.commands.arm.RunArmsToPosition;
-import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
-import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -218,7 +215,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER - RB
         // AUTO BALANCE
         // ================================================
-        m_driverController.rb.onTrue(new AutoBalance(m_drive));
+        m_driverController.rb.toggleOnTrue(new AutoBalance(m_drive, false));
 
         // ================================================
         // DRIVER CONTROLLER - Y
@@ -289,10 +286,10 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - WRIST MANUAL CONTROLS
         // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
         // ================================================
-        m_operatorController.start.onTrue(m_wrist.runMotorUp());
-        m_operatorController.start.onFalse(m_wrist.holdWristAngle());
-        m_operatorController.back.onTrue(m_wrist.runMotorDown());
-        m_operatorController.back.onFalse(m_wrist.holdWristAngle());
+        m_operatorController.start.whileTrue(m_wrist.runMotorUp());
+        m_operatorController.start.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
+        m_operatorController.back.whileTrue(m_wrist.runMotorDown());
+        m_operatorController.back.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
 
         // ================================================
         // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
@@ -318,9 +315,16 @@ public class RobotContainer {
         // autoChooser.addOption("j path 2", new JPath2(m_drive));
         // autoChooser.addOption("J Path", new JPath(m_drive));
 
+        autoChooser.addOption("One Piece Top", m_autons.OnePiece(PathPosition.TOP));
+        autoChooser.addOption("One Piece Top Balance", m_autons.OnePieceBalance(PathPosition.TOP));
+
+        autoChooser.addOption("One Piece Bottom", m_autons.OnePiece(PathPosition.BOTTOM));
+        autoChooser.addOption("One Piece Bottom Balance", m_autons.OnePieceBalance(PathPosition.BOTTOM));
+
         autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(PathPosition.TOP));
         autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(PathPosition.TOP));
         autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(PathPosition.TOP));
+
         autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(PathPosition.BOTTOM));
         autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(PathPosition.BOTTOM));
         autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(PathPosition.BOTTOM));

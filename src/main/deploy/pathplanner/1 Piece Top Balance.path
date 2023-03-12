@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.307104757066657,
-        "y": 5.053104249065641
+        "x": 6.137359846148264,
+        "y": 3.62162995754563
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 3.18852280561704,
-        "y": 4.6236619616096375
+        "x": 5.707917558692261,
+        "y": 2.7913748684640227
       },
       "prevControl": {
-        "x": 3.8572431404731193,
-        "y": 4.678475103810956
+        "x": 6.609746362349869,
+        "y": 2.7913748684640227
       },
       "nextControl": {
-        "x": 2.315323487789833,
-        "y": 4.552088247033637
+        "x": 5.034515779184912,
+        "y": 2.7913748684640227
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,15 +49,15 @@
     },
     {
       "anchorPoint": {
-        "x": 2.21,
-        "y": 4.136960702492834
+        "x": 3.918574694292246,
+        "y": 2.79
       },
       "prevControl": {
-        "x": 2.4533506295584018,
-        "y": 4.437570303712036
+        "x": 4.705885554628252,
+        "y": 2.8043147429152007
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -70,31 +70,5 @@
       }
     }
   ],
-  "markers": [
-    {
-      "position": 1.0181818181818183,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.1272727272727272,
-      "names": [
-        "StopGripper",
-        "ArmRetract"
-      ]
-    },
-    {
-      "position": 1.3818181818181818,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 1.6727272727272708,
-      "names": [
-        "FrontLocalize"
-      ]
-    }
-  ]
+  "markers": []
 }

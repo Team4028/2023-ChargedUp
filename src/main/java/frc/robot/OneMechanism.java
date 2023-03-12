@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.BeakDrivetrain;
-import frc.lib.beaklib.units.Distance;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
@@ -33,9 +33,6 @@ import frc.robot.subsystems.manipulator.Wrist;
  * - Carson, correctly
  */
 public class OneMechanism {
-    
-    private static final Distance FIELD_WIDTH = new Distance(8.0137);
-
     private static ScoringPositions currentPosition = ScoringPositions.STOWED;
     /**
      * the states of the robot
@@ -47,7 +44,7 @@ public class OneMechanism {
 
     // @formatter:off
     public enum ScoringPositions {
-        STOWED(                     5.00,       7.0,       305.0),
+        STOWED(                     2.00,       3.50,       305.0),
         INTERMEDIATE_LOW(           15.0,       13.0,       275.0),
         ACQUIRE_FLOOR_CUBE(         9.0,       23.0,       245.0),
         SCORE_MID_CUBE(             39.0,       6.00,       215.0), 
@@ -104,7 +101,7 @@ public class OneMechanism {
             this.BluePose = pose;
             this.RedPose = new Pose2d(
                 pose.getX(),
-                FIELD_WIDTH.getAsMeters() - pose.getY(),
+                FieldConstants.FIELD_WIDTH.getAsMeters() - pose.getY(),
                 pose.getRotation());
         }
     }
