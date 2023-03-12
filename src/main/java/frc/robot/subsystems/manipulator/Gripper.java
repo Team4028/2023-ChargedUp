@@ -17,6 +17,7 @@ public class Gripper extends SubsystemBase {
     private final BeakTalonSRX m_motor;
 
     private final double RUN_SPEED = 0.95;
+    private final double SOFT_RUN_SPEED = 0.4;
     private final double HOLD_SPEED = 0.2; //0.32;
     private final double IDLE_SPEED = 0.0; //0.12;
     private final double HOLD_THRESHOLD = 50.0;
@@ -83,6 +84,13 @@ public class Gripper extends SubsystemBase {
         return run(() -> {
             m_currentState = GripState.IDLE;
             m_motor.set(-1.0 * RUN_SPEED);
+        });
+    }
+
+    public Command runMotorOutSoft(){
+        return run(() -> {
+            m_currentState = GripState.IDLE;
+            m_motor.set(-1.0 * SOFT_RUN_SPEED);
         });
     }
 

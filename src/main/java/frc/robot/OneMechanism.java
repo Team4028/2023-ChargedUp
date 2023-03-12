@@ -176,7 +176,7 @@ public class OneMechanism {
         SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
     }
 
-    public static void toggleClimb() {
+    public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         if (m_climbMode) {
             m_leds.setClimbColor();
