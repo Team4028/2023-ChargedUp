@@ -129,8 +129,8 @@ public class Wrist extends SubsystemBase {
     public Command holdWristAngle() {
         return runOnce(
             () -> {
-                stopMotor().schedule();
-                runToAngle(getAbsoluteEncoderPosition());
+                m_motor.set(0.0);
+                m_pid.setReference(getAbsoluteEncoderPosition(), ControlType.kPosition);
             }
         );
     }

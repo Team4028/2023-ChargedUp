@@ -8,12 +8,10 @@ import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
-import frc.robot.OneMechanism;
 
 public class Kickstand extends SubsystemBase {
     private final double RETRACTED_POSITION = 0.0;
@@ -23,13 +21,13 @@ public class Kickstand extends SubsystemBase {
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
     private SparkMaxPIDController m_pid;
 
-    private static final double kP = 0.0;
+    private static final double kP = 0.1;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
-    private static final double kMaxOutput = 0.0;
-    private static final double kMinOutput = 0.0;
+    private static final double kMaxOutput = 0.2;
+    private static final double kMinOutput = 0.2;
 
     /** Creates a new Kickstand. */
     public Kickstand() {
@@ -37,6 +35,7 @@ public class Kickstand extends SubsystemBase {
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
         m_pid = m_motor.getPIDController();
+        m_pid.setFeedbackDevice(m_absoluteEncoder);
 
         m_pid.setP(kP);
         m_pid.setI(kI);
@@ -44,8 +43,6 @@ public class Kickstand extends SubsystemBase {
         m_pid.setIZone(kIz);
         m_pid.setFF(kFF);
         m_pid.setOutputRange(kMinOutput, kMaxOutput);
-
-        m_pid.setFeedbackDevice(m_absoluteEncoder);
     }
 
     /**
@@ -57,10 +54,8 @@ public class Kickstand extends SubsystemBase {
         });
     }
 
-    public Command runToPosition(double degrees) {
-        return runOnce(() -> {
-            m_pid.setReference(Units.degreesToRotations(degrees), ControlType.kPosition);
-        });
+    public void runToPosition(double degrees) {
+        m_pid.setReference(degrees, ControlType.kPosition);
     }
 
     public double getAbsoluteEncoderPosition() {

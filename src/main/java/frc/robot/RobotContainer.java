@@ -269,6 +269,10 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - RB
         // ACQUIRE_DOUBLE_SUBSTATION (WALL)
         // ================================================
+        m_operatorController.rb
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE),
+                OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE),
+                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
         // OPERATOR CONTROLLER - X
@@ -281,6 +285,9 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - A
         // SCORE LOW
         // ================================================
+        m_operatorController.a.onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_LOW_CUBE),
+            OneMechanism.runArms(ScoringPositions.SCORE_LOW_CONE),
+            () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
         // OPERATOR CONTROLLER - B
@@ -352,21 +359,25 @@ public class RobotContainer {
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
-        m_emergencyController.axisGreaterThan(1, 0).onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)));
-        m_emergencyController.axisGreaterThan(1, 0)
-            .onFalse(new ConditionalCommand(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.3)),
+        m_emergencyController.axisGreaterThan(1, 0.1)
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
+        m_emergencyController.axisGreaterThan(1, 0.0)
+            .onFalse(new ConditionalCommand(
+                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())),
                 m_lowerArm.holdArmPosition(),
-                () -> m_emergencyController.axisLessThan(1, 0).getAsBoolean()));
+                () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
 
         // ================================================
         // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
         // RSX
         // ================================================
-        m_emergencyController.axisGreaterThan(4, 0).onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3)));
-        m_emergencyController.axisGreaterThan(4, 0)
-            .onFalse(new ConditionalCommand(new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
+        m_emergencyController.axisGreaterThan(4, 0.1)
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+        m_emergencyController.axisGreaterThan(4, 0.0)
+            .onFalse(new ConditionalCommand(
+                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())),
                 m_upperArm.holdArmPosition(),
-                () -> m_emergencyController.axisLessThan(4, 0).getAsBoolean()));
+                () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
 
         // ================================================
         // EMERGENCY CONTROLLER - MOVE THE WRIST UP
