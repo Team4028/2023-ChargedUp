@@ -55,9 +55,9 @@ public class OneMechanism {
         SCORE_LOW_CONE(                15.0,       13.0,       200.0),
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
-        ACQUIRE_SINGLE_SUBSTATION(     2.6,        1.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(50.0,       1.1,        193.537),
-        ACQUIRE_DOUBLE_SUBSTATION_CUBE(46.095,     1.81,       203.7);
+        ACQUIRE_SINGLE_SUBSTATION(     3.6,        1.0,        320.0),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       1.1,        193.537),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.095,     1.81,       203.7);
 
         public double lowerPosition;
         public double upperPosition;
