@@ -27,6 +27,8 @@ import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
+import frc.robot.commands.kickstand.AcitvateKickstand;
+import frc.robot.commands.kickstand.DeactivateKickstand;
 import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
@@ -347,13 +349,13 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - START
         // ENGAGE KICKSTAND (DOWN)
         // ================================================
-        m_operatorController.start.onTrue(m_kickstand.activateKickstand());
+        m_operatorController.start.onTrue(new AcitvateKickstand(m_kickstand));
 
         // ================================================
         // OPERATOR CONTROLLER - BACK
         // DISENGAGE KICKSTAND (UP)
         // ================================================
-        m_operatorController.back.onTrue(m_kickstand.deacitvateKickstand());
+        m_operatorController.back.onTrue(new DeactivateKickstand(m_kickstand));
 
         // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS

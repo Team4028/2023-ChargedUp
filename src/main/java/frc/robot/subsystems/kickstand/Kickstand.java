@@ -69,16 +69,12 @@ public class Kickstand extends SubsystemBase {
         return m_instance;
     }
 
-    public Command activateKickstand() {
-        return runOnce(() -> {
-            runToPosition(ACTIVE_POSITION);
-        });
+    public void activateKickstand() {
+        runToPosition(ACTIVE_POSITION);
     }
 
-    public Command deacitvateKickstand() {
-        return runOnce(() -> {
-            runToPosition(RETRACTED_POSITION);
-        });
+    public void deacitvateKickstand() {
+        runToPosition(RETRACTED_POSITION);
     }
 
     @Override

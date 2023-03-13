@@ -23,7 +23,6 @@ import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.LEDs.Color;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Wrist;
@@ -139,13 +138,13 @@ public class OneMechanism {
 
     private static boolean m_climbMode = false;
     private static boolean m_autoAlignMode = false;
-    private static boolean m_areTheLightsOn = false;
+    // private static boolean m_areTheLightsOn = false;
 
     /**
      * Turns of the CANdle
      */
     public static void killTheLights() {
-        m_areTheLightsOn = false;
+        //m_areTheLightsOn = false;
         if (!m_climbMode) {
             m_leds.setBlank();
         }
@@ -155,7 +154,7 @@ public class OneMechanism {
      * sets the robot mode to Orange (cone) mode
      */
     public static void becomeOrangeMode() {
-        m_areTheLightsOn = true;
+        //m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
         if (!m_climbMode) {
             m_leds.blink(LEDs.Color.ORANGE);
@@ -166,7 +165,7 @@ public class OneMechanism {
      * sets the robot mode to Purple (cube) mode
      */
     public static void becomePurpleMode() {
-        m_areTheLightsOn = true;
+        //m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
             m_leds.blink(LEDs.Color.PURPLE);
@@ -347,15 +346,15 @@ public class OneMechanism {
         return m_autoAlignMode;
     }
 
-    public static boolean getLightMode() {
-        return m_areTheLightsOn;
-    }
+    // public static boolean getLightMode() {
+    //     return m_areTheLightsOn;
+    // }
 
     public static Command runArms(ScoringPositions targetPos) {
         return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
     }
 
-    public static void signalAcquisition() {
-        m_leds.alternateBlink(Color.WHITE);
-    }
+    // public static void signalAcquisition() {
+    //     m_leds.alternateBlink(Color.WHITE);
+    // }
 }

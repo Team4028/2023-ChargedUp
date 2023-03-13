@@ -114,7 +114,7 @@ public class Gripper extends SubsystemBase {
     private boolean atCurrentThreshold() {
         if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
             m_currentState = GripState.HOLD;
-            OneMechanism.signalAcquisition();
+            // OneMechanism.signalAcquisition();
             return true;
         } else {
             return false;
