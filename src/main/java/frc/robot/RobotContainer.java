@@ -360,47 +360,47 @@ public class RobotContainer {
         // ================================================
         m_operatorController.back.onTrue(m_kickstand.deactivate());
 
-        // ================================================
-        // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
-        // LSY
-        // ================================================
-        m_emergencyController.axisGreaterThan(1, 0.1)
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
-        m_emergencyController.axisGreaterThan(1, 0.0)
-            .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())),
-                m_lowerArm.holdArmPosition(),
-                () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
+        // // ================================================
+        // // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
+        // // LSY
+        // // ================================================
+        // m_emergencyController.axisGreaterThan(1, 0.1)
+        //     .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
+        // m_emergencyController.axisGreaterThan(1, 0.0)
+        //     .onFalse(new ConditionalCommand(
+        //         new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())),
+        //         m_lowerArm.holdArmPosition(),
+        //         () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
 
-        // ================================================
-        // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
-        // RSX
-        // ================================================
-        m_emergencyController.axisGreaterThan(4, 0.1)
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
-        m_emergencyController.axisGreaterThan(4, 0.0)
-            .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())),
-                m_upperArm.holdArmPosition(),
-                () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
+        // // ================================================
+        // // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
+        // // RSX
+        // // ================================================
+        // m_emergencyController.axisGreaterThan(4, 0.1)
+        //     .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+        // m_emergencyController.axisGreaterThan(4, 0.0)
+        //     .onFalse(new ConditionalCommand(
+        //         new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())),
+        //         m_upperArm.holdArmPosition(),
+        //         () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
 
-        // ================================================
-        // EMERGENCY CONTROLLER - MOVE THE WRIST UP
-        // RT
-        // ================================================
-        m_emergencyController.rt.whileTrue(m_wrist.runMotor(0.15));
+        // // ================================================
+        // // EMERGENCY CONTROLLER - MOVE THE WRIST UP
+        // // RT
+        // // ================================================
+        // m_emergencyController.rt.whileTrue(m_wrist.runMotor(0.15));
 
-        // ================================================
-        // EMERGENCY CONTROLLER - MOVE THE WRIST DOWN
-        // LT
-        // ================================================
-        m_emergencyController.lt.whileTrue(m_wrist.runMotor(-0.15));
+        // // ================================================
+        // // EMERGENCY CONTROLLER - MOVE THE WRIST DOWN
+        // // LT
+        // // ================================================
+        // m_emergencyController.lt.whileTrue(m_wrist.runMotor(-0.15));
 
-        // ================================================
-        // EMERGENCY - RESET POSE
-        // A
-        // ================================================
-        m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+        // // ================================================
+        // // EMERGENCY - RESET POSE
+        // // A
+        // // ================================================
+        // m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
     }
 
     private void initAutonChooser() {

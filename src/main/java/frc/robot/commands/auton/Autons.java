@@ -42,6 +42,9 @@ import frc.robot.utilities.Trajectories.PathPosition;
  * support, though with a few exceptions.
  */
 public class Autons {
+    // Auton Constants
+    private static final double UPPER_ARM_OFFSET = 18.3;
+
     // Global Subsystems -- initialized in the constructor
     private final BeakDrivetrain m_drivetrain;
 
@@ -96,8 +99,8 @@ public class Autons {
             m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
         }
 
-        m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
-        m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
+        // m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
+        // m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
 
         m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
         m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
@@ -153,13 +156,18 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            // TODO: fast zero
-            OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE).until(m_armsAtPosition),
+            new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+            new WaitCommand(0.1),
+
+            new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
+            new WaitCommand(0.07),
+            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE).until(m_armsAtPosition),
             new WaitCommand(0.2),
+
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
-            // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //
         );
 
@@ -173,7 +181,7 @@ public class Autons {
             // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new WaitCommand(0.2),
-            OneMechanism.runArms(ScoringPositions.SCORE_MID_CUBE).until(m_armsAtPosition),
+            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE).until(m_armsAtPosition),
             new WaitCommand(0.2),
             m_gripper.runMotorOut().withTimeout(0.4)
         //
@@ -206,8 +214,6 @@ public class Autons {
             initialPath,
             // Auto balance a few times
             new WaitCommand(0.5),
-            new AutoBalance(m_drivetrain, true),
-            new WaitCommand(2.0),
             new AutoBalance(m_drivetrain, true)
         //
         );

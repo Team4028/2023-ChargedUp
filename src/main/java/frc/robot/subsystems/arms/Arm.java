@@ -128,6 +128,14 @@ public abstract class Arm extends SubsystemBase {
     public double getEncoderPosition() {
         return m_encoder.getPosition();
     }
+    
+    /**
+     * Set the position of the encoder.
+     * @param position The desired position, in rotations.
+     */
+    public void setEncoderPosition(double position) {
+        m_encoder.setPosition(position);
+    }
 
     /**
      * 
