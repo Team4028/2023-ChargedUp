@@ -361,7 +361,7 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - Y
         // VICTORY SPIN
         // ================================================
-        m_operatorController.y.onTrue(new InstantCommand(() -> OneMechanism.setVictorySpin()));
+        m_operatorController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
 
         // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS

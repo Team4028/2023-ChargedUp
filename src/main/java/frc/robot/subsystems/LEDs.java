@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class LEDs extends SubsystemBase {
-    private enum CANdleMode {
+    public enum CANdleMode {
         VICTORY_SPIN("Victory"), IDLE("idle"), ACTIVE("on");
 
         public String name;

@@ -23,6 +23,7 @@ import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.LEDs.CANdleMode;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Wrist;
@@ -180,8 +181,15 @@ public class OneMechanism {
         m_leds.setIdle();
     }
 
-    public static void setVictorySpin() {
-        m_leds.setVictorySpin();
+    public static void toggleVictorySpin() {
+        switch(m_leds.getMode()){
+            case VICTORY_SPIN:
+                m_leds.setActive();
+                break;
+            default:
+                m_leds.setVictorySpin();
+                break;
+        }
     }
 
     public static void toggleAutoAlign() {
