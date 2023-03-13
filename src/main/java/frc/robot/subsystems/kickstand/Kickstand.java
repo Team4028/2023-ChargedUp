@@ -26,8 +26,8 @@ public class Kickstand extends SubsystemBase {
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
-    private static final double kMaxOutput = 0.2;
-    private static final double kMinOutput = 0.2;
+    private static final double kMaxOutput = 0.4;
+    private static final double kMinOutput = -0.4;
 
     /** Creates a new Kickstand. */
     public Kickstand() {
@@ -69,16 +69,12 @@ public class Kickstand extends SubsystemBase {
         return m_instance;
     }
 
-    public Command activateKickstand() {
-        return runOnce(() -> {
+    public void activateKickstand() {
             runToPosition(ACTIVE_POSITION);
-        });
     }
 
-    public Command deacitvateKickstand() {
-        return runOnce(() -> {
+    public void deacitvateKickstand() {
             runToPosition(RETRACTED_POSITION);
-        });
     }
 
     @Override
