@@ -34,26 +34,30 @@ import frc.robot.subsystems.manipulator.Wrist;
  */
 public class OneMechanism {
     private static ScoringPositions currentPosition = ScoringPositions.STOWED;
+
     /**
      * the states of the robot
      */
     public enum GamePieceMode {
-        ORANGE_CONE, 
-        PURPLE_CUBE;
+        ORANGE_CONE, PURPLE_CUBE;
     }
 
     // @formatter:off
     public enum ScoringPositions {
-        STOWED(                     2.00,       3.50,       305.0),
-        INTERMEDIATE_LOW(           15.0,       13.0,       275.0),
-        ACQUIRE_FLOOR_CUBE(         9.0,       23.0,       245.0),
-        SCORE_MID_CUBE(             39.0,       6.00,       215.0), 
-        SCORE_HIGH_CUBE(            51.0,       34.0,       203.0),
-        ACQUIRE_FLOOR_CONE_TIPPED(  9.0,       26.5,       260.0),
-        ACQUIRE_FLOOR_CONE_UPRIGHT( 8.50,       19.6,       262.0),
-        SCORE_MID_CONE(             39.0,       6.00,       215.0), 
-        SCORE_HIGH_CONE(            51.0,       34.0,       203.0),
-        ACQUIRE_SINGLE_SUBSTATION(  2.60,       1.00,       320.0);
+        STOWED(                        5.0,        7.0,        305.0),
+        INTERMEDIATE_LOW(              15.0,       13.0,       275.0),
+        ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
+        SCORE_LOW_CUBE(                15.0,       13.0,       200.0),
+        SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
+        SCORE_HIGH_CUBE(               51.0,       34.0,       203.0),
+        ACQUIRE_FLOOR_CONE_TIPPED(     9.0,        26.5,       260.0),
+        ACQUIRE_FLOOR_CONE_UPRIGHT(    8.5,        19.6,       262.0),
+        SCORE_LOW_CONE(                15.0,       13.0,       200.0),
+        SCORE_MID_CONE(                39.0,       6.0,        215.0), 
+        SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
+        ACQUIRE_SINGLE_SUBSTATION(     2.6,        1.0,        320.0),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(50.0,       1.1,        193.537),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE(46.095,     1.81,       203.7);
 
         public double lowerPosition;
         public double upperPosition;
@@ -151,20 +155,18 @@ public class OneMechanism {
         m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
         if (!m_climbMode) {
-            m_leds.setOrangeConeColor();
-            m_leds.blink();
+            m_leds.blink(LEDs.Color.ORANGE);
         }
     }
 
     /**
-     * sets the robot mode to Purple (cube) mode 
+     * sets the robot mode to Purple (cube) mode
      */
     public static void becomePurpleMode() {
         m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
-            m_leds.setPurpleCubeColor();
-            m_leds.blink();
+            m_leds.blink(LEDs.Color.PURPLE);
         }
     }
 
@@ -173,25 +175,22 @@ public class OneMechanism {
         SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
     }
 
-    public static void toggleClimb() {
+    public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         if (m_climbMode) {
-            m_leds.setClimbColor();
+            m_leds.blink(LEDs.Color.GREEN);
         } else {
             switch (getGamePieceMode()) {
                 case ORANGE_CONE:
-                    m_leds.setOrangeConeColor();
+                    m_leds.blink(LEDs.Color.ORANGE);
                     break;
                 case PURPLE_CUBE:
-                    m_leds.setPurpleCubeColor();
+                    m_leds.blink(LEDs.Color.PURPLE);
                     break;
                 default:
-                    m_leds.setOrangeConeColor();
+                    m_leds.blink(LEDs.Color.ORANGE);
                     break;
             }
-        }
-        if (m_areTheLightsOn == true) {
-            m_leds.blink();
         }
     }
 
@@ -307,7 +306,8 @@ public class OneMechanism {
             }).andThen(runToNodePosition());
     }
 
-    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
+    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm,
+        UpperArm upperArm, Wrist wrist) {
         m_leds = leds;
         m_drive = drivetrain;
         m_vision = vision;
@@ -315,7 +315,7 @@ public class OneMechanism {
         m_lowerArm = lowerArm;
         m_wrist = wrist;
     }
-    
+
     public static void setScoringPosition(ScoringPositions pos) {
         currentPosition = pos;
     }
@@ -323,7 +323,7 @@ public class OneMechanism {
     public static ScoringPositions getScoringPosition() {
         return currentPosition;
     }
-    
+
     /**
      * 
      * @return the state of the robot

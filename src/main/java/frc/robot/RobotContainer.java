@@ -17,6 +17,7 @@ import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
+import frc.robot.subsystems.kickstand.Kickstand;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
@@ -52,16 +53,16 @@ public class RobotContainer {
     // Very much subject to change.
 
     private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.5),
-            Units.inchesToMeters(-3.25), 0.,
-            new Rotation3d(0., Units.degreesToRadians(0.),
-                Units.degreesToRadians(180.)));
+        Units.inchesToMeters(-3.25), 0.,
+        new Rotation3d(0., Units.degreesToRadians(0.),
+            Units.degreesToRadians(180.)));
 
     private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.5),
         Units.inchesToMeters(-5.75), 0.,
         new Rotation3d(0., Units.degreesToRadians(0.), Units.degreesToRadians(0.)));
 
-    private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
-        Pose3d(Units.inchesToMeters(-6), Units.inchesToMeters(-3), 0., new Rotation3d());
+    private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-6),
+        Units.inchesToMeters(-3), 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
@@ -74,12 +75,13 @@ public class RobotContainer {
 
     private final Gripper m_gripper;
     private final Wrist m_wrist;
-
+    private final Kickstand m_kickstand;
     private final LEDs m_candle;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
     private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
+    private final BeakXBoxController m_emergencyController = new BeakXBoxController(2);
 
     // Auton stuff
     private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
@@ -98,7 +100,7 @@ public class RobotContainer {
     public RobotContainer() {
         // m_drive = PracticeSwerveDrivetrain.getInstance();
         // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
-        
+
         m_drive = SwerveDrivetrain.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
@@ -111,6 +113,7 @@ public class RobotContainer {
 
             m_upperArm = UpperArm.getInstance();
             m_lowerArm = LowerArm.getInstance();
+            m_kickstand = Kickstand.getInstance();
         } else {
             m_gripper = null;
             m_wrist = null;
@@ -192,8 +195,9 @@ public class RobotContainer {
             .andThen(new WaitCommand(0.5))
             .andThen(m_upperArm.holdArmPosition())
             .andThen(m_lowerArm.holdArmPosition()));
-            // We cannot do .andThen runArmsToPosition because the encoder zeroes are not read properly
-            // by the SequentialCommandGroup.
+        // We cannot do .andThen runArmsToPosition because the encoder zeroes are not
+        // read properly
+        // by the SequentialCommandGroup.
 
         // ================================================
         // DRIVER CONTROLLER - LT
@@ -203,117 +207,200 @@ public class RobotContainer {
             .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ================================================
-        // DRIVER CONTROLLER - Y
-        // TOGGLE GAME PIECE MODE
+        // DRIVER CONTROLLER - LB
+        // GO TO PURPLE MODE
         // ================================================
-        m_driverController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleGamePieceMode()));
+        m_driverController.lb.onTrue(new InstantCommand(() -> OneMechanism.becomePurpleMode()));
 
         // ================================================
         // DRIVER CONTROLLER - RB
-        // AUTO BALANCE
+        // GO TO ORANGE MODE
         // ================================================
-        m_driverController.rb.toggleOnTrue(new AutoBalance(m_drive, false));
+        m_driverController.rb.onTrue(new InstantCommand(() -> OneMechanism.becomeOrangeMode()));
+
+        // ================================================
+        // DRIVER CONTROLLER - A
+        // TOGGLE GREEN MODE
+        // ================================================
+        m_driverController.a.onTrue(new InstantCommand(() -> OneMechanism.toggleGreen()));
+
+        // ================================================
+        // DRIVER CONTROLLER - B
+        // AUTO - ALIGN MODE
+        // ================================================
+        m_driverController.b.onTrue(new InstantCommand(() -> OneMechanism.toggleAutoAlign()));
+
+        // ================================================
+        // DRIVER CONTROLLER - X
+        // TOGGLE X - DRIVE
+        // ================================================
 
         // ================================================
         // DRIVER CONTROLLER - Y
-        // TOGGLE AUTO ALIGN MODE
+        // AUTO-BALANCE
         // ================================================
-        m_driverController.lb.onTrue(new InstantCommand(() -> OneMechanism.toggleAutoAlign()));
+        m_driverController.y.toggleOnTrue(new AutoBalance(m_drive, true));
 
         // ================================================
-        // DRIVER CONTROLLER - DPAD
-        // NODE CONTROL
+        // DRIVER CONTROLLER - DPAD LEFT
+        // DECREMENT NODE
         // ================================================
-        m_driverController.dpadRight.onTrue(OneMechanism.incrementNode());
-        m_driverController.dpadLeft.onTrue(OneMechanism.decrementNode());
+        m_driverController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.decrementNode()));
+
+        // ================================================
+        // DRIVER CONTROLLER - DPAD RIGHT
+        // INCREMENT NODE
+        // ================================================
+        m_driverController.dpadRight.onTrue(new InstantCommand(() -> OneMechanism.incrementNode()));
+
+        // ================================================
+        // DRIVER CONTROLLER - DPAD UP
+        // RESET POSE
+        // ================================================
+        m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+
+        // ================================================
+        // DRIVER CONTROLLER - DPAD DOWN
+        // RUN TO TARGET NODE POSITION
+        // ================================================
         m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition());
-        m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision)
-            .andThen(OneMechanism.setNodeFromTagID(() -> m_frontAprilTagVision.getLatestTagID())));
-
-        // ===========
-        // ARM POSES
-        // ===========
 
         // ================================================
-        // OPERATOR CONTROLLER - A
-        // STOWED
+        // OPERATOR CONTROLLER - LB
+        // ACQUIRE_SINGLE_SUBSTATION (RAMP)
         // ================================================
-        m_operatorController.a
-            .onTrue(OneMechanism.runArms(ScoringPositions.STOWED));
-
-        // ================================================
-        // OPERATOR CONTROLLER - B
-        // ACQUIRE_SINGLE_SUBSTATION (WALL)
-        // ================================================
-        m_operatorController.b
+        m_operatorController.lb
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
 
         // ================================================
-        // OPERATOR CONTROLLER - X
+        // OPERATOR CONTROLLER - RB
+        // ACQUIRE_DOUBLE_SUBSTATION (WALL)
+        // ================================================
+        m_operatorController.rb
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE),
+                OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE),
+                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+
+        // ================================================
+        // OPERATOR CONTROLLER - A
+        // SCORE LOW
+        // ================================================
+        m_operatorController.a.onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_LOW_CUBE),
+            OneMechanism.runArms(ScoringPositions.SCORE_LOW_CONE),
+            () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+
+        // ================================================
+        // OPERATOR CONTROLLER - B
         // SCORE MID
         // ================================================
+        m_operatorController.b
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_MID_CUBE), // Cubes if Purple
+                                                                                                  // Mode
+                OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE), // Cones Otherwise
+                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+
+        // ================================================
+        // OPERATOR CONTROLLER - X
+        // STOWED
+        // ================================================
         m_operatorController.x
-            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_MID_CUBE), // Cubes if Purple Mode
-                                                OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE), // Cones Otherwise
-                                                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+            .onTrue(OneMechanism.runArms(ScoringPositions.STOWED));
 
         // ================================================
         // OPERATOR CONTROLLER - Y
         // SCORE HIGH
         // ================================================
         m_operatorController.y
-            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE), // Cubes if Purple Mode
-                                                OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE), // Cones Otherwise
-                                                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE), // Cubes if Purple
+                                                                                                   // Mode
+                OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE), // Cones Otherwise
+                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
-        // OPERATOR CONTROLLER - LB
-        // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBES
+        // OPERATOR CONTROLLER - LS
+        // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBE
         // ================================================
-        m_operatorController.lb
-            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE), // Cubes if Purple Mode
-                                                OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED), // Cones Otherwise
-                                                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+        m_operatorController.ls
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE), // Cubes if Purple
+                                                                                                      // Mode
+                OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED), // Cones Otherwise
+                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
-        // OPERATOR CONTROLLER - RB
+        // OPERATOR CONTROLLER - RS
         // ACQUIRE_FLOOR_UPRIGHT_CONE
         // ================================================
-        m_operatorController.rb.onTrue(
-            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
+        m_operatorController.rs
+            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT),
+                new InstantCommand(() -> {
+                }),
+                () -> OneMechanism.getGamePieceMode() == GamePieceMode.ORANGE_CONE));
 
         // ================================================
         // OPERATOR CONTROLLER - RT
         // SPIT OUT GAMEPIECE
         // ================================================
-        m_operatorController.rt.onTrue(m_gripper.runMotorOut().withTimeout(0.8));
-        m_operatorController.rt.onFalse(m_gripper.stopMotor());
+        m_operatorController.rt.whileTrue(m_gripper.runMotorOut().withTimeout(0.8));
 
         // ================================================
-        // OPERATOR CONTROLLER - WRIST MANUAL CONTROLS
-        // START - RUN ANGLE UP BACK - RUN ANGLE DOWN
+        // OPERATOR CONTROLLER - LT
+        // SOFTLY SPIT OUT GAMEPIECE
         // ================================================
-        m_operatorController.start.whileTrue(m_wrist.runMotorUp());
-        m_operatorController.start.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
-        m_operatorController.back.whileTrue(m_wrist.runMotorDown());
-        m_operatorController.back.onFalse(m_wrist.stopMotor().andThen(m_wrist.holdWristAngle()));
+        m_operatorController.lt.whileTrue(m_gripper.runMotorOutSoft().withTimeout(0.8));
 
         // ================================================
-        // OPERATOR CONTROLLER - UPPER ARM MANUAL CONTROLS
-        // RIGHT - RUN ARM OUT LEFT - RUN ARM IN
+        // OPERATOR CONTROLLER - START
+        // ENGAGE KICKSTAND (DOWN)
         // ================================================
-        m_operatorController.dpadRight.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3)));
-        m_operatorController.dpadRight.onFalse(m_upperArm.holdArmPosition());
-        m_operatorController.dpadLeft.onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)));
-        m_operatorController.dpadLeft.onFalse(m_upperArm.holdArmPosition());
+        m_operatorController.start.onTrue(m_kickstand.activate());
+
         // ================================================
-        // OPERATOR CONTROLLER - LOWER ARM MANUAL CONTROLS
-        // UP - RUN ARM UP DOWN - RUN ARM DOWN
+        // OPERATOR CONTROLLER - BACK
+        // DISENGAGE KICKSTAND (UP)
         // ================================================
-        m_operatorController.dpadUp.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)));
-        m_operatorController.dpadUp.onFalse(m_lowerArm.holdArmPosition());
-        m_operatorController.dpadDown.onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.3)));
-        m_operatorController.dpadDown.onFalse(m_lowerArm.holdArmPosition());
+        m_operatorController.back.onTrue(m_kickstand.deactivate());
+
+        // ================================================
+        // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
+        // LSY
+        // ================================================
+        m_emergencyController.axisGreaterThan(1, 0.1)
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
+        m_emergencyController.axisGreaterThan(1, 0.0)
+            .onFalse(new ConditionalCommand(
+                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())),
+                m_lowerArm.holdArmPosition(),
+                () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
+        // RSX
+        // ================================================
+        m_emergencyController.axisGreaterThan(4, 0.1)
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+        m_emergencyController.axisGreaterThan(4, 0.0)
+            .onFalse(new ConditionalCommand(
+                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())),
+                m_upperArm.holdArmPosition(),
+                () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - MOVE THE WRIST UP
+        // RT
+        // ================================================
+        m_emergencyController.rt.whileTrue(m_wrist.runMotor(0.15));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - MOVE THE WRIST DOWN
+        // LT
+        // ================================================
+        m_emergencyController.lt.whileTrue(m_wrist.runMotor(-0.15));
+
+        // ================================================
+        // EMERGENCY - RESET POSE
+        // A
+        // ================================================
+        m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
     }
 
     private void initAutonChooser() {

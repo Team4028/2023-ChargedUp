@@ -17,8 +17,9 @@ public class Gripper extends SubsystemBase {
     private final BeakTalonSRX m_motor;
 
     private final double RUN_SPEED = 0.95;
-    private final double HOLD_SPEED = 0.2; //0.32;
-    private final double IDLE_SPEED = 0.0; //0.12;
+    private final double SOFT_RUN_SPEED = 0.4;
+    private final double HOLD_SPEED = 0.2; // 0.32;
+    private final double IDLE_SPEED = 0.0; // 0.12;
     private final double HOLD_THRESHOLD = 50.0;
 
     private enum GripState {
@@ -75,14 +76,32 @@ public class Gripper extends SubsystemBase {
     }
 
     /**
-     * runs the motor out
+     * Yeet
      * 
-     * @return a command that does the above mentioned task
+     * @return A command that runs the motor out, stopping it when cancelled.
      */
     public Command runMotorOut() {
-        return run(() -> {
+        return startEnd(() -> {
             m_currentState = GripState.IDLE;
             m_motor.set(-1.0 * RUN_SPEED);
+        },
+        () -> {
+            m_motor.set(0.);
+        });
+    }
+
+    /**
+     * Less yeet
+     * 
+     * @return A command that runs the motor out softly, stopping it when cancelled.
+     */
+    public Command runMotorOutSoft() {
+        return startEnd(() -> {
+            m_currentState = GripState.IDLE;
+            m_motor.set(-1.0 * SOFT_RUN_SPEED);
+        },
+        () -> {
+            m_motor.set(0.);
         });
     }
 

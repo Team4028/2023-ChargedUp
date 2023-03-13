@@ -9,13 +9,15 @@ import java.util.function.BooleanSupplier;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.OneMechanism;
+import frc.robot.OneMechanism.GamePieceMode;
 
 /**
  * The upper Argos Arm
@@ -97,7 +99,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position, double feedForward) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
-        //m_targetPosition = position;
+        m_targetPosition = position;
     }
 
     public boolean atTargetPosition() {
@@ -192,5 +194,10 @@ public abstract class Arm extends SubsystemBase {
             m_motor.set(0.0);
             runToPosition(m_encoder.getPosition());
         });
+    }
+
+    @Override
+    public void periodic(){
+        SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
     }
 }

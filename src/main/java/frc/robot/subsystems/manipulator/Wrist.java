@@ -75,14 +75,19 @@ public class Wrist extends SubsystemBase {
     }
 
     /**
-     * runs the wrist up
+     * Run the wrist.
      * 
-     * @return a command that does above mentioned task
+     * @param vbus The percent output to run at.
+     * @return A command that runs the motor, stopping it when cancelled.
      */
-    public Command runMotorUp() {
-        return runOnce(
+    public Command runMotor(double vbus) {
+        return startEnd(
             () -> {
-                m_motor.set(0.15);
+                m_motor.set(vbus);
+            }, 
+            () -> {
+                m_motor.set(0.0);
+                m_pid.setReference(getAbsoluteEncoderPosition(), ControlType.kPosition);
             });
     }
 
@@ -95,18 +100,6 @@ public class Wrist extends SubsystemBase {
         return runOnce(
             () -> {
                 m_motor.set(0);
-            });
-    }
-
-    /**
-     * runs the wrist down
-     * 
-     * @return a command that does above mentioned task
-     */
-    public Command runMotorDown() {
-        return runOnce(
-            () -> {
-                m_motor.set(-0.15);
             });
     }
 
@@ -129,8 +122,8 @@ public class Wrist extends SubsystemBase {
     public Command holdWristAngle() {
         return runOnce(
             () -> {
-                stopMotor();
-                runToAngle(getAbsoluteEncoderPosition());
+                m_motor.set(0.0);
+                m_pid.setReference(getAbsoluteEncoderPosition(), ControlType.kPosition);
             }
         );
     }
