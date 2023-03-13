@@ -42,7 +42,7 @@ public class LEDs extends SubsystemBase {
      * the colors that the CANdle needs to be set to
      */
     public enum Color {
-        GREEN(0, 254, 0), PURPLE(118, 0, 254), ORANGE(254, 55, 0), OFF(0, 0, 0);
+        GREEN(0, 254, 0), PURPLE(118, 0, 254), ORANGE(254, 55, 0), WHITE(255, 255, 255), OFF(0, 0, 0);
 
         private int r;
         private int g;
@@ -112,6 +112,10 @@ public class LEDs extends SubsystemBase {
         return m_instance;
     }
 
+    /**
+     * @param color the color to blink
+     * @return Blinks the color and then changes to it (SequentialCommandGroup)
+     */
     public SequentialCommandGroup blink(Color color) {
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBlank()),
@@ -131,10 +135,64 @@ public class LEDs extends SubsystemBase {
             new InstantCommand(() -> setColor(color)));
     }
 
+    /**
+     * @return Blinks the lights at their current color (SequentialCommandGroup)
+     */
+    public SequentialCommandGroup blink() {
+        Color lastColor = m_color;
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.1),
+            new InstantCommand(() -> setColor(lastColor)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(lastColor)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(lastColor)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(lastColor)));
+    }
+
+    /**
+     * @param color The color to blink
+     * @return Blinks the color, but returns to the original color
+     */
+    public SequentialCommandGroup blinkWithoutChange(Color color) {
+        Color lastColor = m_color;
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.1),
+            new InstantCommand(() -> setColor(color)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(color)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(color)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(color)),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.08),
+            new InstantCommand(() -> setColor(lastColor)));
+    }
+
     public void setIdle() {
         m_currentMode = CANdleMode.IDLE;
-        m_candle.clearAnimation(0);
-        m_candle.clearAnimation(1);
+        for (int i = 0; i < 4; i++) {
+            m_candle.clearAnimation(i);
+        }
         m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
             BounceMode.Front, 8, 0), 0);
         m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
