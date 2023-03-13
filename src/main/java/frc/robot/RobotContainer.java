@@ -406,6 +406,12 @@ public class RobotContainer {
         // A
         // ================================================
         m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+
+        // ================================================
+        // EMERGENCY - EXPERIMENTAL - FIRE
+        // Y
+        // ================================================
+        m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
     }
 
     private void initAutonChooser() {

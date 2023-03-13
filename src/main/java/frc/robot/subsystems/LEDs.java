@@ -5,12 +5,13 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -19,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class LEDs extends SubsystemBase {
     public enum CANdleMode {
-        VICTORY_SPIN("Victory"), IDLE("idle"), ACTIVE("on");
+        VICTORY_SPIN("VICTORY_SPIN"), FIRE("FIRE"), IDLE("IDLE"), ACTIVE("ACTIVE");
 
         public String name;
 
@@ -34,7 +35,7 @@ public class LEDs extends SubsystemBase {
     private CANdle m_candle;
     // private int r, g, b;
     private static LEDs m_instance;
-    private Timer scrollTimer = new Timer();
+    // private Timer scrollTimer = new Timer();
     private double scrollVar = 0;
 
     /**
@@ -111,7 +112,7 @@ public class LEDs extends SubsystemBase {
         return m_instance;
     }
 
-    public SequentialCommandGroup blink(Color color){
+    public SequentialCommandGroup blink(Color color) {
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.1),
@@ -127,13 +128,13 @@ public class LEDs extends SubsystemBase {
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color))
-        );
+            new InstantCommand(() -> setColor(color)));
     }
 
     public void setIdle() {
         m_currentMode = CANdleMode.IDLE;
         m_candle.clearAnimation(0);
+        m_candle.clearAnimation(1);
         m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
             BounceMode.Front, 8, 0), 0);
         m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
@@ -145,8 +146,8 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setVictorySpin() {
-        scrollTimer.restart();
-        scrollTimer.stop();
+        // scrollTimer.restart();
+        // scrollTimer.stop();
         m_currentMode = CANdleMode.VICTORY_SPIN;
         for (int i = 0; i < 4; i++) {
             m_candle.clearAnimation(i);
@@ -154,9 +155,18 @@ public class LEDs extends SubsystemBase {
         m_candle.animate(new RainbowAnimation(1, 1, NUM_LEDS), 0);
     }
 
+    public void setFire() {
+        m_currentMode = CANdleMode.FIRE;
+        for (int i = 0; i < 4; i++) {
+            m_candle.clearAnimation(i);
+        }
+        m_candle.animate(new FireAnimation(1.0, 0.2, NUM_LEDS - 60, 0.6, 0.4, true, 0), 0);
+        m_candle.animate(new FireAnimation(1.0, 0.2, NUM_LEDS, 0.6, 0.4, false, NUM_LEDS - 60), 1);
+    }
+
     public void setActive() {
-        scrollTimer.restart();
-        scrollTimer.stop();
+        // scrollTimer.restart();
+        // scrollTimer.stop();
         m_currentMode = CANdleMode.ACTIVE;
         for (int i = 0; i < 4; i++) {
             m_candle.clearAnimation(i);
@@ -175,7 +185,7 @@ public class LEDs extends SubsystemBase {
     public void periodic() {
         // setLEDs().schedule();
         SmartDashboard.putString("Mode: ", m_currentMode.name);
-        SmartDashboard.putNumber("Timer", scrollTimer.get());
+        // SmartDashboard.putNumber("Timer", scrollTimer.get());
         SmartDashboard.putNumber("scrollVar", scrollVar);
         if (m_currentMode == CANdleMode.ACTIVE) {
             m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
