@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -24,6 +27,7 @@ import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
+import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
@@ -361,14 +365,30 @@ public class RobotContainer {
         m_operatorController.back.onTrue(m_kickstand.deactivate());
 
         // ================================================
+        // OPERATOR CONTROLLER - DPAD
+        // ORTHAGONAL ANGLE HOLDING
+        // ================================================
+        DoubleSupplier xSupplier = () -> speedScaledDriverLeftX();
+        DoubleSupplier ySupplier = () -> speedScaledDriverLeftY();
+
+        m_operatorController.dpadUp.toggleOnTrue(new KeepAngle(
+            Rotation2d.fromDegrees(0), xSupplier, ySupplier, m_drive));
+        m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
+            Rotation2d.fromDegrees(90.), xSupplier, ySupplier, m_drive));
+        m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
+            Rotation2d.fromDegrees(180.), xSupplier, ySupplier, m_drive));
+        m_operatorController.dpadLeft.toggleOnTrue(new KeepAngle(
+            Rotation2d.fromDegrees(270.), xSupplier, ySupplier, m_drive));
+
+        // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
         m_emergencyController.axisGreaterThan(1, 0.1)
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.5)));
-        m_emergencyController.axisGreaterThan(1, 0.1)
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
+        m_emergencyController.axisGreaterThan(1, 0.0)
             .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3)),
+                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())),
                 m_lowerArm.holdArmPosition(),
                 () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
 
@@ -377,10 +397,10 @@ public class RobotContainer {
         // RSX
         // ================================================
         m_emergencyController.axisGreaterThan(4, 0.1)
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.5)));
-        m_emergencyController.axisGreaterThan(4, 0.1)
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+        m_emergencyController.axisGreaterThan(4, 0.0)
             .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_upperArm.runArmVbus(0.5)),
+                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())),
                 m_upperArm.holdArmPosition(),
                 () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
 
