@@ -38,6 +38,6 @@ public class RunArmPID extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(m_arm.getEncoderPosition() - m_arm.getTargetPosition()) < 0.2;
+        return Math.abs(m_arm.getEncoderPosition() - m_arm.getTargetPosition()) < 0.4;
     }
 }

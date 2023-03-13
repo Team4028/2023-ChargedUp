@@ -45,7 +45,7 @@ public class OneMechanism {
     // @formatter:off
     public enum ScoringPositions {
         STOWED(                        5.0,        7.0,        305.0),
-        INTERMEDIATE_LOW(              15.0,       13.0,       275.0),
+        INTERMEDIATE_LOW(              9.5,       21.5,       275.0),
         ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
         SCORE_LOW_CUBE(                15.0,       13.0,       200.0),
         SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
