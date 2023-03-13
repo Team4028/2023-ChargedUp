@@ -3,7 +3,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -155,7 +155,7 @@ public class OneMechanism {
         m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
         if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.ORANGE);
+            m_leds.blink(LEDs.Color.ORANGE).schedule();
         }
     }
 
@@ -166,7 +166,7 @@ public class OneMechanism {
         m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.PURPLE);
+            m_leds.blink(LEDs.Color.PURPLE).schedule();
         }
     }
 
@@ -178,17 +178,17 @@ public class OneMechanism {
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         if (m_climbMode) {
-            m_leds.blink(LEDs.Color.GREEN);
+            m_leds.blink(LEDs.Color.GREEN).schedule();
         } else {
             switch (getGamePieceMode()) {
                 case ORANGE_CONE:
-                    m_leds.blink(LEDs.Color.ORANGE);
+                    m_leds.blink(LEDs.Color.ORANGE).schedule();
                     break;
                 case PURPLE_CUBE:
-                    m_leds.blink(LEDs.Color.PURPLE);
+                    m_leds.blink(LEDs.Color.PURPLE).schedule();
                     break;
                 default:
-                    m_leds.blink(LEDs.Color.ORANGE);
+                    m_leds.blink(LEDs.Color.ORANGE).schedule();
                     break;
             }
         }
@@ -224,32 +224,36 @@ public class OneMechanism {
         return NODES.get(0);
     }
 
-    public static Command setNode(Supplier<Node> node) {
-        return new InstantCommand(() -> {
-            m_currentNode = node.get();
-            SmartDashboard.putNumber("Node", m_currentNode.GridID);
-        });
+    public static void setNode(Node node) {
+        m_currentNode = node;
+        SmartDashboard.putNumber("Node", m_currentNode.GridID);
     }
 
-    public static Command runToNodePosition() {
+    /**
+     * Run to the position of the currently set scoring node.
+     * @param interruptCondition A condition that will stop the automatic alignment.
+     * @return A {@link Command} to run to the set node position.
+     */
+    public static Command runToNodePosition(BooleanSupplier interruptCondition) {
         // Add measurements to the pose estimator before and after to ensure relative
         // accuracy
         return new ConditionalCommand(
             // new AddVisionMeasurement(m_drive, m_vision).andThen(
             new GeneratePathWithArc(
                 () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
-                m_drive).deadlineWith(
-                    new RepeatCommand(new AddVisionMeasurement(m_drive,
-                        m_vision)))
+                interruptCondition,
+                m_drive)//.deadlineWith(
+                    // new RepeatCommand(new AddVisionMeasurement(m_drive,
+                    //     m_vision)))
                     .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
             // .andThen(new AddVisionMeasurement(m_drive, m_vision))),
             Commands.none(),
             () -> m_autoAlignMode);
     }
 
-    public static Command setNodeFromTagID(Supplier<Integer> id) {
-        return setNode(() -> getNodeFromTagID(id.get())).andThen(runToNodePosition());
-    }
+    // public static Command setNodeFromTagID(Supplier<Integer> id) {
+    //     return setNode(() -> getNodeFromTagID(id.get())).andThen(runToNodePosition());
+    // }
 
     public static Node getCurrentNode() {
         return m_currentNode;
@@ -276,8 +280,10 @@ public class OneMechanism {
                     }
                 }
 
-                setNode(() -> nodeToSet.get(0)).schedule();
-            }).andThen(runToNodePosition());
+                SmartDashboard.putNumber("Node", nodeToSet.get(0).GridID);
+
+                setNode(nodeToSet.get(0));
+            });//.andThen(runToNodePosition());
     }
 
     /**
@@ -302,8 +308,10 @@ public class OneMechanism {
                     }
                 }
 
-                setNode(() -> nodeToSet.get(0)).schedule();
-            }).andThen(runToNodePosition());
+                SmartDashboard.putNumber("Node", nodeToSet.get(0).GridID);
+
+                setNode(nodeToSet.get(0));
+            });//.andThen(runToNodePosition());
     }
 
     public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm,

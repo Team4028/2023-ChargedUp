@@ -6,6 +6,7 @@ package frc.robot.commands.auton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.robot.RobotContainer;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class GeneratePathWithArc extends CommandBase {
@@ -47,14 +49,18 @@ public class GeneratePathWithArc extends CommandBase {
 
     private Pose2d m_positionTolerance;
 
+    private BooleanSupplier m_interruptCondition;
+
     private BeakDrivetrain m_drivetrain;
 
-    Field2d field = new Field2d();
+    private Field2d field = new Field2d();
 
     /** Creates a new GeneratePath. */
-    public GeneratePathWithArc(Supplier<Pose2d> desiredPose, BeakDrivetrain drivetrain) {
+    public GeneratePathWithArc(Supplier<Pose2d> desiredPose, BooleanSupplier interuptCondition,
+        BeakDrivetrain drivetrain) {
         m_drivetrain = drivetrain;
         m_poseSupplier = desiredPose;
+        m_interruptCondition = interuptCondition;
 
         m_positionTolerance = new Pose2d(
             0.0254, // 1 inch
@@ -150,9 +156,10 @@ public class GeneratePathWithArc extends CommandBase {
         // return (m_driveController.atReference());
         // TODO: bruh
 
-        return Math.abs(translationError.getX()) < translationTolerance.getX()
+        SmartDashboard.putBoolean("Interrupt Condition", m_interruptCondition.getAsBoolean());
+        return m_interruptCondition.getAsBoolean() || (Math.abs(translationError.getX()) < translationTolerance.getX()
             && Math.abs(translationError.getY()) < translationTolerance.getY()
-            && Math.abs(rotationError.getRadians()) < rotationTolerance.getRadians();
+            && Math.abs(rotationError.getRadians()) < rotationTolerance.getRadians());
     }
 
     /**
@@ -210,7 +217,7 @@ public class GeneratePathWithArc extends CommandBase {
         PathPoint endPoint = new PathPoint(
             desiredPose.getTranslation(),
             new Rotation2d(Math.PI).minus(midpointHeading), // The end heading should be the opposite of the previous
-                                                             // heading
+                                                            // heading
             desiredPose.getRotation());
 
         points.add(startPoint);

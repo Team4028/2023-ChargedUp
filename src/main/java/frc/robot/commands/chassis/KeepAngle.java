@@ -21,7 +21,7 @@ public class KeepAngle extends PIDCommand {
         super(
             // The controller that the command will use
             new PIDController(
-                1.0,
+                2.0,
                 0,
                 0),
             // This should return the measurement

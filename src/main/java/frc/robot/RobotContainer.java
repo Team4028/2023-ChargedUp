@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -249,13 +250,13 @@ public class RobotContainer {
         // DRIVER CONTROLLER - DPAD LEFT
         // DECREMENT NODE
         // ================================================
-        m_driverController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.decrementNode()));
+        m_driverController.dpadLeft.onTrue(OneMechanism.decrementNode());
 
         // ================================================
         // DRIVER CONTROLLER - DPAD RIGHT
         // INCREMENT NODE
         // ================================================
-        m_driverController.dpadRight.onTrue(new InstantCommand(() -> OneMechanism.incrementNode()));
+        m_driverController.dpadRight.onTrue(OneMechanism.incrementNode());
 
         // ================================================
         // DRIVER CONTROLLER - DPAD UP
@@ -267,7 +268,10 @@ public class RobotContainer {
         // DRIVER CONTROLLER - DPAD DOWN
         // RUN TO TARGET NODE POSITION
         // ================================================
-        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition());
+        BooleanSupplier nodeInterrupt = () -> Math.abs(speedScaledDriverLeftX()) > 0.1 ||
+            Math.abs(speedScaledDriverLeftY()) > 0.1 ||
+            Math.abs(speedScaledDriverRightX()) > 0.1;
+        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
@@ -368,17 +372,19 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - DPAD
         // ORTHAGONAL ANGLE HOLDING
         // ================================================
-        DoubleSupplier xSupplier = () -> speedScaledDriverLeftX();
-        DoubleSupplier ySupplier = () -> speedScaledDriverLeftY();
+        DoubleSupplier xSupplier = () -> -speedScaledDriverLeftY()
+            * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
+        DoubleSupplier ySupplier = () -> speedScaledDriverLeftX()
+            * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
 
         m_operatorController.dpadUp.toggleOnTrue(new KeepAngle(
             Rotation2d.fromDegrees(0), xSupplier, ySupplier, m_drive));
         m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
-            Rotation2d.fromDegrees(90.), xSupplier, ySupplier, m_drive));
+            Rotation2d.fromDegrees(270.), xSupplier, ySupplier, m_drive));
         m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
             Rotation2d.fromDegrees(180.), xSupplier, ySupplier, m_drive));
         m_operatorController.dpadLeft.toggleOnTrue(new KeepAngle(
-            Rotation2d.fromDegrees(270.), xSupplier, ySupplier, m_drive));
+            Rotation2d.fromDegrees(90.), xSupplier, ySupplier, m_drive));
 
         // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
