@@ -358,6 +358,12 @@ public class RobotContainer {
         m_operatorController.back.onTrue(new DeactivateKickstand(m_kickstand));
 
         // ================================================
+        // OPERATOR CONTROLLER - Y
+        // VICTORY SPIN
+        // ================================================
+        m_operatorController.y.onTrue(new InstantCommand(() -> OneMechanism.setVictorySpin()));
+
+        // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================

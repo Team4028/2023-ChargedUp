@@ -144,7 +144,7 @@ public class OneMechanism {
      * Turns of the CANdle
      */
     public static void killTheLights() {
-        //m_areTheLightsOn = false;
+        // m_areTheLightsOn = false;
         if (!m_climbMode) {
             m_leds.setBlank();
         }
@@ -154,7 +154,7 @@ public class OneMechanism {
      * sets the robot mode to Orange (cone) mode
      */
     public static void becomeOrangeMode() {
-        //m_areTheLightsOn = true;
+        // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
         if (!m_climbMode) {
             m_leds.blink(LEDs.Color.ORANGE);
@@ -165,11 +165,23 @@ public class OneMechanism {
      * sets the robot mode to Purple (cube) mode
      */
     public static void becomePurpleMode() {
-        //m_areTheLightsOn = true;
+        // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
             m_leds.blink(LEDs.Color.PURPLE);
         }
+    }
+
+    public static void setActive() {
+        m_leds.setActive();
+    }
+
+    public static void setIdle() {
+        m_leds.setIdle();
+    }
+
+    public static void setVictorySpin() {
+        m_leds.setVictorySpin();
     }
 
     public static void toggleAutoAlign() {
@@ -347,7 +359,7 @@ public class OneMechanism {
     }
 
     // public static boolean getLightMode() {
-    //     return m_areTheLightsOn;
+    // return m_areTheLightsOn;
     // }
 
     public static Command runArms(ScoringPositions targetPos) {
@@ -355,6 +367,6 @@ public class OneMechanism {
     }
 
     // public static void signalAcquisition() {
-    //     m_leds.alternateBlink(Color.WHITE);
+    // m_leds.alternateBlink(Color.WHITE);
     // }
 }
