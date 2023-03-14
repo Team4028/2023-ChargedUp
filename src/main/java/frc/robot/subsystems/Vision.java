@@ -72,7 +72,17 @@ public class Vision extends SubsystemBase {
     }
 
     public PhotonTrackedTarget getBestTarget() {
-        return getTargets().isEmpty() ? null : getTargets().get(0);
+        List<PhotonTrackedTarget> targets = getTargets();
+
+        PhotonTrackedTarget bestTarget = null;
+        
+        for (PhotonTrackedTarget target : targets) {
+            if (bestTarget == null || target.getPoseAmbiguity() < bestTarget.getPoseAmbiguity()) {
+                bestTarget = target;
+            }
+        }
+
+        return bestTarget;
     }
 
     /**
@@ -88,7 +98,7 @@ public class Vision extends SubsystemBase {
         List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
 
         for (PhotonTrackedTarget target : result.getTargets())
-            if (target.getPoseAmbiguity() < 0.5) {
+            if (target.getPoseAmbiguity() < 0.3) {
                 targets.add(target);
             }
 
@@ -98,17 +108,17 @@ public class Vision extends SubsystemBase {
     /**
      * Gets the best estimated pose of the robot in the current frame.
      * 
-     * @param rotation
-     *            The current rotation of the robot.
+     * @param pose
+     *            The current pose of the robot.
      * @return An estimated {@link Pose2d} of the robot.
      */
-    public Pose2d getLatestEstimatedRobotPose(Rotation2d rotation) {
+    public Pose2d getLatestEstimatedRobotPose(Pose2d pose) {
         PhotonTrackedTarget target = getBestTarget();
 
         if (target == null) {
-            return new Pose2d(0, 0, rotation);
+            return pose;
         }
-        
+
         Transform3d cameraToTarget = target.getBestCameraToTarget();
 
         m_latestTag = target.getFiducialId();
@@ -121,8 +131,8 @@ public class Vision extends SubsystemBase {
             Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose.get(), camToRobot);
             Pose2d odomPose = robotPose.toPose2d();
 
-            if ((target.getPoseAmbiguity() != 0. && rotation != null)) {
-                odomPose = new Pose2d(odomPose.getTranslation(), rotation);
+            if (pose != null) {
+                odomPose = new Pose2d(odomPose.getTranslation(), pose.getRotation());
             }
             return odomPose;
         }

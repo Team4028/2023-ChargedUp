@@ -79,7 +79,7 @@ public class Autons {
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 
-        m_armsAtPosition = () -> (m_lowerArm.atTargetPosition() && m_upperArm.atTargetPosition());
+        m_armsAtPosition = () -> (m_upperArm.atTargetPosition());
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
@@ -92,15 +92,18 @@ public class Autons {
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
             m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
 
-            m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
+            m_eventMap.put("RunGripperIn", m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier())
+                .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
             m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.beIdleMode()));
 
             m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
         }
 
-        // m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
-        // m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain, m_rearAprilTagVision));
+        m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain,
+        m_frontAprilTagVision));
+        m_eventMap.put("RearLocalize", new AddVisionMeasurement(drivetrain,
+        m_rearAprilTagVision));
 
         m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
         m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
@@ -116,8 +119,6 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.OnePieceBalance(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
-            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
-            m_gripper.stopMotor(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             // BALANCE
             new WaitCommand(0.15),
@@ -130,6 +131,7 @@ public class Autons {
 
     /**
      * The One Piece... IS REAL!
+     * 
      * @return
      */
     public BeakAutonCommand OnePiece(PathPosition position) {
@@ -138,7 +140,7 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            new WaitCommand(0.5),
+            // new WaitCommand(0.0),
             OnePieceBalance(position)
         //
         );
@@ -158,16 +160,16 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
             new WaitCommand(0.1),
-
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
-            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE).until(m_armsAtPosition),
+
+            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE),//.until(m_armsAtPosition),
             new WaitCommand(0.2),
 
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
-            new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+        // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //
         );
 

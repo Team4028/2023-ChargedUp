@@ -32,7 +32,7 @@ public class AddVisionMeasurement extends InstantCommand {
     public void initialize() {
         m_vision.checkAlliance();
         m_drivetrain.addVisionMeasurement(
-            m_vision.getLatestEstimatedRobotPose(m_drivetrain.getRotation2d()),
+            m_vision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()),
             m_vision.getLatestLatency());
         m_field.setRobotPose(m_drivetrain.getPoseMeters());
         SmartDashboard.putData("AprilTag thing", m_field);

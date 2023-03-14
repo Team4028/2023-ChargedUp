@@ -2,12 +2,12 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.53,
+        "x": 6.63,
         "y": 4.51
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.137359846148264,
+        "x": 6.237359846148264,
         "y": 3.62162995754563
       },
       "holonomicAngle": 0,
@@ -70,5 +70,13 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.01818181818181818,
+      "names": [
+        "ArmRetract",
+        "StopGripper"
+      ]
+    }
+  ]
 }

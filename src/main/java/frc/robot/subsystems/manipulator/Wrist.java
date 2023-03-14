@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 
 public class Wrist extends SubsystemBase {
-    private static final double kP = 0.05;
-    private static final double kI = 0;
+    private static final double kP = 0.06;
+    private static final double kI = 0.0;
     private static final double kD = 0.4;
     private static final double kIz = 0;
     private static final double kFF = 0;

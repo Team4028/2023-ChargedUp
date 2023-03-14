@@ -44,8 +44,8 @@ public class OneMechanism {
 
     // @formatter:off
     public enum ScoringPositions {
-        STOWED(                        5.0,        7.0,        305.0),
-        INTERMEDIATE_LOW(              9.5,       21.5,       275.0),
+        STOWED(                        3.6,        4.0,        305.0),
+        INTERMEDIATE_LOW(              9.5,        21.5,       275.0),
         ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
         SCORE_LOW_CUBE(                15.0,       13.0,       200.0),
         SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
@@ -56,8 +56,8 @@ public class OneMechanism {
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
         ACQUIRE_SINGLE_SUBSTATION(     3.6,        1.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       1.1,        193.537),
-        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.095,     1.81,       203.7);
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       1.1,        193.5),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       1.8,        203.7);
 
         public double lowerPosition;
         public double upperPosition;
