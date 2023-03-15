@@ -144,6 +144,7 @@ public class Robot extends LoggedRobot {
     public void teleopPeriodic() {
         SmartDashboard.putNumber("the Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
+        SmartDashboard.putString("Target Position", OneMechanism.getScoringPosition().name());
     }
 
     /** This function is called once when test mode is enabled. */
