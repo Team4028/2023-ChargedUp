@@ -17,6 +17,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -49,6 +50,32 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     protected SwerveDriveKinematics m_kinematics;
 
     protected RobotPhysics m_physics;
+
+    /**
+     * An enum representing the direction the robot is currently trying to snap to.
+     */
+    public enum SnapDirection {
+        NONE(0.), //
+        UP(0.), //
+        DOWN(180.), //
+        LEFT(90.), //
+        RIGHT(270.);
+
+        /**
+         * The angle of this snap direction.
+         */
+        public Rotation2d Angle;
+
+        /**
+         * @param degrees
+         *            The angle of the snap direction, in degrees.
+         */
+        private SnapDirection(double degrees) {
+            this.Angle = Rotation2d.fromDegrees(degrees);
+        }
+    }
+
+    protected SnapDirection m_snapDirection;
 
     /**
      * Create a new Swerve drivetrain.
@@ -99,6 +126,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         m_kinematics = new SwerveDriveKinematics(moduleLocations);
 
         m_odom = new SwerveDrivePoseEstimator(m_kinematics, getGyroRotation2d(), getModulePositions(), new Pose2d());
+
+        m_snapDirection = SnapDirection.NONE;
 
         resetTurningMotors();
     }
@@ -307,6 +336,20 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      */
     public double getAngularVelocity() {
         return getChassisSpeeds().omegaRadiansPerSecond;
+    }
+
+    /**
+     * Set the snap direction of the robot.
+     * 
+     * @param newDirection
+     *            The direction the robot should snap to.
+     */
+    public void setSnapDirection(SnapDirection newDirection) {
+        m_snapDirection = newDirection;
+    }
+
+    public boolean isHolonomic() {
+        return true;
     }
 
     @Override

@@ -192,8 +192,6 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
             new Pose2d(),
             m_stateStdDevs,
             m_visionMeasurementStdDevs);
-
-        m_snapDirection = SnapDirection.NONE;
     }
 
     public static SwerveDrivetrain getInstance() {
@@ -205,12 +203,10 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     @Override
     public void periodic() {
-        updateOdometry();
+        super.periodic();
 
         m_field.setRobotPose(getPoseMeters());
         SmartDashboard.putData(m_field);
-
-        logData();
 
         SmartDashboard.putNumber("Pitch", getGyroRollRotation2d().getDegrees());
 

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.GeneratePathWithArc;
@@ -125,7 +125,7 @@ public class OneMechanism {
     private static GamePieceMode m_currentMode = GamePieceMode.ORANGE_CONE;
 
     private static LEDs m_leds;
-    private static BeakDrivetrain m_drive;
+    private static BeakSwerveDrivetrain m_drive;
     private static Vision m_vision;
     private static UpperArm m_upperArm;
     private static LowerArm m_lowerArm;
@@ -165,6 +165,22 @@ public class OneMechanism {
         if (!m_climbMode) {
             m_leds.blink(LEDs.Color.PURPLE).schedule();
         }
+    }
+
+    /**
+     * Set the robot to orange (cone) mode
+     * @return A {@link Command} that changes the robot to orange mode.
+     */
+    public static Command orangeModeCommand() {
+        return new InstantCommand(() -> becomeOrangeMode(), m_leds);
+    }
+
+    /**
+     * Set the robot to purple (cube) mode
+     * @return A {@link Command} that changes the robot to purple mode.
+     */
+    public static Command purpleModeCommand() {
+        return new InstantCommand(() -> becomePurpleMode(), m_leds);
     }
 
     public static void toggleAutoAlign() {
@@ -297,7 +313,7 @@ public class OneMechanism {
             });
     }
 
-    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm,
+    public static void addSubsystems(LEDs leds, BeakSwerveDrivetrain drivetrain, Vision vision, LowerArm lowerArm,
         UpperArm upperArm, Wrist wrist) {
         m_leds = leds;
         m_drive = drivetrain;

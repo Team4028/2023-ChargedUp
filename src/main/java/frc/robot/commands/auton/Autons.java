@@ -161,11 +161,13 @@ public class Autons {
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
+            OneMechanism.orangeModeCommand(),
             OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE),//.until(m_armsAtPosition),
             new WaitCommand(0.2),
 
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
+            OneMechanism.purpleModeCommand(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //

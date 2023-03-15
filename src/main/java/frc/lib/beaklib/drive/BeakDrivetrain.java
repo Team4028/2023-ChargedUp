@@ -22,12 +22,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
 import frc.lib.beaklib.units.AngularVelocity;
 import frc.lib.beaklib.units.Distance;
 import frc.lib.beaklib.units.Velocity;
-import frc.robot.commands.auton.GeneratePath;
 
 /** Base drivetrain class. */
 public class BeakDrivetrain extends BeakGyroSubsystem {
@@ -50,15 +49,6 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     protected PIDController m_driveController;
     protected PIDController m_generatedDriveController;
 
-    public enum SnapDirection {
-        NONE,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT;
-    }
-    protected SnapDirection m_snapDirection;
-
     /**
      * Construct a new generic drivetrain.
      * 
@@ -71,8 +61,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * @param drivePIDGains
      *            The PID gains for the auton drive controller.
      * @param generatedDrivePIDGains
-     *            The PID gains for generated paths using the
-     *            {@link GeneratePath} command.
+     *            The PID gains for generated paths using a path generation command.
      */
     public BeakDrivetrain(
         RobotPhysics physics,
@@ -266,7 +255,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * @return A {@link Command} that runs the generated path.
      */
     public Command generatePath(Supplier<Pose2d> desiredPose) {
-        return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
+        return Commands.none();
     }
 
     /**
@@ -389,7 +378,12 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         return new Rotation2d(radiansToTarget);
     }
 
-    public void setSnapDirection(SnapDirection newDirection) {
-        m_snapDirection = newDirection;
+    /**
+     * Determine whether or not this drivetrain is holonomic.
+     * 
+     * @return Whether or not the drivetrain is holonomic (e.g. swerve)
+     */
+    public boolean isHolonomic() {
+        return false;
     }
 }

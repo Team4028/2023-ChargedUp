@@ -10,7 +10,6 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -18,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.beaklib.BeakXBoxController;
 import frc.lib.beaklib.Util;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -66,8 +66,9 @@ public class RobotContainer {
         Units.inchesToMeters(-5.75), 0.,
         new Rotation3d(0., Units.degreesToRadians(0.), Units.degreesToRadians(0.)));
 
-    // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-6),
-    //     Units.inchesToMeters(-3), 0., new Rotation3d());
+    // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
+    // Pose3d(Units.inchesToMeters(-6),
+    // Units.inchesToMeters(-3), 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
@@ -376,17 +377,16 @@ public class RobotContainer {
             * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
         DoubleSupplier ySupplier = () -> speedScaledDriverLeftX()
             * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
-        BooleanSupplier angleInterrupt = () -> Math.abs(speedScaledDriverRightX()) > 0.075;
+        BooleanSupplier angleInterrupt = m_driverController.rs;
 
         m_operatorController.dpadUp.toggleOnTrue(new KeepAngle(
-            Rotation2d.fromDegrees(0), xSupplier, ySupplier, angleInterrupt, m_drive));
-        m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
-            Rotation2d.fromDegrees(270.), xSupplier, ySupplier, angleInterrupt, m_drive));
-        m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
-            Rotation2d.fromDegrees(180.), xSupplier, ySupplier, angleInterrupt, m_drive));
+            SnapDirection.UP, xSupplier, ySupplier, angleInterrupt, m_drive));
         m_operatorController.dpadLeft.toggleOnTrue(new KeepAngle(
-            Rotation2d.fromDegrees(90.), xSupplier, ySupplier, angleInterrupt, m_drive));
-
+            SnapDirection.LEFT, xSupplier, ySupplier, angleInterrupt, m_drive));
+        m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
+            SnapDirection.DOWN, xSupplier, ySupplier, angleInterrupt, m_drive));
+        m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
+            SnapDirection.RIGHT, xSupplier, ySupplier, angleInterrupt, m_drive));
 
         // ===============================================
         // EMERGENCY CONTROLLER
@@ -451,19 +451,22 @@ public class RobotContainer {
 
     public double speedScaledDriverLeftY() {
         return m_yLimiter.calculate(Util.speedScale(m_driverController.getLeftYAxis(),
-            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE
+                : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverRightX() {
         return m_rotLimiter.calculate(-Util.speedScale(m_driverController.getRightXAxis(),
-            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE
+                : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverLeftX() {
         return m_xLimiter.calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
-            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE
+                : DriveConstants.SPEED_SCALE,
             m_driverController.getRightTrigger()));
     }
 

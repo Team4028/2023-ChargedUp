@@ -26,7 +26,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class GeneratePathWithArc extends CommandBase {
@@ -49,13 +49,13 @@ public class GeneratePathWithArc extends CommandBase {
 
     private BooleanSupplier m_interruptCondition;
 
-    private BeakDrivetrain m_drivetrain;
+    private BeakSwerveDrivetrain m_drivetrain;
 
     private Field2d field = new Field2d();
 
     /** Creates a new GeneratePath. */
     public GeneratePathWithArc(Supplier<Pose2d> desiredPose, BooleanSupplier interuptCondition,
-        BeakDrivetrain drivetrain) {
+        BeakSwerveDrivetrain drivetrain) {
         m_drivetrain = drivetrain;
         m_poseSupplier = desiredPose;
         m_interruptCondition = interuptCondition;

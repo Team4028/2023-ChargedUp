@@ -46,7 +46,9 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      *            trajectory commands!
      */
     public BeakAutonCommand(BeakDrivetrain drivetrain, PathPlannerTrajectory initialTrajectory, Command... commands) {
-        this(drivetrain, initialTrajectory.getInitialHolonomicPose(), commands);
+        this(drivetrain, 
+        drivetrain.isHolonomic() ? initialTrajectory.getInitialHolonomicPose()
+            : initialTrajectory.getInitialPose(), commands);
     }
 
     /**

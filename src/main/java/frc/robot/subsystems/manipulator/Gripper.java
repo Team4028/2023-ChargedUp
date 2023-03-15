@@ -53,6 +53,7 @@ public class Gripper extends SubsystemBase {
     public Command runMotorIn() {
         return run(() -> {
             m_motor.set(RUN_SPEED);
+            m_currentState = GripState.HOLD;
         });
     }
 
@@ -118,7 +119,6 @@ public class Gripper extends SubsystemBase {
 
     private boolean atCurrentThreshold() {
         if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
-            m_currentState = GripState.HOLD;
             OneMechanism.signalAcquisition();
             return true;
         } else {
