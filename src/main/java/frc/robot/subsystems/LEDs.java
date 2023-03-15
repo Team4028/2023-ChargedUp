@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
@@ -18,15 +20,17 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OneMechanism;
+import frc.robot.commands.LarsonAnimationV2;
+import frc.robot.commands.LarsonAnimationV2.V2BounceMode;
 
 public class LEDs extends SubsystemBase {
     public enum CANdleMode {
-        VICTORY_SPIN, FIRE, IDLE, ACTIVE;
+        VICTORY_SPIN, FIRE, IDLE, ACTIVE, IDLEV2;
     }
 
     private CANdleMode m_currentMode;
     private Color m_color, m_lastColor;
-    private final int NUM_LEDS = 111; // 8 for candle + 120 for 2 strips - 9 for the ones Justin cut off.
+    private final int NUM_LEDS = 119;
     private CANdle m_candle;
     // private int r, g, b;
     private static LEDs m_instance;
@@ -208,26 +212,85 @@ public class LEDs extends SubsystemBase {
         return cmd;
     }
 
-    public void setIdle() {
-        m_currentMode = CANdleMode.IDLE;
-        for (int i = 0; i < 4; i++) {
+    // TODO: Test \/
+    public void setIdleV2() {
+        m_currentMode = CANdleMode.IDLEV2;
+        for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
-        m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
-            BounceMode.Front, 8, 0), 0);
-        m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
-            BounceMode.Front, 8, 8), 1);
-        m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
-            BounceMode.Front, 8, 16), 2);
-        m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
-            BounceMode.Front, 8, 24), 3);
+        new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, false, 59, 8, 8, 8,
+            V2BounceMode.FRONT, m_instance)
+                .alongWith(
+                    new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, false, 59, 8, 16, 8,
+                        V2BounceMode.FRONT, m_instance))
+                .alongWith(
+                    new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, true, 119, 68, 119,
+                        8,
+                        V2BounceMode.FRONT, m_instance))
+                .alongWith(
+                    new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, true, 119, 68, 111,
+                        8,
+                        V2BounceMode.FRONT, m_instance))
+                .schedule();
+    }
+
+    public void setIdle() {
+        m_currentMode = CANdleMode.IDLE;
+        for (int i = 0; i < 8; i++) {
+            m_candle.clearAnimation(i);
+        }
+        // TODO: Make it Symmetric - IDLEV2 fixes this if it works
+        // m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g,
+        // Color.PURPLE.b, 0, 0.2, NUM_LEDS,
+        // BounceMode.Front, 8, 0), 0);
+        // m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g,
+        // Color.ORANGE.b, 0, 0.2, NUM_LEDS,
+        // BounceMode.Front, 8, 8), 1);
+        // m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g,
+        // Color.PURPLE.b, 0, 0.2, NUM_LEDS,
+        // BounceMode.Front, 8, 16), 2);
+        // m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g,
+        // Color.ORANGE.b, 0, 0.2, NUM_LEDS,
+        // BounceMode.Front, 8, 24), 3);
+        new SequentialCommandGroup(
+            new InstantCommand(
+                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                    BounceMode.Front, 8, 8), 0)),
+            new WaitCommand(0.1),
+            new InstantCommand(
+                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                    BounceMode.Front, 8, 8), 1)),
+            new WaitCommand(0.1),
+            new InstantCommand(
+                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                    BounceMode.Front, 8, 8), 2)),
+            new WaitCommand(0.1),
+            new InstantCommand(
+                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                    BounceMode.Front, 8, 8), 3))).alongWith(new SequentialCommandGroup(
+                        new InstantCommand(() -> m_candle
+                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                                BounceMode.Front, 8, 69), 4)),
+                        new WaitCommand(0.1),
+                        new InstantCommand(() -> m_candle
+                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                                BounceMode.Front, 8, 69), 5)),
+                        new WaitCommand(0.1),
+                        new InstantCommand(() -> m_candle
+                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                                BounceMode.Front, 8, 69), 6)),
+                        new WaitCommand(0.1),
+                        new InstantCommand(() -> m_candle
+                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                                BounceMode.Front, 8, 69), 7))))
+                        .schedule();
     }
 
     public void setVictorySpin() {
         // scrollTimer.restart();
         // scrollTimer.stop();
         m_currentMode = CANdleMode.VICTORY_SPIN;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
         m_candle.animate(new RainbowAnimation(1, 1, NUM_LEDS), 0);
@@ -235,7 +298,7 @@ public class LEDs extends SubsystemBase {
 
     public void setFire() {
         m_currentMode = CANdleMode.FIRE;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
         m_candle.animate(new FireAnimation(1.0, 0.01, 51, 0.6, 0.3, true, 8), 0);
@@ -246,7 +309,7 @@ public class LEDs extends SubsystemBase {
         // scrollTimer.restart();
         // scrollTimer.stop();
         m_currentMode = CANdleMode.ACTIVE;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
     }
@@ -257,6 +320,14 @@ public class LEDs extends SubsystemBase {
 
     public Color getColor() {
         return m_color;
+    }
+
+    public CANdle getCandle() {
+        return m_candle;
+    }
+
+    public int getNumLEDs() {
+        return NUM_LEDS;
     }
 
     @Override

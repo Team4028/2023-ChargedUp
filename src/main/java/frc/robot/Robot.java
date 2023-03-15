@@ -14,8 +14,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.LEDs;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -102,7 +100,14 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        OneMechanism.setIdle();
+        switch (OneMechanism.getCANdleMode()) {
+            case FIRE:
+                OneMechanism.setFire();
+                break;
+            default:
+                OneMechanism.setIdle();
+                break;
+        }
         // OneMechanism.modeBlank();
     }
 

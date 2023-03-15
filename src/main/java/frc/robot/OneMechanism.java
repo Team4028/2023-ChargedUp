@@ -179,6 +179,10 @@ public class OneMechanism {
         }
     }
 
+    public static void setIdleV2() {
+        m_leds.setIdleV2();
+    }
+
     public static void setIdle() {
         m_leds.setIdle();
     }
@@ -198,6 +202,10 @@ public class OneMechanism {
                 m_leds.setVictorySpin();
                 break;
         }
+    }
+
+    public static CANdleMode getCANdleMode() {
+        return m_leds.getMode();
     }
 
     public static void toggleAutoAlign() {

@@ -424,6 +424,12 @@ public class RobotContainer {
         // Y
         // ================================================
         m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - PROBABLY BAD - IDLE V2
+        // LS
+        // ================================================
+        m_emergencyController.ls.onTrue(new InstantCommand(() -> OneMechanism.setIdleV2()));
     }
 
     private void initAutonChooser() {
