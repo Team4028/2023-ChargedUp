@@ -211,5 +211,10 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
         logData();
 
         SmartDashboard.putNumber("Pitch", getGyroRollRotation2d().getDegrees());
+
+        SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getTurningEncoderRadians()));
     }
 }

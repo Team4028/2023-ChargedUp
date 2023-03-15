@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.21,
-        "y": 4.14
+        "x": 1.89,
+        "y": 4.41
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.625630465546646,
-        "y": 4.572697848252839
+        "x": 3.3056304655466455,
+        "y": 4.84269784825284
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -60,9 +60,10 @@
       ]
     },
     {
-      "position": 0.3636363636363637,
+      "position": 0.518181818181819,
       "names": [
-        "ArmPickup"
+        "ArmPickup",
+        "RunGripperIn"
       ]
     }
   ]

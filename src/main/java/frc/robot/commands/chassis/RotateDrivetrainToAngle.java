@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 
@@ -63,9 +62,6 @@ public class RotateDrivetrainToAngle extends ProfiledPIDCommand {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        SmartDashboard.putNumber("Goal", getGoal());
-        SmartDashboard.putNumber("measurement", drivetrain.getRotation2d().getRadians() - goal.get().getRadians());
-        SmartDashboard.putBoolean("at goal", getController().atSetpoint());
         return Math.abs(drivetrain.getRotation2d().getRadians() - goal.get().getRadians()) < getController()
             .getPositionTolerance();
     }

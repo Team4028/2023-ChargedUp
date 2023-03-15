@@ -66,8 +66,8 @@ public class RobotContainer {
         Units.inchesToMeters(-5.75), 0.,
         new Rotation3d(0., Units.degreesToRadians(0.), Units.degreesToRadians(0.)));
 
-    private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-6),
-        Units.inchesToMeters(-3), 0., new Rotation3d());
+    // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-6),
+    //     Units.inchesToMeters(-3), 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
@@ -431,19 +431,17 @@ public class RobotContainer {
     }
 
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("One Piece Top", m_autons.OnePiece(PathPosition.TOP));
-        autoChooser.addOption("One Piece Top Balance", m_autons.OnePieceBalance(PathPosition.TOP));
+        autoChooser.addDefaultOption("1.5 Piece Top", m_autons.OnePiece(PathPosition.Top));
 
-        autoChooser.addOption("One Piece Bottom", m_autons.OnePiece(PathPosition.BOTTOM));
-        autoChooser.addOption("One Piece Bottom Balance", m_autons.OnePieceBalance(PathPosition.BOTTOM));
+        autoChooser.addOption("1.5 Piece Bottom", m_autons.OnePiece(PathPosition.Bottom));
 
-        autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(PathPosition.TOP));
-        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(PathPosition.TOP));
-        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(PathPosition.TOP));
+        autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top));
 
-        autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(PathPosition.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(PathPosition.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(PathPosition.BOTTOM));
+        autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom));
+
+        autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top));
+
+        autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom));
     }
 
     public double speedScaledDriverLeftY() {

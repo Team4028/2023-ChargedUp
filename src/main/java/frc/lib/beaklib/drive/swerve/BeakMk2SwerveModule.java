@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.encoder.BeakAnalogInput;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 
@@ -84,9 +83,6 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
         // Optimize the state to avoid spinning more than 90 degrees.
         // TODO: All attempts at an optimize function seem to break stuff for MK2.
         SwerveModuleState optimizedState = desiredState;
-
-        SmartDashboard.putNumber("bruh " + bruh, desiredState.speedMetersPerSecond);
-        SmartDashboard.putNumber("state " + bruh, getState().speedMetersPerSecond);
 
         m_driveMotor.set(desiredState.speedMetersPerSecond / Units.feetToMeters(14.3));
 

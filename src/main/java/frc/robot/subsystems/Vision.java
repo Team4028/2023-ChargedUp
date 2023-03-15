@@ -24,8 +24,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase {
@@ -173,9 +171,6 @@ public class Vision extends SubsystemBase {
                     m_camToRobot.getTranslation().toTranslation2d(),
                     m_camToRobot.getRotation().toRotation2d()));
 
-            Field2d field = new Field2d();
-            field.setRobotPose(finalPose);
-            SmartDashboard.putData("Vision Desired Pose", field);
             return finalPose;
         }
 

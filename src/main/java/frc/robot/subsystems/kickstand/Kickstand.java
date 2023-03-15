@@ -92,7 +92,7 @@ public class Kickstand extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("Kickstand Output Current", m_motor.getOutputCurrent());
-        SmartDashboard.putNumber("Kickstand Absolute Position", getAbsoluteEncoderPosition());
+        SmartDashboard.putNumber("Kickstand Amps", m_motor.getOutputCurrent());
+        SmartDashboard.putNumber("Kickstand Pos", getAbsoluteEncoderPosition());
     }
 }

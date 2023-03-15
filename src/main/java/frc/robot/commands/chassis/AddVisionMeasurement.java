@@ -4,7 +4,6 @@
 
 package frc.robot.commands.chassis;
 
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.subsystems.Vision;
@@ -15,12 +14,10 @@ import frc.robot.subsystems.Vision;
 public class AddVisionMeasurement extends InstantCommand {
     private final BeakDrivetrain m_drivetrain;
     private final Vision m_vision;
-    private final Field2d m_field;
 
     public AddVisionMeasurement(BeakDrivetrain drivetrain, Vision vision) {
         m_drivetrain = drivetrain;
         m_vision = vision;
-        m_field = new Field2d();
 
         // Use addRequirements() here to declare subsystem dependencies.
         // addRequirements(drivetrain, vision);
@@ -33,6 +30,5 @@ public class AddVisionMeasurement extends InstantCommand {
         m_drivetrain.addVisionMeasurement(
             m_vision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()),
             m_vision.getLatestLatency());
-        m_field.setRobotPose(m_drivetrain.getPoseMeters());
     }
 }

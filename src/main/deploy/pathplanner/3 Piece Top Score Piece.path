@@ -49,14 +49,14 @@
     {
       "position": 0.05454545454545455,
       "names": [
-        "event",
-        "RearLocalize"
+        "ArmRetract",
+        "RearLocalize",
+        "StopGripper"
       ]
     },
     {
       "position": 0.8545454545454552,
       "names": [
-        "ArmScoring",
         "FrontLocalize"
       ]
     }

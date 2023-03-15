@@ -12,12 +12,9 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.OneMechanism;
-import frc.robot.OneMechanism.GamePieceMode;
 
 /**
  * The upper Argos Arm
@@ -32,7 +29,7 @@ public abstract class Arm extends SubsystemBase {
     protected static final double RAMP_RATE = 0.25;
 
     protected SparkMaxPIDController m_pid;
-    
+
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
     protected double m_targetPosition, m_distanceToTravel = 0;
@@ -64,7 +61,9 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * runs the arm with raw vbus
-     * @param speed the speed at which to run the arm
+     * 
+     * @param speed
+     *            the speed at which to run the arm
      */
     public void runArmVbus(double speed) {
         m_motor.set(speed);
@@ -128,10 +127,12 @@ public abstract class Arm extends SubsystemBase {
     public double getEncoderPosition() {
         return m_encoder.getPosition();
     }
-    
+
     /**
      * Set the position of the encoder.
-     * @param position The desired position, in rotations.
+     * 
+     * @param position
+     *            The desired position, in rotations.
      */
     public void setEncoderPosition(double position) {
         m_encoder.setPosition(position);
@@ -178,7 +179,9 @@ public abstract class Arm extends SubsystemBase {
 
     /**
      * sets the distance to travel
-     * @param dist the distance to travel
+     * 
+     * @param dist
+     *            the distance to travel
      */
     public void setDistanceToTravel(double dist) {
         m_distanceToTravel = dist;
@@ -196,7 +199,10 @@ public abstract class Arm extends SubsystemBase {
         return 0.0;
     }
 
-    /**@return A Command to hold the arm at its current position. Used after running open loop to stay put and not drop with gravity. */
+    /**
+     * @return A Command to hold the arm at its current position. Used after running
+     *         open loop to stay put and not drop with gravity.
+     */
     public Command holdArmPosition() {
         return runOnce(() -> {
             m_motor.set(0.0);
@@ -205,6 +211,6 @@ public abstract class Arm extends SubsystemBase {
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
     }
 }

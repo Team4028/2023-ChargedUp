@@ -7,10 +7,35 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3316702347690414,
-        "y": 4.294422874560035
+        "x": 3.0167458906346387,
+        "y": 4.537773504118437
       },
       "holonomicAngle": 180.01,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.1476105809354475,
+        "y": 4.609347218694437
+      },
+      "prevControl": {
+        "x": 3.474817663921043,
+        "y": 4.637976704524838
+      },
+      "nextControl": {
+        "x": 4.806146142174252,
+        "y": 4.581324428854488
+      },
+      "holonomicAngle": -90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -28,8 +53,8 @@
         "y": 4.78
       },
       "prevControl": {
-        "x": 5.994212416996263,
-        "y": 4.764829275372837
+        "x": 5.67928807286186,
+        "y": 4.709550419100839
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -47,16 +72,10 @@
   ],
   "markers": [
     {
-      "position": 0.4181818181818181,
+      "position": 1.0,
       "names": [
         "CubePickup",
         "RunGripperIn"
-      ]
-    },
-    {
-      "position": 0.9636363636363637,
-      "names": [
-        "RearLocalize"
       ]
     },
     {

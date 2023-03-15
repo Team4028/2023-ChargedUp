@@ -18,15 +18,9 @@ public class Trajectories {
      * This enum also stores data for trajectory loading.
      */
     public enum PathPosition {
-        BOTTOM("Bottom", 0.35, 0.4, 0.45), // Over the cable cover
-        MIDDLE("Middle", 0.5, 0.5, 0.25), // Over the charge station
-        TOP("Top", 0.6, 0.65, 0.45); // Short side
-        // TOP("Top", 0.4, 0.4, 0.35); // Short side
-
-        /**
-         * The name of the position, used in loading trajectories.
-         */
-        public String name;
+        Bottom(0.35, 0.4, 0.45), // Over the cable cover
+        Middle(0.5, 0.5, 0.25), // Over the charge station
+        Top(0.6, 0.55, 0.45); // Short side
 
         /**
          * What to multiply the max speed and acceleration of paths that acquire pieces
@@ -46,8 +40,7 @@ public class Trajectories {
          */
         public double balanceMultiplier;
 
-        private PathPosition(String name, double acquireMultiplier, double scoreMultiplier, double balanceMultiplier) {
-            this.name = name;
+        private PathPosition(double acquireMultiplier, double scoreMultiplier, double balanceMultiplier) {
             this.acquireMultiplier = acquireMultiplier;
             this.scoreMultiplier = scoreMultiplier;
             this.balanceMultiplier = balanceMultiplier;
@@ -72,37 +65,37 @@ public class Trajectories {
         // drivetrain by the position's desired multiplier to ensure that each position
         // can run at the necessary speed.
 
-        return PathPlanner.loadPath("1 Piece " + position.name + " Balance",
+        return PathPlanner.loadPath("1 Piece " + position.name() + " Balance",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
     }
 
     public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2 Piece " + position.name + " Balance",
+        return PathPlanner.loadPath("2 Piece " + position.name() + " Balance",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
     }
 
     public static PathPlannerTrajectory TwoPieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2 Piece " + position.name + " Acquire Piece",
+        return PathPlanner.loadPath("2 Piece " + position.name() + " Acquire Piece",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
     }
 
     public static PathPlannerTrajectory TwoPieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2 Piece " + position.name + " Score Piece",
+        return PathPlanner.loadPath("2 Piece " + position.name() + " Score Piece",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
     }
 
     public static PathPlannerTrajectory ThreePieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("3 Piece " + position.name + " Acquire Piece",
+        return PathPlanner.loadPath("3 Piece " + position.name() + " Acquire Piece",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
     }
 
     public static PathPlannerTrajectory ThreePieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("3 Piece " + position.name + " Score Piece",
+        return PathPlanner.loadPath("3 Piece " + position.name() + " Score Piece",
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
     }
