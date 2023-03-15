@@ -430,12 +430,7 @@ public class RobotContainer {
     }
 
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("j path 1", m_autons.JPath1());
-
-        // autoChooser.addOption("j path 2", new JPath2(m_drive));
-        // autoChooser.addOption("J Path", new JPath(m_drive));
-
-        autoChooser.addOption("One Piece Top", m_autons.OnePiece(PathPosition.TOP));
+        autoChooser.addDefaultOption("One Piece Top", m_autons.OnePiece(PathPosition.TOP));
         autoChooser.addOption("One Piece Top Balance", m_autons.OnePieceBalance(PathPosition.TOP));
 
         autoChooser.addOption("One Piece Bottom", m_autons.OnePiece(PathPosition.BOTTOM));

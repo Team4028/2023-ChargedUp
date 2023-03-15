@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9881164048042383,
-        "y": 4.652291447440038
+        "x": 3.3316702347690414,
+        "y": 4.294422874560035
       },
       "holonomicAngle": 180.01,
       "isReversal": false,
@@ -24,37 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 5.8,
-        "y": 4.51
-      },
-      "prevControl": {
-        "x": 4.696278551531422,
-        "y": 4.51
-      },
-      "nextControl": {
-        "x": 6.344148550059956,
-        "y": 4.51
-      },
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
         "x": 6.63,
-        "y": 4.51
+        "y": 4.78
       },
       "prevControl": {
         "x": 5.994212416996263,
-        "y": 4.494829275372837
+        "y": 4.764829275372837
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -79,7 +54,7 @@
       ]
     },
     {
-      "position": 0.9636363636363652,
+      "position": 0.9636363636363637,
       "names": [
         "RearLocalize"
       ]
