@@ -358,12 +358,6 @@ public class RobotContainer {
         m_operatorController.back.onTrue(new DeactivateKickstand(m_kickstand));
 
         // ================================================
-        // EMERGENCY CONTROLLER - Y
-        // VICTORY SPIN
-        // ================================================
-        m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
-
-        // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
@@ -405,13 +399,31 @@ public class RobotContainer {
         // EMERGENCY - RESET POSE
         // A
         // ================================================
-        m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+        //m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - ACTIVE
+        // A
+        // ================================================
+        m_emergencyController.a.onTrue(new InstantCommand(() -> OneMechanism.setActive()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - IDLE
+        // B
+        // ================================================
+        m_emergencyController.b.onTrue(new InstantCommand(() -> OneMechanism.setIdle()));
 
         // ================================================
         // EMERGENCY - EXPERIMENTAL - FIRE
         // X
         // ================================================
         m_emergencyController.x.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - VICTORY SPIN
+        // Y
+        // ================================================
+        m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
     }
 
     private void initAutonChooser() {

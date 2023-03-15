@@ -158,7 +158,7 @@ public class OneMechanism {
         // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
         if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.ORANGE);
+            m_leds.blink(LEDs.Color.ORANGE).schedule();
         }
     }
 
@@ -169,7 +169,7 @@ public class OneMechanism {
         // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.PURPLE);
+            m_leds.blink(LEDs.Color.PURPLE).schedule();;
         }
     }
 
