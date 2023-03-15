@@ -206,6 +206,5 @@ public abstract class Arm extends SubsystemBase {
 
     @Override
     public void periodic(){
-        SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
     }
 }

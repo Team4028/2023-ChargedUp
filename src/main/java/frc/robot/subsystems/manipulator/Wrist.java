@@ -7,6 +7,7 @@ package frc.robot.subsystems.manipulator;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +31,7 @@ public class Wrist extends SubsystemBase {
     private BeakSparkMAX m_motor;
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
     private SparkMaxPIDController m_pid;
+    private double m_targetAngle;
 
     // encoder in RIO:
     // private DutyCycleEncoder m_absEncoder;
@@ -44,6 +46,7 @@ public class Wrist extends SubsystemBase {
         m_motor.setSmartCurrentLimit(25);
         m_motor.setInverted(true);
         m_motor.setIdleMode(IdleMode.kCoast);
+        m_motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 18);
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
@@ -114,6 +117,7 @@ public class Wrist extends SubsystemBase {
         return run(
             () -> {
                 m_pid.setReference(angle, ControlType.kPosition);
+                m_targetAngle = angle;
             }).until(
                 () -> Math.abs(getAbsoluteEncoderPosition() - angle) < 1.0);
     }
@@ -123,7 +127,8 @@ public class Wrist extends SubsystemBase {
         return runOnce(
             () -> {
                 m_motor.set(0.0);
-                m_pid.setReference(getAbsoluteEncoderPosition(), ControlType.kPosition);
+                m_targetAngle = getAbsoluteEncoderPosition();
+                m_pid.setReference(m_targetAngle, ControlType.kPosition);
             }
         );
     }
@@ -137,8 +142,8 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Wrist abs pos", getAbsoluteEncoderPosition());
-        SmartDashboard.putNumber("Raw Wrist", m_absoluteEncoder.getPosition());
+        SmartDashboard.putNumber("Wrist Pos", getAbsoluteEncoderPosition());
+        SmartDashboard.putNumber("Wrist Target", this.m_targetAngle);
         SmartDashboard.putNumber("Wrist AppliedOutput", m_motor.getAppliedOutput());
         SmartDashboard.putNumber("Wrist Relative Position", m_motor.getPositionNU());
         SmartDashboard.putNumber("Wrist Current Output", m_motor.getOutputCurrent());

@@ -34,8 +34,8 @@ public class RunArmPlus extends TrapezoidProfileCommand {
 
                 arm.runToPosition(state.position);//, arm.ffmodel.calculate(state.velocity));
                 // Use current trajectory state here
-                SmartDashboard.putNumber("RunArm Position:", state.position);
-                SmartDashboard.putNumber("RunArm Vel", state.velocity);
+                // SmartDashboard.putNumber("RunArm Position:", state.position);
+                // SmartDashboard.putNumber("RunArm Vel", state.velocity);
             });
             
         m_arm = arm;

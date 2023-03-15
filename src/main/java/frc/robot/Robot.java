@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.subsystems.LEDs;
 
 /**
@@ -142,6 +143,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         SmartDashboard.putNumber("the Node", OneMechanism.getCurrentNode().GridID);
+        SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
+        SmartDashboard.putString("Target Position", OneMechanism.getScoringPosition().name());
     }
 
     /** This function is called once when test mode is enabled. */
