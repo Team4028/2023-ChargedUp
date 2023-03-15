@@ -100,6 +100,9 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
         SmartDashboard.putString("Target Position", OneMechanism.getScoringPosition().name());
+        for (OneMechanism.ScoringPositions element : OneMechanism.ScoringPositions.values()) {
+            SmartDashboard.putBoolean(element.name() + " state", element.equals(OneMechanism.getScoringPosition()));
+        }
     }
 
     /** This function is called once when the robot is disabled. */
