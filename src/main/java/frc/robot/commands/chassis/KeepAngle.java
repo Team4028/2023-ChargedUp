@@ -12,12 +12,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.BeakDrivetrain.SnapDirection;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class KeepAngle extends PIDCommand {
     private BooleanSupplier m_interruptCondition;
+    private BeakDrivetrain m_drivetrain;
 
     /** Creates a new KeepAngle. */
     public KeepAngle(
@@ -50,13 +52,27 @@ public class KeepAngle extends PIDCommand {
 
         // Configure additional PID options by calling `getController` here.
         getController().enableContinuousInput(-Math.PI, Math.PI);
-
+        if (target.getDegrees() == 0) {
+            drivetrain.setSnapDirection(SnapDirection.UP);
+        }
+        else if (target.getDegrees() == 270) {
+            drivetrain.setSnapDirection(SnapDirection.RIGHT);
+        }
+        else if (target.getDegrees() == 180) {
+            drivetrain.setSnapDirection(SnapDirection.DOWN);
+        }
+        else if (target.getDegrees() == 90) {
+            drivetrain.setSnapDirection(SnapDirection.LEFT);
+        }
+        
+        m_drivetrain = drivetrain;
         m_interruptCondition = interruptCondition;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
+        m_drivetrain.setSnapDirection(SnapDirection.NONE);
         return m_interruptCondition.getAsBoolean();
     }
 }

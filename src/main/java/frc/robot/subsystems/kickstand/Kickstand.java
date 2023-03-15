@@ -28,6 +28,7 @@ public class Kickstand extends SubsystemBase {
     private static final double kFF = 0.0;
     private static final double kMaxOutput = 0.2;
     private static final double kMinOutput = -0.2;
+    private double m_targetPosition;
 
     /** Creates a new Kickstand. */
     public Kickstand() {
@@ -63,6 +64,7 @@ public class Kickstand extends SubsystemBase {
     }
 
     public void runToPosition(double degrees) {
+        m_targetPosition = degrees;
         m_pid.setReference(degrees, ControlType.kPosition);
     }
 
@@ -92,7 +94,8 @@ public class Kickstand extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("Kickstand Amps", m_motor.getOutputCurrent());
         SmartDashboard.putNumber("Kickstand Pos", getAbsoluteEncoderPosition());
+        SmartDashboard.putBoolean("Kickstand", m_targetPosition == ACTIVE_POSITION);
+
     }
 }

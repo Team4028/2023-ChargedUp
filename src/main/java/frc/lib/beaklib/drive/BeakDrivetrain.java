@@ -50,6 +50,15 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     protected PIDController m_driveController;
     protected PIDController m_generatedDriveController;
 
+    public enum SnapDirection {
+        NONE,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT;
+    }
+    protected SnapDirection m_snapDirection;
+
     /**
      * Construct a new generic drivetrain.
      * 
@@ -378,5 +387,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         double radiansToTarget = Math.atan2(yDelta, xDelta);
 
         return new Rotation2d(radiansToTarget);
+    }
+
+    public void setSnapDirection(SnapDirection newDirection) {
+        m_snapDirection = newDirection;
     }
 }

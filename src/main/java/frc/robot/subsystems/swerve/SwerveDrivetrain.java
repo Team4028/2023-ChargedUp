@@ -192,6 +192,8 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
             new Pose2d(),
             m_stateStdDevs,
             m_visionMeasurementStdDevs);
+
+        m_snapDirection = SnapDirection.NONE;
     }
 
     public static SwerveDrivetrain getInstance() {

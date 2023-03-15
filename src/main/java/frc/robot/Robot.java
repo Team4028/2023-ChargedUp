@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.OneMechanism.GamePieceMode;
+import frc.robot.OneMechanism.ScoringPositions;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -99,9 +100,14 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
         SmartDashboard.putString("Target Position", OneMechanism.getScoringPosition().name());
-        for (OneMechanism.ScoringPositions element : OneMechanism.ScoringPositions.values()) {
-            SmartDashboard.putBoolean(element.name() + " state", element.equals(OneMechanism.getScoringPosition()));
-        }
+        SmartDashboard.putBoolean("WALL", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE));
+        SmartDashboard.putBoolean("SLIDE", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
+        SmartDashboard.putBoolean("FLOOR", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CUBE || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
+        SmartDashboard.putBoolean("UPRIGHT", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
+        SmartDashboard.putBoolean("STOW", (OneMechanism.getScoringPosition() == ScoringPositions.STOWED));
+        SmartDashboard.putBoolean("LOW", (OneMechanism.getScoringPosition() == ScoringPositions.SCORE_LOW_CONE || OneMechanism.getScoringPosition() == ScoringPositions.SCORE_LOW_CUBE));
+        SmartDashboard.putBoolean("MID", (OneMechanism.getScoringPosition() == ScoringPositions.SCORE_MID_CONE || OneMechanism.getScoringPosition() == ScoringPositions.SCORE_MID_CUBE));
+        SmartDashboard.putBoolean("HIGH", (OneMechanism.getScoringPosition() == ScoringPositions.SCORE_HIGH_CONE || OneMechanism.getScoringPosition() == ScoringPositions.SCORE_HIGH_CUBE));
     }
 
     /** This function is called once when the robot is disabled. */

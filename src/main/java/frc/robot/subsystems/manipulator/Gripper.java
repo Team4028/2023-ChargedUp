@@ -144,5 +144,9 @@ public class Gripper extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Gripper Amps", m_motor.getSupplyCurrent());
         SmartDashboard.putString("Gripper Mode", getGripState().name());
+        SmartDashboard.putBoolean("Gripper In", m_motor.get() > 0.0);
+        SmartDashboard.putBoolean("Gripper Out", m_motor.get() < 0.0);
+        SmartDashboard.putBoolean("Gripper Hold", m_currentState == GripState.HOLD);
+        SmartDashboard.putNumber("Gripper VBUS", m_motor.get());
     }
 }
