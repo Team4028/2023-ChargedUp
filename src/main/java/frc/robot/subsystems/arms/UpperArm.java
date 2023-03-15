@@ -95,10 +95,10 @@ public class UpperArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("UpArmEncoderPos", getEncoderPosition());
-        SmartDashboard.putNumber("LowArmTarget", this.m_targetPosition);
-        SmartDashboard.putNumber("UpArmErr", this.getError());
-        SmartDashboard.putNumber("UpArmCurrentAmps", this.getMotorCurrent());
+        SmartDashboard.putNumber("Up Arm Pos", getEncoderPosition());
+        SmartDashboard.putNumber("Up Arm Target", this.m_targetPosition);
+        SmartDashboard.putNumber("Up Arm Err", this.getError());
+        SmartDashboard.putNumber("Up Arm Amps", this.getMotorCurrent());
         // This method will be called once per scheduler run
     }
 

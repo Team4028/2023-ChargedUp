@@ -97,10 +97,10 @@ public class LowerArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("LowArmEncoderPos", getEncoderPosition());
-        SmartDashboard.putNumber("LowArmTarget", this.m_targetPosition);
-        SmartDashboard.putNumber("LowArmErr", this.getError());
-        SmartDashboard.putNumber("LowArmCurrentAmps", this.getMotorCurrent());
+        SmartDashboard.putNumber("Low Arm Pos", getEncoderPosition());
+        SmartDashboard.putNumber("Low Arm Targ", this.m_targetPosition);
+        SmartDashboard.putNumber("Low Arm Err", this.getError());
+        SmartDashboard.putNumber("Low Arm Amps", this.getMotorCurrent());
         // This method will be called once per scheduler run
     }
 

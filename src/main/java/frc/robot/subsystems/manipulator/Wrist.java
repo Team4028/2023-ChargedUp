@@ -50,7 +50,7 @@ public class Wrist extends SubsystemBase {
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
-        m_absoluteEncoder.setZeroOffset(20);
+        m_absoluteEncoder.setZeroOffset(275.); // old infeed: 20.
         m_absoluteEncoder.setInverted(false);
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);
@@ -143,9 +143,8 @@ public class Wrist extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Wrist Pos", getAbsoluteEncoderPosition());
-        SmartDashboard.putNumber("Wrist Target", this.m_targetAngle);
-        SmartDashboard.putNumber("Wrist AppliedOutput", m_motor.getAppliedOutput());
-        SmartDashboard.putNumber("Wrist Relative Position", m_motor.getPositionNU());
-        SmartDashboard.putNumber("Wrist Current Output", m_motor.getOutputCurrent());
+        SmartDashboard.putNumber("Wrist Targ", m_targetAngle);
+        SmartDashboard.putNumber("Wrist RelPos", m_motor.getPositionNU());
+        SmartDashboard.putNumber("Wrist Amps", m_motor.getOutputCurrent());
     }
 }

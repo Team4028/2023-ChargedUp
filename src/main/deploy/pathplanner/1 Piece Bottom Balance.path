@@ -25,15 +25,15 @@
     {
       "anchorPoint": {
         "x": 5.822435502013861,
-        "y": 2.15
+        "y": 2.3
       },
       "prevControl": {
         "x": 6.8224355020138585,
-        "y": 2.15
+        "y": 2.3
       },
       "nextControl": {
         "x": 5.235531042490656,
-        "y": 2.15
+        "y": 2.3
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -50,11 +50,11 @@
     {
       "anchorPoint": {
         "x": 3.918574694292246,
-        "y": 2.147211437280018
+        "y": 2.3
       },
       "prevControl": {
         "x": 4.763265828958547,
-        "y": 2.147211437280018
+        "y": 2.3
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -76,6 +76,18 @@
       "names": [
         "ArmRetract",
         "StopGripper"
+      ]
+    },
+    {
+      "position": 0.672727272727272,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 0.5272727272727273,
+      "names": [
+        "RearLocalize"
       ]
     }
   ]

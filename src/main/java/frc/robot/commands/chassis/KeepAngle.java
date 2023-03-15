@@ -4,6 +4,7 @@
 
 package frc.robot.commands.chassis;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -16,8 +17,15 @@ import frc.lib.beaklib.drive.BeakDrivetrain;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class KeepAngle extends PIDCommand {
+    private BooleanSupplier m_interruptCondition;
+
     /** Creates a new KeepAngle. */
-    public KeepAngle(Rotation2d target, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
+    public KeepAngle(
+        Rotation2d target,
+        DoubleSupplier xSupplier,
+        DoubleSupplier ySupplier,
+        BooleanSupplier interruptCondition,
+        BeakDrivetrain drivetrain) {
         super(
             // The controller that the command will use
             new PIDController(
@@ -31,24 +39,24 @@ public class KeepAngle extends PIDCommand {
             // This uses the output
             output -> {
                 // Use the output here
-                drivetrain.drive(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
                         xSupplier.getAsDouble(),
                         ySupplier.getAsDouble(),
                         output,
-                        drivetrain.getRotation2d()
-                    ));
+                        drivetrain.getRotation2d()));
             });
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(drivetrain);
 
         // Configure additional PID options by calling `getController` here.
         getController().enableContinuousInput(-Math.PI, Math.PI);
+
+        m_interruptCondition = interruptCondition;
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return m_interruptCondition.getAsBoolean();
     }
 }

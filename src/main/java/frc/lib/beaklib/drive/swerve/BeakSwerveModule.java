@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
 
@@ -205,8 +204,6 @@ public class BeakSwerveModule {
         } else if (newAngleDemand - currentSensorPosition < -180.1) {
             newAngleDemand += 360.0;
         }
-
-        // SmartDashboard.putNumber("state " + bruh, newAngleDemand / 360. * turnCPR);
 
         m_turningMotor.setPositionNU(newAngleDemand / 360.0 * turnCPR);
     }

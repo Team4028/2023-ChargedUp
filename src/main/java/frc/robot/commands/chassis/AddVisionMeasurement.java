@@ -5,7 +5,6 @@
 package frc.robot.commands.chassis;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.subsystems.Vision;
@@ -35,6 +34,5 @@ public class AddVisionMeasurement extends InstantCommand {
             m_vision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()),
             m_vision.getLatestLatency());
         m_field.setRobotPose(m_drivetrain.getPoseMeters());
-        SmartDashboard.putData("AprilTag thing", m_field);
     }
 }

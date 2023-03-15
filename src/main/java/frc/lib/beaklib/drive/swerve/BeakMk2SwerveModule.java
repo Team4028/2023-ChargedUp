@@ -83,10 +83,7 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the state to avoid spinning more than 90 degrees.
         // TODO: All attempts at an optimize function seem to break stuff for MK2.
-        SwerveModuleState optimizedState = desiredState;// optimize(desiredState, new
-                                                        // Rotation2d(getTurningEncoderRadians()));
-        // SwerveModuleState.optimize(desiredState, new
-        // Rotation2d(getTurningEncoderRadians()));
+        SwerveModuleState optimizedState = desiredState;
 
         SmartDashboard.putNumber("bruh " + bruh, desiredState.speedMetersPerSecond);
         SmartDashboard.putNumber("state " + bruh, getState().speedMetersPerSecond);
@@ -103,8 +100,5 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
 
         // Calculate the turning motor output from the turning PID controller.
         m_turningMotor.set(turnOutput);
-
-        // SmartDashboard.putNumber("state " + bruh, m_turningMotor.getPositionNU() *
-        // 360. / turnCPR);
     }
 }

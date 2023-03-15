@@ -9,18 +9,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.GeneratePathWithArc;
-import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDs.Color;
@@ -172,7 +169,6 @@ public class OneMechanism {
 
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
-        SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
     }
 
     public static void toggleGreen() {
@@ -226,7 +222,6 @@ public class OneMechanism {
 
     public static void setNode(Node node) {
         m_currentNode = node;
-        SmartDashboard.putNumber("Node", m_currentNode.GridID);
     }
 
     /**
@@ -238,22 +233,14 @@ public class OneMechanism {
         // Add measurements to the pose estimator before and after to ensure relative
         // accuracy
         return new ConditionalCommand(
-            // new AddVisionMeasurement(m_drive, m_vision).andThen(
             new GeneratePathWithArc(
                 () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
                 interruptCondition,
-                m_drive)//.deadlineWith(
-                    // new RepeatCommand(new AddVisionMeasurement(m_drive,
-                    //     m_vision)))
+                m_drive)
                     .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-            // .andThen(new AddVisionMeasurement(m_drive, m_vision))),
             Commands.none(),
             () -> m_autoAlignMode);
     }
-
-    // public static Command setNodeFromTagID(Supplier<Integer> id) {
-    //     return setNode(() -> getNodeFromTagID(id.get())).andThen(runToNodePosition());
-    // }
 
     public static Node getCurrentNode() {
         return m_currentNode;
@@ -280,10 +267,8 @@ public class OneMechanism {
                     }
                 }
 
-                SmartDashboard.putNumber("Node", nodeToSet.get(0).GridID);
-
                 setNode(nodeToSet.get(0));
-            });//.andThen(runToNodePosition());
+            });
     }
 
     /**
@@ -308,10 +293,8 @@ public class OneMechanism {
                     }
                 }
 
-                SmartDashboard.putNumber("Node", nodeToSet.get(0).GridID);
-
                 setNode(nodeToSet.get(0));
-            });//.andThen(runToNodePosition());
+            });
     }
 
     public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm,

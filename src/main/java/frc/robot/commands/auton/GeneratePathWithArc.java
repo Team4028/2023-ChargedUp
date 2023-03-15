@@ -25,10 +25,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.BeakDrivetrain;
-import frc.robot.RobotContainer;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class GeneratePathWithArc extends CommandBase {
@@ -105,7 +103,6 @@ public class GeneratePathWithArc extends CommandBase {
         Logger.getInstance().recordOutput("Desired Pose", m_desiredPose);
 
         field.setRobotPose(m_desiredPose);
-        SmartDashboard.putData("Node Pose", field);
 
         m_timer.reset();
         m_timer.start();
@@ -153,10 +150,8 @@ public class GeneratePathWithArc extends CommandBase {
         Translation2d translationTolerance = m_positionTolerance.getTranslation();
         Rotation2d rotationTolerance = m_positionTolerance.getRotation();
 
-        // return (m_driveController.atReference());
         // TODO: bruh
 
-        SmartDashboard.putBoolean("Interrupt Condition", m_interruptCondition.getAsBoolean());
         return m_interruptCondition.getAsBoolean() || (Math.abs(translationError.getX()) < translationTolerance.getX()
             && Math.abs(translationError.getY()) < translationTolerance.getY()
             && Math.abs(rotationError.getRadians()) < rotationTolerance.getRadians());
