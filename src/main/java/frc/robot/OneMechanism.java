@@ -344,6 +344,6 @@ public class OneMechanism {
     }
 
     public static void signalAcquisition() {
-        m_leds.alternateBlink(Color.WHITE);
+        m_leds.blink(Color.WHITE).schedule();;
     }
 }

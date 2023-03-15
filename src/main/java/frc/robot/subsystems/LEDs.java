@@ -98,47 +98,18 @@ public class LEDs extends SubsystemBase {
     }
     
     public SequentialCommandGroup blink() {
-        return new SequentialCommandGroup(
-            new WaitCommand(0.1),
-            new InstantCommand(() -> m_blinking = true),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new InstantCommand(() -> m_blinking = false)
-        );
+        return blink(m_color);
     }
 
     public SequentialCommandGroup blink(Color color) {
         return new SequentialCommandGroup(
             new InstantCommand(() -> m_blinking = true),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.1),
             new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(color)),
             new InstantCommand(() -> m_blinking = false)
         );
@@ -148,22 +119,13 @@ public class LEDs extends SubsystemBase {
         return new SequentialCommandGroup(
             new InstantCommand(() -> m_blinking = true),
             new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.1),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(m_color)),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(m_color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
+            new WaitCommand(0.02),
             new InstantCommand(() -> m_blinking = false)
         );
     }
