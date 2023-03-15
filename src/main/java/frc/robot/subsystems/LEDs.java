@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.OneMechanism;
 
 public class LEDs extends SubsystemBase {
     public enum CANdleMode {
@@ -30,13 +31,13 @@ public class LEDs extends SubsystemBase {
     }
 
     private CANdleMode m_currentMode;
-    private Color m_color;
+    private Color m_color, m_lastColor;
     private final int NUM_LEDS = 128; // 8 for candle + 120 for 2 strips
     private CANdle m_candle;
     // private int r, g, b;
     private static LEDs m_instance;
     // private Timer scrollTimer = new Timer();
-    private double scrollVar = 0;
+    // private double scrollVar = 0;
 
     /**
      * the colors that the CANdle needs to be set to
@@ -113,7 +114,8 @@ public class LEDs extends SubsystemBase {
     }
 
     /**
-     * @param color the color to blink
+     * @param color
+     *            the color to blink
      * @return Blinks the color and then changes to it (SequentialCommandGroup)
      */
     public SequentialCommandGroup blink(Color color) {
@@ -139,31 +141,32 @@ public class LEDs extends SubsystemBase {
      * @return Blinks the lights at their current color (SequentialCommandGroup)
      */
     public SequentialCommandGroup blink() {
-        Color lastColor = m_color;
+        m_lastColor = m_color;
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.1),
-            new InstantCommand(() -> setColor(lastColor)),
+            new InstantCommand(() -> setColor(m_lastColor)),
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(lastColor)),
+            new InstantCommand(() -> setColor(m_lastColor)),
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(lastColor)),
+            new InstantCommand(() -> setColor(m_lastColor)),
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(lastColor)));
+            new InstantCommand(() -> setColor(m_lastColor)));
     }
 
     /**
-     * @param color The color to blink
+     * @param color
+     *            The color to blink
      * @return Blinks the color, but returns to the original color
      */
     public SequentialCommandGroup blinkWithoutChange(Color color) {
-        Color lastColor = m_color;
+        m_lastColor = m_color;
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.1),
@@ -185,7 +188,33 @@ public class LEDs extends SubsystemBase {
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(lastColor)));
+            new InstantCommand(() -> setColor(m_lastColor)));
+    }
+
+    public SequentialCommandGroup blinkMulti(Color... colors){
+        SequentialCommandGroup cmd = new SequentialCommandGroup(
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.1),
+            new InstantCommand(() -> setColor(colors[0])),
+            new WaitCommand(0.08)
+        );
+        if (colors.length > 1){
+            for (int i = 1; i < colors.length - 1; i++) {
+                Color tempColor = colors[i];
+                cmd.addCommands(
+                    new InstantCommand(() -> setBlank()),
+                    new WaitCommand(0.08),
+                    new InstantCommand(() -> setColor(tempColor)),
+                    new WaitCommand(0.08)
+                );
+            }
+            cmd.addCommands(
+                new InstantCommand(() -> setBlank()),
+                new WaitCommand(0.08),
+                new InstantCommand(() -> setColor(colors[colors.length-1]))
+            );
+        }
+        return cmd;
     }
 
     public void setIdle() {
@@ -244,8 +273,11 @@ public class LEDs extends SubsystemBase {
         // setLEDs().schedule();
         SmartDashboard.putString("Mode: ", m_currentMode.name);
         // SmartDashboard.putNumber("Timer", scrollTimer.get());
-        SmartDashboard.putNumber("scrollVar", scrollVar);
+        // SmartDashboard.putNumber("scrollVar", scrollVar);
         if (m_currentMode == CANdleMode.ACTIVE) {
+            if (OneMechanism.getAutoAlignMode() && !blink().isScheduled()) {
+                blink().schedule();
+            }
             m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
         }
     }

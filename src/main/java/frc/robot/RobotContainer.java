@@ -358,20 +358,20 @@ public class RobotContainer {
         m_operatorController.back.onTrue(new DeactivateKickstand(m_kickstand));
 
         // ================================================
-        // OPERATOR CONTROLLER - Y
+        // EMERGENCY CONTROLLER - Y
         // VICTORY SPIN
         // ================================================
-        m_operatorController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
+        m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
 
         // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
         m_emergencyController.axisGreaterThan(1, 0.1)
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.5 * m_emergencyController.getLeftYAxis())));
         m_emergencyController.axisGreaterThan(1, 0.0)
             .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())),
+                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * Math.abs(m_emergencyController.getLeftYAxis()))),
                 m_lowerArm.holdArmPosition(),
                 () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
 
@@ -380,10 +380,10 @@ public class RobotContainer {
         // RSX
         // ================================================
         m_emergencyController.axisGreaterThan(4, 0.1)
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.5 * m_emergencyController.getRightXAxis())));
         m_emergencyController.axisGreaterThan(4, 0.0)
             .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())),
+                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * Math.abs(m_emergencyController.getRightXAxis()))),
                 m_upperArm.holdArmPosition(),
                 () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
 
@@ -409,9 +409,9 @@ public class RobotContainer {
 
         // ================================================
         // EMERGENCY - EXPERIMENTAL - FIRE
-        // Y
+        // X
         // ================================================
-        m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
+        m_emergencyController.x.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
     }
 
     private void initAutonChooser() {
