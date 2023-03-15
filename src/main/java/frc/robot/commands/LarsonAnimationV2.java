@@ -93,21 +93,21 @@ public class LarsonAnimationV2 extends CommandBase {
         new WaitCommand((1 - speed) / 4).schedule();
         switch (m_mode) {
             case FRONT:
-                if (counter + size < upperBound && counter > lowerBound) {
+                if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
                     counter += Integer.signum(direction);
                 } else {
                     direction = -direction;
                 }
                 break;
             case CENTRE:
-                if (counter + (size / 2) < upperBound && counter + (size / 2) > lowerBound) {
+                if ((startIndex + counter + (size / 2)) < upperBound && (startIndex + counter + (size / 2)) > lowerBound) {
                     counter += Integer.signum(direction);
                 } else {
                     direction = -direction;
                 }
                 break;
             default:
-                if (counter < upperBound && counter + size > lowerBound) {
+                if ((counter + startIndex) < upperBound && (startIndex + counter + size) > lowerBound) {
                     counter += Integer.signum(direction);
                 } else {
                     direction = -direction;
