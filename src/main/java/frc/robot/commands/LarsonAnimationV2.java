@@ -26,13 +26,13 @@ public class LarsonAnimationV2 extends CommandBase {
      * Animates the CANdle with a custom made LarsonAnimation
      * 
      * @param r
-     *            the red value [0, 255]
+     *            the red value [0, 254]
      * @param g
-     *            the green value [0, 255]
+     *            the green value [0, 254]
      * @param b
-     *            the blue value [0, 255]
+     *            the blue value [0, 254]
      * @param w
-     *            the white value [0, 255]
+     *            the white value [0, 254]
      * @param speed
      *            the speed of the animation, [0, 1]
      * @param inverted
@@ -62,10 +62,10 @@ public class LarsonAnimationV2 extends CommandBase {
         int lowerBoundIndex,
         int startIndex, int size, V2BounceMode mode, LEDs leds) {
         // Use addRequirements() here to declare subsystem dependencies.
-        this.r = (r > 255 || r < 0) ? (r < 0 ? 0 : 255) : r;
-        this.g = (g > 255 || g < 0) ? (g < 0 ? 0 : 255) : g;
-        this.b = (b > 255 || b < 0) ? (b < 0 ? 0 : 255) : b;
-        this.w = (w > 255 || w < 0) ? (w < 0 ? 0 : 255) : w;
+        this.r = (r > 254 || r < 0) ? (r < 0 ? 0 : 254) : r;
+        this.g = (g > 254 || g < 0) ? (g < 0 ? 0 : 254) : g;
+        this.b = (b > 254 || b < 0) ? (b < 0 ? 0 : 254) : b;
+        this.w = (w > 254 || w < 0) ? (w < 0 ? 0 : 254) : w;
         this.speed = speed > 1 ? 1 : speed;
         this.startIndex = (startIndex > upperBoundIndex || startIndex < lowerBoundIndex)
             ? (startIndex < lowerBoundIndex ? lowerBoundIndex : upperBoundIndex)
@@ -106,15 +106,22 @@ public class LarsonAnimationV2 extends CommandBase {
                     direction = -direction;
                 }
                 break;
-            default:
+            case BACK:
                 if ((counter + startIndex) < upperBound && (startIndex + counter + size) > lowerBound) {
                     counter += Integer.signum(direction);
                 } else {
                     direction = -direction;
                 }
                 break;
+            default:
+                if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
+                    counter += Integer.signum(direction);
+                } else {
+                    direction = -direction;
+                }
+                break;
         }
-        m_candle.setLEDs(0, 0, 0, 0, (startIndex + counter) - Integer.signum(direction), 1);
+        m_candle.setLEDs(0, 0, 0, 0, (startIndex + counter + (size * Integer.signum(-direction + 1))) - Integer.signum(direction), 1);
         m_candle.setLEDs(r, g, b, w, startIndex + counter, size);
     }
 
