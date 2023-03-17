@@ -118,7 +118,7 @@ public class Gripper extends SubsystemBase {
     }
 
     private boolean atCurrentThreshold() {
-        if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
+        if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD && m_motor.get() > 0.) {
             OneMechanism.signalAcquisition();
             return true;
         } else {
@@ -144,9 +144,11 @@ public class Gripper extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Gripper Amps", m_motor.getSupplyCurrent());
         SmartDashboard.putString("Gripper Mode", getGripState().name());
-        SmartDashboard.putBoolean("Gripper In", m_motor.get() > 0.0);
+        SmartDashboard.putBoolean("Gripper In", m_motor.get() >= RUN_SPEED);
         SmartDashboard.putBoolean("Gripper Out", m_motor.get() < 0.0);
         SmartDashboard.putBoolean("Gripper Hold", m_currentState == GripState.HOLD);
         SmartDashboard.putNumber("Gripper VBUS", m_motor.get());
+
+        atCurrentThreshold();
     }
 }

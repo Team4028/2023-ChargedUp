@@ -20,7 +20,7 @@ public class AutoBalance extends PIDCommand {
     public AutoBalance(BeakDrivetrain drivetrain, boolean continuous) {
         super(
             // The controller that the command will use
-            new PIDController(1.55, 0, 0),
+            new PIDController(1.2, 0, 0), // 1.25
             // This should return the measurement
             () -> drivetrain.getGyroPitchRotation2d().getRadians(),
             // This should return the setpoint (can also be a constant)

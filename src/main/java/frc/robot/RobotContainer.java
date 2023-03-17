@@ -209,7 +209,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER - LT
         // RUN GRIPPER IN (WITH SMART HOLDING)
         // ================================================
-        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier())
+        m_driverController.lt.whileTrue(m_gripper.runMotorIn()
             .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ================================================
