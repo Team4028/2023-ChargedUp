@@ -50,11 +50,11 @@
     {
       "anchorPoint": {
         "x": 6.75,
-        "y": 0.77
+        "y": 0.7
       },
       "prevControl": {
         "x": 5.862485939257593,
-        "y": 0.7556852570847992
+        "y": 0.6856852570847991
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -72,7 +72,7 @@
   ],
   "markers": [
     {
-      "position": 1.0909090909090904,
+      "position": 0.9818181818181825,
       "names": [
         "CubePickup",
         "RunGripperIn"
