@@ -10,6 +10,7 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 
@@ -32,6 +33,7 @@ public class LEDs extends SubsystemBase {
     private Color m_color, m_lastColor;
     private final int NUM_LEDS = 119;
     private CANdle m_candle;
+    private boolean m_throwOnGround = false;
     // private int r, g, b;
     private static LEDs m_instance;
     // private Timer scrollTimer = new Timer();
@@ -314,6 +316,10 @@ public class LEDs extends SubsystemBase {
         }
     }
 
+    public void toggleThrowOnGround() {
+        m_throwOnGround = !m_throwOnGround;
+    }
+
     public CANdleMode getMode() {
         return m_currentMode;
     }
@@ -340,7 +346,11 @@ public class LEDs extends SubsystemBase {
             if (OneMechanism.getAutoAlignMode() && !blink().isScheduled()) {
                 blink().schedule();
             }
-            m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
+            if (m_throwOnGround) {
+                m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b), 0);
+            } else {
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
+            }
         } else if (m_currentMode == CANdleMode.FIRE) {
             m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
         }

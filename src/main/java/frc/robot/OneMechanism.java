@@ -169,7 +169,8 @@ public class OneMechanism {
         // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.PURPLE).schedule();;
+            m_leds.blink(LEDs.Color.PURPLE).schedule();
+            ;
         }
     }
 
@@ -211,6 +212,10 @@ public class OneMechanism {
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
         SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
+    }
+
+    public static void toggleThrowOnGround() {
+        m_leds.toggleThrowOnGround();
     }
 
     public static void toggleGreen() {

@@ -399,7 +399,8 @@ public class RobotContainer {
         // EMERGENCY - RESET POSE
         // A
         // ================================================
-        //m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+        // m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive,
+        // m_frontAprilTagVision));
 
         // ================================================
         // EMERGENCY CONTROLLER - ACTIVE
@@ -430,6 +431,12 @@ public class RobotContainer {
         // LS
         // ================================================
         m_emergencyController.ls.onTrue(new InstantCommand(() -> OneMechanism.setIdleV2()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - EXPERIMENTAL - TOGGLE THROW ON GROUND SLIDE SIGNAL
+        // RS
+        // ================================================
+        m_emergencyController.rs.onTrue(new InstantCommand(() -> OneMechanism.toggleThrowOnGround()));
     }
 
     private void initAutonChooser() {
