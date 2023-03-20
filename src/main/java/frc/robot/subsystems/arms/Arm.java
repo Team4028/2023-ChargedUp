@@ -210,6 +210,12 @@ public abstract class Arm extends SubsystemBase {
         });
     }
 
+    public Command changePositionCommand(double delta) {
+        return runOnce(() -> {
+            runToPosition(m_targetPosition + delta);
+        });
+    }
+
     @Override
     public void periodic() {
     }

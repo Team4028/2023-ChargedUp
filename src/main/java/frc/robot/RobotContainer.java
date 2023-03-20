@@ -429,10 +429,16 @@ public class RobotContainer {
         m_emergencyController.lt.whileTrue(m_wrist.runMotor(-0.15));
 
         // ================================================
-        // EMERGENCY - RESET POSE
+        // EMERGENCY - BUMP LOWER ARM DOWN
         // A
         // ================================================
-        m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+        m_emergencyController.a.onTrue(m_lowerArm.changePositionCommand(-1.));
+
+        // ================================================
+        // EMERGENCY - BUMP LOWER ARM UP
+        // A
+        // ================================================
+        m_emergencyController.y.onTrue(m_lowerArm.changePositionCommand(1.));
     }
 
     private void initAutonChooser() {
