@@ -5,13 +5,14 @@
 package frc.robot.commands.kickstand;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.OneMechanism;
 import frc.robot.subsystems.kickstand.Kickstand;
 
 public class DeactivateKickstand extends CommandBase {
     private Kickstand m_kickstand;
     /** Creates a new DeactivateKickstand. */
     public DeactivateKickstand(Kickstand kickstand) {
-        m_kickstand=kickstand;
+        m_kickstand = kickstand;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(kickstand);
     }
@@ -19,6 +20,7 @@ public class DeactivateKickstand extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        OneMechanism.setThrowOnGround(false);
         m_kickstand.deacitvateKickstand();
     }
 

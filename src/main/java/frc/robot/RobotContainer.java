@@ -437,6 +437,12 @@ public class RobotContainer {
         // RS
         // ================================================
         m_emergencyController.rs.onTrue(new InstantCommand(() -> OneMechanism.toggleThrowOnGround()));
+
+        // ================================================
+        // EMERGENCY CONTROLLER - EXPERIMENTAL - IDLEV3
+        // RB
+        // ================================================
+        m_emergencyController.rb.onTrue(new InstantCommand(() -> OneMechanism.setIdleV3()));
     }
 
     private void initAutonChooser() {

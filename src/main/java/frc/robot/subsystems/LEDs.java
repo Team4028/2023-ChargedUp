@@ -4,14 +4,14 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 
 // import edu.wpi.first.wpilibj.Timer;
@@ -26,7 +26,7 @@ import frc.robot.commands.LarsonAnimationV2.V2BounceMode;
 
 public class LEDs extends SubsystemBase {
     public enum CANdleMode {
-        VICTORY_SPIN, FIRE, IDLE, ACTIVE, IDLEV2;
+        VICTORY_SPIN, FIRE, IDLE, ACTIVE, IDLEV2, IDLEV3;
     }
 
     private CANdleMode m_currentMode;
@@ -192,30 +192,22 @@ public class LEDs extends SubsystemBase {
     }
 
     public SequentialCommandGroup blinkMulti(Color... colors) {
-        SequentialCommandGroup cmd = new SequentialCommandGroup(
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> setColor(colors[0])),
-            new WaitCommand(0.08));
-        if (colors.length > 1) {
-            for (int i = 1; i < colors.length - 1; i++) {
-                Color tempColor = colors[i];
-                cmd.addCommands(
-                    new InstantCommand(() -> setBlank()),
-                    new WaitCommand(0.08),
-                    new InstantCommand(() -> setColor(tempColor)),
-                    new WaitCommand(0.08));
-            }
+        SequentialCommandGroup cmd = new SequentialCommandGroup(new InstantCommand(() -> {
+        }));
+        for (int i = 0; i < colors.length; i++) {
+            Color tempColor = colors[i];
             cmd.addCommands(
                 new InstantCommand(() -> setBlank()),
                 new WaitCommand(0.08),
-                new InstantCommand(() -> setColor(colors[colors.length - 1])));
+                new InstantCommand(() -> setColor(tempColor)),
+                new WaitCommand(0.08));
         }
         return cmd;
     }
 
     // TODO: Test \/
     public void setIdleV2() {
+        m_throwOnGround = false;
         m_currentMode = CANdleMode.IDLEV2;
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
@@ -236,7 +228,18 @@ public class LEDs extends SubsystemBase {
                 .schedule();
     }
 
+    public void setIdleV3() {
+        m_throwOnGround = false;
+        m_currentMode = CANdleMode.IDLEV3;
+        for (int i = 0; i < 8; i++) {
+            m_candle.clearAnimation(i);
+        }
+        m_candle.animate(new ColorFlowAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS, Direction.Forward), 0);
+        m_candle.animate(new ColorFlowAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS, Direction.Backward), 1);
+    }
+
     public void setIdle() {
+        m_throwOnGround = false;
         m_currentMode = CANdleMode.IDLE;
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
@@ -261,34 +264,35 @@ public class LEDs extends SubsystemBase {
             new WaitCommand(0.1),
             new InstantCommand(
                 () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
-                    BounceMode.Front, 8, 8), 1)),
+                    BounceMode.Front, 8, 16), 1)),
             new WaitCommand(0.1),
             new InstantCommand(
                 () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
-                    BounceMode.Front, 8, 8), 2)),
+                    BounceMode.Front, 8, 24), 2)),
             new WaitCommand(0.1),
             new InstantCommand(
                 () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
-                    BounceMode.Front, 8, 8), 3))).alongWith(new SequentialCommandGroup(
+                    BounceMode.Front, 8, 32), 3))).alongWith(new SequentialCommandGroup(
                         new InstantCommand(() -> m_candle
                             .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
                                 BounceMode.Front, 8, 69), 4)),
                         new WaitCommand(0.1),
                         new InstantCommand(() -> m_candle
                             .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
-                                BounceMode.Front, 8, 69), 5)),
+                                BounceMode.Front, 8, 77), 5)),
                         new WaitCommand(0.1),
                         new InstantCommand(() -> m_candle
                             .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
-                                BounceMode.Front, 8, 69), 6)),
+                                BounceMode.Front, 8, 85), 6)),
                         new WaitCommand(0.1),
                         new InstantCommand(() -> m_candle
                             .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
-                                BounceMode.Front, 8, 69), 7))))
+                                BounceMode.Front, 8, 93), 7))))
                         .schedule();
     }
 
     public void setVictorySpin() {
+        m_throwOnGround = false;
         // scrollTimer.restart();
         // scrollTimer.stop();
         m_currentMode = CANdleMode.VICTORY_SPIN;
@@ -316,8 +320,12 @@ public class LEDs extends SubsystemBase {
         }
     }
 
-    public void toggleThrowOnGround() {
-        m_throwOnGround = !m_throwOnGround;
+    public void setThrowOnGround(boolean state) {
+        m_throwOnGround = state;
+    }
+
+    public boolean getThrowOnGround() {
+        return m_throwOnGround;
     }
 
     public CANdleMode getMode() {

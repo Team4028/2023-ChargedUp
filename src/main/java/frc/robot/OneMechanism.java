@@ -184,6 +184,10 @@ public class OneMechanism {
         m_leds.setIdleV2();
     }
 
+    public static void setIdleV3() {
+        m_leds.setIdleV3();
+    }
+
     public static void setIdle() {
         m_leds.setIdle();
     }
@@ -215,13 +219,19 @@ public class OneMechanism {
     }
 
     public static void toggleThrowOnGround() {
-        m_leds.toggleThrowOnGround();
+        m_leds.setThrowOnGround(!m_leds.getThrowOnGround());
+    }
+
+    public static void setThrowOnGround(boolean state) {
+        m_leds.setThrowOnGround(state);
     }
 
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         if (m_climbMode) {
             m_leds.blink(LEDs.Color.GREEN);
+            m_leds.setThrowOnGround(false);
+
         } else {
             switch (getGamePieceMode()) {
                 case ORANGE_CONE:
