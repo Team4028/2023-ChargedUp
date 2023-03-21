@@ -21,13 +21,13 @@ public class RunArmsSafely extends SequentialCommandGroup {
                 new RunArmsWithPID(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
                     .andThen(new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist)),
                 new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist),
-                () -> (OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
+                () -> ((OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.STOWED))
                     && (targetPos.equals(ScoringPositions.STOWED)
                         || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
                         || targetPos.equals(ScoringPositions.ACQUIRE_FLOOR_CUBE))
-                    && targetPos != OneMechanism.getScoringPosition()));
+                    && targetPos != OneMechanism.getScoringPosition())));
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(lowerArm, upperArm, wrist);
 

@@ -12,6 +12,8 @@ import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
+import frc.robot.commands.SuppliedWaitCommand;
+import frc.robot.Constants;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -31,23 +33,19 @@ public class RunArmsWithPID extends SequentialCommandGroup {
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
                 new RunArmPID(targetPos.lowerPosition, lowerArm)
-                        /*
-                         * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
-                         * Constants.ArmConstants.EXTEND_COEFFICIENT)
-                         */
+                        .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
+                        Constants.ArmConstants.EXTEND_COEFFICIENT)
                         .andThen(new RunArmPID(targetPos.upperPosition, upperArm)
-                        .alongWith(wrist.runToAngle(targetPos.wristAngle))),
+                        .alongWith(wrist.runToAngle(targetPos.wristAngle)))),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
                 new RunArmPID(targetPos.upperPosition, upperArm)
                         .raceWith(wrist.runToAngle(targetPos.wristAngle))
-                        /*
-                         * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
-                         * Constants.ArmConstants.RETRACT_COEFFICIENT)
-                         */
-                        .andThen(new RunArmPID(targetPos.lowerPosition, lowerArm)),
+                        .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
+                        Constants.ArmConstants.RETRACT_COEFFICIENT)
+                        .andThen(new RunArmPID(targetPos.lowerPosition, lowerArm))),
                 () -> targetPos.lowerPosition > lowerArm.getEncoderPosition()),
                 new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);
