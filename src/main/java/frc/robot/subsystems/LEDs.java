@@ -347,12 +347,16 @@ public class LEDs extends SubsystemBase {
                 blink().schedule();
             }
             if (m_throwOnGround) {
-                m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b), 0);
+                m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
             } else {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
-            m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
+            if (m_throwOnGround) {
+                m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, 8), 0);
+            } else {
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
+            }
         }
     }
 }
