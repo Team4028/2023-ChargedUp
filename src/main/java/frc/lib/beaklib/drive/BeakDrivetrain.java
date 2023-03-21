@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.photonvision.EstimatedRobotPose;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -348,11 +350,20 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * 
      * @param estimatedPose
      *            The latest estimated pose from a vision system.
-     * @param latency
-     *            The time since measurement of the estimated pose.
+     * @param timestamp
+     *            The timestamp of the measured pose.
      */
-    public void addVisionMeasurement(Pose2d estimatedPose, double latency) {
+    public void addVisionMeasurement(Pose2d estimatedPose, double timestamp) {
 
+    }
+
+    /**
+     * Add a vision measurement directly from PhotonVision to the pose estimator's Kalman filter.
+     * 
+     * @param estimatedPose The {@link EstimatedRobotPose} from PhotonVision.
+     */
+    public void addVisionMeasurement(EstimatedRobotPose estimatedPose) {
+        addVisionMeasurement(estimatedPose.estimatedPose.toPose2d(), estimatedPose.timestampSeconds);
     }
 
     /**

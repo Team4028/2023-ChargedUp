@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.subsystem.BeakLimelight;
 
 public class Limelight extends BeakLimelight {

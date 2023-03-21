@@ -136,7 +136,7 @@ public class OneMechanism {
     private static boolean m_areTheLightsOn = false;
 
     /**
-     * Turns of the CANdle
+     * Turns off the CANdle
      */
     public static void killTheLights() {
         m_areTheLightsOn = false;

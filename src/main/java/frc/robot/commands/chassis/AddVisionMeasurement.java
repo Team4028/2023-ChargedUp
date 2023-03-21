@@ -27,8 +27,8 @@ public class AddVisionMeasurement extends InstantCommand {
     @Override
     public void initialize() {
         m_vision.checkAlliance();
+
         m_drivetrain.addVisionMeasurement(
-            m_vision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()),
-            m_vision.getLatestLatency());
+            m_vision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()));
     }
 }

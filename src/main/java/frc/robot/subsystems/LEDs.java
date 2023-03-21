@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 
 public class LEDs extends SubsystemBase {
-    private Color m_color, m_lastColor;
+    private Color m_color;
     private CANdle m_candle;
     private boolean m_blinking;
 
@@ -68,7 +68,6 @@ public class LEDs extends SubsystemBase {
      * sets the color to blank and runs {@code setLEDs()}
      */
     public void setBlank() {
-        m_lastColor = m_color;
         setColor(Color.OFF);
     }
 

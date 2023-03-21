@@ -186,9 +186,9 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         return m_pose;
     }
 
-    public void addVisionMeasurement(Pose2d estimatedPose, double latency) {
+    public void addVisionMeasurement(Pose2d estimatedPose, double timestamp) {
         if (!estimatedPose.equals(new Pose2d()))
-            m_odom.addVisionMeasurement(estimatedPose, Timer.getFPGATimestamp() - latency);
+            m_odom.addVisionMeasurement(estimatedPose, timestamp);
     }
 
     public Pose2d getPoseMeters() {
