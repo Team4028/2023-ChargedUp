@@ -28,34 +28,30 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Vision extends SubsystemBase {
+public class Vision {
     private final PhotonCamera m_camera;
     private final AprilTagFieldLayout m_layout;
     private final PhotonPoseEstimator m_poseEstimator;
 
     private double m_latestLatency = 0.;
-    private int m_latestTag = 0;
+    private double m_latestTimestamp = 0.;
 
     private final Transform3d m_camToRobot;
-    private final boolean m_inverted;
 
     /**
-     * Create a new Vision subsystem.
+     * Create a new Vision system.
      * 
      * @param cameraName
      *            The name of the camera in the PhotonVision UI.
      * @param camToRobot
      *            The transform from the camera to the robot.
-     * @param inverted
-     *            No
      */
-    public Vision(String cameraName, Transform3d camToRobot, boolean inverted) {
+    public Vision(String cameraName, Transform3d camToRobot) {
         m_camera = new PhotonCamera(cameraName);
 
         m_camToRobot = camToRobot;
-        m_inverted = inverted;
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
@@ -65,6 +61,7 @@ public class Vision extends SubsystemBase {
         }
 
         m_poseEstimator = new PhotonPoseEstimator(m_layout, PoseStrategy.MULTI_TAG_PNP, m_camera, camToRobot);
+        m_poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
     /**
@@ -74,11 +71,9 @@ public class Vision extends SubsystemBase {
      *            The name of the camera in the PhotonVision UI.
      * @param camToRobot
      *            The transform from the camera to the robot.
-     * @param inverted
-     *            No
      */
-    public Vision(String cameraName, Pose3d camToRobot, boolean inverted) {
-        this(cameraName, camToRobot.minus(new Pose3d()), inverted);
+    public Vision(String cameraName, Pose3d camToRobot) {
+        this(cameraName, camToRobot.minus(new Pose3d()));
     }
 
     public void togglePipeline() {
@@ -122,6 +117,7 @@ public class Vision extends SubsystemBase {
         PhotonPipelineResult result = m_camera.getLatestResult();
 
         m_latestLatency = result.getLatencyMillis() / 1000.;
+        m_latestTimestamp = result.getTimestampSeconds();
 
         return result.getTargets();
     }
@@ -150,7 +146,10 @@ public class Vision extends SubsystemBase {
     public PhotonPipelineResult getFilteredResult() {
         List<PhotonTrackedTarget> targets = getFilteredTargets();
 
-        return new PhotonPipelineResult(m_latestLatency, targets);
+        PhotonPipelineResult result = new PhotonPipelineResult(m_latestLatency * 1000., targets);
+        result.setTimestampSeconds(m_latestTimestamp);
+
+        return result;
     }
 
     /**
@@ -162,11 +161,14 @@ public class Vision extends SubsystemBase {
      */
     public EstimatedRobotPose getLatestEstimatedRobotPose(Pose2d pose) {
         PhotonPipelineResult result = getFilteredResult();
+
+        m_poseEstimator.setReferencePose(pose);
         Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update(result);
 
         if (pose != null) {
-            if (estimatedPose.isEmpty()) {
-                return new EstimatedRobotPose(new Pose3d(pose), result.getTimestampSeconds(), result.getTargets());
+            if (!estimatedPose.isPresent()) {
+                SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated empty. " + m_camera.getName());
+                return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
             }
 
             Pose2d aprilTagPose = estimatedPose.get().estimatedPose.toPose2d();
@@ -183,12 +185,16 @@ public class Vision extends SubsystemBase {
                 result.getTimestampSeconds(),
                 result.getTargets());
             
+            SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated exists.");
             return finalEstimatedPose;
         }
 
-        if (estimatedPose.isEmpty()) {
+        if (!estimatedPose.isPresent()) {
+            SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose empty, estimated empty.");
             return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
         }
+
+        SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose empty, estimated exists.");
 
         return estimatedPose.get();
     }
@@ -219,7 +225,7 @@ public class Vision extends SubsystemBase {
             Pose2d newPose = scoringPose.toPose2d();
 
             Rotation2d newRotation = Rotation2d
-                .fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
+                .fromDegrees(newPose.getRotation().getDegrees());
 
             Pose2d finalPose = new Pose2d(newPose.getTranslation(), newRotation).plus(
                 new Transform2d(
@@ -230,19 +236,5 @@ public class Vision extends SubsystemBase {
         }
 
         return robotPose;
-    }
-
-    public double getLatestLatency() {
-        return m_latestLatency;
-    }
-
-    public int getLatestTagID() {
-        getLatestEstimatedRobotPose(null);
-        return m_latestTag;
-    }
-
-    @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
     }
 }

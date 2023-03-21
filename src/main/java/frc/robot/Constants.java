@@ -42,7 +42,7 @@ public final class Constants {
 
     public static final class DriveConstants {
         public static final double SPEED_SCALE = 0.25;
-        public static final double AUTO_ALIGN_SPEED_SCALE = 0.1;
+        public static final double SLOW_SPEED_SCALE = 0.08;
     }
 
     public static final class ArmConstants {

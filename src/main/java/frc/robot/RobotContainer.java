@@ -28,8 +28,8 @@ import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
+import frc.robot.commands.chassis.FullFieldLocalize;
 import frc.robot.commands.chassis.KeepAngle;
-import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -39,6 +39,7 @@ import frc.robot.OneMechanism.ScoringPositions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -92,13 +93,15 @@ public class RobotContainer {
     // Auton stuff
     private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     private final Autons m_autons;
-    // private final LoggedDashboardNumber flywheelSpeedInput = new
-    // LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
     // Limiters, etc.
-    private SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
-    private SlewRateLimiter m_yLimiter = new SlewRateLimiter(4.0);
-    private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(4.0);
+    private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
+    private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(4.0);
+    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(4.0);
+
+    private final SlewRateLimiter m_slowXLimiter = new SlewRateLimiter(2.0);
+    private final SlewRateLimiter m_slowYLimiter = new SlewRateLimiter(2.0);
+    private final SlewRateLimiter m_slowRotLimiter = new SlewRateLimiter(2.0);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -108,8 +111,8 @@ public class RobotContainer {
         // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
 
         m_drive = SwerveDrivetrain.getInstance();
-        m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
-        m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
+        m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT);
+        m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT);
         m_candle = LEDs.getInstance();
 
         if (Constants.PRACTICE_CHASSIS) {
@@ -263,7 +266,10 @@ public class RobotContainer {
         // DRIVER CONTROLLER - DPAD UP
         // RESET POSE
         // ================================================
-        m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive, m_frontAprilTagVision));
+        // m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive,
+        // m_frontAprilTagVision));
+        m_driverController.dpadUp
+            .whileTrue(new RepeatCommand(new FullFieldLocalize(m_drive, m_frontAprilTagVision, m_rearAprilTagVision)));
 
         // ================================================
         // DRIVER CONTROLLER - DPAD DOWN
@@ -456,24 +462,38 @@ public class RobotContainer {
     }
 
     public double speedScaledDriverLeftY() {
-        return m_yLimiter.calculate(Util.speedScale(m_driverController.getLeftYAxis(),
-            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE
-                : DriveConstants.SPEED_SCALE,
+        return getCurrentYLimiter().calculate(Util.speedScale(m_driverController.getLeftYAxis(),
+            getCurrentSpeedScale(),
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverRightX() {
-        return m_rotLimiter.calculate(-Util.speedScale(m_driverController.getRightXAxis(),
-            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE
-                : DriveConstants.SPEED_SCALE,
+        return getCurrentRotLimiter().calculate(-Util.speedScale(m_driverController.getRightXAxis(),
+            getCurrentSpeedScale(),
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverLeftX() {
-        return m_xLimiter.calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
-            (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.AUTO_ALIGN_SPEED_SCALE
-                : DriveConstants.SPEED_SCALE,
+        return getCurrentXLimiter().calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
+            getCurrentSpeedScale(),
             m_driverController.getRightTrigger()));
+    }
+
+    private double getCurrentSpeedScale() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.SLOW_SPEED_SCALE
+            : DriveConstants.SPEED_SCALE;
+    }
+
+    private SlewRateLimiter getCurrentXLimiter() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowXLimiter : m_xLimiter;
+    }
+
+    private SlewRateLimiter getCurrentYLimiter() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowYLimiter : m_yLimiter;
+    }
+
+    private SlewRateLimiter getCurrentRotLimiter() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowRotLimiter : m_rotLimiter;
     }
 
     /**

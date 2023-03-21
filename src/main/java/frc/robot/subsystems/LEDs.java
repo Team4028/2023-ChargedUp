@@ -29,6 +29,7 @@ public class LEDs extends SubsystemBase {
         PURPLE(118, 0, 254), 
         ORANGE(254, 55, 0), 
         WHITE(254, 254, 254),
+        RED(254, 0, 0),
         OFF(0, 0, 0);
 
         private int r;
@@ -57,7 +58,7 @@ public class LEDs extends SubsystemBase {
     }
 
     /**
-     * sets the color of the LED class
+     * Sets the color of the LEDs.
      * @param color the color to set
      */
     public void setColor(Color color) {
@@ -135,6 +136,9 @@ public class LEDs extends SubsystemBase {
         if (m_blinking == false) {
             if (OneMechanism.getClimbMode()) {
                 setColor(Color.GREEN);
+            }
+            else if (OneMechanism.getAutoAlignMode()) {
+                setColor(Color.RED);
             }
             else if (OneMechanism.getGamePieceMode() == OneMechanism.GamePieceMode.ORANGE_CONE) {
                 setColor(Color.ORANGE);

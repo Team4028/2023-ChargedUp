@@ -185,6 +185,11 @@ public class OneMechanism {
 
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
+        if (m_autoAlignMode) {
+            m_leds.blink(LEDs.Color.RED).schedule();
+        } else {
+            blinkCurrentColor();
+        }
     }
 
     public static void toggleGreen() {
@@ -192,17 +197,24 @@ public class OneMechanism {
         if (m_climbMode) {
             m_leds.blink(LEDs.Color.GREEN).schedule();
         } else {
-            switch (getGamePieceMode()) {
-                case ORANGE_CONE:
-                    m_leds.blink(LEDs.Color.ORANGE).schedule();
-                    break;
-                case PURPLE_CUBE:
-                    m_leds.blink(LEDs.Color.PURPLE).schedule();
-                    break;
-                default:
-                    m_leds.blink(LEDs.Color.ORANGE).schedule();
-                    break;
-            }
+            blinkCurrentColor();
+        }
+    }
+
+    /**
+     * Blink the LEDs using the current mode.
+     */
+    public static void blinkCurrentColor() {
+        switch (m_currentMode) {
+            case ORANGE_CONE:
+                m_leds.blink(LEDs.Color.ORANGE).schedule();
+                break;
+            case PURPLE_CUBE:
+                m_leds.blink(LEDs.Color.PURPLE).schedule();
+                break;
+            default:
+                m_leds.blink(LEDs.Color.ORANGE).schedule();
+                break;
         }
     }
 
