@@ -78,6 +78,8 @@ public class LarsonAnimationV2 extends CommandBase {
         this.lowerBound = lowerBoundIndex < 0 ? 0 : (lowerBoundIndex > upperBoundIndex ? 0 : lowerBoundIndex);
         this.size = size > (upperBoundIndex - lowerBoundIndex) ? (upperBoundIndex - lowerBoundIndex) : size;
         m_leds = leds;
+        m_candle = m_leds.getCandle();
+        addRequirements(m_leds);
     }
 
     // Called when the command is initially scheduled.
