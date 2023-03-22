@@ -35,7 +35,7 @@
         "x": 4.806146142174252,
         "y": 4.581324428854488
       },
-      "holonomicAngle": -90.0,
+      "holonomicAngle": 90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -50,11 +50,11 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.51
+        "y": 4.58
       },
       "prevControl": {
         "x": 5.72928807286186,
-        "y": 4.439550419100838
+        "y": 4.509550419100838
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -88,6 +88,12 @@
       "position": 1.4545454545454546,
       "names": [
         "RunGripperIn"
+      ]
+    },
+    {
+      "position": 1.7454545454545434,
+      "names": [
+        "RearLocalize"
       ]
     }
   ]

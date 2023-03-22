@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 
 public class LEDs extends SubsystemBase {
-    private Color m_color;
+    private Color m_color, m_lastColor;
     private CANdle m_candle;
     private boolean m_blinking;
 
@@ -62,6 +62,7 @@ public class LEDs extends SubsystemBase {
      * @param color the color to set
      */
     public void setColor(Color color) {
+        m_lastColor = m_color;
         m_color = color;
     }
 
@@ -120,11 +121,11 @@ public class LEDs extends SubsystemBase {
             new InstantCommand(() -> m_blinking = true),
             new InstantCommand(() -> setColor(color)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setColor(m_color)),
+            new InstantCommand(() -> setColor(m_lastColor)),
             new WaitCommand(0.02),
             new InstantCommand(() -> setColor(color)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setColor(m_color)),
+            new InstantCommand(() -> setColor(m_lastColor)),
             new WaitCommand(0.02),
             new InstantCommand(() -> m_blinking = false)
         );
