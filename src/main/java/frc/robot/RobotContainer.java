@@ -362,24 +362,21 @@ public class RobotContainer {
         // LSY
         // ================================================
         m_emergencyController.axisGreaterThan(1, 0.1)
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(-0.5 * m_emergencyController.getLeftYAxis())));
-        m_emergencyController.axisGreaterThan(1, 0.0)
-            .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * Math.abs(m_emergencyController.getLeftYAxis()))),
-                m_lowerArm.holdArmPosition(),
-                () -> m_emergencyController.axisLessThan(1, -0.1).getAsBoolean()));
-
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
+        m_emergencyController.axisGreaterThan(1, 0.1).onFalse(m_lowerArm.holdArmPosition());
+        m_emergencyController.axisLessThan(1, -0.1)
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())));
+        m_emergencyController.axisLessThan(1, -0.1).onFalse(m_lowerArm.holdArmPosition());
         // ================================================
         // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
         // RSX
         // ================================================
         m_emergencyController.axisGreaterThan(4, 0.1)
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(-0.5 * m_emergencyController.getRightXAxis())));
-        m_emergencyController.axisGreaterThan(4, 0.0)
-            .onFalse(new ConditionalCommand(
-                new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * Math.abs(m_emergencyController.getRightXAxis()))),
-                m_upperArm.holdArmPosition(),
-                () -> m_emergencyController.axisLessThan(4, -0.1).getAsBoolean()));
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+        m_emergencyController.axisGreaterThan(4, 0.1).onFalse(m_upperArm.holdArmPosition());
+        m_emergencyController.axisLessThan(4, -0.1)
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
+        m_emergencyController.axisLessThan(4, -0.1).onFalse(m_upperArm.holdArmPosition());
 
         // ================================================
         // EMERGENCY CONTROLLER - MOVE THE WRIST UP

@@ -229,7 +229,7 @@ public class OneMechanism {
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         if (m_climbMode) {
-            m_leds.blink(LEDs.Color.GREEN);
+            m_leds.setClimb().until(() -> m_climbMode == false).schedule();
             m_leds.setThrowOnGround(false);
 
         } else {

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.LEDs.CANdleMode;
@@ -59,14 +60,13 @@ public class LarsonAnimationV2 extends CommandBase {
      */
     // @formatter:on
     public LarsonAnimationV2(int r, int g, int b, int w, double speed, boolean inverted, int upperBoundIndex,
-        int lowerBoundIndex,
-        int startIndex, int size, V2BounceMode mode, LEDs leds) {
+        int lowerBoundIndex, int startIndex, int size, V2BounceMode mode, LEDs leds) {
         // Use addRequirements() here to declare subsystem dependencies.
         this.r = (r > 254 || r < 0) ? (r < 0 ? 0 : 254) : r;
         this.g = (g > 254 || g < 0) ? (g < 0 ? 0 : 254) : g;
         this.b = (b > 254 || b < 0) ? (b < 0 ? 0 : 254) : b;
         this.w = (w > 254 || w < 0) ? (w < 0 ? 0 : 254) : w;
-        this.speed = speed > 1 ? 1 : speed;
+        this.speed = (speed > 1 || speed <= 0) ? (speed > 1 ? 1 : 0) : speed;
         this.startIndex = (startIndex > upperBoundIndex || startIndex < lowerBoundIndex)
             ? (startIndex < lowerBoundIndex ? lowerBoundIndex : upperBoundIndex)
             : startIndex;
@@ -92,39 +92,43 @@ public class LarsonAnimationV2 extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        new WaitCommand((1 - speed) / 4).schedule();
-        switch (m_mode) {
-            case FRONT:
-                if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
-                    counter += Integer.signum(direction);
-                } else {
-                    direction = -direction;
+        new WaitCommand((1 - speed) / 4).andThen(
+            new InstantCommand(() -> {
+                switch (m_mode) {
+                    case FRONT:
+                        if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
+                            counter += Integer.signum(direction);
+                        } else {
+                            direction = -direction;
+                        }
+                        break;
+                    case CENTRE:
+                        if ((startIndex + counter + (size / 2)) < upperBound
+                            && (startIndex + counter + (size / 2)) > lowerBound) {
+                            counter += Integer.signum(direction);
+                        } else {
+                            direction = -direction;
+                        }
+                        break;
+                    case BACK:
+                        if ((counter + startIndex) < upperBound && (startIndex + counter + size) > lowerBound) {
+                            counter += Integer.signum(direction);
+                        } else {
+                            direction = -direction;
+                        }
+                        break;
+                    default:
+                        if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
+                            counter += Integer.signum(direction);
+                        } else {
+                            direction = -direction;
+                        }
+                        break;
                 }
-                break;
-            case CENTRE:
-                if ((startIndex + counter + (size / 2)) < upperBound && (startIndex + counter + (size / 2)) > lowerBound) {
-                    counter += Integer.signum(direction);
-                } else {
-                    direction = -direction;
-                }
-                break;
-            case BACK:
-                if ((counter + startIndex) < upperBound && (startIndex + counter + size) > lowerBound) {
-                    counter += Integer.signum(direction);
-                } else {
-                    direction = -direction;
-                }
-                break;
-            default:
-                if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
-                    counter += Integer.signum(direction);
-                } else {
-                    direction = -direction;
-                }
-                break;
-        }
-        m_candle.setLEDs(0, 0, 0, 0, (startIndex + counter + (size * Integer.signum(-direction + 1))) - Integer.signum(direction), 1);
-        m_candle.setLEDs(r, g, b, w, startIndex + counter, size);
+                m_candle.setLEDs(0, 0, 0, 0,
+                    (startIndex + counter + (size * Integer.signum(-direction + 1))) - Integer.signum(direction), 1);
+                m_candle.setLEDs(r, g, b, w, startIndex + counter, size);
+            })).schedule();
     }
 
     // Called once the command ends or is interrupted.

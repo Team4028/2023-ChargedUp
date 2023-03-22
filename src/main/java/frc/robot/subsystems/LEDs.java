@@ -16,12 +16,15 @@ import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 
 // import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OneMechanism;
 import frc.robot.commands.LarsonAnimationV2;
+import frc.robot.commands.SlowAlternateBlink;
 import frc.robot.commands.LarsonAnimationV2.V2BounceMode;
 
 public class LEDs extends SubsystemBase {
@@ -81,29 +84,13 @@ public class LEDs extends SubsystemBase {
      * sets the color to blank and runs {@code setLEDs()}
      */
     public void setBlank() {
+
         setColor(Color.OFF);
         // setLEDs().ignoringDisable(true).schedule();
     }
 
-    /**
-     * sets the color to the climb color (green)
-     */
-    public void setClimb() {
-        setColor(Color.GREEN);
-    }
-
-    /**
-     * sets the color to the cone color (yellow)
-     */
-    public void setCone() {
-        setColor(Color.ORANGE);
-    }
-
-    /**
-     * sets the color to the cube color (purple)
-     */
-    public void setCube() {
-        setColor(Color.PURPLE);
+    public SlowAlternateBlink setClimb() {
+        return new SlowAlternateBlink(m_color, Color.GREEN, m_instance);
     }
 
     public static LEDs getInstance() {
@@ -163,24 +150,18 @@ public class LEDs extends SubsystemBase {
     /**
      * @param color
      *            The color to blink
-     * @return Blinks the color, but returns to the original color
+     * @return Blinks between the inputted color and the original color
      */
-    public SequentialCommandGroup blinkWithoutChange(Color color) {
-        m_lastColor = m_color;
+    public SequentialCommandGroup alternateBlink(Color color) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> m_lastColor = m_color),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.1),
             new InstantCommand(() -> setColor(color)),
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
+            new InstantCommand(() -> setColor(m_lastColor)),
             new WaitCommand(0.08),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.08),
@@ -234,8 +215,11 @@ public class LEDs extends SubsystemBase {
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
-        m_candle.animate(new ColorFlowAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS, Direction.Forward), 0);
-        m_candle.animate(new ColorFlowAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS, Direction.Backward), 1);
+        m_candle.animate(
+            new ColorFlowAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS, Direction.Forward),
+            0);
+        m_candle.animate(new ColorFlowAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
+            Direction.Backward), 1);
     }
 
     public void setIdle() {
