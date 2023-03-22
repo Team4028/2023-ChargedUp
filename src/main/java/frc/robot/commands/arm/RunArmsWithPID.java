@@ -31,7 +31,7 @@ public class RunArmsWithPID extends SequentialCommandGroup {
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
                 new RunArmPID(targetPos.lowerPosition, lowerArm)
-                    .until(() -> lowerArm.getError() < .25 * lowerArm.getDistanceToTravel())
+                    .until(() -> lowerArm.getError() < .40 * lowerArm.getDistanceToTravel())
                     /*
                      * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                      * Constants.ArmConstants.EXTEND_COEFFICIENT)
@@ -43,7 +43,7 @@ public class RunArmsWithPID extends SequentialCommandGroup {
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
                 (new RunArmPID(targetPos.upperPosition, upperArm)
-                    .until(() -> upperArm.getError() < .25 * upperArm.getDistanceToTravel()))
+                    .until(() -> upperArm.getError() < .40 * upperArm.getDistanceToTravel()))
                         .raceWith(wrist.runToAngle(targetPos.wristAngle))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
