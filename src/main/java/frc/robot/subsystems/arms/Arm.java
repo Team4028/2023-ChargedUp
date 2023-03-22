@@ -33,7 +33,7 @@ public abstract class Arm extends SubsystemBase {
     protected CANSparkMax m_motor;
     protected RelativeEncoder m_encoder;
     protected double m_targetPosition, m_distanceToTravel = 0;
-    public ElevatorFeedforward ffmodel;
+    public ElevatorFeedforward FFModel;
 
     /**
      * the enum containing the desired positions of the arm

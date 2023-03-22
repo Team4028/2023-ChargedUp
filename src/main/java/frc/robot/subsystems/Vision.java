@@ -157,17 +157,25 @@ public class Vision {
      * 
      * @param pose
      *            The current pose of the robot.
-     * @return An estimated {@link Pose2d} of the robot.
+     * @return An {@link EstimatedRobotPose} of the robot.
      */
     public EstimatedRobotPose getLatestEstimatedRobotPose(Pose2d pose) {
-        PhotonPipelineResult result = getFilteredResult();
+        // Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
+
+        // SmartDashboard.putBoolean("Pose Status " + m_camera.getName(), estimatedPose.isPresent());
+        // if (estimatedPose.isPresent()) {
+        //     return estimatedPose.get();
+        // } else {
+        //     return new EstimatedRobotPose(new Pose3d(), 0., getFilteredTargets());
+        // }
+        PhotonPipelineResult result = m_camera.getLatestResult();
 
         m_poseEstimator.setReferencePose(pose);
-        Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update(result);
+        Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
 
         if (pose != null) {
             if (!estimatedPose.isPresent()) {
-                SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated empty. " + m_camera.getName());
+                SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated empty.");
                 return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
             }
 

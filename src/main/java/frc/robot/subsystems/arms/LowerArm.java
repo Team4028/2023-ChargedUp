@@ -21,7 +21,7 @@ public class LowerArm extends Arm {
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.85;
+    private static final double kMaxOutput = 0.85; // DO NOT go higher than this!
     private static final double kMinOutput = -0.5;
 
     private static final double kS = 0.1; // 0.33069;
@@ -32,14 +32,14 @@ public class LowerArm extends Arm {
     public static final double ZEROING_CURRENT_THRESHOLD = 20.0;
 
     private static LowerArm m_instance;
-    public final double maxVel, maxAccel;
+    public final double MaxVel, MaxAccel; // TODO: These should be public static constants.
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
-        maxVel = 45.0; // RPS
-        maxAccel = 90.0; // RPS^2
+        MaxVel = 45.0; // RPS
+        MaxAccel = 90.0; // RPS^2
 
-        ffmodel = new ElevatorFeedforward(kS, kG, kV);
+        FFModel = new ElevatorFeedforward(kS, kG, kV);
 
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);

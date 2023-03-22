@@ -18,8 +18,8 @@ public class RunArmsSafely extends SequentialCommandGroup {
     public RunArmsSafely(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         addCommands(
             new ConditionalCommand(
-                new RunArmsWithPID(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
-                    .andThen(new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist)),
+                // new RunArmsWithPID(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
+                    /*.andThen(*/new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist),
                 new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist),
                 () -> (OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)

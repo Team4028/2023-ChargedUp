@@ -16,14 +16,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  * The upper Argos Arm
  */
 public class UpperArm extends Arm {
-    private static final double kP = 0.15;
+    private static final double kP = 0.11;//0.15;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.6;
-    private static final double kMinOutput = -0.6;
+    private static final double kMaxOutput = 0.8;
+    private static final double kMinOutput = -0.8;
 
     private static final double kS = 0.; // 0.33069;
     private static final double kG = 0.; // 0.2554;
@@ -34,14 +34,14 @@ public class UpperArm extends Arm {
 
     private static UpperArm m_instance;
 
-    public final double maxVel, maxAccel;
+    public final double MaxVel, MaxAccel;
 
     /** Creates a new UpperArm. */
     public UpperArm() {
-        maxVel = 45.0; // RPS
-        maxAccel = 90.0; // RPS^2
+        MaxVel = 45.0; // RPS
+        MaxAccel = 90.0; // RPS^2
 
-        ffmodel = new ElevatorFeedforward(kS, kG, kV);
+        FFModel = new ElevatorFeedforward(kS, kG, kV);
 
         m_motor = new CANSparkMax(9, MotorType.kBrushless);
         m_motor.setInverted(true);
