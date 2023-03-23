@@ -30,6 +30,7 @@ import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.FullFieldLocalize;
 import frc.robot.commands.chassis.KeepAngle;
+import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -248,7 +249,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER - Y
         // AUTO-BALANCE
         // ================================================
-        m_driverController.y.toggleOnTrue(new AutoBalance(m_drive, true));
+        m_driverController.y.toggleOnTrue(new QuadraticAutoBalance(m_drive));
 
         // ================================================
         // DRIVER CONTROLLER - DPAD LEFT

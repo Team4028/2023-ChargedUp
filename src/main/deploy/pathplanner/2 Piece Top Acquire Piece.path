@@ -50,11 +50,11 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.58
+        "y": 4.51
       },
       "prevControl": {
         "x": 5.72928807286186,
-        "y": 4.509550419100838
+        "y": 4.439550419100838
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -72,7 +72,7 @@
   ],
   "markers": [
     {
-      "position": 1.0,
+      "position": 1.2545454545454533,
       "names": [
         "CubePickup",
         "RunGripperIn"
@@ -92,6 +92,30 @@
     },
     {
       "position": 1.7454545454545434,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.4909090909090894,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.5818181818181805,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.654545454545453,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.8181818181818163,
       "names": [
         "RearLocalize"
       ]

@@ -28,7 +28,7 @@ public class RunArmProfiled extends TrapezoidProfileCommand {
             state -> {
                 arm.setDistanceToTravel(Math.abs(endPos - startPos));
 
-                arm.runToPosition(state.position);//, arm.ffmodel.calculate(state.velocity));
+                arm.runToPosition(state.position, arm.FFModel.calculate(state.velocity));
                 // Use current trajectory state here
             });
             
@@ -47,5 +47,10 @@ public class RunArmProfiled extends TrapezoidProfileCommand {
         super.initialize();
 
         m_arm.setDistanceToTravel(Math.abs(m_endPos - m_startPos));
+    }
+
+    @Override
+    public boolean isFinished() {
+        return m_arm.getError() < 0.1 * m_arm.getDistanceToTravel();
     }
 }

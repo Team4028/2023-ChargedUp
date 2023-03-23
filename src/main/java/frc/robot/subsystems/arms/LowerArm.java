@@ -24,9 +24,9 @@ public class LowerArm extends Arm {
     private static final double kMaxOutput = 0.85; // DO NOT go higher than this!
     private static final double kMinOutput = -0.5;
 
-    private static final double kS = 0.1; // 0.33069;
-    private static final double kG = 0.1; // 0.2554;
-    private static final double kV = 0.1; // 0.10667;
+    private static final double kS = -0.23303;
+    private static final double kG = 0.8; //0.70083;
+    private static final double kV = 0.11691;
 
     public static final double ZEROING_VBUS = -0.1;
     public static final double ZEROING_CURRENT_THRESHOLD = 20.0;
@@ -36,8 +36,8 @@ public class LowerArm extends Arm {
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
-        MaxVel = 45.0; // RPS
-        MaxAccel = 90.0; // RPS^2
+        MaxVel = 90.0; // RPS
+        MaxAccel = 180.0; // RPS^2
 
         FFModel = new ElevatorFeedforward(kS, kG, kV);
 
