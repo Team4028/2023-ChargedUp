@@ -59,13 +59,13 @@ public class RobotContainer {
     // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; //
     // Very much subject to change.
 
-    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.5),
-        Units.inchesToMeters(-3.25), 0.,
+    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-3.3125),
+        Units.inchesToMeters(5.5625), 0.,
         new Rotation3d(0., Units.degreesToRadians(0.),
             Units.degreesToRadians(180.)));
 
-    private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(5.5),
-        Units.inchesToMeters(-5.75), 0.,
+    private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-5.875),
+        Units.inchesToMeters(5.625), 0.,
         new Rotation3d(0., Units.degreesToRadians(0.), Units.degreesToRadians(0.)));
 
     // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new

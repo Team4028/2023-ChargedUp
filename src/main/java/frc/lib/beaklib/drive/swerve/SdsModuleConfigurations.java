@@ -77,7 +77,7 @@ public final class SdsModuleConfigurations {
         false,
         ModuleType.MK4i);
     public static final SdsModuleConfiguration MK4I_L2 = new SdsModuleConfiguration(
-        new Distance(0.10033),
+        Distance.fromInches(3.82), // new Distance(0.10033),
         (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0),
         false, // TODO: what
         (150.0 / 7.0),

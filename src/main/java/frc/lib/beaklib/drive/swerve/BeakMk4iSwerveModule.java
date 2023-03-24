@@ -48,7 +48,7 @@ public class BeakMk4iSwerveModule extends BeakSwerveModule {
     }
 
     @Override
-    public double getTurningEncoderRadians() {
+    public double getAbsoluteEncoderRadians() {
         double angle = m_turningEncoder.getAbsolutePosition();
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {

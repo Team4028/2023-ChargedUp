@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.arm.RunArmsSafely;
+import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -368,7 +369,8 @@ public class OneMechanism {
     }
 
     public static Command runArms(ScoringPositions targetPos) {
-        return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        return new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist);
     }
 
     public static void signalAcquisition() {

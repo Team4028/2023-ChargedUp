@@ -99,4 +99,10 @@ public class Trajectories {
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
     }
+
+    public static PathPlannerTrajectory StraightLinePath(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("straight Line Path",
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
+    }
 }

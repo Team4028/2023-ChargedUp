@@ -92,7 +92,7 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
 
     @Override
     public void setAngle(double angle) { // TODO: Angle motor PID
-        double turnOutput = m_turningPIDController.calculate(getTurningEncoderRadians(), Math.toRadians(angle));
+        double turnOutput = m_turningPIDController.calculate(getAbsoluteEncoderRadians(), Math.toRadians(angle));
 
         // Calculate the turning motor output from the turning PID controller.
         m_turningMotor.set(turnOutput);

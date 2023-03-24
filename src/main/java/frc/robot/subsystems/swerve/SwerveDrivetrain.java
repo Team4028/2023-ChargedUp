@@ -75,9 +75,9 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
 
     // distance from the right to left wheels on the robot
-    private static final Distance TRACK_WIDTH = Distance.fromInches(24.);//19.5);
+    private static final Distance TRACK_WIDTH = Distance.fromInches(19.688); // 24.
     // distance from the front to back wheels on the robot
-    private static final Distance WHEEL_BASE = Distance.fromInches(28.);//23.5);
+    private static final Distance WHEEL_BASE = Distance.fromInches(23.688); // 28.
 
     private static final RobotPhysics PHYSICS = new RobotPhysics(
         MAX_VELOCITY,

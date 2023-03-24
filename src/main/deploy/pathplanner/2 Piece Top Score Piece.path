@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.51
+        "y": 4.58
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.74360281577706,
-        "y": 4.554068362422439
+        "y": 4.624068362422439
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 4.1476105809354475,
-        "y": 4.824068362422439
+        "x": 4.161925323850648,
+        "y": 4.609347218694437
       },
       "prevControl": {
-        "x": 4.8163309157915295,
-        "y": 4.878881504623758
+        "x": 4.83064565870673,
+        "y": 4.664160360895756
       },
       "nextControl": {
-        "x": 3.2744112631082407,
-        "y": 4.752494647846438
+        "x": 3.288726006023441,
+        "y": 4.537773504118436
       },
-      "holonomicAngle": 90.0,
+      "holonomicAngle": -90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,12 +49,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.97,
-        "y": 4.45
+        "x": 2.04,
+        "y": 4.41
       },
       "prevControl": {
-        "x": 2.2133506295584016,
-        "y": 4.750609601219202
+        "x": 2.6859330890090356,
+        "y": 4.640920933270438
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -75,11 +75,36 @@
       "position": 0.1272727272727272,
       "names": [
         "StopGripper",
-        "ArmRetract"
+        "ArmRetract",
+        "RearLocalize"
       ]
     },
     {
       "position": 1.6727272727272708,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.29090909090909084,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.436363636363636,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.799999999999997,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.2545454545454533,
       "names": [
         "FrontLocalize"
       ]

@@ -45,13 +45,13 @@ public class Vision {
      * 
      * @param cameraName
      *            The name of the camera in the PhotonVision UI.
-     * @param camToRobot
-     *            The transform from the camera to the robot.
+     * @param robotToCam
+     *            The transform from the robot to the camera.
      */
-    public Vision(String cameraName, Transform3d camToRobot) {
+    public Vision(String cameraName, Transform3d robotToCam) {
         m_camera = new PhotonCamera(cameraName);
 
-        m_camToRobot = camToRobot;
+        m_camToRobot = robotToCam;
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
@@ -60,7 +60,7 @@ public class Vision {
             throw new RuntimeException();
         }
 
-        m_poseEstimator = new PhotonPoseEstimator(m_layout, PoseStrategy.MULTI_TAG_PNP, m_camera, camToRobot.inverse());
+        m_poseEstimator = new PhotonPoseEstimator(m_layout, PoseStrategy.MULTI_TAG_PNP, m_camera, robotToCam);
         m_poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
@@ -69,11 +69,11 @@ public class Vision {
      * 
      * @param cameraName
      *            The name of the camera in the PhotonVision UI.
-     * @param camToRobot
-     *            The transform from the camera to the robot.
+     * @param robotToCam
+     *            The transform from the robot to the camera.
      */
-    public Vision(String cameraName, Pose3d camToRobot) {
-        this(cameraName, camToRobot.minus(new Pose3d()));
+    public Vision(String cameraName, Pose3d robotToCam) {
+        this(cameraName, robotToCam.minus(new Pose3d()));
     }
 
     public void togglePipeline() {

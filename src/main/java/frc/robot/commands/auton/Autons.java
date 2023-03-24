@@ -131,12 +131,12 @@ public class Autons {
      */
     public BeakAutonCommand OnePiece(PathPosition position) {
         // Score a piece, acquire a piece, then balance.
-        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+        PathPlannerTrajectory traj = Trajectories.StraightLinePath(m_drivetrain);//TwoPieceAcquire(position);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            // new WaitCommand(0.0),
-            OnePieceBalance(position)
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
+        m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+            // initialPath,
+            // OnePieceBalance(position)
         //
         );
 
@@ -183,7 +183,7 @@ public class Autons {
             OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE),//.until(m_armsAtPosition),
             new WaitCommand(0.1),
             m_gripper.runMotorOutSoft().withTimeout(0.4),
-            OneMechanism.runArms(ScoringPositions.STOWED)
+            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition)
         //
         );
 
@@ -229,6 +229,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.ThreePieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            OneMechanism.orangeModeCommand(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
