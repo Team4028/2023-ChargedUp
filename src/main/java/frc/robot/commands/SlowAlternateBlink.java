@@ -14,12 +14,24 @@ public class SlowAlternateBlink extends CommandBase {
     private LEDs m_leds;
     private Color firstColor;
     private Color secondColor;
+    private double seconds;
 
-    /** Creates a new slowAlternateBlink. */
-    public SlowAlternateBlink(Color firstColor, Color secondColor, LEDs leds) {
+    /**
+     * 
+     * @param firstColor
+     *            The first color to alternate between
+     * @param secondColor
+     *            The second color to alternate between
+     * @param secondsWait
+     *            The amount of seconds to wait before swiching colors (>= 0)
+     * @param leds
+     *            the LEDs subsystem to use
+     */
+    public SlowAlternateBlink(Color firstColor, Color secondColor, double secondsWait, LEDs leds) {
         m_leds = leds;
         this.firstColor = firstColor;
         this.secondColor = secondColor;
+        seconds = secondsWait >= 0 ? secondsWait : 0;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(leds);
     }
@@ -33,10 +45,10 @@ public class SlowAlternateBlink extends CommandBase {
     @Override
     public void execute() {
         new InstantCommand(() -> m_leds.setColor(firstColor)).andThen(
-            new WaitCommand(1)).andThen(
+            new WaitCommand(seconds)).andThen(
                 new InstantCommand(() -> m_leds.setColor(secondColor)))
             .andThen(
-                new WaitCommand(1))
+                new WaitCommand(seconds))
             .schedule();
     }
 

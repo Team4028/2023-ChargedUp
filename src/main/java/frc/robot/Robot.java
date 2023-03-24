@@ -100,14 +100,14 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        switch (OneMechanism.getCANdleMode()) {
-            case FIRE:
-                OneMechanism.setFire();
-                break;
-            default:
-                OneMechanism.setIdle();
-                break;
-        }
+        // switch (OneMechanism.getCANdleMode()) {
+        //     case FIRE:
+        //         OneMechanism.setFire();
+        //         break;
+        //     default:
+        //         OneMechanism.setIdle();
+        //         break;
+        // }
         // OneMechanism.modeBlank();
     }
 

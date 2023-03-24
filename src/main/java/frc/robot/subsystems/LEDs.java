@@ -90,7 +90,7 @@ public class LEDs extends SubsystemBase {
     }
 
     public SlowAlternateBlink setClimb() {
-        return new SlowAlternateBlink(m_color, Color.GREEN, m_instance);
+        return new SlowAlternateBlink(m_color, Color.GREEN, 0.5, m_instance);
     }
 
     public static LEDs getInstance() {
@@ -335,13 +335,14 @@ public class LEDs extends SubsystemBase {
         // SmartDashboard.putNumber("Timer", scrollTimer.get());
         // SmartDashboard.putNumber("scrollVar", scrollVar);
         if (m_currentMode == CANdleMode.ACTIVE) {
-            if (OneMechanism.getAutoAlignMode() && !blink().isScheduled()) {
-                blink().schedule();
-            }
-            if (m_throwOnGround) {
-                m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
+            if (!OneMechanism.getAutoAlignMode()) {
+                if (m_throwOnGround) {
+                    m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
+                } else {
+                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
+                }
             } else {
-                m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
+                new SlowAlternateBlink(m_color, Color.OFF, 0.5, m_instance).until(() -> !OneMechanism.getAutoAlignMode()).schedule();
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
             if (m_throwOnGround) {
