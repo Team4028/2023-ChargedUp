@@ -160,15 +160,15 @@ public class LEDs extends SubsystemBase {
         SequentialCommandGroup cmd = new SequentialCommandGroup(
             new InstantCommand(() -> {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
-                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 21, 39);
-                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - 51, 39);
-                m_candle.setLEDs(0, 0, 0, 0, 8, 12);
-                m_candle.setLEDs(0, 0, 0, 0, NUM_LEDS - 12, 12);
+                m_candle.setLEDs(0, 0, 0, 0, 8, 8);
+                m_candle.setLEDs(0, 0, 0, 0, NUM_LEDS - 8, 8);
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 17, 43);
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - 51, 43);
             }),
             new WaitCommand(1 - speed),
             new InstantCommand(() -> {
-                m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 12);
-                m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 12, 12);
+                m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
+                m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
             }),
             new WaitCommand(1 - speed));
         return new RepeatCommand(cmd);
