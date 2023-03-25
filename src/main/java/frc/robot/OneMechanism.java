@@ -18,12 +18,14 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.units.Distance;
+import frc.robot.commands.BlinkTop;
 import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDs.CANdleMode;
+import frc.robot.subsystems.LEDs.Color;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Wrist;
@@ -177,6 +179,13 @@ public class OneMechanism {
     public static void setActive() {
         if (m_leds.getMode() != CANdleMode.VICTORY_SPIN) {
             m_leds.setActive();
+        }
+    }
+
+    public static void setSnapped(boolean state) {
+        m_leds.setSnappedState(state);
+        if (state == true) {
+            new BlinkTop(Color.BLUE, 0.5, m_leds).schedule();
         }
     }
 

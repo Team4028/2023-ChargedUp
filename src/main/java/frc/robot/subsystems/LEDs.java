@@ -37,16 +37,14 @@ public class LEDs extends SubsystemBase {
     private final int NUM_LEDS = 119;
     private CANdle m_candle;
     private boolean m_throwOnGround = false;
-    // private int r, g, b;
+    private boolean m_snapped = false;
     private static LEDs m_instance;
-    // private Timer scrollTimer = new Timer();
-    // private double scrollVar = 0;
 
     /**
      * the colors that the CANdle needs to be set to
      */
     public enum Color {
-        GREEN(0, 254, 0), PURPLE(118, 0, 254), ORANGE(254, 55, 0), WHITE(255, 255, 255), OFF(0, 0, 0);
+        GREEN(0, 254, 0), PURPLE(118, 0, 254), ORANGE(254, 55, 0), WHITE(255, 255, 255), BLUE(0, 0, 255), OFF(0, 0, 0);
 
         private int r;
         private int g;
@@ -86,7 +84,6 @@ public class LEDs extends SubsystemBase {
     public void setBlank() {
 
         setColor(Color.OFF);
-        // setLEDs().ignoringDisable(true).schedule();
     }
 
     public SlowAlternateBlink setClimb() {
@@ -186,6 +183,28 @@ public class LEDs extends SubsystemBase {
         return cmd;
     }
 
+    public SequentialCommandGroup blinkTop(Color color, double speed) {
+        SequentialCommandGroup cmd = new SequentialCommandGroup(new InstantCommand(() -> {
+        }));
+        for (int i = 0; i < 6; i++) {
+            cmd.addCommands(
+                new InstantCommand(() -> {
+                    m_candle.setLEDs(0, 0, 0, 0, 8, 25);
+                    m_candle.setLEDs(0, 0, 0, 0, NUM_LEDS - 25, 25);
+                }),
+                new WaitCommand(1 - speed),
+                new InstantCommand(() -> {
+                    m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 25);
+                    m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 25, 25);
+                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
+                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 34, 26);
+                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - 51, 26);
+                }),
+                new WaitCommand(1 - speed));
+        }
+        return cmd;
+    }
+
     // TODO: Test \/
     public void setIdleV2() {
         m_throwOnGround = false;
@@ -277,8 +296,6 @@ public class LEDs extends SubsystemBase {
 
     public void setVictorySpin() {
         m_throwOnGround = false;
-        // scrollTimer.restart();
-        // scrollTimer.stop();
         m_currentMode = CANdleMode.VICTORY_SPIN;
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
@@ -296,8 +313,6 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setActive() {
-        // scrollTimer.restart();
-        // scrollTimer.stop();
         m_currentMode = CANdleMode.ACTIVE;
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
@@ -306,6 +321,17 @@ public class LEDs extends SubsystemBase {
 
     public void setThrowOnGround(boolean state) {
         m_throwOnGround = state;
+        if(state) {
+            m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
+        }
+    }
+
+    public void setSnappedState(boolean state) {
+        m_snapped = state;
+    }
+
+    public boolean getSnappedState() {
+        return m_snapped;
     }
 
     public boolean getThrowOnGround() {
@@ -330,19 +356,13 @@ public class LEDs extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // setLEDs().schedule();
         SmartDashboard.putString("Mode: ", m_currentMode.name());
-        // SmartDashboard.putNumber("Timer", scrollTimer.get());
-        // SmartDashboard.putNumber("scrollVar", scrollVar);
         if (m_currentMode == CANdleMode.ACTIVE) {
-            if (!OneMechanism.getAutoAlignMode()) {
-                if (m_throwOnGround) {
-                    m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
-                } else {
+            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_snapped) {
                     m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
-                }
             } else {
-                new SlowAlternateBlink(m_color, Color.OFF, 0.5, m_instance).until(() -> !OneMechanism.getAutoAlignMode()).schedule();
+                new SlowAlternateBlink(m_color, Color.OFF, 0.5, m_instance)
+                .until(() -> !OneMechanism.getAutoAlignMode()).schedule();
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
             if (m_throwOnGround) {
