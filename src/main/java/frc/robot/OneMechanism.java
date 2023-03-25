@@ -17,8 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.commands.BlinkTop;
-import frc.robot.commands.arm.RunArmsSafely;
+import frc.robot.commands.LEDs.SlowAlternateBlink;
 import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
@@ -189,7 +188,7 @@ public class OneMechanism {
     public static void setSnapped(boolean state) {
         m_leds.setSnappedState(state);
         if (state == true) {
-            new BlinkTop(Color.BLUE, 0.5, m_leds).schedule();
+            m_leds.blinkTop(Color.BLUE, 0.5).until(() -> !m_leds.getSnappedState()).schedule();
         }
     }
 
@@ -279,9 +278,9 @@ public class OneMechanism {
      */
     public static void checkAuxiliaryModes() {
         if (m_climbMode) {
-            m_leds.blink(LEDs.Color.GREEN).schedule();
+            new SlowAlternateBlink(m_leds.getColor(), Color.GREEN, 0.5, m_leds).schedule();
         } else if (m_autoAlignMode) {
-            m_leds.blink(LEDs.Color.RED).schedule();
+            new SlowAlternateBlink(m_leds.getColor(), Color.RED, 0.5, m_leds).schedule();
         } else {
             blinkCurrentColor();
         }
