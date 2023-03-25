@@ -50,15 +50,15 @@
     {
       "anchorPoint": {
         "x": 6.44,
-        "y": 4.723865162016039
+        "y": 4.67
       },
       "prevControl": {
         "x": 5.8372490264103885,
-        "y": 4.723865162016039
+        "y": 4.67
       },
       "nextControl": {
         "x": 6.721419499981857,
-        "y": 4.723865162016039
+        "y": 4.67
       },
       "holonomicAngle": 0.0,
       "isReversal": false,
@@ -75,11 +75,11 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.72
+        "y": 4.67
       },
       "prevControl": {
         "x": 6.58097356787184,
-        "y": 4.72
+        "y": 4.67
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -116,25 +116,25 @@
       ]
     },
     {
-      "position": 2.4545454545454493,
+      "position": 1.609090909090913,
       "names": [
         "RearLocalize"
       ]
     },
     {
-      "position": 2.1545454545454517,
+      "position": 1.5272727272727291,
       "names": [
         "RearLocalize"
       ]
     },
     {
-      "position": 1.963636363636361,
+      "position": 1.7181818181818187,
       "names": [
         "RearLocalize"
       ]
     },
     {
-      "position": 2.3181818181818143,
+      "position": 1.90909090909091,
       "names": [
         "RearLocalize"
       ]
@@ -143,6 +143,12 @@
       "position": 1.7727272727272725,
       "names": [
         "RearLocalize"
+      ]
+    },
+    {
+      "position": 0.10909090909090917,
+      "names": [
+        "FrontLocalize"
       ]
     }
   ]

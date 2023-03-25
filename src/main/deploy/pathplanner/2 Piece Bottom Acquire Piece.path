@@ -2,12 +2,12 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.8286222286730291,
+        "x": 1.79,
         "y": 0.48670125911680434
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8286222286730327,
+        "x": 2.7900000000000036,
         "y": 0.48670125911680434
       },
       "holonomicAngle": 180.0,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 4.305072753002649,
+        "x": 4.26,
         "y": 0.701422402844806
       },
       "prevControl": {
-        "x": 3.3050727530026487,
+        "x": 3.26,
         "y": 0.701422402844806
       },
       "nextControl": {
-        "x": 5.30507275300265,
+        "x": 5.260000000000001,
         "y": 0.701422402844806
       },
-      "holonomicAngle": 90.0,
+      "holonomicAngle": -90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -50,11 +50,36 @@
     {
       "anchorPoint": {
         "x": 6.75,
-        "y": 0.7
+        "y": 0.6
       },
       "prevControl": {
-        "x": 5.862485939257593,
-        "y": 0.6856852570847991
+        "x": 5.8623705052893955,
+        "y": 0.6
+      },
+      "nextControl": {
+        "x": 6.950127670251875,
+        "y": 0.6
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.95,
+        "y": 0.6
+      },
+      "prevControl": {
+        "x": 6.780625498291416,
+        "y": 0.6
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -86,6 +111,36 @@
     },
     {
       "position": 0.3090909090909091,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.618181818181816,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.7090909090909099,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.8000000000000007,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.8909090909090887,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 0.21818181818181814,
       "names": [
         "FrontLocalize"
       ]

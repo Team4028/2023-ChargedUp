@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 2.04,
-        "y": 4.38
+        "y": 1.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.9615189230378465,
-        "y": 4.722494647846439
+        "x": 2.04,
+        "y": 1.5059290348267371
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 5.607714358285859,
-        "y": 4.337367103305636
+        "x": 2.42,
+        "y": 2.261729380601618
       },
       "prevControl": {
-        "x": 5.078068870423455,
-        "y": 4.723865162016039
+        "x": 2.1560491825971893,
+        "y": 2.261729380601618
       },
       "nextControl": {
-        "x": 6.044832316703172,
-        "y": 4.018389133649759
+        "x": 2.882523498620682,
+        "y": 2.261729380601618
       },
-      "holonomicAngle": -45.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,15 +49,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.638375848180268,
-        "y": 3.335335099241627
+        "x": 4.6,
+        "y": 2.26
       },
       "prevControl": {
-        "x": 5.59339961537066,
-        "y": 3.263761384665627
+        "x": 4.118539968605869,
+        "y": 2.26
       },
       "nextControl": null,
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -70,32 +70,5 @@
       }
     }
   ],
-  "markers": [
-    {
-      "position": 0.05454545454545455,
-      "names": [
-        "ArmRetract",
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.2727272727272726,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.6181818181818182,
-      "names": [
-        "ConePickup",
-        "RunGripperIn"
-      ]
-    },
-    {
-      "position": 1.781818181818181,
-      "names": [
-        "RearLocalize"
-      ]
-    }
-  ]
+  "markers": []
 }

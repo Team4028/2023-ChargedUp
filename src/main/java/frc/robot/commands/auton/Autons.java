@@ -7,6 +7,7 @@ package frc.robot.commands.auton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 
@@ -17,11 +18,13 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
+import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
@@ -61,6 +64,8 @@ public class Autons {
 
     private final BooleanSupplier m_armsAtPosition;
 
+    private final Supplier<Command> m_stowCommand;
+
     // Subsystem & Event setup
     public Autons(
         BeakDrivetrain drivetrain,
@@ -80,7 +85,13 @@ public class Autons {
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 
-        m_armsAtPosition = () -> (m_upperArm.atTargetPosition());
+        m_armsAtPosition = () -> (m_upperArm.getError() < 12.0);
+        m_stowCommand = () -> new SequentialCommandGroup(
+            new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
+                .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_armsAtPosition),
+
+            // Run the lower arm down but immediately end it.
+            new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() -> true));
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
@@ -155,6 +166,7 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             new InstantCommand(() -> OneMechanism.setAutoAlign(false)),
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
+
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
@@ -162,13 +174,13 @@ public class Autons {
 
             OneMechanism.orangeModeCommand(),
             OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE),
-            // new WaitCommand(0.05),
 
             m_gripper.runMotorOut().withTimeout(0.4),
-            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
+
+            m_stowCommand.get(),
+
             OneMechanism.purpleModeCommand(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
-        // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision)
         //
         );
 
@@ -185,7 +197,7 @@ public class Autons {
             OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE),
             m_gripper.runMotorOutSoft().withTimeout(0.4),
 
-            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
+            m_stowCommand.get(),
             new InstantCommand(() -> OneMechanism.setAutoAlign(false))
         //
         );
@@ -209,8 +221,6 @@ public class Autons {
     }
 
     public BeakAutonCommand TwoPieceBalance(PathPosition position) {
-        // Acquire and Score already have existing paths, so the full two piece is
-        // simply a combination of the two.
         PathPlannerTrajectory traj = Trajectories.TwoPieceBalance(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),

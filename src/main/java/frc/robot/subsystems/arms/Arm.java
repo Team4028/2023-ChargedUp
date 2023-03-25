@@ -102,7 +102,7 @@ public abstract class Arm extends SubsystemBase {
     }
 
     public boolean atTargetPosition() {
-        return Math.abs(getEncoderPosition() - m_targetPosition) < 0.2;
+        return getError() < 0.2;
     }
 
     public BooleanSupplier atTargetPositionSupplier() {
