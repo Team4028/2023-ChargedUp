@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
 
@@ -41,7 +40,7 @@ public class BeakSwerveModule {
      * Call this function in a subclass AFTER setting up motors and encoders
      */
     public void setup(SwerveModuleConfiguration config) {
-        turnCPR = config.turnGearRatio * m_turningMotor.getVelocityEncoderCPR();
+        turnCPR = config.turnGearRatio * m_turningMotor.getVelocityEncoderCPR(); // ratio * NU / rev
         driveEncoderDistancePerPulse = (config.wheelDiameter.getAsMeters() * Math.PI)
             * config.driveGearRatio / m_driveMotor.getVelocityEncoderCPR();
 
@@ -110,7 +109,7 @@ public class BeakSwerveModule {
         return new SwerveModuleState(
             m_driveMotor.getVelocityNU() * driveEncoderDistancePerPulse * 10., // TODO
             // m_driveMotor.getRate() / 10.,
-            new Rotation2d(getTurningEncoderRadians())); // FUTURE: Using Absolute reverses some wheels.
+            new Rotation2d(getAbsoluteEncoderRadians())); // FUTURE: Using Absolute reverses some wheels.
     }
 
     /**
@@ -135,7 +134,7 @@ public class BeakSwerveModule {
      */
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the state to avoid spinning more than 90 degrees.
-        SwerveModuleState optimizedState = SwerveUtil.optimize(desiredState,
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState,
             new Rotation2d(getTurningEncoderRadians()));
 
         // Calculate Arb Feed Forward for drive motor
@@ -161,7 +160,7 @@ public class BeakSwerveModule {
      */
     public void resetTurningMotor() {
         m_turningMotor.setEncoderPositionNU(
-            Math.toDegrees(getTurningEncoderRadians()) / 360.0 * turnCPR);
+            Math.toDegrees(getAbsoluteEncoderRadians()) / 360.0 * turnCPR);
     }
 
     /**
@@ -169,8 +168,19 @@ public class BeakSwerveModule {
      * 
      * @return Angle of the wheel in radians.
      */
-    public double getTurningEncoderRadians() {
+    public double getAbsoluteEncoderRadians() {
         double angle = m_turningEncoder.getPosition();
+        // angle %= 2.0 * Math.PI;
+        // if (angle < 0.0) {
+        //     angle += 2.0 * Math.PI;
+        // }
+
+        return angle;
+    }
+
+    public double getTurningEncoderRadians() {
+        double angle = m_turningMotor.getPositionNU() * (2 * Math.PI) / turnCPR; // (NU) / (NU / rev) => rev * 360. deg / 1 rev = degrees
+
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
             angle += 2.0 * Math.PI;
@@ -195,8 +205,7 @@ public class BeakSwerveModule {
      */
     public void setAngle(double newAngle) {
         // Does some funky stuff to do the cool thing
-        double currentSensorPosition = m_turningMotor.getPositionNU() * 360.0
-            / turnCPR;
+        double currentSensorPosition = m_turningMotor.getPositionNU() * 360.0 / turnCPR;
         double remainder = Math.IEEEremainder(currentSensorPosition, 360.0);
         double newAngleDemand = newAngle + currentSensorPosition - remainder;
 
@@ -205,8 +214,6 @@ public class BeakSwerveModule {
         } else if (newAngleDemand - currentSensorPosition < -180.1) {
             newAngleDemand += 360.0;
         }
-
-        // SmartDashboard.putNumber("state " + bruh, newAngleDemand / 360. * turnCPR);
 
         m_turningMotor.setPositionNU(newAngleDemand / 360.0 * turnCPR);
     }

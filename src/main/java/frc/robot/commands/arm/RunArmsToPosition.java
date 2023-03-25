@@ -21,8 +21,8 @@ public class RunArmsToPosition extends SequentialCommandGroup {
     /** Creates a new RunArmsToPosition. */
     public RunArmsToPosition(ScoringPositions targetPos,
         LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
-        
-        //set the scoring pos for OneMechanism to track
+
+        // set the scoring pos for OneMechanism to track
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
@@ -31,30 +31,32 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                 // Begins extending lower arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
-                new RunArmProfiled(lowerArm.maxVel, lowerArm.maxAccel, lowerArm.getEncoderPosition(), targetPos.lowerPosition,
+                new RunArmProfiled(lowerArm.MaxVel, lowerArm.MaxAccel, lowerArm.getEncoderPosition(),
+                    targetPos.lowerPosition,
                     lowerArm)
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                          * Constants.ArmConstants.EXTEND_COEFFICIENT)
                          */
-                        .andThen(new RunArmProfiled(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(),
+                        .andThen(new RunArmProfiled(upperArm.MaxVel, upperArm.MaxAccel, upperArm.getEncoderPosition(),
                             targetPos.upperPosition, upperArm))
                         .alongWith(wrist.runToAngle(targetPos.wristAngle)),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
-                new RunArmProfiled(upperArm.maxVel, upperArm.maxAccel, upperArm.getEncoderPosition(), targetPos.upperPosition,
+                new RunArmProfiled(upperArm.MaxVel, upperArm.MaxAccel, upperArm.getEncoderPosition(),
+                    targetPos.upperPosition,
                     upperArm)
                         .raceWith(wrist.runToAngle(targetPos.wristAngle))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
                          */
-                        .andThen(new RunArmProfiled(lowerArm.maxVel, lowerArm.maxAccel, lowerArm.getEncoderPosition(),
+                        .andThen(new RunArmProfiled(lowerArm.MaxVel, lowerArm.MaxAccel, lowerArm.getEncoderPosition(),
                             targetPos.lowerPosition, lowerArm)),
                 () -> targetPos.lowerPosition > lowerArm.getEncoderPosition()),
-                new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
+            new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);
     }
 }

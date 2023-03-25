@@ -7,11 +7,15 @@ package frc.robot.commands.auton;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.robot.Constants.FieldConstants;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -21,7 +25,7 @@ import frc.lib.beaklib.drive.BeakDrivetrain;
  * pose of the path.
  */
 public class BeakAutonCommand extends SequentialCommandGroup {
-    private Pose2d initialPose;
+    private Pose2d m_initialPose;
     private BeakDrivetrain m_drivetrain;
 
     /** Default Constructor */
@@ -42,7 +46,9 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      *            trajectory commands!
      */
     public BeakAutonCommand(BeakDrivetrain drivetrain, PathPlannerTrajectory initialTrajectory, Command... commands) {
-        this(drivetrain, initialTrajectory.getInitialHolonomicPose(), commands);
+        this(drivetrain, 
+        drivetrain.isHolonomic() ? initialTrajectory.getInitialHolonomicPose()
+            : initialTrajectory.getInitialPose(), commands);
     }
 
     /**
@@ -60,11 +66,6 @@ public class BeakAutonCommand extends SequentialCommandGroup {
         m_drivetrain = drivetrain;
         setInitialPose(initialPose);
 
-        // This is NECESSARY to be able to run autons several times per code deployment.
-        for (Command command : commands) {
-            CommandScheduler.getInstance().removeComposedCommand(command);
-        }
-        
         super.addCommands(commands);
         super.addRequirements(drivetrain);
     }
@@ -77,12 +78,25 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      *         the path.
      */
     public SequentialCommandGroup resetPoseAndRun() {
-        return new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose)).andThen(this);
+        return new InstantCommand(() -> {
+            Pose2d transformedPose = m_initialPose;
+
+            // We need to invert the starting pose for the red alliance.
+            if (DriverStation.getAlliance() == Alliance.Red) {
+                Translation2d transformedTranslation = new Translation2d(m_initialPose.getX(),
+                    FieldConstants.FIELD_WIDTH.getAsMeters() - m_initialPose.getY());
+                Rotation2d transformedHeading = m_initialPose.getRotation().times(-1);
+
+                transformedPose = new Pose2d(transformedTranslation, transformedHeading);
+            }
+
+            m_drivetrain.resetOdometry(transformedPose);
+        }).andThen(this);
     }
 
     protected void setInitialPose(Pose2d initialPose) {
-        this.initialPose = initialPose; // TODO: specify each drivetrain as holonomic or
-                                        // not
+        m_initialPose = initialPose; // TODO: specify each drivetrain as holonomic or
+                                     // not
     }
 
     /**
@@ -91,6 +105,6 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      * @return Initial pose of the path.
      */
     public Pose2d getInitialPose() {
-        return initialPose;
+        return m_initialPose;
     }
 }

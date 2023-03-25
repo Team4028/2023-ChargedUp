@@ -17,7 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class GeneratePath extends CommandBase {
@@ -38,10 +38,10 @@ public class GeneratePath extends CommandBase {
 
     private Pose2d m_positionTolerance;
 
-    private BeakDrivetrain m_drivetrain;
+    private BeakSwerveDrivetrain m_drivetrain;
 
     /** Creates a new GeneratePath. */
-    public GeneratePath(Supplier<Pose2d> desiredPose, BeakDrivetrain drivetrain) {
+    public GeneratePath(Supplier<Pose2d> desiredPose, BeakSwerveDrivetrain drivetrain) {
         m_drivetrain = drivetrain;
         m_poseSupplier = desiredPose;
 

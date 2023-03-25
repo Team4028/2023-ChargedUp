@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.photonvision.EstimatedRobotPose;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -22,12 +24,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
 import frc.lib.beaklib.units.AngularVelocity;
 import frc.lib.beaklib.units.Distance;
 import frc.lib.beaklib.units.Velocity;
-import frc.robot.commands.auton.GeneratePath;
 
 /** Base drivetrain class. */
 public class BeakDrivetrain extends BeakGyroSubsystem {
@@ -62,8 +63,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * @param drivePIDGains
      *            The PID gains for the auton drive controller.
      * @param generatedDrivePIDGains
-     *            The PID gains for generated paths using the
-     *            {@link GeneratePath} command.
+     *            The PID gains for generated paths using a path generation command.
      */
     public BeakDrivetrain(
         RobotPhysics physics,
@@ -257,7 +257,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * @return A {@link Command} that runs the generated path.
      */
     public Command generatePath(Supplier<Pose2d> desiredPose) {
-        return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
+        return Commands.none();
     }
 
     /**
@@ -350,11 +350,20 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * 
      * @param estimatedPose
      *            The latest estimated pose from a vision system.
-     * @param latency
-     *            The time since measurement of the estimated pose.
+     * @param timestamp
+     *            The timestamp of the measured pose.
      */
-    public void addVisionMeasurement(Pose2d estimatedPose, double latency) {
+    public void addVisionMeasurement(Pose2d estimatedPose, double timestamp) {
 
+    }
+
+    /**
+     * Add a vision measurement directly from PhotonVision to the pose estimator's Kalman filter.
+     * 
+     * @param estimatedPose The {@link EstimatedRobotPose} from PhotonVision.
+     */
+    public void addVisionMeasurement(EstimatedRobotPose estimatedPose) {
+        addVisionMeasurement(estimatedPose.estimatedPose.toPose2d(), estimatedPose.timestampSeconds);
     }
 
     /**
@@ -378,5 +387,14 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         double radiansToTarget = Math.atan2(yDelta, xDelta);
 
         return new Rotation2d(radiansToTarget);
+    }
+
+    /**
+     * Determine whether or not this drivetrain is holonomic.
+     * 
+     * @return Whether or not the drivetrain is holonomic (e.g. swerve)
+     */
+    public boolean isHolonomic() {
+        return false;
     }
 }

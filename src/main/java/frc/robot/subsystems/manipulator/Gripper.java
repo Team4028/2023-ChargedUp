@@ -18,22 +18,16 @@ public class Gripper extends SubsystemBase {
 
     private final double RUN_SPEED = 0.95;
     private final double SOFT_RUN_SPEED = 0.4;
-    private final double HOLD_SPEED = 0.2; //0.32;
-    private final double IDLE_SPEED = 0.0; //0.12;
+    private final double HOLD_SPEED = 0.2; // 0.32;
+    private final double IDLE_SPEED = 0.0; // 0.12;
     private final double HOLD_THRESHOLD = 50.0;
 
     private enum GripState {
-        INFEED("INFEED"), //
-        HOLD("HOLD"), //
-        BEGIN_OUTFEED("BEGIN OUTFEED"), //
-        OUTFEED("OUTFEED"), //
-        IDLE("IDLE");
-
-        public String name;
-
-        private GripState(String name) {
-            this.name = name;
-        }
+        INFEED, //
+        HOLD, //
+        BEGIN_OUTFEED, //
+        OUTFEED, //
+        IDLE;
     }
 
     private GripState m_currentState;
@@ -59,6 +53,7 @@ public class Gripper extends SubsystemBase {
     public Command runMotorIn() {
         return run(() -> {
             m_motor.set(RUN_SPEED);
+            m_currentState = GripState.HOLD;
         });
     }
 
@@ -76,22 +71,33 @@ public class Gripper extends SubsystemBase {
     }
 
     /**
-     * runs the motor out
+     * Yeet
      * 
-     * @return a command that does the above mentioned task
+     * @return A command that runs the motor out, stopping it when cancelled.
      */
     public Command runMotorOut() {
-        return run(() -> {
+        return startEnd(() -> {
             m_currentState = GripState.IDLE;
             m_motor.set(-1.0 * RUN_SPEED);
-        });
+        },
+            () -> {
+                m_motor.set(0.);
+            });
     }
 
-    public Command runMotorOutSoft(){
-        return run(() -> {
+    /**
+     * Less yeet
+     * 
+     * @return A command that runs the motor out softly, stopping it when cancelled.
+     */
+    public Command runMotorOutSoft() {
+        return startEnd(() -> {
             m_currentState = GripState.IDLE;
             m_motor.set(-1.0 * SOFT_RUN_SPEED);
-        });
+        },
+            () -> {
+                m_motor.set(0.);
+            });
     }
 
     /**
@@ -112,9 +118,8 @@ public class Gripper extends SubsystemBase {
     }
 
     private boolean atCurrentThreshold() {
-        if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD) {
-            m_currentState = GripState.HOLD;
-            // OneMechanism.signalAcquisition();
+        if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD && m_motor.get() > 0.) {
+            OneMechanism.signalAcquisition();
             return true;
         } else {
             return false;
@@ -137,7 +142,13 @@ public class Gripper extends SubsystemBase {
     }
 
     public void periodic() {
-        SmartDashboard.putNumber("GripperAmps", m_motor.getSupplyCurrent());
-        SmartDashboard.putString("Gripper Mode: ", getGripState().name);
+        SmartDashboard.putNumber("Gripper Amps", m_motor.getSupplyCurrent());
+        SmartDashboard.putString("Gripper Mode", getGripState().name());
+        SmartDashboard.putBoolean("Gripper In", m_motor.get() >= RUN_SPEED);
+        SmartDashboard.putBoolean("Gripper Out", m_motor.get() < 0.0);
+        SmartDashboard.putBoolean("Gripper Hold", m_currentState == GripState.HOLD);
+        SmartDashboard.putNumber("Gripper VBUS", m_motor.get());
+
+        atCurrentThreshold();
     }
 }

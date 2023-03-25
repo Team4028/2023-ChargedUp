@@ -23,6 +23,8 @@ public class RunArmPID extends CommandBase {
     @Override
     public void initialize() {
         m_arm.runToPosition(m_position);
+
+        m_arm.setDistanceToTravel(Math.abs(m_position - m_arm.getEncoderPosition()));
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -38,6 +40,6 @@ public class RunArmPID extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(m_arm.getEncoderPosition() - m_arm.getTargetPosition()) < 0.2;
+        return Math.abs(m_arm.getEncoderPosition() - m_arm.getTargetPosition()) < 0.4;
     }
 }

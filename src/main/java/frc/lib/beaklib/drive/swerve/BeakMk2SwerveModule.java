@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.encoder.BeakAnalogInput;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 
@@ -83,13 +82,7 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the state to avoid spinning more than 90 degrees.
         // TODO: All attempts at an optimize function seem to break stuff for MK2.
-        SwerveModuleState optimizedState = desiredState;// optimize(desiredState, new
-                                                        // Rotation2d(getTurningEncoderRadians()));
-        // SwerveModuleState.optimize(desiredState, new
-        // Rotation2d(getTurningEncoderRadians()));
-
-        SmartDashboard.putNumber("bruh " + bruh, desiredState.speedMetersPerSecond);
-        SmartDashboard.putNumber("state " + bruh, getState().speedMetersPerSecond);
+        SwerveModuleState optimizedState = desiredState;
 
         m_driveMotor.set(desiredState.speedMetersPerSecond / Units.feetToMeters(14.3));
 
@@ -99,12 +92,9 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
 
     @Override
     public void setAngle(double angle) { // TODO: Angle motor PID
-        double turnOutput = m_turningPIDController.calculate(getTurningEncoderRadians(), Math.toRadians(angle));
+        double turnOutput = m_turningPIDController.calculate(getAbsoluteEncoderRadians(), Math.toRadians(angle));
 
         // Calculate the turning motor output from the turning PID controller.
         m_turningMotor.set(turnOutput);
-
-        // SmartDashboard.putNumber("state " + bruh, m_turningMotor.getPositionNU() *
-        // 360. / turnCPR);
     }
 }

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import frc.lib.beaklib.units.Distance;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -32,7 +34,7 @@ public final class Constants {
 
     public static final class PIDConstants {
         public static final class Theta { // TODO: put in drivetrains
-            public static final double kP = 6.3;
+            public static final double kP = 6.0;
             public static final double kD = 0.05;
             public static final double[] gains = { kP, 0, kD };
         }
@@ -40,7 +42,7 @@ public final class Constants {
 
     public static final class DriveConstants {
         public static final double SPEED_SCALE = 0.25;
-        public static final double AUTO_ALIGN_SPEED_SCALE = 0.125;
+        public static final double SLOW_SPEED_SCALE = 0.08;
     }
 
     public static final class ArmConstants {
@@ -48,6 +50,9 @@ public final class Constants {
         public static final double RETRACT_COEFFICIENT = 156.58;
         public static final double EXTEND_WAIT_INTERVAL = 0.2;
         public static final double RETRACT_WAIT_INTERVAL = 0.4;
+    }
 
+    public static final class FieldConstants {
+        public static final Distance FIELD_WIDTH = new Distance(8.0137);
     }
 }

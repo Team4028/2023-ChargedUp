@@ -6,7 +6,6 @@ package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.subsystems.arms.LowerArm;
@@ -19,9 +18,9 @@ public class RunArmsSafely extends SequentialCommandGroup {
     public RunArmsSafely(ScoringPositions targetPos, LowerArm lowerArm, UpperArm upperArm, Wrist wrist) {
         addCommands(
             new ConditionalCommand(
-                new RunArmsWithPID(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
-                    .andThen(new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist)),
-                new RunArmsWithPID(targetPos, lowerArm, upperArm, wrist),
+                // new RunArmsWithPID(ScoringPositions.INTERMEDIATE_LOW, lowerArm, upperArm, wrist)
+                    /*.andThen(*/new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist),
+                new RunArmsToPosition(targetPos, lowerArm, upperArm, wrist),
                 () -> (OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.ACQUIRE_FLOOR_CUBE)
                     || OneMechanism.getScoringPosition().equals(ScoringPositions.STOWED))

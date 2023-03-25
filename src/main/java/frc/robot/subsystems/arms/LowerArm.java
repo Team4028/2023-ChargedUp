@@ -5,6 +5,8 @@ package frc.robot.subsystems.arms;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
+
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -19,29 +21,29 @@ public class LowerArm extends Arm {
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.85
-    ;
+    private static final double kMaxOutput = 0.85; // DO NOT go higher than this!
     private static final double kMinOutput = -0.5;
 
-    private static final double kS = 0.1; // 0.33069;
-    private static final double kG = 0.1; // 0.2554;
-    private static final double kV = 0.1; // 0.10667;
+    private static final double kS = -0.23303;
+    private static final double kG = 0.8; //0.70083;
+    private static final double kV = 0.11691;
 
     public static final double ZEROING_VBUS = -0.1;
     public static final double ZEROING_CURRENT_THRESHOLD = 20.0;
 
     private static LowerArm m_instance;
-    public final double maxVel, maxAccel;
+    public final double MaxVel, MaxAccel; // TODO: These should be public static constants.
 
     /** Creates a new ExampleSubsystem. */
     public LowerArm() {
-        maxVel = 45.0; // RPS
-        maxAccel = 90.0; // RPS^2
+        MaxVel = 90.0; // RPS
+        MaxAccel = 180.0; // RPS^2
 
-        ffmodel = new ElevatorFeedforward(kS, kG, kV);
+        FFModel = new ElevatorFeedforward(kS, kG, kV);
 
         m_motor = new CANSparkMax(10, MotorType.kBrushless);
         m_motor.setInverted(true);
+        m_motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 19);
 
         m_pid = m_motor.getPIDController();
         m_pid.setP(kP);
@@ -95,9 +97,10 @@ public class LowerArm extends Arm {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("LowArmEncoderPos", getEncoderPosition());
-        SmartDashboard.putNumber("LowArmErr", this.getError());
-        SmartDashboard.putNumber("LowArmCurrentAmps", this.getMotorCurrent());
+        SmartDashboard.putNumber("Low Arm Pos", getEncoderPosition());
+        SmartDashboard.putNumber("Low Arm Targ", this.m_targetPosition);
+        SmartDashboard.putNumber("Low Arm Err", this.getError());
+        SmartDashboard.putNumber("Low Arm Amps", this.getMotorCurrent());
         // This method will be called once per scheduler run
     }
 

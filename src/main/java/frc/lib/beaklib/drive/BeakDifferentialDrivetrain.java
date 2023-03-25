@@ -21,9 +21,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.beaklib.motor.BeakMotorController;
-import frc.robot.commands.auton.GeneratePath;
 
 /** Generic Differential (Tank) Drivetrain subsystem. */
 public class BeakDifferentialDrivetrain extends BeakDrivetrain {
@@ -45,7 +44,7 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
      * @param drivePIDGains
      *            The PID gains for the auton drive controller.
      * @param generatedDrivePIDGains
-     *            The PID gains for generated paths using the {@link GeneratePath}
+     *            The PID gains for generated paths using a path generation
      *            command.
      */
     public BeakDifferentialDrivetrain(
@@ -87,7 +86,7 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     }
 
     public Command generatePath(Supplier<Pose2d> desiredPose) {
-        return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
+        return Commands.none();
     }
 
     /**
@@ -173,5 +172,9 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
             frontRightMotorController.getDistance());
 
         return m_pose;
+    }
+
+    public boolean isHolonomic() {
+        return false;
     }
 }

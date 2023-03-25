@@ -3,7 +3,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,14 +14,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import frc.lib.beaklib.drive.BeakDrivetrain;
-import frc.lib.beaklib.units.Distance;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.BlinkTop;
 import frc.robot.commands.arm.RunArmsSafely;
+import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
-import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDs.CANdleMode;
@@ -35,9 +34,6 @@ import frc.robot.subsystems.manipulator.Wrist;
  * - Carson, correctly
  */
 public class OneMechanism {
-
-    private static final Distance FIELD_WIDTH = new Distance(8.0137);
-
     private static ScoringPositions currentPosition = ScoringPositions.STOWED;
 
     /**
@@ -49,20 +45,28 @@ public class OneMechanism {
 
     // @formatter:off
     public enum ScoringPositions {
-        STOWED(                        5.0,        7.0,        305.0),
-        INTERMEDIATE_LOW(              15.0,       13.0,       275.0),
-        ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
+        STOWED(                        3.0,        4.0,        305.0),
+        INTERMEDIATE_LOW(              9.5,        21.5,       275.0),
+
         SCORE_LOW_CUBE(                15.0,       13.0,       200.0),
         SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CUBE(               51.0,       34.0,       203.0),
+
+        AUTON_PREP_CUBE(               51.0,       4.0,       203.0),
+
+        ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
         ACQUIRE_FLOOR_CONE_TIPPED(     9.0,        26.5,       260.0),
         ACQUIRE_FLOOR_CONE_UPRIGHT(    8.5,        19.6,       262.0),
+
         SCORE_LOW_CONE(                15.0,       13.0,       200.0),
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
-        ACQUIRE_SINGLE_SUBSTATION(     3.6,        1.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       1.1,        193.537),
-        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.095,     1.81,       203.7);
+
+        AUTON_PREP_CONE(               51.0,       4.0,       203.0),
+
+        ACQUIRE_SINGLE_SUBSTATION(     3.6,        2.0,        320.0),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        193.5),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7);
 
         public double lowerPosition;
         public double upperPosition;
@@ -110,7 +114,7 @@ public class OneMechanism {
             this.BluePose = pose;
             this.RedPose = new Pose2d(
                 pose.getX(),
-                FIELD_WIDTH.getAsMeters() - pose.getY(),
+                FieldConstants.FIELD_WIDTH.getAsMeters() - pose.getY(),
                 pose.getRotation());
         }
     }
@@ -133,7 +137,7 @@ public class OneMechanism {
     private static GamePieceMode m_currentMode = GamePieceMode.ORANGE_CONE;
 
     private static LEDs m_leds;
-    private static BeakDrivetrain m_drive;
+    private static BeakSwerveDrivetrain m_drive;
     private static Vision m_vision;
     private static UpperArm m_upperArm;
     private static LowerArm m_lowerArm;
@@ -144,7 +148,7 @@ public class OneMechanism {
     // private static boolean m_areTheLightsOn = false;
 
     /**
-     * Turns of the CANdle
+     * Turns off the CANdle
      */
     public static void killTheLights() {
         // m_areTheLightsOn = false;
@@ -222,9 +226,33 @@ public class OneMechanism {
         return m_leds.getMode();
     }
 
+    /**
+     * Set the robot to orange (cone) mode
+     * 
+     * @return A {@link Command} that changes the robot to orange mode.
+     */
+    public static Command orangeModeCommand() {
+        return new InstantCommand(() -> becomeOrangeMode(), m_leds);
+    }
+
+    /**
+     * Set the robot to purple (cube) mode
+     * 
+     * @return A {@link Command} that changes the robot to purple mode.
+     */
+    public static Command purpleModeCommand() {
+        return new InstantCommand(() -> becomePurpleMode(), m_leds);
+    }
+
+    // TODO: javadoc these
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
         SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
+    }
+
+    public static void setAutoAlign(boolean autoAlign) {
+        m_autoAlignMode = autoAlign;
+        checkAuxiliaryModes();
     }
 
     public static void toggleThrowOnGround() {
@@ -237,22 +265,42 @@ public class OneMechanism {
 
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
-        if (m_climbMode) {
-            m_leds.setClimb().until(() -> m_climbMode == false).schedule();
-            m_leds.setThrowOnGround(false);
+        checkAuxiliaryModes();
+    }
 
+    public static void setClimbMode(boolean climb) {
+        m_climbMode = climb;
+        checkAuxiliaryModes();
+    }
+
+    /**
+     * Check the status of the climb and auto align modes and blinks the necessary
+     * color.
+     */
+    public static void checkAuxiliaryModes() {
+        if (m_climbMode) {
+            m_leds.blink(LEDs.Color.GREEN).schedule();
+        } else if (m_autoAlignMode) {
+            m_leds.blink(LEDs.Color.RED).schedule();
         } else {
-            switch (getGamePieceMode()) {
-                case ORANGE_CONE:
-                    m_leds.blink(LEDs.Color.ORANGE);
-                    break;
-                case PURPLE_CUBE:
-                    m_leds.blink(LEDs.Color.PURPLE);
-                    break;
-                default:
-                    m_leds.blink(LEDs.Color.ORANGE);
-                    break;
-            }
+            blinkCurrentColor();
+        }
+    }
+
+    /**
+     * Blink the LEDs using the current mode.
+     */
+    public static void blinkCurrentColor() {
+        switch (m_currentMode) {
+            case ORANGE_CONE:
+                m_leds.blink(LEDs.Color.ORANGE).schedule();
+                break;
+            case PURPLE_CUBE:
+                m_leds.blink(LEDs.Color.PURPLE).schedule();
+                break;
+            default:
+                m_leds.blink(LEDs.Color.ORANGE).schedule();
+                break;
         }
     }
 
@@ -286,31 +334,28 @@ public class OneMechanism {
         return NODES.get(0);
     }
 
-    public static Command setNode(Supplier<Node> node) {
-        return new InstantCommand(() -> {
-            m_currentNode = node.get();
-            SmartDashboard.putNumber("Node", m_currentNode.GridID);
-        });
+    public static void setNode(Node node) {
+        m_currentNode = node;
     }
 
-    public static Command runToNodePosition() {
+    /**
+     * Run to the position of the currently set scoring node.
+     * 
+     * @param interruptCondition
+     *            A condition that will stop the automatic alignment.
+     * @return A {@link Command} to run to the set node position.
+     */
+    public static Command runToNodePosition(BooleanSupplier interruptCondition) {
         // Add measurements to the pose estimator before and after to ensure relative
         // accuracy
         return new ConditionalCommand(
-            // new AddVisionMeasurement(m_drive, m_vision).andThen(
             new GeneratePathWithArc(
                 () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
-                m_drive).deadlineWith(
-                    new RepeatCommand(new AddVisionMeasurement(m_drive,
-                        m_vision)))
+                interruptCondition,
+                m_drive)
                     .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-            // .andThen(new AddVisionMeasurement(m_drive, m_vision))),
             Commands.none(),
             () -> m_autoAlignMode);
-    }
-
-    public static Command setNodeFromTagID(Supplier<Integer> id) {
-        return setNode(() -> getNodeFromTagID(id.get())).andThen(runToNodePosition());
     }
 
     public static Node getCurrentNode() {
@@ -338,8 +383,8 @@ public class OneMechanism {
                     }
                 }
 
-                setNode(() -> nodeToSet.get(0)).schedule();
-            }).andThen(runToNodePosition());
+                setNode(nodeToSet.get(0));
+            });
     }
 
     /**
@@ -364,11 +409,11 @@ public class OneMechanism {
                     }
                 }
 
-                setNode(() -> nodeToSet.get(0)).schedule();
-            }).andThen(runToNodePosition());
+                setNode(nodeToSet.get(0));
+            });
     }
 
-    public static void addSubsystems(LEDs leds, BeakDrivetrain drivetrain, Vision vision, LowerArm lowerArm,
+    public static void addSubsystems(LEDs leds, BeakSwerveDrivetrain drivetrain, Vision vision, LowerArm lowerArm,
         UpperArm upperArm, Wrist wrist) {
         m_leds = leds;
         m_drive = drivetrain;
@@ -411,10 +456,12 @@ public class OneMechanism {
     // }
 
     public static Command runArms(ScoringPositions targetPos) {
-        return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        return new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist);
     }
 
-    // public static void signalAcquisition() {
-    // m_leds.alternateBlink(Color.WHITE);
-    // }
+    public static void signalAcquisition() {
+        m_leds.blink(Color.WHITE).schedule();
+        ;
+    }
 }

@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -14,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.beaklib.BeakXBoxController;
 import frc.lib.beaklib.Util;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -21,15 +25,12 @@ import frc.robot.subsystems.kickstand.Kickstand;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
-import frc.robot.commands.arm.RunArmsToPosition;
-import frc.robot.commands.arm.RunArmsSafely;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.AutoBalance;
-import frc.robot.commands.chassis.ResetPoseToVision;
-import frc.robot.commands.kickstand.AcitvateKickstand;
-import frc.robot.commands.kickstand.DeactivateKickstand;
-import frc.robot.subsystems.swerve.PracticeSwerveDrivetrain;
+import frc.robot.commands.chassis.FullFieldLocalize;
+import frc.robot.commands.chassis.KeepAngle;
+import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -39,6 +40,7 @@ import frc.robot.OneMechanism.ScoringPositions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -57,20 +59,18 @@ public class RobotContainer {
     // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; //
     // Very much subject to change.
 
-    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = Constants.PRACTICE_CHASSIS
-        ? new Pose3d(Units.inchesToMeters(5.),
-            Units.inchesToMeters(6.), 0.,
-            new Rotation3d(0., Units.degreesToRadians(11.0),
-                Units.degreesToRadians(0.)))
-        : new Pose3d(Units.inchesToMeters(-2.),
-            Units.inchesToMeters(-2.), 0.,
-            new Rotation3d(0., Units.degreesToRadians(11.0), Units.degreesToRadians(-8.)));
+    private static final Pose3d FRONT_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-3.3125),
+        Units.inchesToMeters(5.5625), 0.,
+        new Rotation3d(0., Units.degreesToRadians(0.),
+            Units.degreesToRadians(180.)));
 
-    private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(6.),
-        Units.inchesToMeters(6.), 0.,
-        new Rotation3d(0., Units.degreesToRadians(16.0), Units.degreesToRadians(180.)));
+    private static final Pose3d REAR_APRILTAG_CAMERA_TO_ROBOT = new Pose3d(Units.inchesToMeters(-5.875),
+        Units.inchesToMeters(5.625), 0.,
+        new Rotation3d(0., Units.degreesToRadians(0.), Units.degreesToRadians(0.)));
+
     // private static final Pose3d GAME_PIECE_CAMERA_TO_ROBOT = new
-    // Pose3d(Units.inchesToMeters(12.), 0., 0., new Rotation3d());
+    // Pose3d(Units.inchesToMeters(-6),
+    // Units.inchesToMeters(-3), 0., new Rotation3d());
 
     // Subsystems
     private final BeakSwerveDrivetrain m_drive;
@@ -94,13 +94,15 @@ public class RobotContainer {
     // Auton stuff
     private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     private final Autons m_autons;
-    // private final LoggedDashboardNumber flywheelSpeedInput = new
-    // LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
     // Limiters, etc.
-    private SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
-    private SlewRateLimiter m_yLimiter = new SlewRateLimiter(4.0);
-    private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(4.0);
+    private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
+    private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(4.0);
+    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(4.0);
+
+    private final SlewRateLimiter m_slowXLimiter = new SlewRateLimiter(2.0);
+    private final SlewRateLimiter m_slowYLimiter = new SlewRateLimiter(2.0);
+    private final SlewRateLimiter m_slowRotLimiter = new SlewRateLimiter(2.0);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -110,8 +112,8 @@ public class RobotContainer {
         // m_drive = PoseEstimatorSwerveDrivetrain.getInstance();
 
         m_drive = SwerveDrivetrain.getInstance();
-        m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT, false);
-        m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT, false);
+        m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT);
+        m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT);
         m_candle = LEDs.getInstance();
 
         if (Constants.PRACTICE_CHASSIS) {
@@ -211,7 +213,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER - LT
         // RUN GRIPPER IN (WITH SMART HOLDING)
         // ================================================
-        m_driverController.lt.whileTrue(m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier())
+        m_driverController.lt.whileTrue(m_gripper.runMotorIn()
             .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ================================================
@@ -247,18 +249,37 @@ public class RobotContainer {
         // DRIVER CONTROLLER - Y
         // AUTO-BALANCE
         // ================================================
-        m_driverController.y.onTrue(new AutoBalance(m_drive));
+        m_driverController.y.toggleOnTrue(new QuadraticAutoBalance(m_drive));
 
         // ================================================
-        // DRIVER CONTROLLER - DLEFT
+        // DRIVER CONTROLLER - DPAD LEFT
         // DECREMENT NODE
         // ================================================
-        m_driverController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.decrementNode()));
+        m_driverController.dpadLeft.onTrue(OneMechanism.decrementNode());
+
         // ================================================
-        // DRIVER CONTROLLER - DRIGHT
+        // DRIVER CONTROLLER - DPAD RIGHT
         // INCREMENT NODE
         // ================================================
-        m_driverController.dpadRight.onTrue(new InstantCommand(() -> OneMechanism.incrementNode()));
+        m_driverController.dpadRight.onTrue(OneMechanism.incrementNode());
+
+        // ================================================
+        // DRIVER CONTROLLER - DPAD UP
+        // RESET POSE
+        // ================================================
+        // m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive,
+        // m_frontAprilTagVision));
+        m_driverController.dpadUp
+            .whileTrue(new RepeatCommand(new FullFieldLocalize(m_drive, m_frontAprilTagVision, m_rearAprilTagVision)));
+
+        // ================================================
+        // DRIVER CONTROLLER - DPAD DOWN
+        // RUN TO TARGET NODE POSITION
+        // ================================================
+        BooleanSupplier nodeInterrupt = () -> Math.abs(speedScaledDriverLeftX()) > 0.1 ||
+            Math.abs(speedScaledDriverLeftY()) > 0.1 ||
+            Math.abs(speedScaledDriverRightX()) > 0.1;
+        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
@@ -275,13 +296,6 @@ public class RobotContainer {
             .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE),
                 OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE),
                 () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
-
-        // ================================================
-        // OPERATOR CONTROLLER - X
-        // STOWED
-        // ================================================
-        m_operatorController.x
-            .onTrue(OneMechanism.runArms(ScoringPositions.STOWED));
 
         // ================================================
         // OPERATOR CONTROLLER - A
@@ -302,6 +316,13 @@ public class RobotContainer {
                 () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
+        // OPERATOR CONTROLLER - X
+        // STOWED
+        // ================================================
+        m_operatorController.x
+            .onTrue(OneMechanism.runArms(ScoringPositions.STOWED));
+
+        // ================================================
         // OPERATOR CONTROLLER - Y
         // SCORE HIGH
         // ================================================
@@ -313,7 +334,7 @@ public class RobotContainer {
 
         // ================================================
         // OPERATOR CONTROLLER - LS
-        // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBES
+        // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBE
         // ================================================
         m_operatorController.ls
             .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE), // Cubes if Purple
@@ -335,143 +356,137 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - RT
         // SPIT OUT GAMEPIECE
         // ================================================
-        m_operatorController.rt.onTrue(m_gripper.runMotorOut().withTimeout(0.8));
-        m_operatorController.rt.onFalse(m_gripper.stopMotor());
+        m_operatorController.rt.whileTrue(m_gripper.runMotorOut().withTimeout(0.8));
 
         // ================================================
         // OPERATOR CONTROLLER - LT
         // SOFTLY SPIT OUT GAMEPIECE
         // ================================================
-        m_operatorController.lt.onTrue(m_gripper.runMotorOutSoft().withTimeout(0.8));
-        m_operatorController.lt.onFalse(m_gripper.stopMotor());
+        m_operatorController.lt.whileTrue(m_gripper.runMotorOutSoft().withTimeout(0.8));
 
         // ================================================
         // OPERATOR CONTROLLER - START
         // ENGAGE KICKSTAND (DOWN)
         // ================================================
-        m_operatorController.start.onTrue(new AcitvateKickstand(m_kickstand));
+        m_operatorController.start.onTrue(m_kickstand.activate());
 
         // ================================================
         // OPERATOR CONTROLLER - BACK
         // DISENGAGE KICKSTAND (UP)
         // ================================================
-        m_operatorController.back.onTrue(new DeactivateKickstand(m_kickstand));
+        m_operatorController.back.onTrue(m_kickstand.deactivate());
+
+        // ================================================
+        // OPERATOR CONTROLLER - DPAD
+        // ORTHAGONAL ANGLE HOLDING
+        // ================================================
+        DoubleSupplier xSupplier = () -> -speedScaledDriverLeftY()
+            * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
+        DoubleSupplier ySupplier = () -> speedScaledDriverLeftX()
+            * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
+        BooleanSupplier angleInterrupt = m_driverController.rs;
+
+        m_operatorController.dpadUp.toggleOnTrue(new KeepAngle(
+            SnapDirection.UP, xSupplier, ySupplier, angleInterrupt, m_drive));
+        m_operatorController.dpadLeft.toggleOnTrue(new KeepAngle(
+            SnapDirection.LEFT, xSupplier, ySupplier, angleInterrupt, m_drive));
+        m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
+            SnapDirection.DOWN, xSupplier, ySupplier, angleInterrupt, m_drive));
+        m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
+            SnapDirection.RIGHT, xSupplier, ySupplier, angleInterrupt, m_drive));
+
+        // ===============================================
+        // EMERGENCY CONTROLLER
+        // ===============================================
 
         // ================================================
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
-        m_emergencyController.axisGreaterThan(1, 0.1)
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())));
-        m_emergencyController.axisGreaterThan(1, 0.1).onFalse(m_lowerArm.holdArmPosition());
-        m_emergencyController.axisLessThan(1, -0.1)
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * m_emergencyController.getLeftYAxis())));
-        m_emergencyController.axisLessThan(1, -0.1).onFalse(m_lowerArm.holdArmPosition());
+        m_emergencyController.axisGreaterThan(1, 0.1).or(m_emergencyController.axisLessThan(1, -0.1))
+            .onTrue(new RunCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())))
+            .onFalse(m_lowerArm.holdArmPosition());
+
         // ================================================
         // EMERGENCY CONTROLLER - UPPER ARM MANUAL CONTROLS
         // RSX
         // ================================================
-        m_emergencyController.axisGreaterThan(4, 0.1)
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
-        m_emergencyController.axisGreaterThan(4, 0.1).onFalse(m_upperArm.holdArmPosition());
-        m_emergencyController.axisLessThan(4, -0.1)
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())));
-        m_emergencyController.axisLessThan(4, -0.1).onFalse(m_upperArm.holdArmPosition());
+        m_emergencyController.axisGreaterThan(4, 0.1).or(m_emergencyController.axisLessThan(4, -0.1))
+            .onTrue(new RunCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())))
+            .onFalse(m_lowerArm.holdArmPosition());
 
         // ================================================
         // EMERGENCY CONTROLLER - MOVE THE WRIST UP
         // RT
         // ================================================
-        m_emergencyController.rt.onTrue(m_wrist.runMotorUp());
-        m_emergencyController.rt.onFalse(m_wrist.holdWristAngle());
+        m_emergencyController.rt.whileTrue(m_wrist.runMotor(0.15));
 
         // ================================================
         // EMERGENCY CONTROLLER - MOVE THE WRIST DOWN
         // LT
         // ================================================
-        m_emergencyController.lt.onTrue(m_wrist.runMotorDown());
-        m_emergencyController.lt.onFalse(m_wrist.holdWristAngle());
+        m_emergencyController.lt.whileTrue(m_wrist.runMotor(-0.15));
 
         // ================================================
-        // EMERGENCY - RESET POSE
+        // EMERGENCY - BUMP LOWER ARM DOWN
         // A
         // ================================================
-        // m_emergencyController.a.onTrue(new ResetPoseToVision(m_drive,
-        // m_frontAprilTagVision));
+        m_emergencyController.a.onTrue(m_lowerArm.changePositionCommand(-1.));
 
         // ================================================
-        // EMERGENCY CONTROLLER - ACTIVE
+        // EMERGENCY - BUMP LOWER ARM UP
         // A
         // ================================================
-        m_emergencyController.a.onTrue(new InstantCommand(() -> OneMechanism.setActive()));
-
-        // ================================================
-        // EMERGENCY CONTROLLER - IDLE
-        // B
-        // ================================================
-        m_emergencyController.b.onTrue(new InstantCommand(() -> OneMechanism.setIdle()));
-
-        // ================================================
-        // EMERGENCY - EXPERIMENTAL - FIRE
-        // X
-        // ================================================
-        m_emergencyController.x.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
-
-        // ================================================
-        // EMERGENCY CONTROLLER - VICTORY SPIN
-        // Y
-        // ================================================
-        m_emergencyController.y.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
-
-        // ================================================
-        // EMERGENCY CONTROLLER - PROBABLY BAD - IDLE V2
-        // LS
-        // ================================================
-        m_emergencyController.ls.onTrue(new InstantCommand(() -> OneMechanism.setIdleV2()));
-
-        // ================================================
-        // EMERGENCY CONTROLLER - EXPERIMENTAL - TOGGLE THROW ON GROUND SLIDE SIGNAL
-        // RS
-        // ================================================
-        m_emergencyController.rs.onTrue(new InstantCommand(() -> OneMechanism.toggleThrowOnGround()));
-
-        // ================================================
-        // EMERGENCY CONTROLLER - EXPERIMENTAL - IDLEV3
-        // RB
-        // ================================================
-        m_emergencyController.rb.onTrue(new InstantCommand(() -> OneMechanism.setIdleV3()));
+        m_emergencyController.y.onTrue(m_lowerArm.changePositionCommand(1.));
     }
 
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("j path 1", m_autons.JPath1());
+        autoChooser.addDefaultOption("1.5 Piece Top", m_autons.OnePiece(PathPosition.Top));
+        autoChooser.addOption("1.5 Piece Bottom", m_autons.OnePiece(PathPosition.Bottom));
 
-        // autoChooser.addOption("j path 2", new JPath2(m_drive));
-        // autoChooser.addOption("J Path", new JPath(m_drive));
+        autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top, false));
+        autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
 
-        autoChooser.addOption("Two Piece Top", m_autons.TwoPiece(PathPosition.TOP));
-        autoChooser.addOption("Two Piece Top Acquire", m_autons.TwoPieceAcquire(PathPosition.TOP));
-        autoChooser.addOption("Two Piece Top Score", m_autons.TwoPieceScore(PathPosition.TOP));
-        autoChooser.addOption("Two Piece Bottom", m_autons.TwoPiece(PathPosition.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Acquire", m_autons.TwoPieceAcquire(PathPosition.BOTTOM));
-        autoChooser.addOption("Two Piece Bottom Score", m_autons.TwoPieceScore(PathPosition.BOTTOM));
+        autoChooser.addOption("2 Piece Top Balance", m_autons.TwoPiece(PathPosition.Top, true));
+        autoChooser.addOption("2 Piece Bottom Balance", m_autons.TwoPiece(PathPosition.Bottom, true));
+
+        autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
+        autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
     }
 
     public double speedScaledDriverLeftY() {
-        return m_yLimiter.calculate(Util.speedScale(m_driverController.getLeftYAxis(),
-            OneMechanism.getAutoAlignMode() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+        return getCurrentYLimiter().calculate(Util.speedScale(m_driverController.getLeftYAxis(),
+            getCurrentSpeedScale(),
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverRightX() {
-        return m_rotLimiter.calculate(-Util.speedScale(m_driverController.getRightXAxis(),
-            OneMechanism.getAutoAlignMode() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+        return getCurrentRotLimiter().calculate(-Util.speedScale(m_driverController.getRightXAxis(),
+            getCurrentSpeedScale(),
             m_driverController.getRightTrigger()));
     }
 
     public double speedScaledDriverLeftX() {
-        return m_xLimiter.calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
-            OneMechanism.getAutoAlignMode() ? DriveConstants.AUTO_ALIGN_SPEED_SCALE : DriveConstants.SPEED_SCALE,
+        return getCurrentXLimiter().calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
+            getCurrentSpeedScale(),
             m_driverController.getRightTrigger()));
+    }
+
+    private double getCurrentSpeedScale() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.SLOW_SPEED_SCALE
+            : DriveConstants.SPEED_SCALE;
+    }
+
+    private SlewRateLimiter getCurrentXLimiter() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowXLimiter : m_xLimiter;
+    }
+
+    private SlewRateLimiter getCurrentYLimiter() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowYLimiter : m_yLimiter;
+    }
+
+    private SlewRateLimiter getCurrentRotLimiter() {
+        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowRotLimiter : m_rotLimiter;
     }
 
     /**

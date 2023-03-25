@@ -44,7 +44,13 @@ public class LEDs extends SubsystemBase {
      * the colors that the CANdle needs to be set to
      */
     public enum Color {
-        GREEN(0, 254, 0), PURPLE(118, 0, 254), ORANGE(254, 55, 0), WHITE(255, 255, 255), BLUE(0, 0, 255), OFF(0, 0, 0);
+        GREEN(0, 254, 0), 
+        PURPLE(118, 0, 254), 
+        ORANGE(254, 55, 0),
+        BLUE(0, 0, 254),
+        WHITE(254, 254, 254),
+        RED(254, 0, 0),
+        OFF(0, 0, 0);
 
         private int r;
         private int g;
@@ -69,12 +75,11 @@ public class LEDs extends SubsystemBase {
     }
 
     /**
-     * sets the color of the LED class
-     * 
-     * @param color
-     *            the color to set
+     * Sets the color of the LEDs.
+     * @param color the color to set
      */
     public void setColor(Color color) {
+        m_lastColor = m_color;
         m_color = color;
     }
 
@@ -82,7 +87,6 @@ public class LEDs extends SubsystemBase {
      * sets the color to blank and runs {@code setLEDs()}
      */
     public void setBlank() {
-
         setColor(Color.OFF);
     }
 
@@ -96,52 +100,25 @@ public class LEDs extends SubsystemBase {
         }
         return m_instance;
     }
-
-    /**
-     * @param color
-     *            the color to blink
-     * @return Blinks the color and then changes to it (SequentialCommandGroup)
-     */
-    public SequentialCommandGroup blink(Color color) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(color)));
+    
+    public SequentialCommandGroup blink() {
+        return blink(m_color);
     }
 
     /**
      * @return Blinks the lights at their current color (SequentialCommandGroup)
      */
-    public SequentialCommandGroup blink() {
+    public SequentialCommandGroup blink(Color color) {
         m_lastColor = m_color;
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setColor(color)),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)));
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setColor(color))
+        );
     }
 
     /**
@@ -151,22 +128,15 @@ public class LEDs extends SubsystemBase {
      */
     public SequentialCommandGroup alternateBlink(Color color) {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> m_lastColor = m_color),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.1),
             new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
+            new WaitCommand(0.02),
             new InstantCommand(() -> setColor(color)),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setBlank()),
-            new WaitCommand(0.08),
-            new InstantCommand(() -> setColor(m_lastColor)));
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setColor(m_lastColor)),
+            new WaitCommand(0.02)
+        );
     }
 
     public SequentialCommandGroup blinkMulti(Color... colors) {

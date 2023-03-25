@@ -55,8 +55,8 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final double TURN_kP = 0.2;
     private static final double TURN_kD = 0.0;
 
-    private static final double AUTON_kP = 3.;
-    private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0. };
+    private static final double AUTON_kP = 2.95;
+    private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0.01 };
 
     private static final double GENERATED_AUTON_kP = 7.5;
     private static final double[] GENERATED_AUTON_DRIVE_GAINS = { GENERATED_AUTON_kP, 0., 0.01 };
@@ -65,18 +65,19 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final String CAN_BUS = "rio";
 
     private static final SimpleMotorFeedforward FEED_FORWARD = new SimpleMotorFeedforward(
-        0.,
-        0.,
-        0.);
+        (.2212 + .151 + .163) / 3.,
+        (2.3 + 2.32 + 2.33) / 3.,
+        (.421 + .849 + .708) / 3.
+    );
 
-    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.UNCHARACTERIZED_MK4I_L2;
+    private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
 
     private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
 
     // distance from the right to left wheels on the robot
-    private static final Distance TRACK_WIDTH = Distance.fromInches(24.);
+    private static final Distance TRACK_WIDTH = Distance.fromInches(19.688); // 24.
     // distance from the front to back wheels on the robot
-    private static final Distance WHEEL_BASE = Distance.fromInches(28.);
+    private static final Distance WHEEL_BASE = Distance.fromInches(23.688); // 28.
 
     private static final RobotPhysics PHYSICS = new RobotPhysics(
         MAX_VELOCITY,
@@ -202,13 +203,16 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     @Override
     public void periodic() {
-        updateOdometry();
+        super.periodic();
 
         m_field.setRobotPose(getPoseMeters());
         SmartDashboard.putData(m_field);
 
-        logData();
-
         SmartDashboard.putNumber("Pitch", getGyroRollRotation2d().getDegrees());
+
+        SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getTurningEncoderRadians()));
     }
 }

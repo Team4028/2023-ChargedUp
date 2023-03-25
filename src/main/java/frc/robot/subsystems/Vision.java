@@ -5,10 +5,14 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -18,35 +22,36 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Vision extends SubsystemBase {
+public class Vision {
     private final PhotonCamera m_camera;
     private final AprilTagFieldLayout m_layout;
+    private final PhotonPoseEstimator m_poseEstimator;
 
     private double m_latestLatency = 0.;
-    private int m_latestTag = 0;
+    private double m_latestTimestamp = 0.;
 
-    private final Pose3d m_camToRobot;
-    private final boolean m_inverted;
+    private final Transform3d m_camToRobot;
 
     /**
-     * Creates a new Vision.
+     * Create a new Vision system.
      * 
-     * @param inverted
-     *            true for apriltags and false for others.
+     * @param cameraName
+     *            The name of the camera in the PhotonVision UI.
+     * @param robotToCam
+     *            The transform from the robot to the camera.
      */
-    public Vision(String cameraName, Pose3d camToRobot, boolean inverted) {
+    public Vision(String cameraName, Transform3d robotToCam) {
         m_camera = new PhotonCamera(cameraName);
 
-        m_camToRobot = camToRobot;
-        m_inverted = inverted;
+        m_camToRobot = robotToCam;
 
         try {
             m_layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
@@ -54,6 +59,21 @@ public class Vision extends SubsystemBase {
         } catch (IOException err) {
             throw new RuntimeException();
         }
+
+        m_poseEstimator = new PhotonPoseEstimator(m_layout, PoseStrategy.MULTI_TAG_PNP, m_camera, robotToCam);
+        m_poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    }
+
+    /**
+     * Create a new Vision subsystem.
+     * 
+     * @param cameraName
+     *            The name of the camera in the PhotonVision UI.
+     * @param robotToCam
+     *            The transform from the robot to the camera.
+     */
+    public Vision(String cameraName, Pose3d robotToCam) {
+        this(cameraName, robotToCam.minus(new Pose3d()));
     }
 
     public void togglePipeline() {
@@ -70,51 +90,121 @@ public class Vision extends SubsystemBase {
     }
 
     /**
-     * Get the best target from the camera.
+     * Get the best target the camera can see.
      * 
-     * @return The target data, or null if none are found.
+     * @return The best (lowest ambiguity) {@link PhotonTrackedTarget} in range.
      */
     public PhotonTrackedTarget getBestTarget() {
+        List<PhotonTrackedTarget> targets = getTargets();
+
+        PhotonTrackedTarget bestTarget = null;
+
+        for (PhotonTrackedTarget target : targets) {
+            if (bestTarget == null || target.getPoseAmbiguity() < bestTarget.getPoseAmbiguity()) {
+                bestTarget = target;
+            }
+        }
+
+        return bestTarget;
+    }
+
+    /**
+     * Get all targets from the camera.
+     * 
+     * @return The target data, or a blank list if none are found.
+     */
+    public List<PhotonTrackedTarget> getTargets() {
         PhotonPipelineResult result = m_camera.getLatestResult();
 
         m_latestLatency = result.getLatencyMillis() / 1000.;
+        m_latestTimestamp = result.getTimestampSeconds();
 
-        boolean hasTarget = result.hasTargets();
-
-        PhotonTrackedTarget target = null;
-
-        if (hasTarget) {
-            target = result.getBestTarget();
-            target = target.getPoseAmbiguity() > 0.65 ? null : target;
-        }
-
-        return target;
+        return result.getTargets();
     }
 
-    public Pose2d getLatestEstimatedRobotPose(Rotation2d rotation) {
-        PhotonTrackedTarget target = getBestTarget();
+    /**
+     * Get targets from the camera under the pose ambiguity threshold.
+     * 
+     * @return A list of {@link PhotonTrackedTarget}s filtered to remove high-ambiguity tags.
+     */
+    public List<PhotonTrackedTarget> getFilteredTargets() {
+        List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
 
-        if (target != null) {
-            Transform3d cameraToTarget = target.getBestCameraToTarget();
-
-            m_latestTag = target.getFiducialId();
-            Optional<Pose3d> tagPose = m_layout.getTagPose(m_latestTag);
-
-            // alternate way to convert a pose to a transform
-            Transform3d camToRobot = m_camToRobot.minus(new Pose3d());
-
-            if (tagPose.isPresent()) {
-                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(cameraToTarget, tagPose.get(), camToRobot);
-                Pose2d odomPose = robotPose.toPose2d();
-
-                if ((target.getPoseAmbiguity() != 0. && rotation != null)) {
-                    odomPose = new Pose2d(odomPose.getTranslation(), rotation);
-                }
-
-                return odomPose;
+        for (PhotonTrackedTarget target : getTargets())
+            if (target.getPoseAmbiguity() < 0.6) {
+                targets.add(target);
             }
+
+        return targets;
+    }
+
+    /**
+     * Get a pipeline result with really bad targets removed.
+     * 
+     * @return A {@link PhotonPipelineResult} with bad targets filtered out.
+     */
+    public PhotonPipelineResult getFilteredResult() {
+        List<PhotonTrackedTarget> targets = getFilteredTargets();
+
+        PhotonPipelineResult result = new PhotonPipelineResult(m_latestLatency * 1000., targets);
+        result.setTimestampSeconds(m_latestTimestamp);
+
+        return result;
+    }
+
+    /**
+     * Gets the best estimated pose of the robot in the current frame.
+     * 
+     * @param pose
+     *            The current pose of the robot.
+     * @return An {@link EstimatedRobotPose} of the robot.
+     */
+    public EstimatedRobotPose getLatestEstimatedRobotPose(Pose2d pose) {
+        // Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
+
+        // SmartDashboard.putBoolean("Pose Status " + m_camera.getName(), estimatedPose.isPresent());
+        // if (estimatedPose.isPresent()) {
+        //     return estimatedPose.get();
+        // } else {
+        //     return new EstimatedRobotPose(new Pose3d(), 0., getFilteredTargets());
+        // }
+        PhotonPipelineResult result = m_camera.getLatestResult();
+
+        m_poseEstimator.setReferencePose(pose);
+        Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
+
+        if (pose != null) {
+            if (!estimatedPose.isPresent()) {
+                SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated empty.");
+                return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
+            }
+
+            Pose2d aprilTagPose = estimatedPose.get().estimatedPose.toPose2d();
+            Pose3d finalPose = new Pose3d(
+                new Translation3d(aprilTagPose.getTranslation().getX(), aprilTagPose.getTranslation().getY(), 0.),
+                new Rotation3d(0., 0., pose.getRotation().getRadians())
+            // An equivalent to a 2d pose, with the passed-in pose's rotation.
+            // We ignore AprilTag theta data because it sucks balls
+            );
+
+            // Construct the final object
+            EstimatedRobotPose finalEstimatedPose = new EstimatedRobotPose(
+                finalPose,
+                result.getTimestampSeconds(),
+                result.getTargets());
+            
+            SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated exists.");
+            return finalEstimatedPose;
         }
-        return new Pose2d();
+
+        if (!estimatedPose.isPresent()) {
+            SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose empty, estimated empty.");
+            return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
+        }
+
+        SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose empty, estimated exists.");
+
+        return estimatedPose.get();
     }
 
     /**
@@ -143,33 +233,16 @@ public class Vision extends SubsystemBase {
             Pose2d newPose = scoringPose.toPose2d();
 
             Rotation2d newRotation = Rotation2d
-                .fromDegrees(newPose.getRotation().getDegrees() - (m_inverted ? 180. : 0.));
+                .fromDegrees(newPose.getRotation().getDegrees());
 
             Pose2d finalPose = new Pose2d(newPose.getTranslation(), newRotation).plus(
                 new Transform2d(
                     m_camToRobot.getTranslation().toTranslation2d(),
                     m_camToRobot.getRotation().toRotation2d()));
 
-            Field2d field = new Field2d();
-            field.setRobotPose(finalPose);
-            SmartDashboard.putData("Vision Desired Pose", field);
             return finalPose;
         }
 
         return robotPose;
-    }
-
-    public double getLatestLatency() {
-        return m_latestLatency;
-    }
-
-    public int getLatestTagID() {
-        getLatestEstimatedRobotPose(null);
-        return m_latestTag;
-    }
-
-    @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
     }
 }

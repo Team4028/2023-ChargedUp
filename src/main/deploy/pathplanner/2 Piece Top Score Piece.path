@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.53,
-        "y": 4.609347218694437
+        "x": 6.68,
+        "y": 4.73
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.408475271236257,
-        "y": 4.720268151964875
+        "x": 5.74360281577706,
+        "y": 4.774068362422439
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 3.2028375485322402,
-        "y": 4.738179904931239
+        "x": 4.161925323850648,
+        "y": 4.609347218694437
       },
       "prevControl": {
-        "x": 3.8715578833883195,
-        "y": 4.7929930471325575
+        "x": 4.83064565870673,
+        "y": 4.664160360895756
       },
       "nextControl": {
-        "x": 2.3296382307050334,
-        "y": 4.666606190355238
+        "x": 3.288726006023441,
+        "y": 4.537773504118436
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,12 +49,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.143546572807432,
-        "y": 4.136960702492834
+        "x": 2.09,
+        "y": 4.41
       },
       "prevControl": {
-        "x": 2.5014151456874343,
-        "y": 4.5520882470336375
+        "x": 2.7359330890090354,
+        "y": 4.640920933270438
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -72,28 +72,47 @@
   ],
   "markers": [
     {
-      "position": 1.0181818181818183,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
       "position": 0.1272727272727272,
       "names": [
         "StopGripper",
-        "ArmRetract"
-      ]
-    },
-    {
-      "position": 1.3818181818181818,
-      "names": [
-        "FrontLocalize"
+        "ArmRetract",
+        "RearLocalize"
       ]
     },
     {
       "position": 1.6727272727272708,
       "names": [
         "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.29090909090909084,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.436363636363636,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.799999999999997,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.2545454545454533,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.3090909090909078,
+      "names": [
+        "CubePrep"
       ]
     }
   ]

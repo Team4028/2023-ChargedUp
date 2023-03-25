@@ -51,7 +51,7 @@ public class BeakUncharacterizedMk4iSwerveModule extends BeakSwerveModule {
     }
 
     @Override
-    public double getTurningEncoderRadians() {
+    public double getAbsoluteEncoderRadians() {
         double angle = m_turningEncoder.getAbsolutePosition();
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
@@ -62,7 +62,7 @@ public class BeakUncharacterizedMk4iSwerveModule extends BeakSwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-        SwerveModuleState optimizedState = SwerveUtil.optimize(desiredState,
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState,
             new Rotation2d(getTurningEncoderRadians()));
             
         // TODO: put in config

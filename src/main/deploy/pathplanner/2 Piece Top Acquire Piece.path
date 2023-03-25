@@ -7,10 +7,10 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4871004027722345,
-        "y": 4.494829275372837
+        "x": 2.9881164048042383,
+        "y": 4.824068362422439
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 180.01,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,12 +24,62 @@
     },
     {
       "anchorPoint": {
-        "x": 6.53,
-        "y": 4.61
+        "x": 4.03,
+        "y": 4.86701259116804
       },
       "prevControl": {
-        "x": 5.63634384411626,
-        "y": 4.824068362422439
+        "x": 3.3572070829855956,
+        "y": 4.89564207699844
+      },
+      "nextControl": {
+        "x": 4.688535561238805,
+        "y": 4.838989801328091
+      },
+      "holonomicAngle": 90.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.44,
+        "y": 4.723865162016039
+      },
+      "prevControl": {
+        "x": 5.8372490264103885,
+        "y": 4.723865162016039
+      },
+      "nextControl": {
+        "x": 6.721419499981857,
+        "y": 4.723865162016039
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.68,
+        "y": 4.72
+      },
+      "prevControl": {
+        "x": 6.58097356787184,
+        "y": 4.72
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -47,28 +97,51 @@
   ],
   "markers": [
     {
-      "position": 0.19090909090909092,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.34545454545454546,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.8545454545454537,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.6999999999999993,
+      "position": 0.9818181818181831,
       "names": [
         "CubePickup",
-        "RunGripperIn",
+        "RunGripperIn"
+      ]
+    },
+    {
+      "position": 0.21818181818181814,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.1454545454545455,
+      "names": [
+        "RunGripperIn"
+      ]
+    },
+    {
+      "position": 2.4545454545454493,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 2.1545454545454517,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.963636363636361,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 2.3181818181818143,
+      "names": [
+        "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.7727272727272725,
+      "names": [
         "RearLocalize"
       ]
     }

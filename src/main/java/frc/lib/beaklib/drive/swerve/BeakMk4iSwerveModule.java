@@ -6,7 +6,6 @@ package frc.lib.beaklib.drive.swerve;
 
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.beaklib.encoder.BeakCANCoder;
 import frc.lib.beaklib.motor.BeakTalonFX;
 
@@ -49,7 +48,7 @@ public class BeakMk4iSwerveModule extends BeakSwerveModule {
     }
 
     @Override
-    public double getTurningEncoderRadians() {
+    public double getAbsoluteEncoderRadians() {
         double angle = m_turningEncoder.getAbsolutePosition();
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
@@ -58,17 +57,4 @@ public class BeakMk4iSwerveModule extends BeakSwerveModule {
 
         return angle;
     }
-
-    // public void setDesiredState(SwerveModuleState desiredState) {
-    //     // Calculate Arb Feed Forward for drive motor
-    //     double arbFeedforward = m_feedforward.calculate(desiredState.speedMetersPerSecond);
-
-    //     m_driveMotor.setVelocityNU(
-    //         desiredState.speedMetersPerSecond / 10.0 / driveEncoderDistancePerPulse,
-    //         arbFeedforward,
-    //         0);
-
-    //     // Set the turning motor to the correct position.
-    //     setAngle(desiredState.angle.getDegrees());
-    // }
 }

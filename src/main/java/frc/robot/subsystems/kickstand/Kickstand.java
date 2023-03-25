@@ -14,28 +14,37 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 
 public class Kickstand extends SubsystemBase {
-    private final double RETRACTED_POSITION = 0.0;
+    private final double RETRACTED_POSITION = 15.0;
     private final double ACTIVE_POSITION = 110.0;
     private BeakSparkMAX m_motor;
     private static Kickstand m_instance;
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
     private SparkMaxPIDController m_pid;
 
-    private static final double kP = 0.1;
+    private static final double kP = 0.01;
     private static final double kI = 0.0;
     private static final double kD = 0.0;
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
-    private static final double kMaxOutput = 0.4;
-    private static final double kMinOutput = -0.4;
+    private static final double kMaxOutput = 0.2;
+    private static final double kMinOutput = -0.2;
+    private double m_targetPosition;
 
     /** Creates a new Kickstand. */
     public Kickstand() {
         m_motor = new BeakSparkMAX(21);
+        m_motor.setInverted(true);
+
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
+
+
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);
+
+        m_pid.setPositionPIDWrappingEnabled(true);
+        m_pid.setPositionPIDWrappingMaxInput(360.);
+        m_pid.setPositionPIDWrappingMinInput(0.);
 
         m_pid.setP(kP);
         m_pid.setI(kI);
@@ -55,6 +64,7 @@ public class Kickstand extends SubsystemBase {
     }
 
     public void runToPosition(double degrees) {
+        m_targetPosition = degrees;
         m_pid.setReference(degrees, ControlType.kPosition);
     }
 
@@ -69,18 +79,23 @@ public class Kickstand extends SubsystemBase {
         return m_instance;
     }
 
-    public void activateKickstand() {
-        runToPosition(ACTIVE_POSITION);
+    public Command activate() {
+        return runOnce(() -> {
+            runToPosition(ACTIVE_POSITION);
+        });
     }
 
-    public void deacitvateKickstand() {
-        runToPosition(RETRACTED_POSITION);
+    public Command deactivate() {
+        return runOnce(() -> {
+            runToPosition(RETRACTED_POSITION);
+        });
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putNumber("Kickstand Output Current", m_motor.getOutputCurrent());
-        SmartDashboard.putNumber("Kickstand Absolute Position", getAbsoluteEncoderPosition());
+        SmartDashboard.putNumber("Kickstand Pos", getAbsoluteEncoderPosition());
+        SmartDashboard.putBoolean("Kickstand", m_targetPosition == ACTIVE_POSITION);
+
     }
 }
