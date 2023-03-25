@@ -55,8 +55,8 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final double TURN_kP = 0.2;
     private static final double TURN_kD = 0.0;
 
-    private static final double AUTON_kP = 3.;
-    private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0. };
+    private static final double AUTON_kP = 2.95;
+    private static final double[] AUTON_DRIVE_GAINS = { AUTON_kP, 0., 0.01 };
 
     private static final double GENERATED_AUTON_kP = 7.5;
     private static final double[] GENERATED_AUTON_DRIVE_GAINS = { GENERATED_AUTON_kP, 0., 0.01 };

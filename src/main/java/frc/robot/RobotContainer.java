@@ -442,16 +442,16 @@ public class RobotContainer {
 
     private void initAutonChooser() {
         autoChooser.addDefaultOption("1.5 Piece Top", m_autons.OnePiece(PathPosition.Top));
-
         autoChooser.addOption("1.5 Piece Bottom", m_autons.OnePiece(PathPosition.Bottom));
 
-        autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top));
+        autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top, false));
+        autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
 
-        autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom));
+        autoChooser.addOption("2 Piece Top Balance", m_autons.TwoPiece(PathPosition.Top, true));
+        autoChooser.addOption("2 Piece Bottom Balance", m_autons.TwoPiece(PathPosition.Bottom, true));
 
-        autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top));
-
-        autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom));
+        autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
+        autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
     }
 
     public double speedScaledDriverLeftY() {

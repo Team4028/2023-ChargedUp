@@ -34,7 +34,7 @@ public final class Constants {
 
     public static final class PIDConstants {
         public static final class Theta { // TODO: put in drivetrains
-            public static final double kP = 6.3;
+            public static final double kP = 6.0;
             public static final double kD = 0.05;
             public static final double[] gains = { kP, 0, kD };
         }

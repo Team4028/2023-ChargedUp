@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.455630465546646,
-        "y": 4.84269784825284
+        "x": 3.9615189230378465,
+        "y": 4.752494647846439
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,15 +24,40 @@
     },
     {
       "anchorPoint": {
-        "x": 6.480913676113066,
-        "y": 3.392594070902428
+        "x": 5.607714358285859,
+        "y": 4.337367103305636
       },
       "prevControl": {
-        "x": 6.395025218621866,
-        "y": 5.239195906963244
+        "x": 5.078068870423455,
+        "y": 4.723865162016039
+      },
+      "nextControl": {
+        "x": 6.044832316703172,
+        "y": 4.018389133649759
+      },
+      "holonomicAngle": -45.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.638375848180268,
+        "y": 3.335335099241627
+      },
+      "prevControl": {
+        "x": 5.59339961537066,
+        "y": 3.263761384665627
       },
       "nextControl": null,
-      "holonomicAngle": 0.02,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -54,20 +79,20 @@
       ]
     },
     {
-      "position": 0.7909090909090895,
+      "position": 0.2727272727272726,
       "names": [
-        "RearLocalize"
+        "FrontLocalize"
       ]
     },
     {
-      "position": 0.518181818181819,
+      "position": 0.6181818181818182,
       "names": [
         "ConePickup",
         "RunGripperIn"
       ]
     },
     {
-      "position": 0.8181818181818171,
+      "position": 1.781818181818181,
       "names": [
         "RearLocalize"
       ]

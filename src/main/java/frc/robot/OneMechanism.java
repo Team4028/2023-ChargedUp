@@ -44,15 +44,23 @@ public class OneMechanism {
     public enum ScoringPositions {
         STOWED(                        3.0,        4.0,        305.0),
         INTERMEDIATE_LOW(              9.5,        21.5,       275.0),
-        ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
+
         SCORE_LOW_CUBE(                15.0,       13.0,       200.0),
         SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CUBE(               51.0,       34.0,       203.0),
+
+        AUTON_PREP_CUBE(               51.0,       4.0,       203.0),
+
+        ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
         ACQUIRE_FLOOR_CONE_TIPPED(     9.0,        26.5,       260.0),
         ACQUIRE_FLOOR_CONE_UPRIGHT(    8.5,        19.6,       262.0),
+
         SCORE_LOW_CONE(                15.0,       13.0,       200.0),
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
+
+        AUTON_PREP_CONE(               51.0,       4.0,       203.0),
+
         ACQUIRE_SINGLE_SUBSTATION(     3.6,        2.0,        320.0),
         ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        193.5),
         ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7);
@@ -170,6 +178,7 @@ public class OneMechanism {
 
     /**
      * Set the robot to orange (cone) mode
+     * 
      * @return A {@link Command} that changes the robot to orange mode.
      */
     public static Command orangeModeCommand() {
@@ -178,25 +187,43 @@ public class OneMechanism {
 
     /**
      * Set the robot to purple (cube) mode
+     * 
      * @return A {@link Command} that changes the robot to purple mode.
      */
     public static Command purpleModeCommand() {
         return new InstantCommand(() -> becomePurpleMode(), m_leds);
     }
 
+    // TODO: javadoc these
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
-        if (m_autoAlignMode) {
-            m_leds.blink(LEDs.Color.RED).schedule();
-        } else {
-            blinkCurrentColor();
-        }
+        checkAuxiliaryModes();
+    }
+
+    public static void setAutoAlign(boolean autoAlign) {
+        m_autoAlignMode = autoAlign;
+        checkAuxiliaryModes();
     }
 
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
+        checkAuxiliaryModes();
+    }
+
+    public static void setClimbMode(boolean climb) {
+        m_climbMode = climb;
+        checkAuxiliaryModes();
+    }
+
+    /**
+     * Check the status of the climb and auto align modes and blinks the necessary
+     * color.
+     */
+    public static void checkAuxiliaryModes() {
         if (m_climbMode) {
             m_leds.blink(LEDs.Color.GREEN).schedule();
+        } else if (m_autoAlignMode) {
+            m_leds.blink(LEDs.Color.RED).schedule();
         } else {
             blinkCurrentColor();
         }
@@ -255,7 +282,9 @@ public class OneMechanism {
 
     /**
      * Run to the position of the currently set scoring node.
-     * @param interruptCondition A condition that will stop the automatic alignment.
+     * 
+     * @param interruptCondition
+     *            A condition that will stop the automatic alignment.
      * @return A {@link Command} to run to the set node position.
      */
     public static Command runToNodePosition(BooleanSupplier interruptCondition) {
@@ -374,6 +403,7 @@ public class OneMechanism {
     }
 
     public static void signalAcquisition() {
-        m_leds.blink(Color.WHITE).schedule();;
+        m_leds.blink(Color.WHITE).schedule();
+        ;
     }
 }

@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
@@ -22,7 +23,7 @@ import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.chassis.AddVisionMeasurement;
-import frc.robot.commands.chassis.AutoBalance;
+import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
@@ -86,8 +87,8 @@ public class Autons {
         m_eventMap = new HashMap<String, Command>();
         if (Constants.PRACTICE_CHASSIS) {
             // TODO
-            m_eventMap.put("HighScoring", OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE));
-            m_eventMap.put("MidScoring", OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE));
+            m_eventMap.put("CubePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CUBE));
+            m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
             m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
@@ -117,7 +118,7 @@ public class Autons {
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             // BALANCE
             new WaitCommand(0.15),
-            new AutoBalance(m_drivetrain, true)
+            new QuadraticAutoBalance(m_drivetrain)
         //
         );
 
@@ -131,12 +132,11 @@ public class Autons {
      */
     public BeakAutonCommand OnePiece(PathPosition position) {
         // Score a piece, acquire a piece, then balance.
-        PathPlannerTrajectory traj = Trajectories.StraightLinePath(m_drivetrain);//TwoPieceAcquire(position);
+        BeakAutonCommand initialPath = TwoPieceAcquire(position);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
-        m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
-            // initialPath,
-            // OnePieceBalance(position)
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            OnePieceBalance(position)
         //
         );
 
@@ -153,14 +153,16 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            new InstantCommand(() -> OneMechanism.setAutoAlign(false)),
+            new InstantCommand(() -> OneMechanism.setClimbMode(false)),
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
             OneMechanism.orangeModeCommand(),
-            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE),//.until(m_armsAtPosition),
-            new WaitCommand(0.1),
+            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE),
+            // new WaitCommand(0.05),
 
             m_gripper.runMotorOut().withTimeout(0.4),
             OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
@@ -177,28 +179,29 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            // new AddVisionMeasurement(m_drivetrain, m_rearAprilTagVision),
+            new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
-            new WaitCommand(0.1),
-            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE),//.until(m_armsAtPosition),
-            new WaitCommand(0.1),
+
+            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE),
             m_gripper.runMotorOutSoft().withTimeout(0.4),
-            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition)
+
+            OneMechanism.runArms(ScoringPositions.STOWED).until(m_armsAtPosition),
+            new InstantCommand(() -> OneMechanism.setAutoAlign(false))
         //
         );
 
         return cmd;
     }
 
-    public BeakAutonCommand TwoPiece(PathPosition position) {
+    public BeakAutonCommand TwoPiece(PathPosition position, boolean balance) {
         // Acquire and Score already have existing paths, so the full two piece is
         // simply a combination of the two.
         BeakAutonCommand initialPath = TwoPieceAcquire(position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            new WaitCommand(0.2),
-            TwoPieceScore(position)
+            TwoPieceScore(position),
+            balance ? TwoPieceBalance(position) : Commands.none()
         //
         );
 
@@ -208,13 +211,14 @@ public class Autons {
     public BeakAutonCommand TwoPieceBalance(PathPosition position) {
         // Acquire and Score already have existing paths, so the full two piece is
         // simply a combination of the two.
-        BeakAutonCommand initialPath = TwoPieceBalance(position);
+        PathPlannerTrajectory traj = Trajectories.TwoPieceBalance(m_drivetrain, position);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            // Auto balance a few times
-            new WaitCommand(0.5),
-            new AutoBalance(m_drivetrain, true)
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
+            new InstantCommand(() -> OneMechanism.setClimbMode(true)),
+
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            // balance :)
+            new QuadraticAutoBalance(m_drivetrain)
         //
         );
 
@@ -241,6 +245,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.ThreePieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
@@ -248,11 +253,11 @@ public class Autons {
         return cmd;
     }
 
-    public BeakAutonCommand ThreePiece(PathPosition position) {
+    public BeakAutonCommand ThreePiece(PathPosition position, boolean balance) {
         // The Three Piece paths are made to continue off of the two piece path. Rather
         // than doing everything again, we simply run the two piece auton and continue
         // where we left off for the three piece paths.
-        BeakAutonCommand initialPath = TwoPiece(position);
+        BeakAutonCommand initialPath = TwoPiece(position, false);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
