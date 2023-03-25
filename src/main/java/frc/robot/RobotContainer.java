@@ -27,7 +27,6 @@ import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
-import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.FullFieldLocalize;
 import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;

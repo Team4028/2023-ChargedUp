@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.LEDs.Color;
@@ -44,12 +45,11 @@ public class SlowAlternateBlink extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        new InstantCommand(() -> m_leds.setColor(firstColor)).andThen(
-            new WaitCommand(seconds)).andThen(
-                new InstantCommand(() -> m_leds.setColor(secondColor)))
-            .andThen(
-                new WaitCommand(seconds))
-            .schedule();
+        new SequentialCommandGroup(
+            new InstantCommand(() -> m_leds.setColor(firstColor)),
+            new WaitCommand(seconds),
+            new InstantCommand(() -> m_leds.setColor(secondColor)),
+            new WaitCommand(seconds)).schedule();
     }
 
     // Called once the command ends or is interrupted.

@@ -16,9 +16,8 @@ import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 
 // import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -29,7 +28,12 @@ import frc.robot.commands.LarsonAnimationV2.V2BounceMode;
 
 public class LEDs extends SubsystemBase {
     public enum CANdleMode {
-        VICTORY_SPIN, FIRE, IDLE, ACTIVE, IDLEV2, IDLEV3;
+        VICTORY_SPIN, //
+        FIRE, //
+        IDLE, //
+        ACTIVE, //
+        IDLEV2, //
+        IDLEV3;
     }
 
     private CANdleMode m_currentMode;
@@ -44,12 +48,12 @@ public class LEDs extends SubsystemBase {
      * the colors that the CANdle needs to be set to
      */
     public enum Color {
-        GREEN(0, 254, 0), 
-        PURPLE(118, 0, 254), 
-        ORANGE(254, 55, 0),
-        BLUE(0, 0, 254),
-        WHITE(254, 254, 254),
-        RED(254, 0, 0),
+        GREEN(0, 254, 0), //
+        PURPLE(118, 0, 254), //
+        ORANGE(254, 55, 0), //
+        BLUE(0, 0, 254), //
+        WHITE(254, 254, 254), //
+        RED(254, 0, 0), //
         OFF(0, 0, 0);
 
         private int r;
@@ -76,7 +80,9 @@ public class LEDs extends SubsystemBase {
 
     /**
      * Sets the color of the LEDs.
-     * @param color the color to set
+     * 
+     * @param color
+     *            the color to set
      */
     public void setColor(Color color) {
         m_lastColor = m_color;
@@ -100,7 +106,7 @@ public class LEDs extends SubsystemBase {
         }
         return m_instance;
     }
-    
+
     public SequentialCommandGroup blink() {
         return blink(m_color);
     }
@@ -109,7 +115,6 @@ public class LEDs extends SubsystemBase {
      * @return Blinks the lights at their current color (SequentialCommandGroup)
      */
     public SequentialCommandGroup blink(Color color) {
-        m_lastColor = m_color;
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.02),
@@ -117,8 +122,7 @@ public class LEDs extends SubsystemBase {
             new WaitCommand(0.02),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setColor(color))
-        );
+            new InstantCommand(() -> setColor(color)));
     }
 
     /**
@@ -135,8 +139,7 @@ public class LEDs extends SubsystemBase {
             new InstantCommand(() -> setColor(color)),
             new WaitCommand(0.02),
             new InstantCommand(() -> setColor(m_lastColor)),
-            new WaitCommand(0.02)
-        );
+            new WaitCommand(0.02));
     }
 
     public SequentialCommandGroup blinkMulti(Color... colors) {
@@ -145,34 +148,30 @@ public class LEDs extends SubsystemBase {
         for (int i = 0; i < colors.length; i++) {
             Color tempColor = colors[i];
             cmd.addCommands(
-                new InstantCommand(() -> setBlank()),
+                runOnce(() -> setBlank()),
                 new WaitCommand(0.08),
-                new InstantCommand(() -> setColor(tempColor)),
+                runOnce(() -> setColor(tempColor)),
                 new WaitCommand(0.08));
         }
         return cmd;
     }
 
-    public SequentialCommandGroup blinkTop(Color color, double speed) {
-        SequentialCommandGroup cmd = new SequentialCommandGroup(new InstantCommand(() -> {
-        }));
-        for (int i = 0; i < 6; i++) {
-            cmd.addCommands(
-                new InstantCommand(() -> {
-                    m_candle.setLEDs(0, 0, 0, 0, 8, 25);
-                    m_candle.setLEDs(0, 0, 0, 0, NUM_LEDS - 25, 25);
-                }),
-                new WaitCommand(1 - speed),
-                new InstantCommand(() -> {
-                    m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 25);
-                    m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 25, 25);
-                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
-                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 34, 26);
-                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - 51, 26);
-                }),
-                new WaitCommand(1 - speed));
-        }
-        return cmd;
+    public RepeatCommand blinkTop(Color color, double speed) {
+        SequentialCommandGroup cmd = new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 21, 39);
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - 51, 39);
+                m_candle.setLEDs(0, 0, 0, 0, 8, 12);
+                m_candle.setLEDs(0, 0, 0, 0, NUM_LEDS - 12, 12);
+            }),
+            new WaitCommand(1 - speed),
+            new InstantCommand(() -> {
+                m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 12);
+                m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 12, 12);
+            }),
+            new WaitCommand(1 - speed));
+        return new RepeatCommand(cmd);
     }
 
     // TODO: Test \/
@@ -291,7 +290,7 @@ public class LEDs extends SubsystemBase {
 
     public void setThrowOnGround(boolean state) {
         m_throwOnGround = state;
-        if(state) {
+        if (state) {
             m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
         }
     }
@@ -329,15 +328,10 @@ public class LEDs extends SubsystemBase {
         SmartDashboard.putString("Mode: ", m_currentMode.name());
         if (m_currentMode == CANdleMode.ACTIVE) {
             if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_snapped) {
-                    m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
-            } else {
-                new SlowAlternateBlink(m_color, Color.OFF, 0.5, m_instance)
-                .until(() -> !OneMechanism.getAutoAlignMode()).schedule();
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
-            if (m_throwOnGround) {
-                m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, 8), 0);
-            } else {
+            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_snapped) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
             }
         }
