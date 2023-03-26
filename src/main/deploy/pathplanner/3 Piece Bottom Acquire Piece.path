@@ -2,12 +2,12 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.84,
+        "x": 2.14,
         "y": 1.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.902634348125839,
+        "x": 3.2026343481258395,
         "y": 0.8834025182336086
       },
       "holonomicAngle": 180.0,
@@ -35,7 +35,7 @@
         "x": 5.435937443303458,
         "y": 0.8445698319968078
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,15 +49,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.3663957327914655,
-        "y": 2.1328966943648173
+        "x": 7.25,
+        "y": 1.95
       },
       "prevControl": {
-        "x": 6.395025218621866,
-        "y": 0.6155339453536053
+        "x": 6.720354512137588,
+        "y": 1.0768006821727927
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 45.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -79,22 +79,16 @@
       ]
     },
     {
-      "position": 0.690909090909091,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 1.0000000000000002,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
       "position": 1.8363636363636346,
       "names": [
-        "ArmPickup",
         "RearLocalize"
+      ]
+    },
+    {
+      "position": 1.1272727272727268,
+      "names": [
+        "ConePickup",
+        "RunGripperIn"
       ]
     }
   ]

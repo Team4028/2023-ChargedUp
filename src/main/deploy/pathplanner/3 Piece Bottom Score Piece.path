@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.37,
-        "y": 2.13
+        "x": 7.25,
+        "y": 1.95
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.994212416996263,
-        "y": 0.6871076599296062
+        "x": 6.874212416996263,
+        "y": 0.5071076599296063
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 45.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 3.3602997205994414,
-        "y": 0.7300518886752065
+        "x": 4.233499038426649,
+        "y": 0.758681374505606
       },
       "prevControl": {
-        "x": 5.178272070829854,
-        "y": 0.7873108603360077
+        "x": 6.051471388657064,
+        "y": 0.8159403461664072
       },
       "nextControl": {
-        "x": 2.4476332538505803,
-        "y": 0.701306488147683
+        "x": 3.3208325716777876,
+        "y": 0.7299359739780825
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -75,25 +75,26 @@
       "position": 0.036363636363636334,
       "names": [
         "ArmRetract",
-        "RearLocalize"
+        "RearLocalize",
+        "StopGripper"
       ]
     },
     {
-      "position": 0.7636363636363638,
+      "position": 1.709090909090906,
       "names": [
-        "RearLocalize"
+        "FrontLocalize"
       ]
     },
     {
-      "position": 1.0545454545454542,
+      "position": 1.1090909090909087,
       "names": [
-        "RearLocalize"
+        "ConePrep"
       ]
     },
     {
-      "position": 1.7636363636363626,
+      "position": 1.8181818181818168,
       "names": [
-        "ArmScoring"
+        "ConeHigh"
       ]
     }
   ]

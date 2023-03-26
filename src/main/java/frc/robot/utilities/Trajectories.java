@@ -18,8 +18,8 @@ public class Trajectories {
      * This enum also stores data for trajectory loading.
      */
     public enum PathPosition {
-        Bottom(0.45, 0.45, 0.45), // Over the cable cover
-        Middle(0.5, 0.5, 0.25), // Over the charge station
+        Bottom(0.45, 0.45, 0.75), // Over the cable cover
+        Middle(0.5, 0.5, 0.5), // Over the charge station
         Top(0.55, 0.55, 0.75); // Short side
 
         /**

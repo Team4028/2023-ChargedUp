@@ -7,6 +7,7 @@ package frc.robot.commands.auton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants;
 import frc.robot.OneMechanism;
@@ -62,9 +64,12 @@ public class Autons {
 
     private final Map<String, Command> m_eventMap;
 
-    private final BooleanSupplier m_armsAtPosition;
+    private final BooleanSupplier m_upperArmStowed;
+    private final BooleanSupplier m_upperArmExtended;
 
     private final Supplier<Command> m_stowCommand;
+    private final Supplier<Command> m_cubeExtendCommand;
+    private final Supplier<Command> m_coneExtendCommand;
 
     // Subsystem & Event setup
     public Autons(
@@ -85,24 +90,44 @@ public class Autons {
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 
-        m_armsAtPosition = () -> (m_upperArm.getError() < 12.0);
+        m_upperArmStowed = () -> (m_upperArm.getError() <= 16.0);
+        m_upperArmExtended = () -> (m_upperArm.getError() <= 3.0);
+
         m_stowCommand = () -> new SequentialCommandGroup(
             new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_armsAtPosition),
+                .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
 
             // Run the lower arm down but immediately end it.
             new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() -> true));
+
+        m_cubeExtendCommand = () -> new SequentialCommandGroup(
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
+                .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
+
+            // Run until the upper arm is "almost" there
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
+                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
+
+        m_coneExtendCommand = () -> new SequentialCommandGroup(
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
+                .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
+
+            // Run until the upper arm is "almost" there
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
+                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
         m_eventMap = new HashMap<String, Command>();
         if (Constants.PRACTICE_CHASSIS) {
-            // TODO
+            m_eventMap.put("CubeHigh", m_cubeExtendCommand.get());
+            m_eventMap.put("ConeHigh", m_coneExtendCommand.get());
+
             m_eventMap.put("CubePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CUBE));
             m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
-            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
+            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.AUTON_URPIGHT_CONE));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
@@ -164,21 +189,21 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setAutoAlign(false)),
+            new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
+            OneMechanism.orangeModeCommand(),
 
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
-            OneMechanism.orangeModeCommand(),
-            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE),
-
+            m_coneExtendCommand.get(),
             m_gripper.runMotorOut().withTimeout(0.4),
 
             m_stowCommand.get(),
 
+            new InstantCommand(() -> OneMechanism.setAutoAlign(false)),
             OneMechanism.purpleModeCommand(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
@@ -194,7 +219,8 @@ public class Autons {
             new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
 
-            OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE),
+            // The arms start going to the high scoring position at the end of the path.
+            new WaitUntilCommand(m_upperArmExtended),
             m_gripper.runMotorOutSoft().withTimeout(0.4),
 
             m_stowCommand.get(),
@@ -256,7 +282,14 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+
+            // The arms start going to the high scoring position at the end of the path.
+            new WaitUntilCommand(m_upperArmExtended),
+            m_gripper.runMotorOutSoft().withTimeout(0.4),
+
+            m_stowCommand.get(),
+            new InstantCommand(() -> OneMechanism.setAutoAlign(false))
         //
         );
 

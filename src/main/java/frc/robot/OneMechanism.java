@@ -49,17 +49,19 @@ public class OneMechanism {
         SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CUBE(               51.0,       34.0,       203.0),
 
-        AUTON_PREP_CUBE(               51.0,       4.0,       203.0),
+        AUTON_PREP_CUBE(               51.0,       4.0,        203.0),
 
         ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
-        ACQUIRE_FLOOR_CONE_TIPPED(     9.0,        26.5,       260.0),
+        ACQUIRE_FLOOR_CONE_TIPPED(     8.0,        26.5,       260.0),
         ACQUIRE_FLOOR_CONE_UPRIGHT(    8.5,        19.6,       262.0),
+        
+        AUTON_URPIGHT_CONE(            8.5,        19.6,       261.0),
 
         SCORE_LOW_CONE(                15.0,       13.0,       200.0),
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
 
-        AUTON_PREP_CONE(               51.0,       4.0,       203.0),
+        AUTON_PREP_CONE(               51.0,       4.0,        203.0),
 
         ACQUIRE_SINGLE_SUBSTATION(     3.6,        2.0,        320.0),
         ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        193.5),

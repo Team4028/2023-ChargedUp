@@ -31,6 +31,7 @@ import frc.robot.commands.chassis.AutoBalance;
 import frc.robot.commands.chassis.FullFieldLocalize;
 import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
+import frc.robot.commands.chassis.XDrive;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -243,6 +244,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER - X
         // TOGGLE X - DRIVE
         // ================================================
+        m_driverController.x.toggleOnTrue(new XDrive(m_drive));
 
         // ================================================
         // DRIVER CONTROLLER - Y

@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
@@ -231,9 +232,6 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_physics.maxVelocity.getAsMetersPerSecond());
 
         for (int i = 0; i < desiredStates.length; i++) {
-            // SwerveModuleState optimizedState =
-            // SwerveModuleState.optimize(desiredStates[i],
-            // m_modules.get(i).getState().angle);
             m_modules.get(i).setDesiredState(desiredStates[i]);
         }
     }

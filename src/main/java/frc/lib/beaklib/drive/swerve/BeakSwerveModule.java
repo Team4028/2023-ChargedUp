@@ -147,9 +147,7 @@ public class BeakSwerveModule {
             0);
 
         // Set the turning motor to the correct position.
-        if (desiredState.speedMetersPerSecond > 0.01) {
-            setAngle(optimizedState.angle.getDegrees());
-        }
+        setAngle(optimizedState.angle.getDegrees());
     }
 
     /** Encoders & Heading */

@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.73
+        "y": 4.81
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.74360281577706,
-        "y": 4.774068362422439
+        "y": 4.8540683624224386
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -49,11 +49,11 @@
     },
     {
       "anchorPoint": {
-        "x": 2.04,
+        "x": 2.0,
         "y": 4.38
       },
       "prevControl": {
-        "x": 2.6859330890090356,
+        "x": 2.6459330890090356,
         "y": 4.610920933270438
       },
       "nextControl": null,
@@ -77,12 +77,6 @@
         "StopGripper",
         "ArmRetract",
         "RearLocalize"
-      ]
-    },
-    {
-      "position": 1.6727272727272708,
-      "names": [
-        "FrontLocalize"
       ]
     },
     {
@@ -113,6 +107,12 @@
       "position": 1.3090909090909078,
       "names": [
         "CubePrep"
+      ]
+    },
+    {
+      "position": 1.7090909090909108,
+      "names": [
+        "CubeHigh"
       ]
     }
   ]
