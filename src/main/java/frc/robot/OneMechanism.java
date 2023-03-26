@@ -43,6 +43,84 @@ public class OneMechanism {
     }
 
     // @formatter:off
+    /**
+     * <p>
+     * <table>
+     * <tr>
+     *                           <th>Position:</th>                      <th>lowerPos:</th>             <th>upperPos:</th>          <th>wristAngle:</th>
+     * </tr>
+     * <tr>
+     * <td>         ------------------------------------------</td> <td>--------------------</td> <td>--------------------</td> <td>--------------------</td>
+     * </tr>
+     * <tr>
+     * <td>         STOWED:                                   </td> <td>3.0                 </td> <td>4.0                 </td> <td>305.0               </td>
+     * </tr>
+     * <tr>
+     * <td>         INTERMEDIATE_LOW:                         </td> <td>9.5                 </td> <td>21.5                </td> <td>275.0               </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_LOW_CUBE:                           </td> <td>15.0                </td> <td>13.0                 </td> <td>200.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_MID_CUBE:                           </td> <td>39.0                </td> <td>6.0                  </td> <td>215.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_HIGH_CUBE:                          </td> <td>51.0                </td> <td>34.0                 </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         AUTON_PREP_CUBE:                          </td> <td>51.0                </td> <td>4.0                  </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_FLOOR_CUBE:                       </td> <td>9.0                 </td> <td>23.0                 </td> <td>245.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_FLOOR_CONE_TIPPED:                </td> <td>9.0                 </td> <td>26.5                 </td> <td>260.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_FLOOR_CONE_UPRIGHT:               </td> <td>8.5                 </td> <td>19.6                 </td> <td>262.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_LOW_CONE:                           </td> <td>15.0                </td> <td>13.0                 </td> <td>200.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_MID_CONE:                           </td> <td>39.0                </td> <td>6.0                  </td> <td>215.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_HIGH_CONE:                          </td> <td>51.0                </td> <td>34.0                 </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         AUTO_PREP_CONE:                           </td> <td>51.0                </td> <td>4.0                  </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_SINGLE_SUBSTATION:                </td> <td>3.6                 </td> <td>2.0                  </td> <td>320.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_DOUBLE_SUBSTATION_CONE:           </td> <td>51.0                </td> <td>2.0                  </td> <td>193.5              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_DOUBLE_SUBSTATION_CUBE:           </td> <td>47.1                </td> <td>2.0                  </td> <td>203.7              </td>
+     * </tr>
+     * </table>
+     * </p>
+     */
     public enum ScoringPositions {
         STOWED(                        3.0,        4.0,        305.0),
         INTERMEDIATE_LOW(              9.5,        21.5,       275.0),
@@ -175,8 +253,19 @@ public class OneMechanism {
         m_currentMode = GamePieceMode.PURPLE_CUBE;
         if (!m_climbMode) {
             m_leds.blink(LEDs.Color.PURPLE).schedule();
-            ;
         }
+    }
+
+    public static Color getCurrentColor() {
+        return m_leds.getColor();
+    }
+
+    public static void setFade(Color color, boolean fade) {
+        m_leds.setFade(color, fade);
+    }
+
+    public static boolean getFade() {
+        return m_leds.getFade();
     }
 
     public static void setActive() {
@@ -187,17 +276,19 @@ public class OneMechanism {
 
     public static void setSnapped(boolean state) {
         m_leds.setSnappedState(state);
-        if (state == true) {
-            m_leds.blinkTop(Color.BLUE, 0.5).until(() -> !m_leds.getSnappedState()).schedule();
-        }
+        checkAuxiliaryModes();
+    }
+
+    public static boolean getSnapped() {
+        return m_leds.getSnappedState();
     }
 
     public static void setIdleV2() {
         m_leds.setIdleV2();
     }
 
-    public static void setIdleV3() {
-        m_leds.setIdleV3();
+    public static void setSlide() {
+        m_leds.setSlide();
     }
 
     public static void setIdle() {
@@ -247,6 +338,7 @@ public class OneMechanism {
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
         SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
+        checkAuxiliaryModes();
     }
 
     public static void setAutoAlign(boolean autoAlign) {
@@ -278,9 +370,11 @@ public class OneMechanism {
      */
     public static void checkAuxiliaryModes() {
         if (m_climbMode) {
-            new SlowAlternateBlink(m_leds.getColor(), Color.GREEN, 0.5, m_leds).schedule();
+            m_leds.setBeacon(Color.GREEN);
         } else if (m_autoAlignMode) {
-            new SlowAlternateBlink(m_leds.getColor(), Color.RED, 0.5, m_leds).schedule();
+            m_leds.setBeacon(Color.RED);
+        } else if (getSnapped()) {
+            m_leds.setBeacon(Color.BLUE);
         } else {
             blinkCurrentColor();
         }

@@ -434,9 +434,51 @@ public class RobotContainer {
 
         // ================================================
         // EMERGENCY - BUMP LOWER ARM UP
-        // A
+        // Y
         // ================================================
         m_emergencyController.y.onTrue(m_lowerArm.changePositionCommand(1.));
+
+        // ================================================
+        // EMERGENCY - WaterFall
+        // B
+        // ================================================
+        m_emergencyController.b.whileTrue(new InstantCommand(() -> OneMechanism.setSlide()));
+
+        // ================================================
+        // EMERGENCY - SPWC
+        // DUP
+        // ================================================
+        m_emergencyController.dpadUp.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
+
+        // ================================================
+        // EMERGENCY - FIRE
+        // DDOWN
+        // ================================================
+        m_emergencyController.dpadDown.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
+
+        // ================================================
+        // EMERGENCY - IDLEV2
+        // DLEFT
+        // ================================================
+        m_emergencyController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.setIdleV2()));
+
+        // ================================================
+        // EMERGENCY - ACTIVE
+        // DRIGHT
+        // ================================================
+        m_emergencyController.dpadRight.onTrue(new InstantCommand(() -> OneMechanism.setActive()));
+
+        // ================================================
+        // EMERGENCY - SET FADE
+        // LB
+        // ================================================
+        m_emergencyController.lb.onTrue(new InstantCommand(() -> OneMechanism.setFade(OneMechanism.getCurrentColor(), !OneMechanism.getFade())));
+
+        // ================================================
+        // EMERGENCY - TOGGLE SIGNAL
+        // RB
+        // ================================================
+        m_emergencyController.rb.onTrue(new InstantCommand(() -> OneMechanism.setSnapped(!OneMechanism.getSnapped())));
     }
 
     private void initAutonChooser() {

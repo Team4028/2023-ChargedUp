@@ -84,7 +84,6 @@ public class LarsonAnimationV2 extends CommandBase {
         m_leds = leds;
         m_candle = m_leds.getCandle();
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(m_leds);
     }
 
     // Called when the command is initially scheduled.

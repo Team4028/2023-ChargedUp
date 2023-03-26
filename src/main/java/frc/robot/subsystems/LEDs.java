@@ -4,19 +4,21 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
-
-// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,23 +29,28 @@ import frc.robot.commands.LEDs.SlowAlternateBlink;
 import frc.robot.commands.LEDs.LarsonAnimationV2.V2BounceMode;
 
 public class LEDs extends SubsystemBase {
+
+    /**
+     * The mode that the CANdle display is in.
+     */
     public enum CANdleMode {
         VICTORY_SPIN, //
         FIRE, //
         IDLE, //
         ACTIVE, //
         IDLEV2, //
-        IDLEV3;
+        SLIDE;
     }
 
     private CANdleMode m_currentMode;
     private Color m_color, m_lastColor;
     private final int NUM_LEDS = 119;
+    private final int STRIP_LENGTH = 51;
     private CANdle m_candle;
     private boolean m_throwOnGround = false;
-    private boolean m_snapped = false;
+    private boolean m_signal = false;
+    private boolean m_fade = false;
     private static LEDs m_instance;
-
     /**
      * the colors that the CANdle needs to be set to
      */
@@ -74,8 +81,7 @@ public class LEDs extends SubsystemBase {
         m_candle.configBrightnessScalar(0.5);
         m_candle.configLEDType(LEDStripType.GRB);
         m_candle.configLOSBehavior(true);
-
-        setColor(Color.OFF);
+        setColor(Color.ORANGE);
     }
 
     /**
@@ -90,7 +96,7 @@ public class LEDs extends SubsystemBase {
     }
 
     /**
-     * sets the color to blank and runs {@code setLEDs()}
+     * sets the color to blank
      */
     public void setBlank() {
         setColor(Color.OFF);
@@ -142,36 +148,61 @@ public class LEDs extends SubsystemBase {
             new WaitCommand(0.02));
     }
 
-    public SequentialCommandGroup blinkMulti(Color... colors) {
-        SequentialCommandGroup cmd = new SequentialCommandGroup(new InstantCommand(() -> {
-        }));
-        for (int i = 0; i < colors.length; i++) {
-            Color tempColor = colors[i];
-            cmd.addCommands(
-                runOnce(() -> setBlank()),
-                new WaitCommand(0.08),
-                runOnce(() -> setColor(tempColor)),
-                new WaitCommand(0.08));
+    /**
+     * @param iterations
+     *            the amount of times to blink
+     * @param colors
+     *            the colors to blink with
+     * @return
+     *         <p>
+     *         a SequentialCommandGroup that
+     *         </p>
+     *         <p>
+     *         blinks the colors specified for the amount of times specified.
+     *         </p>
+     */
+    public SequentialCommandGroup blinkMulti(int iterations, Color... colors) {
+        SequentialCommandGroup cmd = new SequentialCommandGroup();
+        for (int i = 0; i < iterations; i++) {
+            for (int j = 0; j < colors.length; j++) {
+                Color tempColor = colors[j];
+                cmd.addCommands(
+                    runOnce(() -> setBlank()),
+                    new WaitCommand(0.08),
+                    runOnce(() -> setColor(tempColor)),
+                    new WaitCommand(0.08));
+            }
         }
         return cmd;
     }
 
-    public RepeatCommand blinkTop(Color color, double speed) {
-        SequentialCommandGroup cmd = new SequentialCommandGroup(
-            new InstantCommand(() -> {
-                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
-                m_candle.setLEDs(0, 0, 0, 0, 8, 8);
-                m_candle.setLEDs(0, 0, 0, 0, NUM_LEDS - 8, 8);
-                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 17, 43);
-                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - 51, 43);
-            }),
-            new WaitCommand(1 - speed),
-            new InstantCommand(() -> {
-                m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
-                m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
-            }),
-            new WaitCommand(1 - speed));
-        return new RepeatCommand(cmd);
+    public void setBeacon(Color color) {
+        m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
+        m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
+    }
+
+    /**
+     * Toggles a fade animation with the given color
+     * 
+     * @param color
+     *            If fade is true, the leds will fade with this color
+     * @param fade
+     *            whether to start (true) or cancel (false) the animation
+     */
+    public void setFade(Color color, boolean fade) {
+        for (int i = 0; i < 8; i++) {
+            m_candle.clearAnimation(i);
+        }
+        m_fade = fade;
+        if (fade) {
+            m_candle.animate(new SingleFadeAnimation(color.r, color.g, color.b, 0, 0.5, NUM_LEDS), 0);
+        } else {
+            m_candle.clearAnimation(0);
+        }
+    }
+
+    public boolean getFade() {
+        return m_fade;
     }
 
     // TODO: Test \/
@@ -182,31 +213,31 @@ public class LEDs extends SubsystemBase {
             m_candle.clearAnimation(i);
         }
         new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, false, 59, 8, 8, 8,
-            V2BounceMode.FRONT, m_instance)
+            V2BounceMode.FRONT, this)
                 .alongWith(
                     new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, false, 59, 8, 16, 8,
-                        V2BounceMode.FRONT, m_instance))
+                        V2BounceMode.FRONT, this))
                 .alongWith(
                     new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, true, 119, 68, 119,
                         8,
-                        V2BounceMode.FRONT, m_instance))
+                        V2BounceMode.FRONT, this))
                 .alongWith(
                     new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, true, 119, 68, 111,
                         8,
-                        V2BounceMode.FRONT, m_instance))
+                        V2BounceMode.FRONT, this))
                 .schedule();
     }
 
-    public void setIdleV3() {
+    public void setSlide() {
         m_throwOnGround = false;
-        m_currentMode = CANdleMode.IDLEV3;
+        m_currentMode = CANdleMode.SLIDE;
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
         m_candle.animate(
-            new ColorFlowAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS, Direction.Forward),
+            new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS, Direction.Forward, 8),
             0);
-        m_candle.animate(new ColorFlowAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
+        m_candle.animate(new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS,
             Direction.Backward), 1);
     }
 
@@ -231,34 +262,34 @@ public class LEDs extends SubsystemBase {
         // BounceMode.Front, 8, 24), 3);
         new SequentialCommandGroup(
             new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, STRIP_LENGTH,
                     BounceMode.Front, 8, 8), 0)),
             new WaitCommand(0.1),
             new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, STRIP_LENGTH,
                     BounceMode.Front, 8, 16), 1)),
             new WaitCommand(0.1),
             new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, STRIP_LENGTH,
                     BounceMode.Front, 8, 24), 2)),
             new WaitCommand(0.1),
             new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, STRIP_LENGTH,
                     BounceMode.Front, 8, 32), 3))).alongWith(new SequentialCommandGroup(
                         new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
                                 BounceMode.Front, 8, 69), 4)),
                         new WaitCommand(0.1),
                         new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
                                 BounceMode.Front, 8, 77), 5)),
                         new WaitCommand(0.1),
                         new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, 51,
+                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
                                 BounceMode.Front, 8, 85), 6)),
                         new WaitCommand(0.1),
                         new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, 51,
+                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
                                 BounceMode.Front, 8, 93), 7))))
                         .schedule();
     }
@@ -277,8 +308,8 @@ public class LEDs extends SubsystemBase {
         for (int i = 0; i < 8; i++) {
             m_candle.clearAnimation(i);
         }
-        m_candle.animate(new FireAnimation(1.0, 0.01, 51, 0.6, 0.3, true, 8), 0);
-        m_candle.animate(new FireAnimation(1.0, 0.1, 51, 0.6, 0.3, false, NUM_LEDS - 42), 1);
+        m_candle.animate(new FireAnimation(1.0, 0.1, NUM_LEDS, 0.6, 0.3, true, 8), 0);
+        m_candle.animate(new FireAnimation(1.0, 0.1, NUM_LEDS, 0.6, 0.3, false, NUM_LEDS - STRIP_LENGTH), 1);
     }
 
     public void setActive() {
@@ -296,11 +327,11 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setSnappedState(boolean state) {
-        m_snapped = state;
+        m_signal = state;
     }
 
     public boolean getSnappedState() {
-        return m_snapped;
+        return m_signal;
     }
 
     public boolean getThrowOnGround() {
@@ -327,11 +358,11 @@ public class LEDs extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putString("Mode: ", m_currentMode.name());
         if (m_currentMode == CANdleMode.ACTIVE) {
-            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_snapped) {
+            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_signal && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
-            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_snapped) {
+            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_signal && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
             }
         }
