@@ -198,23 +198,22 @@ public class RobotContainer {
         // DRIVER CONTROLLER - BACK
         // CURRENT-ZERO ROUTINE
         // ================================================
-        // TODO - Actual Competition control will be Back to toggle GamePiece Mode.
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(m_upperArm))
             .andThen(new CurrentZero(m_lowerArm))
             .andThen(new WaitCommand(0.5))
             .andThen(m_upperArm.holdArmPosition())
             .andThen(m_lowerArm.holdArmPosition()));
-        // We cannot do .andThen runArmsToPosition because the encoder zeroes are not
-        // read properly
-        // by the SequentialCommandGroup.
 
         // ================================================
         // DRIVER CONTROLLER - LT
-        // RUN GRIPPER IN (WITH SMART HOLDING)
+        // Smart Mode-Sensitive In/Outfeed
         // ================================================
-        m_driverController.lt.whileTrue(m_gripper.runMotorIn()
-            .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
+        m_driverController.lt.whileTrue(new ConditionalCommand(
+            m_gripper.runMotorIn(),
+            m_gripper.modeSensitiveOutfeedCommand(),
+            () -> !OneMechanism.getAutoAlignMode())
+                .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
 
         // ================================================
         // DRIVER CONTROLLER - LB

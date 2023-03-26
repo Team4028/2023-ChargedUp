@@ -8,9 +8,11 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakTalonSRX;
 import frc.robot.OneMechanism;
+import frc.robot.OneMechanism.GamePieceMode;
 
 public class Gripper extends SubsystemBase {
     private static Gripper m_instance;
@@ -98,6 +100,16 @@ public class Gripper extends SubsystemBase {
             () -> {
                 m_motor.set(0.);
             });
+    }
+
+    /**
+     * Outfeeding that is sensitive to the current robot state; slow for cube and fast for cone.
+     */
+    public Command modeSensitiveOutfeedCommand() {
+        return new ConditionalCommand(
+            runMotorOut(),
+            runMotorOutSoft(),
+            () -> OneMechanism.getGamePieceMode() == GamePieceMode.ORANGE_CONE);
     }
 
     /**
