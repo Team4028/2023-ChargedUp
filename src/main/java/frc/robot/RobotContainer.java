@@ -446,9 +446,9 @@ public class RobotContainer {
 
         // ================================================
         // EMERGENCY - SPWC
-        // DUP
+        // START
         // ================================================
-        m_emergencyController.dpadUp.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
+        m_emergencyController.start.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
 
         // ================================================
         // EMERGENCY - FIRE
@@ -457,28 +457,16 @@ public class RobotContainer {
         m_emergencyController.dpadDown.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
 
         // ================================================
-        // EMERGENCY - IDLEV2
-        // DLEFT
-        // ================================================
-        m_emergencyController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.setIdle()));
-
-        // ================================================
         // EMERGENCY - ACTIVE
         // DRIGHT
         // ================================================
         m_emergencyController.dpadRight.onTrue(new InstantCommand(() -> OneMechanism.setActive()));
 
         // ================================================
-        // EMERGENCY - SET FADE
-        // LB
-        // ================================================
-        m_emergencyController.lb.onTrue(new InstantCommand(() -> OneMechanism.setFade(OneMechanism.getCurrentColor(), !OneMechanism.getFade())));
-
-        // ================================================
         // EMERGENCY - TOGGLE SIGNAL
         // RB
         // ================================================
-        m_emergencyController.rb.onTrue(new InstantCommand(() -> OneMechanism.setSnapped(!OneMechanism.getSnapped())));
+        m_emergencyController.rb.onTrue(new InstantCommand(() -> OneMechanism.toggleBlueMode()));
     }
 
     private void initAutonChooser() {

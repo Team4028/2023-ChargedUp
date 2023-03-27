@@ -7,13 +7,8 @@ package frc.robot.commands.LEDs;
 import com.ctre.phoenix.led.CANdle;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LEDs;
-import frc.robot.subsystems.LEDs.CANdleMode;
 
 public class LarsonAnimationV2 extends CommandBase {
     private int direction, r, g, b, w, startIndex, upperBound, lowerBound, size, counter;

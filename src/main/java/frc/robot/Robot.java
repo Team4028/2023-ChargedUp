@@ -95,7 +95,6 @@ public class Robot extends LoggedRobot {
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
-        OneMechanism.checkAuxiliaryModesPeriodic();
         
         SmartDashboard.putBoolean("Auto Align", OneMechanism.getAutoAlignMode());
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);

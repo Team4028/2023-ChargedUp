@@ -85,7 +85,10 @@ public class LEDs extends SubsystemBase {
     /** Creates a new LEDs. */
     public LEDs() {
         m_currentMode = CANdleMode.ACTIVE;
-        m_currentAnimations = new ArrayList<>(Arrays.stream(new Supplier[4]).toList());
+        m_currentAnimations = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            m_currentAnimations.add(() -> null);
+        }
 
         m_candle = new CANdle(21, "rio");
         m_candle.configBrightnessScalar(0.5);
@@ -188,6 +191,7 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setBeacon(Color color) {
+        m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
         m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
         m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
     }
@@ -200,13 +204,25 @@ public class LEDs extends SubsystemBase {
      * @param fade
      *            whether to start (true) or cancel (false) the animation
      */
-    public void setFade(Color color, boolean fade) {
+    public void setFade(boolean fade) {
         clearAnimations();
-
         m_fade = fade;
         if (fade) {
-            System.out.println("Running Fade Animation");
-            m_currentAnimations.set(0, () -> new SingleFadeAnimation(color.r, color.g, color.b, 0, 0.5, NUM_LEDS));
+            m_currentAnimations.set(0, () -> {
+                if (OneMechanism.getBeacon()) {
+                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, STRIP_LENGTH, 16);
+                } else {
+                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS);
+                }
+            });
+            m_currentAnimations.set(1, () -> {
+                if (OneMechanism.getBeacon()) {
+                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5,
+                        STRIP_LENGTH + 1, STRIP_LENGTH + 8);
+                } else {
+                    return null;
+                }
+            });
         }
     }
 
@@ -248,11 +264,23 @@ public class LEDs extends SubsystemBase {
         m_fade = false;
         m_currentMode = CANdleMode.SLIDE;
         clearAnimations();
-
-        m_currentAnimations.set(0,
-            () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Forward, 8));
-        m_currentAnimations.set(1, () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
-            Direction.Backward));
+        m_currentAnimations.set(0, () -> {
+            if (OneMechanism.getBeacon()) {
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
+                    Direction.Forward, 16);
+            } else {
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Forward, 8);
+            }
+        });
+        m_currentAnimations.set(1, () -> {
+            if (OneMechanism.getBeacon()) {
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Backward,
+                    STRIP_LENGTH + 8);
+            } else {
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
+                    Direction.Backward);
+            }
+        });
     }
 
     public void clearAnimations() {
@@ -274,9 +302,12 @@ public class LEDs extends SubsystemBase {
         m_currentMode = CANdleMode.FIRE;
         clearAnimations();
 
-        m_currentAnimations.set(0, () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, true, STRIP_LENGTH + 8));
+        // TODO: Tried switching bools to fix. Reverse them to true, false if fire still
+        // no workinhgs.
+        m_currentAnimations.set(0, () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, false, STRIP_LENGTH +
+            8));
         m_currentAnimations.set(1,
-            () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, false, NUM_LEDS - STRIP_LENGTH));
+            () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, true, NUM_LEDS - STRIP_LENGTH));
     }
 
     public void setActive() {
@@ -285,11 +316,11 @@ public class LEDs extends SubsystemBase {
         clearAnimations();
     }
 
-    public void setSnappedState(boolean state) {
+    public void setBeaconState(boolean state) {
         m_signal = state;
     }
 
-    public boolean getSnappedState() {
+    public boolean getBeaconState() {
         return m_signal;
     }
 
@@ -324,6 +355,7 @@ public class LEDs extends SubsystemBase {
 
         SmartDashboard.putNumber("animation size", m_currentAnimations.size());
 
+        OneMechanism.checkAuxiliaryModesPeriodic();
         for (int i = 0; i < m_currentAnimations.size(); i++) {
             m_candle.animate(m_currentAnimations.get(i).get(), i);
         }

@@ -260,10 +260,6 @@ public class OneMechanism {
         return m_leds.getColor();
     }
 
-    public static void setFade(Color color, boolean fade) {
-        m_leds.setFade(color, fade);
-    }
-
     public static boolean getFade() {
         return m_leds.getFade();
     }
@@ -274,13 +270,19 @@ public class OneMechanism {
         }
     }
 
-    public static void setSnapped(boolean state) {
-        m_leds.setSnappedState(state);
-        checkAuxiliaryModes();
+    public static void toggleBlueMode() {
+        if (!getBeacon()) {
+            setAutoAlign(false);
+            setClimbMode(false);
+            m_leds.setBeaconState(true);
+            checkAuxiliaryModes();
+        } else {
+            m_leds.setBeaconState(false);
+        }
     }
 
-    public static boolean getSnapped() {
-        return m_leds.getSnappedState();
+    public static boolean getBeacon() {
+        return m_leds.getBeaconState();
     }
 
     public static void setIdle() {
@@ -339,7 +341,7 @@ public class OneMechanism {
 
     public static void setAutoAlign(boolean autoAlign) {
         m_autoAlignMode = autoAlign;
-        checkAuxiliaryModes();
+        m_leds.setFade(autoAlign);
     }
 
     public static void toggleGreen() {
@@ -358,23 +360,29 @@ public class OneMechanism {
      */
     public static void checkAuxiliaryModes() {
         if (m_climbMode) {
+            m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.GREEN);
-        } else if (m_autoAlignMode) {
-            m_leds.setBeacon(Color.RED);
-        } else if (getSnapped()) {
+        } else if (getBeacon()) {
+            m_leds.setBeaconState(m_autoAlignMode);
             m_leds.setBeacon(Color.BLUE);
         } else {
+            m_leds.setBeaconState(false);
             blinkCurrentColor();
         }
     }
 
     public static void checkAuxiliaryModesPeriodic() {
         if (m_climbMode) {
+            m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.GREEN);
         } else if (m_autoAlignMode) {
+            m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.RED);
-        } else if (getSnapped()) {
+        } else if (getBeacon()) {
+            m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.BLUE);
+        } else {
+            m_leds.setBeaconState(false);
         }
     }
 
@@ -548,11 +556,18 @@ public class OneMechanism {
 
     public static Command runArms(ScoringPositions targetPos) {
         // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
-        return new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        return new InstantCommand(() -> {
+            if (targetPos.equals(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION)) {
+                OneMechanism.setSlide();
+            } else {
+                if (m_leds.getMode() == CANdleMode.SLIDE) {
+                    OneMechanism.setActive();
+                }
+            }
+        }).alongWith(new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist));
     }
 
     public static void signalAcquisition() {
         m_leds.blink(Color.WHITE).schedule();
-        ;
     }
 }
