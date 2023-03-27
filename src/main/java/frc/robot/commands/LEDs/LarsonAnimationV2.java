@@ -5,8 +5,12 @@
 package frc.robot.commands.LEDs;
 
 import com.ctre.phoenix.led.CANdle;
+
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.LEDs.CANdleMode;
@@ -17,6 +21,7 @@ public class LarsonAnimationV2 extends CommandBase {
     private V2BounceMode m_mode;
     private CANdle m_candle;
     private LEDs m_leds;
+    private Timer m_timer;
 
     public enum V2BounceMode {
         FRONT, CENTRE, BACK;
@@ -54,13 +59,17 @@ public class LarsonAnimationV2 extends CommandBase {
      * @param mode
      *            this controls the way the animation bounces. See
      *            {@link com.ctre.phoenix.led.LarsonAnimation.BounceMode} for more
-     *            information on how this works.
+     *            information on how this works, or go 
+     *            <a href="https://store.ctr-electronics.com/content/api/java/html/enumcom_1_1ctre_1_1phoenix_1_1led_1_1_larson_animation_1_1_bounce_mode.html">here</a>.
      * @param leds
      *            the led subsystem to run the animation on
      */
     // @formatter:on
     public LarsonAnimationV2(int r, int g, int b, int w, double speed, boolean inverted, int upperBoundIndex,
         int lowerBoundIndex, int startIndex, int size, V2BounceMode mode, LEDs leds) {
+        m_timer = new Timer();
+        m_timer.reset();
+        m_timer.stop();
         // limits for the r g b and w values, (0-255)
         this.r = (r > 254 || r < 0) ? (r < 0 ? 0 : 254) : r;
         this.g = (g > 254 || g < 0) ? (g < 0 ? 0 : 254) : g;
@@ -72,7 +81,6 @@ public class LarsonAnimationV2 extends CommandBase {
         this.startIndex = (startIndex > upperBoundIndex || startIndex < lowerBoundIndex)
             ? (startIndex < lowerBoundIndex ? lowerBoundIndex : upperBoundIndex)
             : startIndex;
-        this.m_mode = mode;
         this.direction = inverted ? -1 : 1;
         // checks if there are enough leds to supply the bounds
         this.upperBound = (upperBoundIndex > leds.getNumLEDs() || upperBoundIndex <= 0)
@@ -81,6 +89,7 @@ public class LarsonAnimationV2 extends CommandBase {
         this.lowerBound = lowerBoundIndex < 0 ? 0 : (lowerBoundIndex > upperBoundIndex ? 0 : lowerBoundIndex);
         // checks that the size is within the bounds
         this.size = size > (upperBoundIndex - lowerBoundIndex) ? (upperBoundIndex - lowerBoundIndex) : size;
+        m_mode = mode;
         m_leds = leds;
         m_candle = m_leds.getCandle();
         // Use addRequirements() here to declare subsystem dependencies.
@@ -89,72 +98,76 @@ public class LarsonAnimationV2 extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        m_timer.start();
+        m_candle.setLEDs(0, 0, 0);
         counter = 0;
         // sets the original startpos of the led block
         m_candle.setLEDs(r, g, b, 0, startIndex, size);
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        new WaitCommand((1 - speed) / 4).andThen(
+        if (m_timer.get() >= (1 - speed) / 20) {
+            switch (m_mode) {
+                case FRONT:
+                    if (((startIndex + counter + size) < upperBound || direction != 1)
+                        && (direction != -1 || (counter + startIndex) > lowerBound)) {
+                        // advance the led block
+                        counter += direction;
+                    } else {
+                        // turn around
+                        direction = -direction;
+                    }
+                    break;
+                case CENTRE:
+                    if (((startIndex + counter + (size / 2)) < upperBound || direction != -1)
+                        && ((startIndex + counter + (size / 2)) > lowerBound || direction != 1)) {
+                        // advance the led block
+                        counter += direction;
+                    } else {
+                        // turn around
+                        direction = -direction;
+                    }
+                    break;
+                case BACK:
+                    if (((counter + startIndex) < upperBound || direction != -1) && ((startIndex + counter + size) > lowerBound || direction != 1)) {
+                        // advance the led block
+                        counter += direction;
+                    } else {
+                        // turn around
+                        direction = -direction;
+                    }
+                    break;
+                default:
+                    if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
+                        // advance the led block
+                        counter += direction;
+                    } else {
+                        // turn around
+                        direction = -direction;
+                    }
+                    break;
+            }
 
-            new InstantCommand(() -> {
-                switch (m_mode) {
-                    case FRONT:
-                        if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
-                            // advance the led block
-                            counter += direction;
-                        } else {
-                            // turn around
-                            direction = -direction;
-                        }
-                        break;
-                    case CENTRE:
-                        if ((startIndex + counter + (size / 2)) < upperBound
-                            && (startIndex + counter + (size / 2)) > lowerBound) {
-                            // advance the led block
-                            counter += direction;
-                        } else {
-                            // turn around
-                            direction = -direction;
-                        }
-                        break;
-                    case BACK:
-                        if ((counter + startIndex) < upperBound && (startIndex + counter + size) > lowerBound) {
-                            // advance the led block
-                            counter += direction;
-                        } else {
-                            // turn around
-                            direction = -direction;
-                        }
-                        break;
-                    default:
-                        if ((startIndex + counter + size) < upperBound && (counter + startIndex) > lowerBound) {
-                            // advance the led block
-                            counter += direction;
-                        } else {
-                            // turn around
-                            direction = -direction;
-                        }
-                        break;
-                }
-                // sets the previous led to the one set to 0, 0, 0, 0
-                m_candle.setLEDs(0, 0, 0, 0,
-                    ((startIndex + counter) + (size * Integer.signum(-direction + 1))) - direction, 1);
-                // updates the led block pos on the strip
-                m_candle.setLEDs(r, g, b, w, startIndex + counter, size);
-            })).schedule();
+            // sets the previous led to the one set to 0, 0, 0, 0
+            m_candle.setLEDs(0, 0, 0, 0,
+                ((startIndex + counter) + (size * Integer.signum(-direction + 1))) - direction, 1);
+            // updates the led block pos on the strip
+            m_candle.setLEDs(r, g, b, w, startIndex + counter, size);
+            m_timer.reset();
+        }
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        m_timer.reset();
+        m_timer.stop();
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_leds.getMode() != CANdleMode.IDLEV2;
+        return false;
     }
 }

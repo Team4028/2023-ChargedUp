@@ -283,16 +283,12 @@ public class OneMechanism {
         return m_leds.getSnappedState();
     }
 
-    public static void setIdleV2() {
-        m_leds.setIdleV2();
+    public static void setIdle() {
+        m_leds.setIdle().until(() -> m_leds.getMode() != CANdleMode.IDLE).ignoringDisable(true).schedule();
     }
 
     public static void setSlide() {
         m_leds.setSlide();
-    }
-
-    public static void setIdle() {
-        m_leds.setIdle();
     }
 
     public static void setFire() {
@@ -346,14 +342,6 @@ public class OneMechanism {
         checkAuxiliaryModes();
     }
 
-    public static void toggleThrowOnGround() {
-        m_leds.setThrowOnGround(!m_leds.getThrowOnGround());
-    }
-
-    public static void setThrowOnGround(boolean state) {
-        m_leds.setThrowOnGround(state);
-    }
-
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         checkAuxiliaryModes();
@@ -377,6 +365,16 @@ public class OneMechanism {
             m_leds.setBeacon(Color.BLUE);
         } else {
             blinkCurrentColor();
+        }
+    }
+
+    public static void checkAuxiliaryModesPeriodic() {
+        if (m_climbMode) {
+            m_leds.setBeacon(Color.GREEN);
+        } else if (m_autoAlignMode) {
+            m_leds.setBeacon(Color.RED);
+        } else if (getSnapped()) {
+            m_leds.setBeacon(Color.BLUE);
         }
     }
 

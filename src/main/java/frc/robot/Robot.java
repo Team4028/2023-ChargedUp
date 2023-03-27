@@ -95,7 +95,8 @@ public class Robot extends LoggedRobot {
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
-
+        OneMechanism.checkAuxiliaryModesPeriodic();
+        
         SmartDashboard.putBoolean("Auto Align", OneMechanism.getAutoAlignMode());
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
@@ -113,15 +114,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        // switch (OneMechanism.getCANdleMode()) {
-        //     case FIRE:
-        //         OneMechanism.setFire();
-        //         break;
-        //     default:
-        //         OneMechanism.setIdle();
-        //         break;
-        // }
-        // OneMechanism.modeBlank();
+        OneMechanism.setIdle();
     }
 
     /** This function is called periodically when disabled. */

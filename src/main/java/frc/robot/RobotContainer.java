@@ -460,7 +460,7 @@ public class RobotContainer {
         // EMERGENCY - IDLEV2
         // DLEFT
         // ================================================
-        m_emergencyController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.setIdleV2()));
+        m_emergencyController.dpadLeft.onTrue(new InstantCommand(() -> OneMechanism.setIdle()));
 
         // ================================================
         // EMERGENCY - ACTIVE

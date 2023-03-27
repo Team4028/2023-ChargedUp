@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.ColorFlowAnimation;
@@ -19,8 +24,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OneMechanism;
@@ -36,21 +41,24 @@ public class LEDs extends SubsystemBase {
     public enum CANdleMode {
         VICTORY_SPIN, //
         FIRE, //
-        IDLE, //
         ACTIVE, //
-        IDLEV2, //
+        IDLE, //
         SLIDE;
     }
 
     private CANdleMode m_currentMode;
     private Color m_color, m_lastColor;
+    private final List<Supplier<Animation>> m_currentAnimations;
+
     private final int NUM_LEDS = 119;
     private final int STRIP_LENGTH = 51;
+
     private CANdle m_candle;
-    private boolean m_throwOnGround = false;
     private boolean m_signal = false;
     private boolean m_fade = false;
+
     private static LEDs m_instance;
+
     /**
      * the colors that the CANdle needs to be set to
      */
@@ -77,10 +85,13 @@ public class LEDs extends SubsystemBase {
     /** Creates a new LEDs. */
     public LEDs() {
         m_currentMode = CANdleMode.ACTIVE;
+        m_currentAnimations = new ArrayList<>(Arrays.stream(new Supplier[4]).toList());
+
         m_candle = new CANdle(21, "rio");
         m_candle.configBrightnessScalar(0.5);
         m_candle.configLEDType(LEDStripType.GRB);
         m_candle.configLOSBehavior(true);
+
         setColor(Color.ORANGE);
     }
 
@@ -190,14 +201,12 @@ public class LEDs extends SubsystemBase {
      *            whether to start (true) or cancel (false) the animation
      */
     public void setFade(Color color, boolean fade) {
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
-        }
+        clearAnimations();
+
         m_fade = fade;
         if (fade) {
-            m_candle.animate(new SingleFadeAnimation(color.r, color.g, color.b, 0, 0.5, NUM_LEDS), 0);
-        } else {
-            m_candle.clearAnimation(0);
+            System.out.println("Running Fade Animation");
+            m_currentAnimations.set(0, () -> new SingleFadeAnimation(color.r, color.g, color.b, 0, 0.5, NUM_LEDS));
         }
     }
 
@@ -206,124 +215,74 @@ public class LEDs extends SubsystemBase {
     }
 
     // TODO: Test \/
-    public void setIdleV2() {
-        m_throwOnGround = false;
-        m_currentMode = CANdleMode.IDLEV2;
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
-        }
-        new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, false, 59, 8, 8, 8,
-            V2BounceMode.FRONT, this)
-                .alongWith(
-                    new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, false, 59, 8, 16, 8,
-                        V2BounceMode.FRONT, this))
-                .alongWith(
-                    new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, true, 119, 68, 119,
-                        8,
-                        V2BounceMode.FRONT, this))
-                .alongWith(
-                    new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, true, 119, 68, 111,
-                        8,
-                        V2BounceMode.FRONT, this))
-                .schedule();
+    public Command setIdle() {
+        m_fade = false;
+        m_currentMode = CANdleMode.IDLE;
+        clearAnimations();
+        return new ParallelCommandGroup(
+            // Left
+            new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.8, false, 59, 8, 8, 8,
+                V2BounceMode.FRONT, this),
+            new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.8, false, 59, 8, 16, 8,
+                V2BounceMode.FRONT, this),
+            new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.8, false, 59, 8, 24, 8,
+                V2BounceMode.FRONT, this),
+            new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.8, false, 59, 8, 32, 8,
+                V2BounceMode.FRONT, this),
+            // Right
+            new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.8, true, NUM_LEDS, 68,
+                NUM_LEDS - 8, 8,
+                V2BounceMode.FRONT, this),
+            new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.8, true, NUM_LEDS, 68,
+                NUM_LEDS - 16, 8,
+                V2BounceMode.FRONT, this),
+            new LarsonAnimationV2(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.8, true, NUM_LEDS, 68,
+                NUM_LEDS - 24, 8,
+                V2BounceMode.FRONT, this),
+            new LarsonAnimationV2(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.8, true, NUM_LEDS, 68,
+                NUM_LEDS - 32, 8,
+                V2BounceMode.FRONT, this));
     }
 
     public void setSlide() {
-        m_throwOnGround = false;
+        m_fade = false;
         m_currentMode = CANdleMode.SLIDE;
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
-        }
-        m_candle.animate(
-            new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS, Direction.Forward, 8),
-            0);
-        m_candle.animate(new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS,
-            Direction.Backward), 1);
+        clearAnimations();
+
+        m_currentAnimations.set(0,
+            () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Forward, 8));
+        m_currentAnimations.set(1, () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
+            Direction.Backward));
     }
 
-    public void setIdle() {
-        m_throwOnGround = false;
-        m_currentMode = CANdleMode.IDLE;
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
+    public void clearAnimations() {
+        for (int i = 0; i < m_currentAnimations.size(); i++) {
+            m_currentAnimations.set(i, () -> null);
         }
-        // TODO: Make it Symmetric - IDLEV2 fixes this if it works
-        // m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g,
-        // Color.PURPLE.b, 0, 0.2, NUM_LEDS,
-        // BounceMode.Front, 8, 0), 0);
-        // m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g,
-        // Color.ORANGE.b, 0, 0.2, NUM_LEDS,
-        // BounceMode.Front, 8, 8), 1);
-        // m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g,
-        // Color.PURPLE.b, 0, 0.2, NUM_LEDS,
-        // BounceMode.Front, 8, 16), 2);
-        // m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g,
-        // Color.ORANGE.b, 0, 0.2, NUM_LEDS,
-        // BounceMode.Front, 8, 24), 3);
-        new SequentialCommandGroup(
-            new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, STRIP_LENGTH,
-                    BounceMode.Front, 8, 8), 0)),
-            new WaitCommand(0.1),
-            new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, STRIP_LENGTH,
-                    BounceMode.Front, 8, 16), 1)),
-            new WaitCommand(0.1),
-            new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, STRIP_LENGTH,
-                    BounceMode.Front, 8, 24), 2)),
-            new WaitCommand(0.1),
-            new InstantCommand(
-                () -> m_candle.animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, STRIP_LENGTH,
-                    BounceMode.Front, 8, 32), 3))).alongWith(new SequentialCommandGroup(
-                        new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
-                                BounceMode.Front, 8, 69), 4)),
-                        new WaitCommand(0.1),
-                        new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
-                                BounceMode.Front, 8, 77), 5)),
-                        new WaitCommand(0.1),
-                        new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.PURPLE.r, Color.PURPLE.g, Color.PURPLE.b, 0, 0.2, NUM_LEDS,
-                                BounceMode.Front, 8, 85), 6)),
-                        new WaitCommand(0.1),
-                        new InstantCommand(() -> m_candle
-                            .animate(new LarsonAnimation(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 0, 0.2, NUM_LEDS,
-                                BounceMode.Front, 8, 93), 7))))
-                        .schedule();
     }
 
     public void setVictorySpin() {
-        m_throwOnGround = false;
+        m_fade = false;
         m_currentMode = CANdleMode.VICTORY_SPIN;
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
-        }
-        m_candle.animate(new RainbowAnimation(1, 1, NUM_LEDS), 0);
+        clearAnimations();
+
+        m_currentAnimations.set(0, () -> new RainbowAnimation(1, 1, NUM_LEDS));
     }
 
     public void setFire() {
+        m_fade = false;
         m_currentMode = CANdleMode.FIRE;
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
-        }
-        m_candle.animate(new FireAnimation(1.0, 0.1, NUM_LEDS, 0.6, 0.3, true, 8), 0);
-        m_candle.animate(new FireAnimation(1.0, 0.1, NUM_LEDS, 0.6, 0.3, false, NUM_LEDS - STRIP_LENGTH), 1);
+        clearAnimations();
+
+        m_currentAnimations.set(0, () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, true, STRIP_LENGTH + 8));
+        m_currentAnimations.set(1,
+            () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, false, NUM_LEDS - STRIP_LENGTH));
     }
 
     public void setActive() {
+        m_fade = false;
         m_currentMode = CANdleMode.ACTIVE;
-        for (int i = 0; i < 8; i++) {
-            m_candle.clearAnimation(i);
-        }
-    }
-
-    public void setThrowOnGround(boolean state) {
-        m_throwOnGround = state;
-        if (state) {
-            m_candle.animate(new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 1e-5, NUM_LEDS), 0);
-        }
+        clearAnimations();
     }
 
     public void setSnappedState(boolean state) {
@@ -332,10 +291,6 @@ public class LEDs extends SubsystemBase {
 
     public boolean getSnappedState() {
         return m_signal;
-    }
-
-    public boolean getThrowOnGround() {
-        return m_throwOnGround;
     }
 
     public CANdleMode getMode() {
@@ -358,13 +313,19 @@ public class LEDs extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putString("Mode: ", m_currentMode.name());
         if (m_currentMode == CANdleMode.ACTIVE) {
-            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_signal && !m_fade) {
+            if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
-            if (!OneMechanism.getAutoAlignMode() && !m_throwOnGround && !m_signal && !m_fade) {
+            if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
             }
+        }
+
+        SmartDashboard.putNumber("animation size", m_currentAnimations.size());
+
+        for (int i = 0; i < m_currentAnimations.size(); i++) {
+            m_candle.animate(m_currentAnimations.get(i).get(), i);
         }
     }
 }
