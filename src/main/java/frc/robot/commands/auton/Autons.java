@@ -91,7 +91,7 @@ public class Autons {
         m_rearAprilTagVision = rearAprilTagVision;
 
         m_upperArmStowed = () -> (m_upperArm.getError() <= 16.0);
-        m_upperArmExtended = () -> (m_upperArm.getError() <= 3.0);
+        m_upperArmExtended = () -> (m_upperArm.getError() <= 1.5);
 
         m_stowCommand = () -> new SequentialCommandGroup(
             new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
