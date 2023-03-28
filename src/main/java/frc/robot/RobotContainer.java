@@ -442,7 +442,7 @@ public class RobotContainer {
         // EMERGENCY - WaterFall
         // B
         // ================================================
-        m_emergencyController.b.whileTrue(new InstantCommand(() -> OneMechanism.setSlide()));
+        m_emergencyController.b.whileTrue(new InstantCommand(() -> OneMechanism.toggleSlide()));
 
         // ================================================
         // EMERGENCY - SPWC
@@ -454,7 +454,7 @@ public class RobotContainer {
         // EMERGENCY - FIRE
         // DDOWN
         // ================================================
-        m_emergencyController.dpadDown.onTrue(new InstantCommand(() -> OneMechanism.setFire()));
+        m_emergencyController.dpadDown.onTrue(new InstantCommand(() -> OneMechanism.setFireWorkPlz()));
 
         // ================================================
         // EMERGENCY - ACTIVE

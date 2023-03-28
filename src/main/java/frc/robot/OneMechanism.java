@@ -240,9 +240,7 @@ public class OneMechanism {
     public static void becomeOrangeMode() {
         // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
-        if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.ORANGE).schedule();
-        }
+        m_leds.blink(Color.ORANGE).schedule();
     }
 
     /**
@@ -251,9 +249,7 @@ public class OneMechanism {
     public static void becomePurpleMode() {
         // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
-        if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.PURPLE).schedule();
-        }
+        m_leds.blink(Color.PURPLE).schedule();
     }
 
     public static Color getCurrentColor() {
@@ -289,14 +285,16 @@ public class OneMechanism {
         m_leds.setIdle().until(() -> m_leds.getMode() != CANdleMode.IDLE).ignoringDisable(true).schedule();
     }
 
-    public static void setSlide() {
-        m_leds.setSlide();
+    public static void toggleSlide() {
+        if(m_leds.getMode() != CANdleMode.SLIDE) {
+            m_leds.setSlide();
+        } else {
+            m_leds.setActive();
+        }
     }
 
-    public static void setFire() {
-        if (m_leds.getMode() != CANdleMode.VICTORY_SPIN) {
-            m_leds.setFire();
-        }
+    public static void setFireWorkPlz() {
+        m_leds.setFireWorkPlz();
     }
 
     public static void toggleVictorySpin() {
@@ -320,7 +318,10 @@ public class OneMechanism {
      * @return A {@link Command} that changes the robot to orange mode.
      */
     public static Command orangeModeCommand() {
-        return new InstantCommand(() -> becomeOrangeMode(), m_leds);
+        return new InstantCommand(() -> {
+            becomeOrangeMode();
+            checkAuxiliaryModes();
+        }, m_leds);
     }
 
     /**
@@ -329,14 +330,17 @@ public class OneMechanism {
      * @return A {@link Command} that changes the robot to purple mode.
      */
     public static Command purpleModeCommand() {
-        return new InstantCommand(() -> becomePurpleMode(), m_leds);
+        return new InstantCommand(() -> {
+            becomePurpleMode();
+            checkAuxiliaryModes();
+        }, m_leds);
     }
 
     // TODO: javadoc these
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
         SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
-        checkAuxiliaryModes();
+        m_leds.setFade(m_autoAlignMode);
     }
 
     public static void setAutoAlign(boolean autoAlign) {
@@ -344,8 +348,13 @@ public class OneMechanism {
         m_leds.setFade(autoAlign);
     }
 
+    public static void setBeaconState(boolean state) {
+        m_leds.setBeaconState(state);
+    }
+
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
+        m_leds.setBeaconState(m_climbMode);
         checkAuxiliaryModes();
     }
 
@@ -363,7 +372,7 @@ public class OneMechanism {
             m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.GREEN);
         } else if (getBeacon()) {
-            m_leds.setBeaconState(m_autoAlignMode);
+            m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.BLUE);
         } else {
             m_leds.setBeaconState(false);
@@ -375,9 +384,6 @@ public class OneMechanism {
         if (m_climbMode) {
             m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.GREEN);
-        } else if (m_autoAlignMode) {
-            m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.RED);
         } else if (getBeacon()) {
             m_leds.setBeaconState(true);
             m_leds.setBeacon(Color.BLUE);
@@ -558,7 +564,7 @@ public class OneMechanism {
         // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
         return new InstantCommand(() -> {
             if (targetPos.equals(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION)) {
-                OneMechanism.setSlide();
+                OneMechanism.toggleSlide();
             } else {
                 if (m_leds.getMode() == CANdleMode.SLIDE) {
                     OneMechanism.setActive();

@@ -191,7 +191,6 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setBeacon(Color color) {
-        m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
         m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
         m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
     }
@@ -274,8 +273,7 @@ public class LEDs extends SubsystemBase {
         });
         m_currentAnimations.set(1, () -> {
             if (OneMechanism.getBeacon()) {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Backward,
-                    STRIP_LENGTH + 8);
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Backward, 0);
             } else {
                 return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
                     Direction.Backward);
@@ -297,17 +295,12 @@ public class LEDs extends SubsystemBase {
         m_currentAnimations.set(0, () -> new RainbowAnimation(1, 1, NUM_LEDS));
     }
 
-    public void setFire() {
+    public void setFireWorkPlz() {
         m_fade = false;
         m_currentMode = CANdleMode.FIRE;
         clearAnimations();
-
-        // TODO: Tried switching bools to fix. Reverse them to true, false if fire still
-        // no workinhgs.
-        m_currentAnimations.set(0, () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, false, STRIP_LENGTH +
-            8));
-        m_currentAnimations.set(1,
-            () -> new FireAnimation(1.0, 0.2, NUM_LEDS, 0.3, 0.8, true, NUM_LEDS - STRIP_LENGTH));
+        m_currentAnimations.set(0, () -> new FireAnimation(1.0, 0.2, STRIP_LENGTH, 0.4, 0.3, true, 8));
+        m_currentAnimations.set(1, () -> new FireAnimation(1.0, 0.2, STRIP_LENGTH, 0.4, 0.3, false, NUM_LEDS - STRIP_LENGTH));
     }
 
     public void setActive() {
@@ -342,10 +335,15 @@ public class LEDs extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("animations 0", m_currentAnimations.get(0).get() != null);
+        SmartDashboard.putBoolean("animations 1", m_currentAnimations.get(1).get() != null);
         SmartDashboard.putString("Mode: ", m_currentMode.name());
         if (m_currentMode == CANdleMode.ACTIVE) {
             if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
+            } else if (!OneMechanism.getAutoAlignMode() && !m_fade) {
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 16, STRIP_LENGTH - 8);
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - STRIP_LENGTH, STRIP_LENGTH - 8);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
             if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
@@ -356,8 +354,8 @@ public class LEDs extends SubsystemBase {
         SmartDashboard.putNumber("animation size", m_currentAnimations.size());
 
         OneMechanism.checkAuxiliaryModesPeriodic();
-        for (int i = 0; i < m_currentAnimations.size(); i++) {
-            m_candle.animate(m_currentAnimations.get(i).get(), i);
-        }
+            for (int i = 0; i < m_currentAnimations.size(); i++) {
+                m_candle.animate(m_currentAnimations.get(i).get(), i);
+            }
     }
 }
