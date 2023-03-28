@@ -6,12 +6,12 @@ package frc.robot.commands.chassis;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
+import frc.robot.OneMechanism;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -19,7 +19,6 @@ import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
 public class KeepAngle extends PIDCommand {
     private BooleanSupplier m_interruptCondition;
     private BeakSwerveDrivetrain m_drivetrain;
-
     /** Creates a new KeepAngle. */
     public KeepAngle(
         SnapDirection target,
@@ -58,6 +57,12 @@ public class KeepAngle extends PIDCommand {
         m_interruptCondition = interruptCondition;
     }
 
+    @Override
+    public void initialize() {
+        super.initialize();
+        OneMechanism.toggleBlueMode();
+    }
+
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
@@ -67,6 +72,7 @@ public class KeepAngle extends PIDCommand {
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
+        OneMechanism.toggleBlueMode();
         m_drivetrain.setSnapDirection(SnapDirection.NONE);
     }
 }

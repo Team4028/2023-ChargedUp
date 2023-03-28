@@ -95,7 +95,6 @@ public class Robot extends LoggedRobot {
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
-
         SmartDashboard.putBoolean("Auto Align", OneMechanism.getAutoAlignMode());
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
@@ -113,7 +112,9 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        // OneMechanism.modeBlank();
+        OneMechanism.setClimbMode(false);
+        OneMechanism.setBeaconState(false);
+        OneMechanism.setIdle();
     }
 
     /** This function is called periodically when disabled. */
@@ -143,6 +144,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        OneMechanism.setActive();
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove

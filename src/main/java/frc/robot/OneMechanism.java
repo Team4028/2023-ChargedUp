@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -16,11 +17,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.commands.arm.RunArmsSafely;
+import frc.robot.commands.LEDs.SlowAlternateBlink;
 import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.LEDs.CANdleMode;
 import frc.robot.subsystems.LEDs.Color;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -41,6 +43,84 @@ public class OneMechanism {
     }
 
     // @formatter:off
+    /**
+     * <p>
+     * <table>
+     * <tr>
+     *                           <th>Position:</th>                      <th>lowerPos:</th>             <th>upperPos:</th>          <th>wristAngle:</th>
+     * </tr>
+     * <tr>
+     * <td>         ------------------------------------------</td> <td>--------------------</td> <td>--------------------</td> <td>--------------------</td>
+     * </tr>
+     * <tr>
+     * <td>         STOWED:                                   </td> <td>3.0                 </td> <td>4.0                 </td> <td>305.0               </td>
+     * </tr>
+     * <tr>
+     * <td>         INTERMEDIATE_LOW:                         </td> <td>9.5                 </td> <td>21.5                </td> <td>275.0               </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_LOW_CUBE:                           </td> <td>15.0                </td> <td>13.0                 </td> <td>200.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_MID_CUBE:                           </td> <td>39.0                </td> <td>6.0                  </td> <td>215.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_HIGH_CUBE:                          </td> <td>51.0                </td> <td>34.0                 </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         AUTON_PREP_CUBE:                          </td> <td>51.0                </td> <td>4.0                  </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_FLOOR_CUBE:                       </td> <td>9.0                 </td> <td>23.0                 </td> <td>245.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_FLOOR_CONE_TIPPED:                </td> <td>9.0                 </td> <td>26.5                 </td> <td>260.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_FLOOR_CONE_UPRIGHT:               </td> <td>8.5                 </td> <td>19.6                 </td> <td>262.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_LOW_CONE:                           </td> <td>15.0                </td> <td>13.0                 </td> <td>200.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_MID_CONE:                           </td> <td>39.0                </td> <td>6.0                  </td> <td>215.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         SCORE_HIGH_CONE:                          </td> <td>51.0                </td> <td>34.0                 </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         AUTO_PREP_CONE:                           </td> <td>51.0                </td> <td>4.0                  </td> <td>203.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_SINGLE_SUBSTATION:                </td> <td>3.6                 </td> <td>2.0                  </td> <td>320.0              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_DOUBLE_SUBSTATION_CONE:           </td> <td>51.0                </td> <td>2.0                  </td> <td>193.5              </td>
+     * </tr>
+     * <tr>
+     * <td>         ACQUIRE_DOUBLE_SUBSTATION_CUBE:           </td> <td>47.1                </td> <td>2.0                  </td> <td>203.7              </td>
+     * </tr>
+     * </table>
+     * </p>
+     */
     public enum ScoringPositions {
         STOWED(                        3.0,        4.0,        305.0),
         INTERMEDIATE_LOW(              9.5,        21.5,       275.0),
@@ -144,13 +224,13 @@ public class OneMechanism {
 
     private static boolean m_climbMode = false;
     private static boolean m_autoAlignMode = false;
-    private static boolean m_areTheLightsOn = false;
+    // private static boolean m_areTheLightsOn = false;
 
     /**
      * Turns off the CANdle
      */
     public static void killTheLights() {
-        m_areTheLightsOn = false;
+        // m_areTheLightsOn = false;
         if (!m_climbMode) {
             m_leds.setBlank();
         }
@@ -160,22 +240,78 @@ public class OneMechanism {
      * sets the robot mode to Orange (cone) mode
      */
     public static void becomeOrangeMode() {
-        m_areTheLightsOn = true;
+        // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.ORANGE_CONE;
-        if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.ORANGE).schedule();
-        }
+        m_leds.blink(Color.ORANGE).schedule();
     }
 
     /**
      * sets the robot mode to Purple (cube) mode
      */
     public static void becomePurpleMode() {
-        m_areTheLightsOn = true;
+        // m_areTheLightsOn = true;
         m_currentMode = GamePieceMode.PURPLE_CUBE;
-        if (!m_climbMode) {
-            m_leds.blink(LEDs.Color.PURPLE).schedule();
+        m_leds.blink(Color.PURPLE).schedule();
+    }
+
+    public static Color getCurrentColor() {
+        return m_leds.getColor();
+    }
+
+    public static boolean getFade() {
+        return m_leds.getFade();
+    }
+
+    public static void setActive() {
+        if (m_leds.getMode() != CANdleMode.VICTORY_SPIN) {
+            m_leds.setActive();
         }
+    }
+
+    public static void toggleBlueMode() {
+        if (!getBeacon()) {
+            setAutoAlign(false);
+            setClimbMode(false);
+            m_leds.setBeaconState(true);
+            checkAuxiliaryModes();
+        } else {
+            m_leds.setBeaconState(false);
+        }
+    }
+
+    public static boolean getBeacon() {
+        return m_leds.getBeaconState();
+    }
+
+    public static void setIdle() {
+        m_leds.setIdle().until(() -> m_leds.getMode() != CANdleMode.IDLE).ignoringDisable(true).schedule();
+    }
+
+    public static void toggleSlide() {
+        if(m_leds.getMode() != CANdleMode.SLIDE) {
+            m_leds.setSlide();
+        } else {
+            m_leds.setActive();
+        }
+    }
+
+    public static void setFireWorkPlz() {
+        m_leds.setFireWorkPlz();
+    }
+
+    public static void toggleVictorySpin() {
+        switch (m_leds.getMode()) {
+            case VICTORY_SPIN:
+                m_leds.setActive();
+                break;
+            default:
+                m_leds.setVictorySpin();
+                break;
+        }
+    }
+
+    public static CANdleMode getCANdleMode() {
+        return m_leds.getMode();
     }
 
     /**
@@ -184,7 +320,10 @@ public class OneMechanism {
      * @return A {@link Command} that changes the robot to orange mode.
      */
     public static Command orangeModeCommand() {
-        return new InstantCommand(() -> becomeOrangeMode(), m_leds);
+        return new InstantCommand(() -> {
+            becomeOrangeMode();
+            checkAuxiliaryModes();
+        }, m_leds);
     }
 
     /**
@@ -193,22 +332,31 @@ public class OneMechanism {
      * @return A {@link Command} that changes the robot to purple mode.
      */
     public static Command purpleModeCommand() {
-        return new InstantCommand(() -> becomePurpleMode(), m_leds);
+        return new InstantCommand(() -> {
+            becomePurpleMode();
+            checkAuxiliaryModes();
+        }, m_leds);
     }
 
     // TODO: javadoc these
     public static void toggleAutoAlign() {
         m_autoAlignMode = !m_autoAlignMode;
-        checkAuxiliaryModes();
+        SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
+        m_leds.setFade(m_autoAlignMode);
     }
 
     public static void setAutoAlign(boolean autoAlign) {
         m_autoAlignMode = autoAlign;
-        checkAuxiliaryModes();
+        m_leds.setFade(autoAlign);
+    }
+
+    public static void setBeaconState(boolean state) {
+        m_leds.setBeaconState(state);
     }
 
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
+        m_leds.setBeaconState(m_climbMode);
         checkAuxiliaryModes();
     }
 
@@ -223,11 +371,26 @@ public class OneMechanism {
      */
     public static void checkAuxiliaryModes() {
         if (m_climbMode) {
-            m_leds.blink(LEDs.Color.GREEN).schedule();
-        } else if (m_autoAlignMode) {
-            m_leds.blink(LEDs.Color.RED).schedule();
+            m_leds.setBeaconState(true);
+            m_leds.setBeacon(Color.GREEN);
+        } else if (getBeacon()) {
+            m_leds.setBeaconState(true);
+            m_leds.setBeacon(Color.BLUE);
         } else {
+            m_leds.setBeaconState(false);
             blinkCurrentColor();
+        }
+    }
+
+    public static void checkAuxiliaryModesPeriodic() {
+        if (m_climbMode) {
+            m_leds.setBeaconState(true);
+            m_leds.setBeacon(Color.GREEN);
+        } else if (getBeacon()) {
+            m_leds.setBeaconState(true);
+            m_leds.setBeacon(Color.BLUE);
+        } else {
+            m_leds.setBeaconState(false);
         }
     }
 
@@ -395,17 +558,24 @@ public class OneMechanism {
         return m_autoAlignMode;
     }
 
-    public static boolean getLightMode() {
-        return m_areTheLightsOn;
-    }
+    // public static boolean getLightMode() {
+    // return m_areTheLightsOn;
+    // }
 
     public static Command runArms(ScoringPositions targetPos) {
         // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
-        return new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        return new InstantCommand(() -> {
+            if (targetPos.equals(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION)) {
+                OneMechanism.toggleSlide();
+            } else {
+                if (m_leds.getMode() == CANdleMode.SLIDE) {
+                    OneMechanism.setActive();
+                }
+            }
+        }).alongWith(new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist));
     }
 
     public static void signalAcquisition() {
         m_leds.blink(Color.WHITE).schedule();
-        ;
     }
 }
