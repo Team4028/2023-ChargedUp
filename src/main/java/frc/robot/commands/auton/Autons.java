@@ -91,7 +91,7 @@ public class Autons {
         m_rearAprilTagVision = rearAprilTagVision;
 
         m_upperArmStowed = () -> (m_upperArm.getError() <= 16.0);
-        m_upperArmExtended = () -> (m_upperArm.getError() <= 1.5);
+        m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25);
 
         m_stowCommand = () -> new SequentialCommandGroup(
             new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
@@ -286,7 +286,7 @@ public class Autons {
 
             // The arms start going to the high scoring position at the end of the path.
             new WaitUntilCommand(m_upperArmExtended),
-            m_gripper.runMotorOutSoft().withTimeout(0.4),
+            // m_gripper.runMotorOut().withTimeout(0.4),
 
             m_stowCommand.get(),
             new InstantCommand(() -> OneMechanism.setAutoAlign(false))

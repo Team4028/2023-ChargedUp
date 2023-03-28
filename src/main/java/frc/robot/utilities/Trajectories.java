@@ -20,7 +20,7 @@ public class Trajectories {
     public enum PathPosition {
         Bottom(0.45, 0.45, 0.75), // Over the cable cover
         Middle(0.5, 0.5, 0.5), // Over the charge station
-        Top(0.55, 0.55, 0.75); // Short side
+        Top(0.6, 0.6, 0.75); // Short side
 
         /**
          * What to multiply the max speed and acceleration of paths that acquire pieces
