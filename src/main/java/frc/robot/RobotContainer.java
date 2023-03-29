@@ -38,6 +38,7 @@ import frc.robot.utilities.Trajectories.PathPosition;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
@@ -348,7 +349,7 @@ public class RobotContainer {
         // ================================================
         m_operatorController.rs
             .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT),
-                new InstantCommand(null),
+                Commands.none(),
                 () -> OneMechanism.getGamePieceMode() == GamePieceMode.ORANGE_CONE));
 
         // ================================================
