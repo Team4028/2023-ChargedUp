@@ -105,7 +105,6 @@ public class LEDs extends SubsystemBase {
      *            the color to set
      */
     public void setColor(Color color) {
-        m_lastColor = m_color;
         m_color = color;
     }
 
@@ -162,6 +161,48 @@ public class LEDs extends SubsystemBase {
             new WaitCommand(0.02));
     }
 
+    public SequentialCommandGroup blinkWhite() {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                switch (OneMechanism.getGamePieceMode()) {
+                    case PURPLE_CUBE:
+                        m_lastColor = Color.PURPLE;
+                        break;
+                    case ORANGE_CONE:
+                        m_lastColor = Color.ORANGE;
+                        break;
+                    default:
+                        m_lastColor = Color.ORANGE;
+                        break;
+                }
+            }),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setColor(Color.WHITE)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setBlank()),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setColor(Color.WHITE)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setColor(m_lastColor)));
+    }
+
+    public SequentialCommandGroup blinkBeaconWhiteAndRed() {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> setBeacon(Color.WHITE)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setBeacon(Color.RED)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setBeacon(Color.WHITE)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setBeacon(Color.RED)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setBeacon(Color.WHITE)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> setBeacon(Color.RED))
+        );
+    }
+
     /**
      * @param iterations
      *            the amount of times to blink
@@ -209,14 +250,14 @@ public class LEDs extends SubsystemBase {
         if (fade) {
             m_currentAnimations.set(0, () -> {
                 if (OneMechanism.getBeacon()) {
-                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, STRIP_LENGTH, 16);
+                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, STRIP_LENGTH, 16);
                 } else {
-                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS);
+                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS);
                 }
             });
             m_currentAnimations.set(1, () -> {
                 if (OneMechanism.getBeacon()) {
-                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5,
+                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8,
                         STRIP_LENGTH + 1, STRIP_LENGTH + 8);
                 } else {
                     return null;
@@ -265,17 +306,17 @@ public class LEDs extends SubsystemBase {
         clearAnimations();
         m_currentAnimations.set(0, () -> {
             if (OneMechanism.getBeacon()) {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS,
                     Direction.Forward, 16);
             } else {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Forward, 8);
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS, Direction.Forward, 8);
             }
         });
         m_currentAnimations.set(1, () -> {
             if (OneMechanism.getBeacon()) {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS, Direction.Backward, 0);
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS, Direction.Backward, 0);
             } else {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS,
+                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS,
                     Direction.Backward);
             }
         });
@@ -342,6 +383,7 @@ public class LEDs extends SubsystemBase {
             if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
             } else if (!OneMechanism.getAutoAlignMode() && !m_fade) {
+                m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 16, STRIP_LENGTH - 8);
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - STRIP_LENGTH, STRIP_LENGTH - 8);
             }

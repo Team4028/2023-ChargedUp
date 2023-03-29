@@ -9,6 +9,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakTalonSRX;
 import frc.robot.OneMechanism;
@@ -22,7 +23,8 @@ public class Gripper extends SubsystemBase {
     private final double SOFT_RUN_SPEED = 0.4;
     private final double HOLD_SPEED = 0.2; // 0.32;
     private final double IDLE_SPEED = 0.0; // 0.12;
-    private final double HOLD_THRESHOLD = 50.0;
+    private final double HOLD_THRESHOLD = 45.0;
+    private boolean m_hasGamePiece = false;
 
     private enum GripState {
         INFEED, //
@@ -53,6 +55,12 @@ public class Gripper extends SubsystemBase {
 
     /** @return A Command to run the motor in. */
     public Command runMotorIn() {
+        return runOnce(() -> m_hasGamePiece = false).andThen(
+        runMotorInWithoutReset());
+    }
+
+    /** @return A Command to run the motor in. */
+    public Command runMotorInWithoutReset() {
         return run(() -> {
             m_motor.set(RUN_SPEED);
             m_currentState = GripState.HOLD;
@@ -103,7 +111,8 @@ public class Gripper extends SubsystemBase {
     }
 
     /**
-     * Outfeeding that is sensitive to the current robot state; slow for cube and fast for cone.
+     * Outfeeding that is sensitive to the current robot state; slow for cube and
+     * fast for cone.
      */
     public Command modeSensitiveOutfeedCommand() {
         return new ConditionalCommand(
@@ -129,9 +138,18 @@ public class Gripper extends SubsystemBase {
         }
     }
 
+    private boolean hasGamePiece() {
+        return m_hasGamePiece;
+    }
+
+    public BooleanSupplier hasGamePieceSupplier() {
+        return () -> hasGamePiece();
+    }
+
     private boolean atCurrentThreshold() {
         if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD && m_motor.get() > 0.) {
             OneMechanism.signalAcquisition();
+            m_hasGamePiece = true;
             return true;
         } else {
             return false;

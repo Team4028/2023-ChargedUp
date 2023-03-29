@@ -205,7 +205,7 @@ public abstract class Arm extends SubsystemBase {
      */
     public Command holdArmPosition() {
         return runOnce(() -> {
-            m_motor.set(0.0);
+            m_motor.stopMotor();
             runToPosition(m_encoder.getPosition());
         });
     }

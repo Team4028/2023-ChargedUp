@@ -86,7 +86,7 @@ public class OneMechanism {
      * <td>         ACQUIRE_FLOOR_CONE_TIPPED:                </td> <td>9.0                 </td> <td>26.5                 </td> <td>260.0              </td>
      * </tr>
      * <tr>
-     * <td>         ACQUIRE_FLOOR_CONE_UPRIGHT:               </td> <td>8.5                 </td> <td>19.6                 </td> <td>262.0              </td>
+     * <td>         ACQUIRE_FLOOR_CONE_UPRIGHT:               </td> <td>9.0                 </td> <td>19.6                 </td> <td>262.5              </td>
      * </tr>
      * <tr>
      * <td>         =========================                 </td> <td>============        </td> <td>============         </td> <td>============       </td>
@@ -133,9 +133,9 @@ public class OneMechanism {
 
         ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
         ACQUIRE_FLOOR_CONE_TIPPED(     8.0,        26.5,       260.0),
-        ACQUIRE_FLOOR_CONE_UPRIGHT(    8.5,        19.6,       262.0),
+        ACQUIRE_FLOOR_CONE_UPRIGHT(    9.0,        19.6,       262.5),
         
-        AUTON_URPIGHT_CONE(            8.5,        19.6,       261.0),
+        AUTON_URPIGHT_CONE(            8.5,        19.6,       261.5),
 
         SCORE_LOW_CONE(                15.0,       13.0,       200.0),
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
@@ -263,9 +263,13 @@ public class OneMechanism {
     }
 
     public static void setActive() {
+        m_climbMode = false;
+        m_leds.setBeaconState(false);
+        m_autoAlignMode = false;
         if (m_leds.getMode() != CANdleMode.VICTORY_SPIN) {
             m_leds.setActive();
         }
+        m_leds.setFade(false);
     }
 
     public static void toggleBlueMode() {
@@ -277,6 +281,11 @@ public class OneMechanism {
         } else {
             m_leds.setBeaconState(false);
         }
+    }
+
+    public static void setBlueMode(boolean state) {
+        m_leds.setBeaconState(state);
+        checkAuxiliaryModes();
     }
 
     public static boolean getBeacon() {
@@ -296,7 +305,11 @@ public class OneMechanism {
     }
 
     public static void setFireWorkPlz() {
-        m_leds.setFireWorkPlz();
+        if(m_leds.getMode() != CANdleMode.FIRE) {
+            m_leds.setFireWorkPlz();
+        } else {
+            m_leds.setActive();
+        }
     }
 
     public static void toggleVictorySpin() {
@@ -350,10 +363,6 @@ public class OneMechanism {
         m_leds.setFade(autoAlign);
     }
 
-    public static void setBeaconState(boolean state) {
-        m_leds.setBeaconState(state);
-    }
-
     public static void toggleGreen() {
         m_climbMode = !m_climbMode;
         m_leds.setBeaconState(m_climbMode);
@@ -375,7 +384,7 @@ public class OneMechanism {
             m_leds.setBeacon(Color.GREEN);
         } else if (getBeacon()) {
             m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.BLUE);
+            m_leds.setBeacon(Color.RED);
         } else {
             m_leds.setBeaconState(false);
             blinkCurrentColor();
@@ -388,7 +397,7 @@ public class OneMechanism {
             m_leds.setBeacon(Color.GREEN);
         } else if (getBeacon()) {
             m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.BLUE);
+            m_leds.setBeacon(Color.RED);
         } else {
             m_leds.setBeaconState(false);
         }
@@ -576,6 +585,10 @@ public class OneMechanism {
     }
 
     public static void signalAcquisition() {
-        m_leds.blink(Color.WHITE).schedule();
+        if(getCANdleMode() == CANdleMode.ACTIVE) {
+            m_leds.blinkWhite().schedule();
+        } else {
+            m_leds.blinkBeaconWhiteAndRed().schedule();
+        }
     }
 }

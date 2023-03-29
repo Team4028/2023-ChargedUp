@@ -113,7 +113,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         OneMechanism.setClimbMode(false);
-        OneMechanism.setBeaconState(false);
+        OneMechanism.setBlueMode(false);
         OneMechanism.setIdle();
     }
 
@@ -128,6 +128,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousInit() {
+        OneMechanism.setActive();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)

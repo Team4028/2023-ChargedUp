@@ -37,7 +37,7 @@
       },
       "holonomicAngle": -45.0,
       "isReversal": false,
-      "velOverride": 1.25,
+      "velOverride": 1.0,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -88,7 +88,7 @@
       "position": 0.6181818181818182,
       "names": [
         "ConePickup",
-        "RunGripperIn"
+        "RunGripperSmart"
       ]
     },
     {

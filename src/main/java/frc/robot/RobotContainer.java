@@ -403,8 +403,9 @@ public class RobotContainer {
         // EMERGENCY CONTROLLER - LOWER ARM MANUAL CONTROLS
         // LSY
         // ================================================
-        m_emergencyController.axisGreaterThan(1, 0.1).or(m_emergencyController.axisLessThan(1, -0.1))
-            .onTrue(new RunCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getLeftYAxis())))
+        (m_emergencyController.axisGreaterThan(1, 0.1).or(m_emergencyController.axisLessThan(1, -0.1)))
+            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * -Math.signum(m_emergencyController.getLeftYAxis()))));
+        (m_emergencyController.axisGreaterThan(1, 0.1).or(m_emergencyController.axisLessThan(1, -0.1)))
             .onFalse(m_lowerArm.holdArmPosition());
 
         // ================================================
@@ -412,8 +413,9 @@ public class RobotContainer {
         // RSX
         // ================================================
         m_emergencyController.axisGreaterThan(4, 0.1).or(m_emergencyController.axisLessThan(4, -0.1))
-            .onTrue(new RunCommand(() -> m_lowerArm.runArmVbus(0.5 * m_emergencyController.getRightXAxis())))
-            .onFalse(m_lowerArm.holdArmPosition());
+            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3 * -Math.signum(m_emergencyController.getRightXAxis()))));
+        m_emergencyController.axisGreaterThan(4, 0.1).or(m_emergencyController.axisLessThan(4, -0.1))
+            .onFalse(m_upperArm.holdArmPosition());
 
         // ================================================
         // EMERGENCY CONTROLLER - MOVE THE WRIST UP

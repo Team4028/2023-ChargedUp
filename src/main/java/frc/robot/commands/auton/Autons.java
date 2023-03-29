@@ -127,13 +127,15 @@ public class Autons {
             m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
-            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.AUTON_URPIGHT_CONE));
+            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
             m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.beIdleMode()));
 
             m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
+
+            m_eventMap.put("RunGripperSmart", m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier()));
         }
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
@@ -305,6 +307,8 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
             ThreePieceAcquire(position),
+            m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier()).until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
+            new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
             ThreePieceScore(position)
         //
         );
