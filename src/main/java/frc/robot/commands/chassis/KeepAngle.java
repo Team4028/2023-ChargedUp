@@ -60,7 +60,7 @@ public class KeepAngle extends PIDCommand {
     @Override
     public void initialize() {
         super.initialize();
-        OneMechanism.setBlueMode(true);
+        OneMechanism.setSnappedMode(true);
     }
 
     // Returns true when the command should end.
@@ -72,7 +72,7 @@ public class KeepAngle extends PIDCommand {
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
-        OneMechanism.setBlueMode(false);
+        OneMechanism.setSnappedMode(false);
         m_drivetrain.setSnapDirection(SnapDirection.NONE);
     }
 }

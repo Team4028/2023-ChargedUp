@@ -7,7 +7,6 @@ package frc.robot.commands.auton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -191,7 +190,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
+            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
             OneMechanism.orangeModeCommand(),
 
@@ -205,7 +204,7 @@ public class Autons {
 
             m_stowCommand.get(),
 
-            new InstantCommand(() -> OneMechanism.setAutoAlign(false)),
+            new InstantCommand(() -> OneMechanism.setScoreMode(false)),
             OneMechanism.purpleModeCommand(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
@@ -218,7 +217,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
+            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
 
             // The arms start going to the high scoring position at the end of the path.
@@ -226,7 +225,7 @@ public class Autons {
             m_gripper.runMotorOutSoft().withTimeout(0.4),
 
             m_stowCommand.get(),
-            new InstantCommand(() -> OneMechanism.setAutoAlign(false))
+            new InstantCommand(() -> OneMechanism.setScoreMode(false))
         //
         );
 
@@ -283,7 +282,7 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.ThreePieceScorePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setAutoAlign(true)),
+            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
 
             // The arms start going to the high scoring position at the end of the path.
@@ -291,7 +290,7 @@ public class Autons {
             // m_gripper.runMotorOut().withTimeout(0.4),
 
             m_stowCommand.get(),
-            new InstantCommand(() -> OneMechanism.setAutoAlign(false))
+            new InstantCommand(() -> OneMechanism.setScoreMode(false))
         //
         );
 

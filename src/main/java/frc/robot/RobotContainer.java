@@ -212,7 +212,7 @@ public class RobotContainer {
         m_driverController.lt.whileTrue(new ConditionalCommand(
             m_gripper.runMotorIn(),
             m_gripper.modeSensitiveOutfeedCommand(),
-            () -> !OneMechanism.getAutoAlignMode())
+            () -> !OneMechanism.getScoreMode())
                 .andThen(new InstantCommand(m_gripper::beIdleMode)));
 
         // ================================================
@@ -231,13 +231,13 @@ public class RobotContainer {
         // DRIVER CONTROLLER - A
         // TOGGLE GREEN MODE
         // ================================================
-        m_driverController.a.onTrue(new InstantCommand(OneMechanism::toggleGreen));
+        m_driverController.a.onTrue(new InstantCommand(OneMechanism::toggleClimbMode));
 
         // ================================================
         // DRIVER CONTROLLER - B
         // AUTO - ALIGN MODE
         // ================================================
-        m_driverController.b.onTrue(new InstantCommand(OneMechanism::toggleAutoAlign));
+        m_driverController.b.onTrue(new InstantCommand(OneMechanism::toggleScoreMode));
 
         // ================================================
         // DRIVER CONTROLLER - X
@@ -492,7 +492,7 @@ public class RobotContainer {
         // EMERGENCY - TOGGLE SIGNAL
         // RB
         // ================================================
-        m_emergencyController.rb.onTrue(new InstantCommand(OneMechanism::toggleBlueMode));
+        m_emergencyController.rb.onTrue(new InstantCommand(OneMechanism::toggleSnappedMode));
     }
 
     private void initAutonChooser() {
@@ -528,20 +528,20 @@ public class RobotContainer {
     }
 
     private double getCurrentSpeedScale() {
-        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? DriveConstants.SLOW_SPEED_SCALE
+        return (OneMechanism.getScoreMode() || OneMechanism.getClimbMode()) ? DriveConstants.SLOW_SPEED_SCALE
             : DriveConstants.SPEED_SCALE;
     }
 
     private SlewRateLimiter getCurrentXLimiter() {
-        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowXLimiter : m_xLimiter;
+        return (OneMechanism.getScoreMode() || OneMechanism.getClimbMode()) ? m_slowXLimiter : m_xLimiter;
     }
 
     private SlewRateLimiter getCurrentYLimiter() {
-        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowYLimiter : m_yLimiter;
+        return (OneMechanism.getScoreMode() || OneMechanism.getClimbMode()) ? m_slowYLimiter : m_yLimiter;
     }
 
     private SlewRateLimiter getCurrentRotLimiter() {
-        return (OneMechanism.getAutoAlignMode() || OneMechanism.getClimbMode()) ? m_slowRotLimiter : m_rotLimiter;
+        return (OneMechanism.getScoreMode() || OneMechanism.getClimbMode()) ? m_slowRotLimiter : m_rotLimiter;
     }
 
     /**

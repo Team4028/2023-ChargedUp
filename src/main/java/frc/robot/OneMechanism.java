@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.commands.LEDs.SlowAlternateBlink;
 import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
@@ -223,7 +222,8 @@ public class OneMechanism {
     private static Wrist m_wrist;
 
     private static boolean m_climbMode = false;
-    private static boolean m_autoAlignMode = false;
+    private static boolean m_scoreMode = false;
+    private static boolean m_snappedMode = false;
     // private static boolean m_areTheLightsOn = false;
 
     /**
@@ -254,6 +254,7 @@ public class OneMechanism {
         m_leds.blink(Color.PURPLE).schedule();
     }
 
+    // TODO: Javadoc ALL these
     public static Color getCurrentColor() {
         return m_leds.getColor();
     }
@@ -265,31 +266,31 @@ public class OneMechanism {
     public static void setActive() {
         m_climbMode = false;
         m_leds.setBeaconState(false);
-        m_autoAlignMode = false;
+        m_scoreMode = false;
         if (m_leds.getMode() != CANdleMode.VICTORY_SPIN) {
             m_leds.setActive();
         }
         m_leds.setFade(false);
     }
 
-    public static void toggleBlueMode() {
-        if (!getBeacon()) {
-            setAutoAlign(false);
-            setClimbMode(false);
-            m_leds.setBeaconState(true);
-            checkAuxiliaryModes();
-        } else {
-            m_leds.setBeaconState(false);
-        }
+    // TODO: celanup this stuff
+    public static void toggleSnappedMode() {
+        setSnappedMode(!m_snappedMode);
     }
 
-    public static void setBlueMode(boolean state) {
-        m_leds.setBeaconState(state);
+    public static void setSnappedMode(boolean snapped) {
+        m_leds.setBeaconState(snapped);
+        m_snappedMode = snapped;
+
         checkAuxiliaryModes();
     }
 
-    public static boolean getBeacon() {
+    public static boolean getBeaconState() {
         return m_leds.getBeaconState();
+    }
+
+    public static boolean getSnapped() {
+        return m_snappedMode;
     }
 
     public static void setIdle() {
@@ -352,25 +353,28 @@ public class OneMechanism {
     }
 
     // TODO: javadoc these
-    public static void toggleAutoAlign() {
-        m_autoAlignMode = !m_autoAlignMode;
-        SmartDashboard.putBoolean("Auto Align", m_autoAlignMode);
-        m_leds.setFade(m_autoAlignMode);
+    public static void toggleScoreMode() {
+        m_scoreMode = !m_scoreMode;
+        SmartDashboard.putBoolean("Score Mode", m_scoreMode);
+
+        m_leds.setFade(m_scoreMode);
     }
 
-    public static void setAutoAlign(boolean autoAlign) {
-        m_autoAlignMode = autoAlign;
-        m_leds.setFade(autoAlign);
+    public static void setScoreMode(boolean scoreMode) {
+        m_scoreMode = scoreMode;
+        m_leds.setFade(scoreMode);
     }
 
-    public static void toggleGreen() {
+    public static void toggleClimbMode() {
         m_climbMode = !m_climbMode;
         m_leds.setBeaconState(m_climbMode);
+
         checkAuxiliaryModes();
     }
 
     public static void setClimbMode(boolean climb) {
         m_climbMode = climb;
+
         checkAuxiliaryModes();
     }
 
@@ -381,10 +385,10 @@ public class OneMechanism {
     public static void checkAuxiliaryModes() {
         if (m_climbMode) {
             m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.GREEN);
-        } else if (getBeacon()) {
+            m_leds.setBeaconColor(Color.GREEN);
+        } else if (m_snappedMode) {
             m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.RED);
+            m_leds.setBeaconColor(Color.RED);
         } else {
             m_leds.setBeaconState(false);
             blinkCurrentColor();
@@ -394,10 +398,10 @@ public class OneMechanism {
     public static void checkAuxiliaryModesPeriodic() {
         if (m_climbMode) {
             m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.GREEN);
-        } else if (getBeacon()) {
+            m_leds.setBeaconColor(Color.GREEN);
+        } else if (m_snappedMode) {
             m_leds.setBeaconState(true);
-            m_leds.setBeacon(Color.RED);
+            m_leds.setBeaconColor(Color.RED);
         } else {
             m_leds.setBeaconState(false);
         }
@@ -471,7 +475,7 @@ public class OneMechanism {
                 m_drive)
                     .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
             Commands.none(),
-            () -> m_autoAlignMode);
+            () -> m_scoreMode);
     }
 
     public static Node getCurrentNode() {
@@ -563,8 +567,8 @@ public class OneMechanism {
         return m_climbMode;
     }
 
-    public static boolean getAutoAlignMode() {
-        return m_autoAlignMode;
+    public static boolean getScoreMode() {
+        return m_scoreMode;
     }
 
     // public static boolean getLightMode() {
@@ -575,10 +579,10 @@ public class OneMechanism {
         // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
         return new InstantCommand(() -> {
             if (targetPos.equals(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION)) {
-                OneMechanism.toggleSlide();
+                toggleSlide();
             } else {
                 if (m_leds.getMode() == CANdleMode.SLIDE) {
-                    OneMechanism.setActive();
+                    setActive();
                 }
             }
         }).alongWith(new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist));

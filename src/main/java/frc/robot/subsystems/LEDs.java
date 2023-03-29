@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -13,19 +12,15 @@ import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
-import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
-import com.ctre.phoenix.led.StrobeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
-import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OneMechanism;
@@ -48,13 +43,15 @@ public class LEDs extends SubsystemBase {
 
     private CANdleMode m_currentMode;
     private Color m_color, m_lastColor;
+
+    // We need to be able to update animations on-the-fly for color changes.
     private final List<Supplier<Animation>> m_currentAnimations;
 
     private final int NUM_LEDS = 119;
     private final int STRIP_LENGTH = 51;
 
     private CANdle m_candle;
-    private boolean m_signal = false;
+    private boolean m_beacon = false;
     private boolean m_fade = false;
 
     private static LEDs m_instance;
@@ -189,18 +186,17 @@ public class LEDs extends SubsystemBase {
 
     public SequentialCommandGroup blinkBeaconWhiteAndRed() {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> setBeacon(Color.WHITE)),
+            new InstantCommand(() -> setBeaconColor(Color.WHITE)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeacon(Color.RED)),
+            new InstantCommand(() -> setBeaconColor(Color.RED)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeacon(Color.WHITE)),
+            new InstantCommand(() -> setBeaconColor(Color.WHITE)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeacon(Color.RED)),
+            new InstantCommand(() -> setBeaconColor(Color.RED)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeacon(Color.WHITE)),
+            new InstantCommand(() -> setBeaconColor(Color.WHITE)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeacon(Color.RED))
-        );
+            new InstantCommand(() -> setBeaconColor(Color.RED)));
     }
 
     /**
@@ -231,7 +227,7 @@ public class LEDs extends SubsystemBase {
         return cmd;
     }
 
-    public void setBeacon(Color color) {
+    public void setBeaconColor(Color color) {
         m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
         m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
     }
@@ -248,22 +244,17 @@ public class LEDs extends SubsystemBase {
         clearAnimations();
         m_fade = fade;
         if (fade) {
-            m_currentAnimations.set(0, () -> {
-                if (OneMechanism.getBeacon()) {
-                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, STRIP_LENGTH, 16);
-                } else {
-                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8, NUM_LEDS);
-                }
-            });
-            m_currentAnimations.set(1, () -> {
-                if (OneMechanism.getBeacon()) {
-                    return new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8,
-                        STRIP_LENGTH + 1, STRIP_LENGTH + 8);
-                } else {
-                    return null;
-                }
-            });
+            // Create two separate animations if we have an active beacon.
+            // There are different necessary parameters for beacon mode to avoid blinking
+            // the beacon.
+            m_currentAnimations.set(0, () -> new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8,
+                OneMechanism.getBeaconState() ? STRIP_LENGTH : NUM_LEDS, OneMechanism.getBeaconState() ? 16 : 0));
+
+            m_currentAnimations.set(1,
+                () -> OneMechanism.getBeaconState() ? new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8,
+                    STRIP_LENGTH + 1, STRIP_LENGTH + 8) : null);
         }
+
     }
 
     public boolean getFade() {
@@ -304,25 +295,18 @@ public class LEDs extends SubsystemBase {
         m_fade = false;
         m_currentMode = CANdleMode.SLIDE;
         clearAnimations();
-        m_currentAnimations.set(0, () -> {
-            if (OneMechanism.getBeacon()) {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS,
-                    Direction.Forward, 16);
-            } else {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS, Direction.Forward, 8);
-            }
-        });
-        m_currentAnimations.set(1, () -> {
-            if (OneMechanism.getBeacon()) {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS, Direction.Backward, 0);
-            } else {
-                return new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS,
-                    Direction.Backward);
-            }
-        });
+
+        // Two separate slides (one for each side)
+        m_currentAnimations.set(0, () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS,
+            Direction.Forward, OneMechanism.getBeaconState() ? 16 : 8));
+
+        m_currentAnimations.set(1,
+            () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS, Direction.Backward,
+                0));
     }
 
     public void clearAnimations() {
+        // Make each animation a blank (cleared) animation.
         for (int i = 0; i < m_currentAnimations.size(); i++) {
             m_currentAnimations.set(i, () -> null);
         }
@@ -340,10 +324,14 @@ public class LEDs extends SubsystemBase {
         m_fade = false;
         m_currentMode = CANdleMode.FIRE;
         clearAnimations();
+        
+        // Fire animations for each side.
         m_currentAnimations.set(0, () -> new FireAnimation(1.0, 0.2, STRIP_LENGTH, 0.4, 0.3, true, 8));
-        m_currentAnimations.set(1, () -> new FireAnimation(1.0, 0.2, STRIP_LENGTH, 0.4, 0.3, false, NUM_LEDS - STRIP_LENGTH));
+        m_currentAnimations.set(1,
+            () -> new FireAnimation(1.0, 0.2, STRIP_LENGTH, 0.4, 0.3, false, NUM_LEDS - STRIP_LENGTH));
     }
 
+    // TODO: ALL of this needs javadoc.
     public void setActive() {
         m_fade = false;
         m_currentMode = CANdleMode.ACTIVE;
@@ -351,11 +339,11 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setBeaconState(boolean state) {
-        m_signal = state;
+        m_beacon = state;
     }
 
     public boolean getBeaconState() {
-        return m_signal;
+        return m_beacon;
     }
 
     public CANdleMode getMode() {
@@ -378,26 +366,26 @@ public class LEDs extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putBoolean("animations 0", m_currentAnimations.get(0).get() != null);
         SmartDashboard.putBoolean("animations 1", m_currentAnimations.get(1).get() != null);
-        SmartDashboard.putString("Mode: ", m_currentMode.name());
+        SmartDashboard.putString("Mode", m_currentMode.name());
+
+        // TODO: document this.
         if (m_currentMode == CANdleMode.ACTIVE) {
-            if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
+            if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
-            } else if (!OneMechanism.getAutoAlignMode() && !m_fade) {
+            } else if (!OneMechanism.getScoreMode() && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 16, STRIP_LENGTH - 8);
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - STRIP_LENGTH, STRIP_LENGTH - 8);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
-            if (!OneMechanism.getAutoAlignMode() && !m_signal && !m_fade) {
+            if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
             }
         }
 
-        SmartDashboard.putNumber("animation size", m_currentAnimations.size());
-
         OneMechanism.checkAuxiliaryModesPeriodic();
-            for (int i = 0; i < m_currentAnimations.size(); i++) {
-                m_candle.animate(m_currentAnimations.get(i).get(), i);
-            }
+        for (int i = 0; i < m_currentAnimations.size(); i++) {
+            m_candle.animate(m_currentAnimations.get(i).get(), i);
+        }
     }
 }

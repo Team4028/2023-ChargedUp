@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 

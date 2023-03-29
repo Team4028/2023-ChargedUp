@@ -95,10 +95,13 @@ public class Robot extends LoggedRobot {
         // This must be called from the robot's periodic block in order for anything in
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
-        SmartDashboard.putBoolean("Auto Align", OneMechanism.getAutoAlignMode());
+
+        SmartDashboard.putBoolean("Score Mode", OneMechanism.getScoreMode());
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);
+
         SmartDashboard.putString("Target Position", OneMechanism.getScoringPosition().name());
+
         SmartDashboard.putBoolean("WALL", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE));
         SmartDashboard.putBoolean("SLIDE", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
         SmartDashboard.putBoolean("FLOOR", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CUBE || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
@@ -112,8 +115,9 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
+        OneMechanism.setScoreMode(false);
         OneMechanism.setClimbMode(false);
-        OneMechanism.setBlueMode(false);
+        OneMechanism.setSnappedMode(false);
         OneMechanism.setIdle();
     }
 
