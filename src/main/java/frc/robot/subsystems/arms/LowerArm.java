@@ -9,7 +9,9 @@ import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.OneMechanism;
 
 /**
  * The lower Argos Arm
@@ -117,5 +119,13 @@ public class LowerArm extends Arm {
     @Override
     public double getZeroVbus() {
         return ZEROING_VBUS;
+    }
+
+    @Override
+    public Command changePositionCommand(double delta) {
+        return runOnce(() -> {
+            OneMechanism.getScoringPosition().lowerPosition += delta;
+            runToPosition(OneMechanism.getScoringPosition().lowerPosition);
+        });
     }
 }

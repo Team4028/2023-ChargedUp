@@ -186,7 +186,7 @@ public class RobotContainer {
                 m_drive));
 
         m_gripper.setDefaultCommand(
-            new RunCommand(() -> m_gripper.beIdleMode(), m_gripper));
+            new RunCommand(m_gripper::beIdleMode, m_gripper));
 
         // ================================================
         // DRIVER CONTROLLER - START
@@ -213,31 +213,31 @@ public class RobotContainer {
             m_gripper.runMotorIn(),
             m_gripper.modeSensitiveOutfeedCommand(),
             () -> !OneMechanism.getAutoAlignMode())
-                .andThen(new InstantCommand(() -> m_gripper.beIdleMode())));
+                .andThen(new InstantCommand(m_gripper::beIdleMode)));
 
         // ================================================
         // DRIVER CONTROLLER - LB
         // GO TO PURPLE MODE
         // ================================================
-        m_driverController.lb.onTrue(new InstantCommand(() -> OneMechanism.becomePurpleMode()));
+        m_driverController.lb.onTrue(new InstantCommand(OneMechanism::becomePurpleMode));
 
         // ================================================
         // DRIVER CONTROLLER - RB
         // GO TO ORANGE MODE
         // ================================================
-        m_driverController.rb.onTrue(new InstantCommand(() -> OneMechanism.becomeOrangeMode()));
+        m_driverController.rb.onTrue(new InstantCommand(OneMechanism::becomeOrangeMode));
 
         // ================================================
         // DRIVER CONTROLLER - A
         // TOGGLE GREEN MODE
         // ================================================
-        m_driverController.a.onTrue(new InstantCommand(() -> OneMechanism.toggleGreen()));
+        m_driverController.a.onTrue(new InstantCommand(OneMechanism::toggleGreen));
 
         // ================================================
         // DRIVER CONTROLLER - B
         // AUTO - ALIGN MODE
         // ================================================
-        m_driverController.b.onTrue(new InstantCommand(() -> OneMechanism.toggleAutoAlign()));
+        m_driverController.b.onTrue(new InstantCommand(OneMechanism::toggleAutoAlign));
 
         // ================================================
         // DRIVER CONTROLLER - X
@@ -348,8 +348,7 @@ public class RobotContainer {
         // ================================================
         m_operatorController.rs
             .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT),
-                new InstantCommand(() -> {
-                }),
+                new InstantCommand(null),
                 () -> OneMechanism.getGamePieceMode() == GamePieceMode.ORANGE_CONE));
 
         // ================================================
@@ -442,34 +441,58 @@ public class RobotContainer {
         m_emergencyController.y.onTrue(m_lowerArm.changePositionCommand(1.));
 
         // ================================================
-        // EMERGENCY - WaterFall
+        // EMERGENCY - BUMP UPPER ARM IN
         // B
         // ================================================
-        m_emergencyController.b.whileTrue(new InstantCommand(() -> OneMechanism.toggleSlide()));
+        m_emergencyController.b.onTrue(m_upperArm.changePositionCommand(-1.));
+
+        // ================================================
+        // EMERGENCY - BUMP UPPER ARM OUT
+        // X
+        // ================================================
+        m_emergencyController.x.onTrue(m_upperArm.changePositionCommand(1.));
+
+        // ================================================
+        // EMERGENCY - BUMP WRIST DOWN
+        // LB
+        // ================================================
+        m_emergencyController.lb.onTrue(m_wrist.changeAngleCommand(-1.));
+
+        // ================================================
+        // EMERGENCY - BUMP WRIST UP
+        // RB
+        // ================================================
+        m_emergencyController.rb.onTrue(m_wrist.changeAngleCommand(1.));
+
+        // ================================================
+        // EMERGENCY - WaterFall
+        // BACK
+        // ================================================
+        m_emergencyController.back.whileTrue(new InstantCommand(OneMechanism::toggleSlide));
 
         // ================================================
         // EMERGENCY - SPWC
         // START
         // ================================================
-        m_emergencyController.start.onTrue(new InstantCommand(() -> OneMechanism.toggleVictorySpin()));
+        m_emergencyController.start.onTrue(new InstantCommand(OneMechanism::toggleVictorySpin));
 
         // ================================================
         // EMERGENCY - FIRE
         // DDOWN
         // ================================================
-        m_emergencyController.dpadDown.onTrue(new InstantCommand(() -> OneMechanism.setFireWorkPlz()));
+        m_emergencyController.dpadDown.onTrue(new InstantCommand(OneMechanism::setFireWorkPlz));
 
         // ================================================
         // EMERGENCY - ACTIVE
         // DRIGHT
         // ================================================
-        m_emergencyController.dpadRight.onTrue(new InstantCommand(() -> OneMechanism.setActive()));
+        m_emergencyController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
 
         // ================================================
         // EMERGENCY - TOGGLE SIGNAL
         // RB
         // ================================================
-        m_emergencyController.rb.onTrue(new InstantCommand(() -> OneMechanism.toggleBlueMode()));
+        m_emergencyController.rb.onTrue(new InstantCommand(OneMechanism::toggleBlueMode));
     }
 
     private void initAutonChooser() {
