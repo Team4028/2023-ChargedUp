@@ -61,7 +61,7 @@ public class Vision {
         }
 
         m_poseEstimator = new PhotonPoseEstimator(m_layout, PoseStrategy.MULTI_TAG_PNP, m_camera, robotToCam);
-        m_poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        m_poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
     }
 
     /**
@@ -103,6 +103,8 @@ public class Vision {
             if (bestTarget == null || target.getPoseAmbiguity() < bestTarget.getPoseAmbiguity()) {
                 bestTarget = target;
             }
+            
+             
         }
 
         return bestTarget;
@@ -131,7 +133,7 @@ public class Vision {
         List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
 
         for (PhotonTrackedTarget target : getTargets())
-            if (target.getPoseAmbiguity() < 0.6) {
+            if (target.getPoseAmbiguity() < 0.15) {
                 targets.add(target);
             }
 
@@ -160,15 +162,11 @@ public class Vision {
      * @return An {@link EstimatedRobotPose} of the robot.
      */
     public EstimatedRobotPose getLatestEstimatedRobotPose(Pose2d pose) {
-        // Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
-
-        // SmartDashboard.putBoolean("Pose Status " + m_camera.getName(), estimatedPose.isPresent());
-        // if (estimatedPose.isPresent()) {
-        //     return estimatedPose.get();
-        // } else {
-        //     return new EstimatedRobotPose(new Pose3d(), 0., getFilteredTargets());
-        // }
         PhotonPipelineResult result = m_camera.getLatestResult();
+
+        if (result.getTargets().size() == 1) {
+            result = getFilteredResult();
+        }
 
         m_poseEstimator.setReferencePose(pose);
         Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();

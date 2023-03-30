@@ -104,21 +104,9 @@
       ]
     },
     {
-      "position": 1.690909090909091,
-      "names": [
-        "RearLocalize"
-      ]
-    },
-    {
       "position": 0.10909090909090904,
       "names": [
         "FrontLocalize"
-      ]
-    },
-    {
-      "position": 1.363636363636364,
-      "names": [
-        "RearLocalize"
       ]
     }
   ]

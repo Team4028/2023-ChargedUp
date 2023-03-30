@@ -18,6 +18,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -187,8 +188,13 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     }
 
     public void addVisionMeasurement(Pose2d estimatedPose, double timestamp) {
-        if (!estimatedPose.equals(new Pose2d()) && !estimatedPose.equals(getPoseMeters()))
+        Transform2d poseError = estimatedPose.minus(m_odom.getEstimatedPosition());
+
+        if (!estimatedPose.equals(new Pose2d()) && !estimatedPose.equals(getPoseMeters()) &&
+            Math.abs(poseError.getX()) < 0.5 &&
+            Math.abs(poseError.getY()) < 0.5) {
             m_odom.addVisionMeasurement(estimatedPose, timestamp);
+        }
     }
 
     public Pose2d getPoseMeters() {

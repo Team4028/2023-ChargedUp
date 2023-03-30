@@ -105,4 +105,10 @@ public class Trajectories {
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
     }
+
+    public static PathPlannerTrajectory StraightBalance(BeakDrivetrain drivetrain) {
+        return PathPlanner.loadPath("Straight Balance",
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.6,
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.6);
+    }
 }

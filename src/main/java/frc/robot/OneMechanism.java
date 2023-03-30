@@ -132,7 +132,7 @@ public class OneMechanism {
 
         ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
         ACQUIRE_FLOOR_CONE_TIPPED(     8.0,        26.5,       260.0),
-        ACQUIRE_FLOOR_CONE_UPRIGHT(    9.0,        19.6,       262.5),
+        ACQUIRE_FLOOR_CONE_UPRIGHT(    8.0,        19.6,       262.5),
         
         AUTON_URPIGHT_CONE(            8.5,        19.6,       261.5),
 

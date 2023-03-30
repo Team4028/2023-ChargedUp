@@ -90,12 +90,6 @@
         "ConePickup",
         "RunGripperSmart"
       ]
-    },
-    {
-      "position": 1.781818181818181,
-      "names": [
-        "RearLocalize"
-      ]
     }
   ]
 }

@@ -93,7 +93,7 @@ public class RobotContainer {
     private final BeakXBoxController m_emergencyController = new BeakXBoxController(2);
 
     // Auton stuff
-    private final LoggedDashboardChooser<BeakAutonCommand> autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    private final LoggedDashboardChooser<BeakAutonCommand> m_autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     private final Autons m_autons;
 
     // Limiters, etc.
@@ -457,13 +457,13 @@ public class RobotContainer {
         // EMERGENCY - BUMP WRIST DOWN
         // LB
         // ================================================
-        m_emergencyController.lb.onTrue(m_wrist.changeAngleCommand(-1.));
+        m_emergencyController.lb.onTrue(m_wrist.changeAngleCommand(-3.));
 
         // ================================================
         // EMERGENCY - BUMP WRIST UP
         // RB
         // ================================================
-        m_emergencyController.rb.onTrue(m_wrist.changeAngleCommand(1.));
+        m_emergencyController.rb.onTrue(m_wrist.changeAngleCommand(3.));
 
         // ================================================
         // EMERGENCY - WaterFall
@@ -493,21 +493,26 @@ public class RobotContainer {
         // EMERGENCY - TOGGLE SIGNAL
         // RB
         // ================================================
-        m_emergencyController.rb.onTrue(new InstantCommand(OneMechanism::toggleSnappedMode));
+        // m_emergencyController.rb.onTrue(new InstantCommand(OneMechanism::toggleSnappedMode));
     }
 
     private void initAutonChooser() {
-        autoChooser.addDefaultOption("1.5 Piece Top", m_autons.OnePiece(PathPosition.Top));
-        autoChooser.addOption("1.5 Piece Bottom", m_autons.OnePiece(PathPosition.Bottom));
+        m_autoChooser.addDefaultOption("1.5 Piece Top", m_autons.OnePiece(PathPosition.Top));
+        m_autoChooser.addOption("1.5 Piece Bottom", m_autons.OnePiece(PathPosition.Bottom));
 
-        autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top, false));
-        autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
+        m_autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top, false));
+        m_autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
 
-        autoChooser.addOption("2 Piece Top Balance", m_autons.TwoPiece(PathPosition.Top, true));
-        autoChooser.addOption("2 Piece Bottom Balance", m_autons.TwoPiece(PathPosition.Bottom, true));
+        m_autoChooser.addOption("2 Piece Top Balance", m_autons.TwoPiece(PathPosition.Top, true));
+        m_autoChooser.addOption("2 Piece Bottom Balance", m_autons.TwoPiece(PathPosition.Bottom, true));
 
-        autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
-        autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
+        m_autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
+        m_autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
+
+        m_autoChooser.addOption("Test Balance", m_autons.TwoPieceBalance(PathPosition.Bottom));
+        m_autoChooser.addOption("1 Piece Balance Middle", m_autons.StraightBalance());
+
+        m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
     }
 
     public double speedScaledDriverLeftY() {
@@ -551,6 +556,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get().resetPoseAndRun();
+        return m_autoChooser.get().resetPoseAndRun();
     }
 }

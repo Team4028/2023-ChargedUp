@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.81
+        "y": 4.76
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.74360281577706,
-        "y": 4.8540683624224386
+        "y": 4.804068362422439
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -71,20 +71,6 @@
     }
   ],
   "markers": [
-    {
-      "position": 0.1272727272727272,
-      "names": [
-        "StopGripper",
-        "ArmRetract",
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 0.29090909090909084,
-      "names": [
-        "RearLocalize"
-      ]
-    },
     {
       "position": 1.5272727272727271,
       "names": [

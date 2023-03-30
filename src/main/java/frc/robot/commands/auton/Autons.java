@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.Constants;
 import frc.robot.OneMechanism;
+import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
@@ -48,7 +49,8 @@ import frc.robot.utilities.Trajectories.PathPosition;
  */
 public class Autons {
     // Auton Constants
-    private static final double UPPER_ARM_OFFSET = 18.3;
+    private static final double UPPER_ARM_OFFSET = 18.4;
+    private static final double LOWER_ARM_OFFSET = 0.86;
 
     // Global Subsystems -- initialized in the constructor
     private final BeakDrivetrain m_drivetrain;
@@ -61,6 +63,7 @@ public class Autons {
     private final Vision m_frontAprilTagVision;
     private final Vision m_rearAprilTagVision;
 
+    // The "meat" of auton
     private final Map<String, Command> m_eventMap;
 
     private final BooleanSupplier m_upperArmStowed;
@@ -126,7 +129,7 @@ public class Autons {
             m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
             m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
-            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
+            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.AUTON_URPIGHT_CONE));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
@@ -142,6 +145,54 @@ public class Autons {
 
         m_eventMap.put("FrontReset", new ResetPoseToVision(drivetrain, m_frontAprilTagVision));
         m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
+    }
+
+    // public Command scoreSequence(GamePieceMode mode) {
+    //     // new InstantCommand(() -> OneMechanism.setScoreMode(true)),
+    //     //     new InstantCommand(() -> OneMechanism.setClimbMode(false)),
+    //     //     OneMechanism.orangeModeCommand(),
+
+    //     //     new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+    //     //     new InstantCommand(() -> m_lowerArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+    //     //     new WaitCommand(0.1),
+    //     //     new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
+    //     //     new WaitCommand(0.07),
+
+    //     //     m_coneExtendCommand.get(),
+    //     //     m_gripper.runMotorOut().withTimeout(0.4),
+
+    //     //     m_stowCommand.get(),
+
+    //     //     new InstantCommand(() -> OneMechanism.setScoreMode(false));
+    // }
+
+    public BeakAutonCommand StraightBalance() {
+        PathPlannerTrajectory traj = Trajectories.StraightBalance(m_drivetrain);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
+            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
+            new InstantCommand(() -> OneMechanism.setClimbMode(false)),
+            OneMechanism.orangeModeCommand(),
+
+            new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+            new InstantCommand(() -> m_lowerArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+            new WaitCommand(0.1),
+            new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
+            new WaitCommand(0.07),
+
+            m_coneExtendCommand.get(),
+            m_gripper.runMotorOut().withTimeout(0.4),
+
+            m_stowCommand.get(),
+
+            new InstantCommand(() -> OneMechanism.setScoreMode(false)),
+
+            new InstantCommand(() -> OneMechanism.setClimbMode(true)),
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            new QuadraticAutoBalance(m_drivetrain)
+        );
+
+        return cmd;
     }
 
     // ================================================
@@ -306,7 +357,8 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
             ThreePieceAcquire(position),
-            m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier()).until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
+            m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
+                .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
             new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
             ThreePieceScore(position)
         //

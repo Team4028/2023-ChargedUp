@@ -12,7 +12,7 @@ import frc.lib.beaklib.drive.BeakDrivetrain;
 public class QuadraticAutoBalance extends CommandBase {
     private final BeakDrivetrain m_drivetrain;
 
-    private static final double PITCH_kP = 7.5;
+    private static final double PITCH_kP = 6.0;
     // private static final double PITCH_kI = 0.0;
     // private static final double PITCH_kD = 0.0;
 
@@ -38,9 +38,6 @@ public class QuadraticAutoBalance extends CommandBase {
     public void execute() {
         final double positionError = m_drivetrain.getGyroPitchRotation2d().getRadians();
         final double rollError = m_drivetrain.getGyroRollRotation2d().getRadians();
-
-        SmartDashboard.putNumber("Position Error", positionError);
-        SmartDashboard.putNumber("Roll Error", rollError);
 
         m_drivetrain.drive(
             new ChassisSpeeds(

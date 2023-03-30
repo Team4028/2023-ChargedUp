@@ -120,7 +120,7 @@ public class Wrist extends SubsystemBase {
                 m_pid.setReference(angle, ControlType.kPosition);
                 m_targetAngle = angle;
             }).until(
-                () -> Math.abs(getAbsoluteEncoderPosition() - angle) < 1.0);
+                () -> Math.abs(getAbsoluteEncoderPosition() - angle) < 0.9);
     }
 
     /**@return A Command to hold the wrist at its current angle. Used after running open loop to stay put and not drop with gravity. */
@@ -136,8 +136,8 @@ public class Wrist extends SubsystemBase {
 
     public Command changeAngleCommand(double delta) {
         return runOnce(() -> {
-            OneMechanism.getScoringPosition().wristAngle += delta;
-            runToAngle(OneMechanism.getScoringPosition().wristAngle);
+            m_targetAngle += delta;
+            m_pid.setReference(m_targetAngle, ControlType.kPosition);
         });
         
     }

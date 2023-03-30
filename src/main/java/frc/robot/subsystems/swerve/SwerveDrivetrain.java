@@ -214,5 +214,9 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
         SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));
         SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getTurningEncoderRadians()));
         SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getTurningEncoderRadians()));
+
+        SmartDashboard.putNumber("X (meters)", m_odom.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("Y (meters)", m_odom.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Heading (deg)", getHeading());
     }
 }

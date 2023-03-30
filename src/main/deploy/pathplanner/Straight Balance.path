@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.71,
-        "y": 3.46
+        "x": 1.7284190282666283,
+        "y": 2.7627453826336223
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.249845785405857,
-        "y": 4.838383105337639
+        "x": 2.7284190282666314,
+        "y": 2.7627453826336223
       },
-      "holonomicAngle": -45.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,12 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.04,
-        "y": 3.36
+        "x": 4.65,
+        "y": 2.76
       },
       "prevControl": {
-        "x": 2.6016183460938356,
-        "y": 4.838383105337639
+        "x": 4.320760912950398,
+        "y": 2.76
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -45,32 +45,5 @@
       }
     }
   ],
-  "markers": [
-    {
-      "position": 0.05454545454545455,
-      "names": [
-        "ArmRetract",
-        "StopGripper"
-      ]
-    },
-    {
-      "position": 0.8545454545454552,
-      "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.5090909090909094,
-      "names": [
-        "ConePre"
-      ]
-    },
-    {
-      "position": 0.7727272727272717,
-      "names": [
-        "ConeHig",
-        "FrontLocalize"
-      ]
-    }
-  ]
+  "markers": []
 }

@@ -50,15 +50,15 @@
     {
       "anchorPoint": {
         "x": 6.44,
-        "y": 4.81
+        "y": 4.76
       },
       "prevControl": {
         "x": 5.8372490264103885,
-        "y": 4.81
+        "y": 4.76
       },
       "nextControl": {
         "x": 6.721419499981857,
-        "y": 4.81
+        "y": 4.76
       },
       "holonomicAngle": 0.0,
       "isReversal": false,
@@ -75,11 +75,11 @@
     {
       "anchorPoint": {
         "x": 6.68,
-        "y": 4.81
+        "y": 4.76
       },
       "prevControl": {
         "x": 6.58097356787184,
-        "y": 4.81
+        "y": 4.76
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -104,46 +104,15 @@
       ]
     },
     {
-      "position": 1.1454545454545455,
+      "position": 1.227272727272727,
       "names": [
-        "RunGripperIn",
-        "RearLocalize"
+        "RunGripperIn"
       ]
     },
     {
-      "position": 1.609090909090913,
+      "position": 0.13636363636363633,
       "names": [
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 1.5272727272727291,
-      "names": [
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 1.7181818181818187,
-      "names": [
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 1.90909090909091,
-      "names": [
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 1.7727272727272725,
-      "names": [
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 1.3636363636363635,
-      "names": [
-        "RearLocalize"
+        "FrontLocalize"
       ]
     }
   ]
