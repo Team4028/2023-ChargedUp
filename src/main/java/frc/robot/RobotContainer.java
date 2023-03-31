@@ -34,6 +34,7 @@ import frc.robot.commands.chassis.XDrive;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
+import frc.robot.utilities.Trajectories;
 import frc.robot.utilities.Trajectories.PathPosition;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
@@ -404,7 +405,8 @@ public class RobotContainer {
         // LSY
         // ================================================
         (m_emergencyController.axisGreaterThan(1, 0.1).or(m_emergencyController.axisLessThan(1, -0.1)))
-            .onTrue(new InstantCommand(() -> m_lowerArm.runArmVbus(0.3 * -Math.signum(m_emergencyController.getLeftYAxis()))));
+            .onTrue(new InstantCommand(
+                () -> m_lowerArm.runArmVbus(0.3 * -Math.signum(m_emergencyController.getLeftYAxis()))));
         (m_emergencyController.axisGreaterThan(1, 0.1).or(m_emergencyController.axisLessThan(1, -0.1)))
             .onFalse(m_lowerArm.holdArmPosition());
 
@@ -413,7 +415,8 @@ public class RobotContainer {
         // RSX
         // ================================================
         m_emergencyController.axisGreaterThan(4, 0.1).or(m_emergencyController.axisLessThan(4, -0.1))
-            .onTrue(new InstantCommand(() -> m_upperArm.runArmVbus(0.3 * -Math.signum(m_emergencyController.getRightXAxis()))));
+            .onTrue(new InstantCommand(
+                () -> m_upperArm.runArmVbus(0.3 * -Math.signum(m_emergencyController.getRightXAxis()))));
         m_emergencyController.axisGreaterThan(4, 0.1).or(m_emergencyController.axisLessThan(4, -0.1))
             .onFalse(m_upperArm.holdArmPosition());
 
@@ -493,7 +496,8 @@ public class RobotContainer {
         // EMERGENCY - TOGGLE SIGNAL
         // RB
         // ================================================
-        // m_emergencyController.rb.onTrue(new InstantCommand(OneMechanism::toggleSnappedMode));
+        // m_emergencyController.rb.onTrue(new
+        // InstantCommand(OneMechanism::toggleSnappedMode));
     }
 
     private void initAutonChooser() {
@@ -506,11 +510,28 @@ public class RobotContainer {
         m_autoChooser.addOption("2 Piece Top Balance", m_autons.TwoPiece(PathPosition.Top, true));
         m_autoChooser.addOption("2 Piece Bottom Balance", m_autons.TwoPiece(PathPosition.Bottom, true));
 
+        m_autoChooser.addOption("2.25 Piece Top", m_autons.TwoQuarterPiece(PathPosition.Top));
+        m_autoChooser.addOption("2.25 Piece Bottom", m_autons.TwoQuarterPiece(PathPosition.Bottom));
+
         m_autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
         m_autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
 
         m_autoChooser.addOption("Test Balance", m_autons.TwoPieceBalance(PathPosition.Bottom));
-        m_autoChooser.addOption("1 Piece Balance Middle", m_autons.StraightBalance());
+
+        m_autoChooser.addOption("1 Cube Middle Balance",
+            m_autons.OnePieceBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
+        m_autoChooser.addOption("1 Cone Middle Balance",
+            m_autons.OnePieceBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
+
+        m_autoChooser.addOption("1 Piece Top Balance",
+            new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Top),
+                m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
+                m_autons.TwoPieceBalance(PathPosition.Top)));
+
+        m_autoChooser.addOption("1 Piece Bottom Balance",
+            new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Bottom),
+                m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
+                m_autons.TwoPieceBalance(PathPosition.Bottom)));
 
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
     }

@@ -75,7 +75,6 @@
       "position": 0.036363636363636334,
       "names": [
         "ArmRetract",
-        "RearLocalize",
         "StopGripper"
       ]
     },

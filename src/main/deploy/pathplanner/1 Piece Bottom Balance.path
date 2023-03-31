@@ -77,18 +77,6 @@
         "ArmRetract",
         "StopGripper"
       ]
-    },
-    {
-      "position": 0.672727272727272,
-      "names": [
-        "RearLocalize"
-      ]
-    },
-    {
-      "position": 0.5272727272727273,
-      "names": [
-        "RearLocalize"
-      ]
     }
   ]
 }

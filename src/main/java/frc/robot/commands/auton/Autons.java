@@ -147,62 +147,41 @@ public class Autons {
         m_eventMap.put("RearReset", new ResetPoseToVision(drivetrain, m_rearAprilTagVision));
     }
 
-    // public Command scoreSequence(GamePieceMode mode) {
-    //     // new InstantCommand(() -> OneMechanism.setScoreMode(true)),
-    //     //     new InstantCommand(() -> OneMechanism.setClimbMode(false)),
-    //     //     OneMechanism.orangeModeCommand(),
-
-    //     //     new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-    //     //     new InstantCommand(() -> m_lowerArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-    //     //     new WaitCommand(0.1),
-    //     //     new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
-    //     //     new WaitCommand(0.07),
-
-    //     //     m_coneExtendCommand.get(),
-    //     //     m_gripper.runMotorOut().withTimeout(0.4),
-
-    //     //     m_stowCommand.get(),
-
-    //     //     new InstantCommand(() -> OneMechanism.setScoreMode(false));
-    // }
-
-    public BeakAutonCommand StraightBalance() {
-        PathPlannerTrajectory traj = Trajectories.StraightBalance(m_drivetrain);
-
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
+    /**
+     * Sequence of commands to score the preloaded game piece.
+     * 
+     * @param mode
+     *            Whether a cone or cube is preloaded.
+     * @return A {@link Command} scoring the preloaded game piece.
+     */
+    public Command preloadScoreSequence(GamePieceMode mode) {
+        return new SequentialCommandGroup(
             new InstantCommand(() -> OneMechanism.setScoreMode(true)),
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
-            OneMechanism.orangeModeCommand(),
+            mode == GamePieceMode.ORANGE_CONE ? OneMechanism.orangeModeCommand() : OneMechanism.purpleModeCommand(),
 
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-            new InstantCommand(() -> m_lowerArm.setEncoderPosition(UPPER_ARM_OFFSET)),
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
-            m_coneExtendCommand.get(),
-            m_gripper.runMotorOut().withTimeout(0.4),
+            mode == GamePieceMode.ORANGE_CONE ? m_coneExtendCommand.get() : m_cubeExtendCommand.get(),
+            m_gripper.modeSensitiveOutfeedCommand().withTimeout(0.4),
 
             m_stowCommand.get(),
 
-            new InstantCommand(() -> OneMechanism.setScoreMode(false)),
-
-            new InstantCommand(() -> OneMechanism.setClimbMode(true)),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
-            new QuadraticAutoBalance(m_drivetrain)
-        );
-
-        return cmd;
+            new InstantCommand(() -> OneMechanism.setScoreMode(false)));
     }
 
     // ================================================
     // ONE PIECE AUTONS
     // ================================================
 
-    public BeakAutonCommand OnePieceBalance(PathPosition position) {
+    public BeakAutonCommand OnePieceBalance(PathPosition position, GamePieceMode preload) {
         PathPlannerTrajectory traj = Trajectories.OnePieceBalance(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
+            position == PathPosition.Middle ? preloadScoreSequence(preload) : Commands.none(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             // BALANCE
             new WaitCommand(0.15),
@@ -224,7 +203,7 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            OnePieceBalance(position)
+            OnePieceBalance(position, GamePieceMode.ORANGE_CONE)
         //
         );
 
@@ -241,21 +220,8 @@ public class Autons {
         PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
-            new InstantCommand(() -> OneMechanism.setClimbMode(false)),
-            OneMechanism.orangeModeCommand(),
+            preloadScoreSequence(GamePieceMode.ORANGE_CONE),
 
-            new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
-            new WaitCommand(0.07),
-
-            m_coneExtendCommand.get(),
-            m_gripper.runMotorOut().withTimeout(0.4),
-
-            m_stowCommand.get(),
-
-            new InstantCommand(() -> OneMechanism.setScoreMode(false)),
             OneMechanism.purpleModeCommand(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
@@ -307,6 +273,35 @@ public class Autons {
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             // balance :)
             new QuadraticAutoBalance(m_drivetrain)
+        //
+        );
+
+        return cmd;
+    }
+
+    // ================================================
+    // 2.25 PIECE AUTONS
+    // ================================================
+
+    public BeakAutonCommand TwoQuarterPiecePark(PathPosition position) {
+        PathPlannerTrajectory traj = Trajectories.TwoQuarterPiecePark(m_drivetrain, position);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap) //
+        );
+
+        return cmd;
+    }
+    
+    /**
+     * Runs the two piece auton and parks near the next game piece.
+     */
+    public BeakAutonCommand TwoQuarterPiece(PathPosition position) {
+        BeakAutonCommand initialPath = TwoPiece(position, false);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            TwoQuarterPiecePark(position)
         //
         );
 

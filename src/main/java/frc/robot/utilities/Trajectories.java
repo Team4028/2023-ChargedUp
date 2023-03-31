@@ -19,7 +19,7 @@ public class Trajectories {
      */
     public enum PathPosition {
         Bottom(0.45, 0.45, 0.75), // Over the cable cover
-        Middle(0.5, 0.5, 0.5), // Over the charge station
+        Middle(0.5, 0.5, 0.75), // Over the charge station
         Top(0.6, 0.6, 0.75); // Short side
 
         /**
@@ -100,15 +100,9 @@ public class Trajectories {
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
     }
 
-    public static PathPlannerTrajectory StraightLinePath(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("straight Line Path",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
-    }
-
-    public static PathPlannerTrajectory StraightBalance(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("Straight Balance",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.6,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.6);
+    public static PathPlannerTrajectory TwoQuarterPiecePark(BeakDrivetrain drivetrain, PathPosition position) {
+        return PathPlanner.loadPath("2.25 Piece " + position.name() + " Park",
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
     }
 }

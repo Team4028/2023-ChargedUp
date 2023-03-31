@@ -136,8 +136,9 @@ public class Wrist extends SubsystemBase {
 
     public Command changeAngleCommand(double delta) {
         return runOnce(() -> {
-            m_targetAngle += delta;
-            m_pid.setReference(m_targetAngle, ControlType.kPosition);
+            // m_targetAngle += delta;
+            OneMechanism.getScoringPosition().wristAngle += delta;
+            m_pid.setReference(OneMechanism.getScoringPosition().wristAngle, ControlType.kPosition);
         });
         
     }

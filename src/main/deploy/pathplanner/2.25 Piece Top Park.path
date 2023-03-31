@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 0.0,
-        "y": 0.0
+        "x": 2.05,
+        "y": 4.38
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.9999999999999973,
-        "y": 0.0
+        "x": 3.403243949345042,
+        "y": 4.709550419100839
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,15 +24,15 @@
     },
     {
       "anchorPoint": {
-        "x": 3.05,
-        "y": 0.0
+        "x": 7.067818135636271,
+        "y": 4.595032475779237
       },
       "prevControl": {
-        "x": 1.0657643491810713,
-        "y": 0.0
+        "x": 6.067818135636271,
+        "y": 4.595032475779237
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -45,5 +45,18 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.08181818181818182,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.6454545454545454,
+      "names": [
+        "CubePickup"
+      ]
+    }
+  ]
 }
