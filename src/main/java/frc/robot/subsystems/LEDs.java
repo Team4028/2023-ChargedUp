@@ -302,7 +302,7 @@ public class LEDs extends SubsystemBase {
 
         m_currentAnimations.set(1,
             () -> new ColorFlowAnimation(m_color.r, m_color.g, m_color.b, 0, 0.88, NUM_LEDS, Direction.Backward,
-                0));
+                OneMechanism.getBeaconState() ? 8 : 0));
     }
 
     public void clearAnimations() {
