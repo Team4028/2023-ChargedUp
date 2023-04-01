@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.OneMechanism;
+import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.commands.LEDs.LarsonAnimationV2;
 import frc.robot.commands.LEDs.SlowAlternateBlink;
 import frc.robot.commands.LEDs.LarsonAnimationV2.V2BounceMode;
@@ -161,17 +162,7 @@ public class LEDs extends SubsystemBase {
     public SequentialCommandGroup blinkWhite() {
         return new SequentialCommandGroup(
             new InstantCommand(() -> {
-                switch (OneMechanism.getGamePieceMode()) {
-                    case PURPLE_CUBE:
-                        m_lastColor = Color.PURPLE;
-                        break;
-                    case ORANGE_CONE:
-                        m_lastColor = Color.ORANGE;
-                        break;
-                    default:
-                        m_lastColor = Color.ORANGE;
-                        break;
-                }
+                m_lastColor = OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE ? Color.PURPLE : Color.ORANGE;
             }),
             new InstantCommand(() -> setBlank()),
             new WaitCommand(0.02),

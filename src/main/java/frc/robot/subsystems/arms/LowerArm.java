@@ -17,6 +17,7 @@ import frc.robot.OneMechanism;
  * The lower Argos Arm
  */
 public class LowerArm extends Arm {
+
     private static final double kP = 0.125;
     private static final double kI = 0.0;
     private static final double kD = 1.6;
@@ -124,8 +125,8 @@ public class LowerArm extends Arm {
     @Override
     public Command changePositionCommand(double delta) {
         return runOnce(() -> {
-            OneMechanism.getScoringPosition().lowerPosition += delta;
-            runToPosition(OneMechanism.getScoringPosition().lowerPosition);
+            m_updatedArmPosMap.get(OneMechanism.getScoringPosition().name())[0] += delta;
+            runToPosition(OneMechanism.getScoringPosition().lowerPosition.get());
         });
     }
 }

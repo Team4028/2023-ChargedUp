@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.arms;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import com.revrobotics.CANSparkMax;
@@ -15,13 +17,13 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.OneMechanism;
-import frc.robot.OneMechanism.ScoringPositions;
 
 /**
  * The upper Argos Arm
  */
 public abstract class Arm extends SubsystemBase {
+
+    public static final Map<String, double[]> m_updatedArmPosMap = new HashMap<String, double[]>();
 
     public static final double EXTEND_COEFFICIENT = 116.1;
     public static final double RETRACT_COEFFICIENT = 156.58;
@@ -49,6 +51,25 @@ public abstract class Arm extends SubsystemBase {
      * MUST be run after initializing the SparkMAX
      */
     protected void initArm() {
+
+        m_updatedArmPosMap.put("STOWED", new double[] { 3.0, 4.0, 305.0 });
+        m_updatedArmPosMap.put("INTERMEDIATE_LOW", new double[] { 9.5, 21.5, 275.0 });
+        m_updatedArmPosMap.put("SCORE_LOW_CUBE", new double[] { 15.0, 13.0, 200.0 });
+        m_updatedArmPosMap.put("SCORE_MID_CUBE", new double[] { 39.0, 6.0, 215.0 });
+        m_updatedArmPosMap.put("SCORE_HIGH_CUBE", new double[] { 51.0, 34.0, 203.0 });
+        m_updatedArmPosMap.put("AUTON_PREP_CUBE", new double[] { 51.0, 4.0, 203.0 });
+        m_updatedArmPosMap.put("ACQUIRE_FLOOR_CUBE", new double[] { 9.0, 23.0, 245.0 });
+        m_updatedArmPosMap.put("ACQUIRE_FLOOR_CONE_TIPPED", new double[] { 8.0, 26.5, 260.0 });
+        m_updatedArmPosMap.put("ACQUIRE_FLOOR_CONE_UPRIGHT", new double[] { 9.0, 19.6, 262.5 });
+        m_updatedArmPosMap.put("AUTON_UPRIGHT_CONE", new double[] { 8.5, 19.6, 261.5 });
+        m_updatedArmPosMap.put("SCORE_LOW_CONE", new double[] { 15.0, 13.0, 200.0 });
+        m_updatedArmPosMap.put("SCORE_MID_CONE", new double[] { 39.0, 6.0, 215.0 });
+        m_updatedArmPosMap.put("SCORE_HIGH_CONE", new double[] { 51.0, 34.0, 203.0 });
+        m_updatedArmPosMap.put("AUTON_PREP_CONE", new double[] { 51.0, 4.0, 203.0 });
+        m_updatedArmPosMap.put("ACQUIRE_SINGLE_SUBSTATION", new double[] { 3.6, 2.0, 320.0 });
+        m_updatedArmPosMap.put("ACQUIRE_DOUBLE_SUBSTATION_CONE", new double[] { 51.0, 2.0, 193.5 });
+        m_updatedArmPosMap.put("ACQUIRE_DOUBLE_SUBSTATION_CUBE", new double[] { 47.1, 2.0, 203.7 });
+
         m_encoder = m_motor.getEncoder();
 
         m_motor.setSmartCurrentLimit(40);

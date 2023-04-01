@@ -122,8 +122,8 @@ public class UpperArm extends Arm {
     @Override
     public Command changePositionCommand(double delta) {
         return runOnce(() -> {
-            OneMechanism.getScoringPosition().upperPosition += delta;
-            runToPosition(OneMechanism.getScoringPosition().upperPosition);
+            m_updatedArmPosMap.get(OneMechanism.getScoringPosition().name())[1] += delta;
+            runToPosition(OneMechanism.getScoringPosition().upperPosition.get());
         });
     }
 }

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
 import frc.robot.OneMechanism;
+import frc.robot.subsystems.arms.Arm;
 
 public class Wrist extends SubsystemBase {
     private static final double kP = 0.06;
@@ -136,8 +137,8 @@ public class Wrist extends SubsystemBase {
 
     public Command changeAngleCommand(double delta) {
         return runOnce(() -> {
-            OneMechanism.getScoringPosition().wristAngle += delta;
-            runToAngle(OneMechanism.getScoringPosition().wristAngle);
+            Arm.m_updatedArmPosMap.get(OneMechanism.getScoringPosition().name())[2] += delta;
+            runToAngle(OneMechanism.getScoringPosition().wristAngle.get());
         });
         
     }

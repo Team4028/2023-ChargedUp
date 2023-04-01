@@ -93,27 +93,27 @@ public class Autons {
         m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25);
 
         m_stowCommand = () -> new SequentialCommandGroup(
-            new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
+            new RunArmPID(ScoringPositions.STOWED.upperPosition.get(), m_upperArm)
+                .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle.get())).until(m_upperArmStowed),
 
             // Run the lower arm down but immediately end it.
-            new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() -> true));
+            new RunArmPID(ScoringPositions.STOWED.lowerPosition.get(), m_lowerArm).until(() -> true));
 
         m_cubeExtendCommand = () -> new SequentialCommandGroup(
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition.get(), m_lowerArm)
                 .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
 
             // Run until the upper arm is "almost" there
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition.get(), m_upperArm)
+                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle.get())).until(m_upperArmExtended));
 
         m_coneExtendCommand = () -> new SequentialCommandGroup(
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition.get(), m_lowerArm)
                 .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
 
             // Run until the upper arm is "almost" there
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
+            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition.get(), m_upperArm)
+                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle.get())).until(m_upperArmExtended));
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.

@@ -30,27 +30,27 @@ public class RunArmsWithPID extends SequentialCommandGroup {
                 // Begins extending lower arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
-                new RunArmPID(targetPos.lowerPosition, lowerArm)
+                new RunArmPID(targetPos.lowerPosition.get(), lowerArm)
                     .until(() -> lowerArm.getError() < .40 * lowerArm.getDistanceToTravel())
                     /*
                      * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                      * Constants.ArmConstants.EXTEND_COEFFICIENT)
                      */
-                    .andThen(new RunArmPID(targetPos.upperPosition, upperArm)
-                        .alongWith(wrist.runToAngle(targetPos.wristAngle))),
+                    .andThen(new RunArmPID(targetPos.upperPosition.get(), upperArm)
+                        .alongWith(wrist.runToAngle(targetPos.wristAngle.get()))),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
-                (new RunArmPID(targetPos.upperPosition, upperArm)
+                (new RunArmPID(targetPos.upperPosition.get(), upperArm)
                     .until(() -> upperArm.getError() < .40 * upperArm.getDistanceToTravel()))
-                        .raceWith(wrist.runToAngle(targetPos.wristAngle))
+                        .raceWith(wrist.runToAngle(targetPos.wristAngle.get()))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
                          */
-                        .andThen(new RunArmPID(targetPos.lowerPosition, lowerArm)),
-                () -> targetPos.lowerPosition > lowerArm.getEncoderPosition()),
+                        .andThen(new RunArmPID(targetPos.lowerPosition.get(), lowerArm)),
+                () -> targetPos.lowerPosition.get() > lowerArm.getEncoderPosition()),
             new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);
     }

@@ -32,30 +32,30 @@ public class RunArmsToPosition extends SequentialCommandGroup {
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
                 new RunArmProfiled(lowerArm.MaxVel, lowerArm.MaxAccel, lowerArm.getEncoderPosition(),
-                    targetPos.lowerPosition,
+                    targetPos.lowerPosition.get(),
                     lowerArm)
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
                          * Constants.ArmConstants.EXTEND_COEFFICIENT)
                          */
                         .andThen(new RunArmProfiled(upperArm.MaxVel, upperArm.MaxAccel, upperArm.getEncoderPosition(),
-                            targetPos.upperPosition, upperArm))
-                        .alongWith(wrist.runToAngle(targetPos.wristAngle)),
+                            targetPos.upperPosition.get(), upperArm))
+                        .alongWith(wrist.runToAngle(targetPos.wristAngle.get())),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
                 new RunArmProfiled(upperArm.MaxVel, upperArm.MaxAccel, upperArm.getEncoderPosition(),
-                    targetPos.upperPosition,
+                    targetPos.upperPosition.get(),
                     upperArm)
-                        .raceWith(wrist.runToAngle(targetPos.wristAngle))
+                        .raceWith(wrist.runToAngle(targetPos.wristAngle.get()))
                         /*
                          * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
                          * Constants.ArmConstants.RETRACT_COEFFICIENT)
                          */
                         .andThen(new RunArmProfiled(lowerArm.MaxVel, lowerArm.MaxAccel, lowerArm.getEncoderPosition(),
-                            targetPos.lowerPosition, lowerArm)),
-                () -> targetPos.lowerPosition > lowerArm.getEncoderPosition()),
+                            targetPos.lowerPosition.get(), lowerArm)),
+                () -> targetPos.lowerPosition.get() > lowerArm.getEncoderPosition()),
             new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);
     }

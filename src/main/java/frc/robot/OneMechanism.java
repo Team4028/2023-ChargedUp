@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,6 +24,7 @@ import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDs.CANdleMode;
 import frc.robot.subsystems.LEDs.Color;
+import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Wrist;
@@ -121,44 +123,43 @@ public class OneMechanism {
      * </p>
      */
     public enum ScoringPositions {
-        STOWED(                        3.0,        4.0,        305.0),
-        INTERMEDIATE_LOW(              9.5,        21.5,       275.0),
+        STOWED(() -> Arm.m_updatedArmPosMap.get("STOWED")[0], () -> Arm.m_updatedArmPosMap.get("STOWED")[1], ()  -> Arm.m_updatedArmPosMap.get("STOWED")[2]),
+        INTERMEDIATE_LOW(() -> Arm.m_updatedArmPosMap.get("INTERMEDIATE_LOW")[0], () -> Arm.m_updatedArmPosMap.get("INTERMEDIATE_LOW")[1], ()  -> Arm.m_updatedArmPosMap.get("INTERMEDIATE_LOW")[2]),
 
-        SCORE_LOW_CUBE(                15.0,       13.0,       200.0),
-        SCORE_MID_CUBE(                39.0,       6.0,        215.0), 
-        SCORE_HIGH_CUBE(               51.0,       34.0,       203.0),
+        SCORE_LOW_CUBE(() -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CUBE")[2]),
+        SCORE_MID_CUBE(() -> Arm.m_updatedArmPosMap.get("SCORE_MID_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_MID_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_MID_CUBE")[2]), 
+        SCORE_HIGH_CUBE(() -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CUBE")[2]),
 
-        AUTON_PREP_CUBE(               51.0,       4.0,        203.0),
+        AUTON_PREP_CUBE(() -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CUBE")[2]),
 
-        ACQUIRE_FLOOR_CUBE(            9.0,        23.0,       245.0),
-        ACQUIRE_FLOOR_CONE_TIPPED(     8.0,        26.5,       260.0),
-        ACQUIRE_FLOOR_CONE_UPRIGHT(    9.0,        19.6,       262.5),
+        ACQUIRE_FLOOR_CUBE(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CUBE")[2]),
+        ACQUIRE_FLOOR_CONE_TIPPED(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_TIPPED")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_TIPPED")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_TIPPED")[2]),
+        ACQUIRE_FLOOR_CONE_UPRIGHT(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_UPRIGHT")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_UPRIGHT")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_UPRIGHT")[2]),
         
-        AUTON_URPIGHT_CONE(            8.5,        19.6,       261.5),
+        AUTON_URPIGHT_CONE(() -> Arm.m_updatedArmPosMap.get("AUTON_UPRIGHT_CONE")[0], () -> Arm.m_updatedArmPosMap.get("AUTON_UPRIGHT_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("AUTON_UPRIGHT_CONE")[2]),
 
-        SCORE_LOW_CONE(                15.0,       13.0,       200.0),
-        SCORE_MID_CONE(                39.0,       6.0,        215.0), 
-        SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
+        SCORE_LOW_CONE(() -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CONE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CONE")[2]),
+        SCORE_MID_CONE(() -> Arm.m_updatedArmPosMap.get("SCORE_MID_CONE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_MID_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_MID_CONE")[2]), 
+        SCORE_HIGH_CONE(() -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CONE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CONE")[2]),
 
-        AUTON_PREP_CONE(               51.0,       4.0,        203.0),
+        AUTON_PREP_CONE(() -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CONE")[0], () -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CONE")[2]),
 
-        ACQUIRE_SINGLE_SUBSTATION(     3.6,        2.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        193.5),
-        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7);
+        ACQUIRE_SINGLE_SUBSTATION(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_SINGLE_SUBSTATION")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_SINGLE_SUBSTATION")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_SINGLE_SUBSTATION")[2]),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CONE")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CONE")[2]),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CUBE")[2]);
 
-        public double lowerPosition;
-        public double upperPosition;
-        public double wristAngle;
+        public Supplier<Double> lowerPosition;
+        public Supplier<Double> upperPosition;
+        public Supplier<Double> wristAngle;
         
 
-        private ScoringPositions(double lowerPosition, double upperPosition, double wristAngle) {
+        private ScoringPositions(Supplier<Double> lowerPosition, Supplier<Double> upperPosition, Supplier<Double> wristAngle) {
             this.lowerPosition = lowerPosition;
             this.upperPosition = upperPosition;
             this.wristAngle = wristAngle;
         }
     }
     // @formatter:on
-
     /**
      * Represents a scoring node on the field.
      */
@@ -298,7 +299,7 @@ public class OneMechanism {
     }
 
     public static void toggleSlide() {
-        if(m_leds.getMode() != CANdleMode.SLIDE) {
+        if (m_leds.getMode() != CANdleMode.SLIDE) {
             m_leds.setSlide();
         } else {
             m_leds.setActive();
@@ -306,7 +307,7 @@ public class OneMechanism {
     }
 
     public static void setFireWorkPlz() {
-        if(m_leds.getMode() != CANdleMode.FIRE) {
+        if (m_leds.getMode() != CANdleMode.FIRE) {
             m_leds.setFireWorkPlz();
         } else {
             m_leds.setActive();
@@ -589,7 +590,7 @@ public class OneMechanism {
     }
 
     public static void signalAcquisition() {
-        if(getCANdleMode() == CANdleMode.ACTIVE) {
+        if (getCANdleMode() == CANdleMode.ACTIVE) {
             m_leds.blinkWhite().schedule();
         } else {
             m_leds.blinkBeaconWhiteAndRed().schedule();
