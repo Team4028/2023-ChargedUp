@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -123,40 +124,40 @@ public class OneMechanism {
      * </p>
      */
     public enum ScoringPositions {
-        STOWED(() -> Arm.m_updatedArmPosMap.get("STOWED")[0], () -> Arm.m_updatedArmPosMap.get("STOWED")[1], ()  -> Arm.m_updatedArmPosMap.get("STOWED")[2]),
-        INTERMEDIATE_LOW(() -> Arm.m_updatedArmPosMap.get("INTERMEDIATE_LOW")[0], () -> Arm.m_updatedArmPosMap.get("INTERMEDIATE_LOW")[1], ()  -> Arm.m_updatedArmPosMap.get("INTERMEDIATE_LOW")[2]),
+        STOWED(),
+        INTERMEDIATE_LOW(),
 
-        SCORE_LOW_CUBE(() -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CUBE")[2]),
-        SCORE_MID_CUBE(() -> Arm.m_updatedArmPosMap.get("SCORE_MID_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_MID_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_MID_CUBE")[2]), 
-        SCORE_HIGH_CUBE(() -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CUBE")[2]),
+        SCORE_LOW_CUBE(),
+        SCORE_MID_CUBE(), 
+        SCORE_HIGH_CUBE(),
 
-        AUTON_PREP_CUBE(() -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CUBE")[2]),
+        AUTON_PREP_CUBE(),
 
-        ACQUIRE_FLOOR_CUBE(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CUBE")[2]),
-        ACQUIRE_FLOOR_CONE_TIPPED(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_TIPPED")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_TIPPED")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_TIPPED")[2]),
-        ACQUIRE_FLOOR_CONE_UPRIGHT(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_UPRIGHT")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_UPRIGHT")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_FLOOR_CONE_UPRIGHT")[2]),
+        ACQUIRE_FLOOR_CUBE(),
+        ACQUIRE_FLOOR_CONE_TIPPED(),
+        ACQUIRE_FLOOR_CONE_UPRIGHT(),
         
-        AUTON_URPIGHT_CONE(() -> Arm.m_updatedArmPosMap.get("AUTON_UPRIGHT_CONE")[0], () -> Arm.m_updatedArmPosMap.get("AUTON_UPRIGHT_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("AUTON_UPRIGHT_CONE")[2]),
+        AUTON_URPIGHT_CONE(),
 
-        SCORE_LOW_CONE(() -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CONE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_LOW_CONE")[2]),
-        SCORE_MID_CONE(() -> Arm.m_updatedArmPosMap.get("SCORE_MID_CONE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_MID_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_MID_CONE")[2]), 
-        SCORE_HIGH_CONE(() -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CONE")[0], () -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("SCORE_HIGH_CONE")[2]),
+        SCORE_LOW_CONE(),
+        SCORE_MID_CONE(), 
+        SCORE_HIGH_CONE(),
 
-        AUTON_PREP_CONE(() -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CONE")[0], () -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("AUTON_PREP_CONE")[2]),
+        AUTON_PREP_CONE(),
 
-        ACQUIRE_SINGLE_SUBSTATION(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_SINGLE_SUBSTATION")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_SINGLE_SUBSTATION")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_SINGLE_SUBSTATION")[2]),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CONE")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CONE")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CONE")[2]),
-        ACQUIRE_DOUBLE_SUBSTATION_CUBE(() -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CUBE")[0], () -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CUBE")[1], ()  -> Arm.m_updatedArmPosMap.get("ACQUIRE_DOUBLE_SUBSTATION_CUBE")[2]);
+        ACQUIRE_SINGLE_SUBSTATION(),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE();
 
         public Supplier<Double> lowerPosition;
         public Supplier<Double> upperPosition;
         public Supplier<Double> wristAngle;
         
 
-        private ScoringPositions(Supplier<Double> lowerPosition, Supplier<Double> upperPosition, Supplier<Double> wristAngle) {
-            this.lowerPosition = lowerPosition;
-            this.upperPosition = upperPosition;
-            this.wristAngle = wristAngle;
+        private ScoringPositions() {
+            lowerPosition = () -> Arm.m_updatedArmPosMap.get(this.name())[0];
+            upperPosition = () -> Arm.m_updatedArmPosMap.get(this.name())[1];
+            wristAngle = () -> Arm.m_updatedArmPosMap.get(this.name())[2];
         }
     }
     // @formatter:on
