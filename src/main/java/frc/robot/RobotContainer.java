@@ -85,7 +85,7 @@ public class RobotContainer {
     private final Gripper m_gripper;
     private final Wrist m_wrist;
     private final Kickstand m_kickstand;
-    private final LEDs m_candle;
+    private final frc.robot.subsystems.LEDs m_leds;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
@@ -115,7 +115,7 @@ public class RobotContainer {
         m_drive = SwerveDrivetrain.getInstance();
         m_frontAprilTagVision = new Vision(FRONT_APRILTAG_CAMERA_NAME, FRONT_APRILTAG_CAMERA_TO_ROBOT);
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT);
-        m_candle = LEDs.getInstance();
+        m_leds = LEDs.getInstance();
 
         if (Constants.PRACTICE_CHASSIS) {
             // m_manipulator = Manipulator.getInstance();
@@ -133,7 +133,7 @@ public class RobotContainer {
             m_lowerArm = null;
         }
 
-        OneMechanism.addSubsystems(m_candle, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
+        OneMechanism.addSubsystems(m_leds, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
 
         m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
             m_rearAprilTagVision);

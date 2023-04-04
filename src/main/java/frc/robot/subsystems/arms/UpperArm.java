@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.OneMechanism;
+import frc.robot.UpdatedArmPositions;
 
 /**
  * The upper Argos Arm
@@ -122,7 +123,7 @@ public class UpperArm extends Arm {
     @Override
     public Command changePositionCommand(double delta) {
         return runOnce(() -> {
-            m_updatedArmPosMap.get(OneMechanism.getScoringPosition().name())[1] += delta;
+            UpdatedArmPositions.updatedArmPosMap.get(OneMechanism.getScoringPosition().name())[1] += delta;
             runToPosition(OneMechanism.getScoringPosition().upperPosition.get());
         });
     }

@@ -19,12 +19,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.LEDs.CANdleMode;
+import frc.robot.subsystems.LEDs.Color;
 import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.LEDs.CANdleMode;
-import frc.robot.subsystems.LEDs.Color;
 import frc.robot.subsystems.arms.Arm;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -155,9 +155,9 @@ public class OneMechanism {
         
 
         private ScoringPositions() {
-            lowerPosition = () -> Arm.m_updatedArmPosMap.get(this.name())[0];
-            upperPosition = () -> Arm.m_updatedArmPosMap.get(this.name())[1];
-            wristAngle = () -> Arm.m_updatedArmPosMap.get(this.name())[2];
+            lowerPosition = () -> UpdatedArmPositions.updatedArmPosMap.get(this.name())[0];
+            upperPosition = () -> UpdatedArmPositions.updatedArmPosMap.get(this.name())[1];
+            wristAngle = () -> UpdatedArmPositions.updatedArmPosMap.get(this.name())[2];
         }
     }
     // @formatter:on

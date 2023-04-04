@@ -35,6 +35,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
+        new UpdatedArmPositions();
         Logger logger = Logger.getInstance();
         // m_leds = LEDs.getInstance();
         // Record metadata
