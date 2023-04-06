@@ -587,12 +587,20 @@ public class OneMechanism {
             }
         }).alongWith(new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist));
     }
-
+ //TODO
     public static void signalAcquisition() {
         if(getCANdleMode() == CANdleMode.ACTIVE) {
             m_leds.blinkWhite().schedule();
         } else {
             m_leds.blinkBeaconWhiteAndRed().schedule();
         }
+    }
+
+    /**
+     * Get the forward-backward jerk of the robot.
+     * @return The Y direction jerk.
+     */
+    public static double getJerk() {
+        return m_drive.getJerk();
     }
 }

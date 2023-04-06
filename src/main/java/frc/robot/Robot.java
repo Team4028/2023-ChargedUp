@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -110,6 +111,8 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putBoolean("LOW", (OneMechanism.getScoringPosition() == ScoringPositions.SCORE_LOW_CONE || OneMechanism.getScoringPosition() == ScoringPositions.SCORE_LOW_CUBE));
         SmartDashboard.putBoolean("MID", (OneMechanism.getScoringPosition() == ScoringPositions.SCORE_MID_CONE || OneMechanism.getScoringPosition() == ScoringPositions.SCORE_MID_CUBE));
         SmartDashboard.putBoolean("HIGH", (OneMechanism.getScoringPosition() == ScoringPositions.SCORE_HIGH_CONE || OneMechanism.getScoringPosition() == ScoringPositions.SCORE_HIGH_CUBE));
+
+        SmartDashboard.putNumber("Jerk", OneMechanism.getJerk());
     }
 
     /** This function is called once when the robot is disabled. */

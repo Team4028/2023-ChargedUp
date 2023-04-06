@@ -357,6 +357,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
     @Override
     public void periodic() {
+        super.periodic();
+        
         updateOdometry();
         logData();
         SmartDashboard.putString("Snap Direction", m_snapDirection.name());

@@ -448,13 +448,13 @@ public class RobotContainer {
         // EMERGENCY - BUMP UPPER ARM IN
         // B
         // ================================================
-        m_emergencyController.b.onTrue(m_upperArm.changePositionCommand(-1.));
+        m_emergencyController.b.onTrue(m_upperArm.changePositionCommand(1.));
 
         // ================================================
         // EMERGENCY - BUMP UPPER ARM OUT
         // X
         // ================================================
-        m_emergencyController.x.onTrue(m_upperArm.changePositionCommand(1.));
+        m_emergencyController.x.onTrue(m_upperArm.changePositionCommand(-1.));
 
         // ================================================
         // EMERGENCY - BUMP WRIST DOWN
@@ -532,6 +532,9 @@ public class RobotContainer {
             new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Bottom),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
                 m_autons.TwoPieceBalance(PathPosition.Bottom)));
+
+        m_autoChooser.addOption("1 Piece Mobility Balance",
+            m_autons.OnePieceMobilityBalance());
 
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
     }

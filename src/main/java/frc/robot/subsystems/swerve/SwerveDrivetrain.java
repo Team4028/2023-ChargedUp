@@ -208,7 +208,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
         m_field.setRobotPose(getPoseMeters());
         SmartDashboard.putData(m_field);
 
-        SmartDashboard.putNumber("Pitch", getGyroRollRotation2d().getDegrees());
+        SmartDashboard.putNumber("Pitch", getGyroPitchRotation2d().getDegrees());
 
         SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getTurningEncoderRadians()));
         SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));

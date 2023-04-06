@@ -11,17 +11,22 @@ import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.GamePieceMode;
@@ -30,6 +35,7 @@ import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
+import frc.robot.commands.chassis.RotateDrivetrainContinuous;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -50,10 +56,10 @@ import frc.robot.utilities.Trajectories.PathPosition;
 public class Autons {
     // Auton Constants
     private static final double UPPER_ARM_OFFSET = 18.4;
-    private static final double LOWER_ARM_OFFSET = 0.86;
+    // private static final double LOWER_ARM_OFFSET = 0.86;
 
     // Global Subsystems -- initialized in the constructor
-    private final BeakDrivetrain m_drivetrain;
+    private final BeakSwerveDrivetrain m_drivetrain;
 
     private final LowerArm m_lowerArm;
     private final UpperArm m_upperArm;
@@ -75,7 +81,7 @@ public class Autons {
 
     // Subsystem & Event setup
     public Autons(
-        BeakDrivetrain drivetrain,
+        BeakSwerveDrivetrain drivetrain,
         LowerArm lowerArm,
         UpperArm upperArm,
         Wrist wrist,
@@ -171,6 +177,56 @@ public class Autons {
             m_stowCommand.get(),
 
             new InstantCommand(() -> OneMechanism.setScoreMode(false)));
+    }
+
+    /**
+     * Cool preload score sequence
+     * 
+     * @return A {@link Command} to do our cool new trick
+     */
+    public Command coolPreloadScoreSequence() {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
+            new InstantCommand(() -> OneMechanism.setClimbMode(false)),
+            OneMechanism.orangeModeCommand(),
+
+            new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+            new WaitCommand(0.1),
+            new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
+            new WaitCommand(0.07),
+
+            new WaitCommand(0.75).deadlineWith(OneMechanism.runArms(ScoringPositions.STOWED)));
+    }
+
+    // ================================================
+    // CHARGE STATION CUSTOM AUTOS
+    // ================================================
+    public BeakAutonCommand OnePieceMobilityBalance() {
+        LinearFilter filter = LinearFilter.movingAverage(6);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
+            new Pose2d(1.73, 2.76, new Rotation2d()),
+            coolPreloadScoreSequence().withTimeout(1.25),
+
+            // Drive fast until we hit the charge station
+            new WaitUntilCommand(() -> m_drivetrain.getJerk() > 0.8).deadlineWith(
+                new RunCommand(
+                    () -> m_drivetrain
+                        .drive(ChassisSpeeds.fromFieldRelativeSpeeds(2.25, 0., 0., m_drivetrain.getRotation2d())),
+                    m_drivetrain)),
+
+            // When the charge station first tips, drive until it's tipped the other way
+            new WaitUntilCommand(() -> {
+                double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
+                return average < -4;
+            })
+                .deadlineWith(
+                    new RunCommand(
+                        () -> m_drivetrain
+                            .drive(ChassisSpeeds.fromFieldRelativeSpeeds(1.2, 0., 0., m_drivetrain.getRotation2d())),
+                        m_drivetrain)));
+
+        return cmd;
     }
 
     // ================================================
@@ -292,7 +348,7 @@ public class Autons {
 
         return cmd;
     }
-    
+
     /**
      * Runs the two piece auton and parks near the next game piece.
      */

@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
@@ -50,6 +51,11 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     protected PIDController m_autonThetaController;
     protected PIDController m_driveController;
     protected PIDController m_generatedDriveController;
+
+    protected BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
+    protected double m_lastAccel = 0.;
+
+    protected double m_jerk = 0.;
 
     /**
      * Construct a new generic drivetrain.
@@ -396,5 +402,18 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      */
     public boolean isHolonomic() {
         return false;
+    }
+
+    /**
+     * Get the jerk
+     * @return todo
+     */
+    public double getJerk() {
+        return m_jerk;
+    }
+
+    @Override
+    public void periodic() {
+        m_jerk = (m_accelerometer.getY() - m_lastAccel);
     }
 }

@@ -7,8 +7,6 @@ package frc.lib.beaklib.drive;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.LoggedRobot;
-
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPRamseteCommand;
 
@@ -19,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -157,7 +156,7 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     public Pose2d updateOdometry(
         BeakMotorController frontLeftMotorController,
         BeakMotorController frontRightMotorController) {
-        if (LoggedRobot.isSimulation()) {
+        if (RobotBase.isSimulation()) {
             sim.setInputs(
                 frontRightMotorController.getOutputVoltage(),
                 frontLeftMotorController.getOutputVoltage());
