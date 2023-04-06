@@ -352,6 +352,10 @@ public class OneMechanism {
         }, m_leds);
     }
 
+    public static Command getModeCommand(GamePieceMode mode) {
+        return mode == GamePieceMode.ORANGE_CONE ? orangeModeCommand() : purpleModeCommand();
+    }
+
     // TODO: javadoc these
     public static void toggleScoreMode() {
         m_scoreMode = !m_scoreMode;

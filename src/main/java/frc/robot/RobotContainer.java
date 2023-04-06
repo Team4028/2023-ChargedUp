@@ -516,22 +516,20 @@ public class RobotContainer {
         m_autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
         m_autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
 
-        m_autoChooser.addOption("Test Balance", m_autons.TwoPieceBalance(PathPosition.Bottom));
-
         m_autoChooser.addOption("1 Cube Middle Balance",
-            m_autons.OnePieceBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
+            m_autons.OneBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
         m_autoChooser.addOption("1 Cone Middle Balance",
-            m_autons.OnePieceBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
+            m_autons.OneBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
 
         m_autoChooser.addOption("1 Piece Top Balance",
             new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Top),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
-                m_autons.TwoPieceBalance(PathPosition.Top)));
+                m_autons.Balance(PathPosition.Top, "2")));
 
         m_autoChooser.addOption("1 Piece Bottom Balance",
             new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Bottom),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
-                m_autons.TwoPieceBalance(PathPosition.Bottom)));
+                m_autons.Balance(PathPosition.Bottom, "2")));
 
         m_autoChooser.addOption("1 Piece Mobility Balance",
             m_autons.OnePieceMobilityBalance());

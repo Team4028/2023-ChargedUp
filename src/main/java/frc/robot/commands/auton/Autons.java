@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.filter.LinearFilter;
@@ -35,13 +36,13 @@ import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
-import frc.robot.commands.chassis.RotateDrivetrainContinuous;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.utilities.Trajectories;
+import frc.robot.utilities.Trajectories.PathPart;
 import frc.robot.utilities.Trajectories.PathPosition;
 
 /**
@@ -52,6 +53,22 @@ import frc.robot.utilities.Trajectories.PathPosition;
  * functions that construct an inline sequential command routine. Pickup,
  * scoring, and localization logic is all done through PathPlanner's event
  * support, though with a few exceptions.
+ * </p>
+ * 
+ * <p>
+ * I need to document all this architecture soon but here's a basic gist.
+ * </p>
+ * 
+ * <p>
+ * Auton paths are made and all named according to one scheme. Generally, there
+ * will be discrete sets of patterns within these paths (i.e. top, middle,
+ * bottom and score, acquire, balance). Thus, generic auton commands for each
+ * individual "action" (for 2023, score, acquire, and balance) are created.
+ * These generic commands can take in a position (bottom, middle, top).
+ * Additional logic can be added in as well. To make the final autons, generic
+ * paths are strung together, and sometimes additional logic is added to the
+ * mix.
+ * </p>
  */
 public class Autons {
     // Auton Constants
@@ -198,14 +215,52 @@ public class Autons {
             new WaitCommand(0.75).deadlineWith(OneMechanism.runArms(ScoringPositions.STOWED)));
     }
 
+    /**
+     * Get the proper scoring sequence for the beginning of auton.
+     * 
+     * @param mode
+     *            Whether a cube or cone is preloaded.
+     * @param scoreHigh
+     *            Whether to score the first piece high (true) or low (false)
+     * 
+     * @return A {@link Command} that runs the proper preload scoring sequence.
+     */
+    public Command getPreloadScoreSequence(GamePieceMode mode, boolean scoreHigh) {
+        return scoreHigh ? preloadScoreSequence(mode) : coolPreloadScoreSequence();
+    }
+
+    /**
+     * Load an auton path.
+     * 
+     * @param position
+     *            What position this path is in (flat, bump, station)
+     * @param part
+     *            What part of the auton this is (acquire, score, balance, park)
+     * @param pieceNum
+     *            What piece this path is acquiring or scoring (for balance, the
+     *            last piece scored)
+     * @param scoreHigh
+     *            Whether to score the preloaded game piece high or low.
+     * @param data
+     *            Any additional path data that may or may not be present.
+     * 
+     * @return The final trajectory.
+     */
+    public PathPlannerTrajectory loadPath(PathPosition position, PathPart part, String pieceNum, boolean scoreHigh,
+        String data) {
+        return PathPlanner.loadPath(
+            pieceNum + " " + position.name() + " " + part.name() + (data.isEmpty() ? "" : " " + data),
+            m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part),
+            m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part));
+    }
+
     // ================================================
     // CHARGE STATION CUSTOM AUTOS
     // ================================================
     public BeakAutonCommand OnePieceMobilityBalance() {
         LinearFilter filter = LinearFilter.movingAverage(6);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
-            new Pose2d(1.73, 2.76, new Rotation2d()),
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, new Pose2d(1.73, 2.76, new Rotation2d()),
             coolPreloadScoreSequence().withTimeout(1.25),
 
             // Drive fast until we hit the charge station
@@ -219,12 +274,25 @@ public class Autons {
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
                 return average < -4;
-            })
+            }).andThen(new WaitCommand(1.0))
                 .deadlineWith(
                     new RunCommand(
                         () -> m_drivetrain
                             .drive(ChassisSpeeds.fromFieldRelativeSpeeds(1.2, 0., 0., m_drivetrain.getRotation2d())),
-                        m_drivetrain)));
+                        m_drivetrain)),
+
+            // drive backwards and balance
+            new WaitUntilCommand(() -> {
+                double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
+                return average < -8;
+            }).deadlineWith(new RunCommand(
+                () -> m_drivetrain
+                    .drive(ChassisSpeeds.fromFieldRelativeSpeeds(-1.4, 0., 0., m_drivetrain.getRotation2d())),
+                m_drivetrain)),
+
+            new QuadraticAutoBalance(m_drivetrain)
+        //
+        );
 
         return cmd;
     }
@@ -233,12 +301,13 @@ public class Autons {
     // ONE PIECE AUTONS
     // ================================================
 
-    public BeakAutonCommand OnePieceBalance(PathPosition position, GamePieceMode preload) {
-        PathPlannerTrajectory traj = Trajectories.OnePieceBalance(m_drivetrain, position);
+    public BeakAutonCommand OneBalance(PathPosition position, GamePieceMode preload) {
+        PathPlannerTrajectory traj = loadPath(position, PathPart.Bal, "1", true, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
             position == PathPosition.Middle ? preloadScoreSequence(preload) : Commands.none(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+
             // BALANCE
             new WaitCommand(0.15),
             new QuadraticAutoBalance(m_drivetrain)
@@ -255,11 +324,11 @@ public class Autons {
      */
     public BeakAutonCommand OnePiece(PathPosition position) {
         // Score a piece, acquire a piece, then balance.
-        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.ORANGE_CONE, "2", true, true);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            OnePieceBalance(position, GamePieceMode.ORANGE_CONE)
+            OneBalance(position, GamePieceMode.ORANGE_CONE)
         //
         );
 
@@ -267,18 +336,35 @@ public class Autons {
     }
 
     // ================================================
-    // TWO PIECE AUTONS
+    // GENERIC & TWO PIECE AUTONS
     // ================================================
 
-    public BeakAutonCommand TwoPieceAcquire(PathPosition position) {
-        // The Trajectories class lets you pass in a position, and that position will be
-        // used to choose the path to load.
-        PathPlannerTrajectory traj = Trajectories.TwoPieceAcquirePiece(m_drivetrain, position);
+    /**
+     * Generic piece acquiring path.
+     * 
+     * @param position
+     *            The position of this path.
+     * @param mode
+     *            Whether to switch to cone or cube mode before acquiring.
+     * @param pieces
+     *            The piece number of this path.
+     * @param initialPath
+     *            Whether or not this is the first path in the auton.
+     * @param scoreHigh
+     *            Whether to score the preloaded game piece high or low.
+     * 
+     * @return A @{@link BeakAutonCommand} to run the acquire path.
+     * 
+     * @see Trajectories
+     */
+    public BeakAutonCommand Acquire(PathPosition position, GamePieceMode mode, String pieces, boolean initialPath,
+        boolean scoreHigh) {
+        PathPlannerTrajectory traj = loadPath(position, PathPart.Acquire, pieces, scoreHigh, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            preloadScoreSequence(GamePieceMode.ORANGE_CONE),
+            initialPath ? getPreloadScoreSequence(GamePieceMode.ORANGE_CONE, scoreHigh) : Commands.none(),
 
-            OneMechanism.purpleModeCommand(),
+            OneMechanism.getModeCommand(mode),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
@@ -286,8 +372,20 @@ public class Autons {
         return cmd;
     }
 
-    public BeakAutonCommand TwoPieceScore(PathPosition position) {
-        PathPlannerTrajectory traj = Trajectories.TwoPieceScorePiece(m_drivetrain, position);
+    /**
+     * Generic piece scoring path.
+     * 
+     * @param position
+     *            The position of this path.
+     * @param pieces
+     *            The piece number of this path.
+     * @param park
+     *            Whether to park at the end or actually score the piece.
+     * 
+     * @return A {@link BeakAutonCommand} to run the score path.
+     */
+    public BeakAutonCommand Score(PathPosition position, String pieces, boolean park) {
+        PathPlannerTrajectory traj = loadPath(position, PathPart.Score, pieces, false, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             new InstantCommand(() -> OneMechanism.setScoreMode(true)),
@@ -308,20 +406,20 @@ public class Autons {
     public BeakAutonCommand TwoPiece(PathPosition position, boolean balance) {
         // Acquire and Score already have existing paths, so the full two piece is
         // simply a combination of the two.
-        BeakAutonCommand initialPath = TwoPieceAcquire(position);
+        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.ORANGE_CONE, "2", true, true);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            TwoPieceScore(position),
-            balance ? TwoPieceBalance(position) : Commands.none()
+            Score(position, "2", false),
+            balance ? Balance(position, "2") : Commands.none()
         //
         );
 
         return cmd;
     }
 
-    public BeakAutonCommand TwoPieceBalance(PathPosition position) {
-        PathPlannerTrajectory traj = Trajectories.TwoPieceBalance(m_drivetrain, position);
+    public BeakAutonCommand Balance(PathPosition position, String pieces) {
+        PathPlannerTrajectory traj = loadPath(position, PathPart.Bal, pieces, false, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj.getInitialHolonomicPose(),
             new InstantCommand(() -> OneMechanism.setClimbMode(true)),
@@ -368,37 +466,6 @@ public class Autons {
     // THREE PIECE AUTONS
     // ================================================
 
-    public BeakAutonCommand ThreePieceAcquire(PathPosition position) {
-        PathPlannerTrajectory traj = Trajectories.ThreePieceAcquirePiece(m_drivetrain, position);
-
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            OneMechanism.orangeModeCommand(),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
-        //
-        );
-
-        return cmd;
-    }
-
-    public BeakAutonCommand ThreePieceScore(PathPosition position) {
-        PathPlannerTrajectory traj = Trajectories.ThreePieceScorePiece(m_drivetrain, position);
-
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
-            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
-
-            // The arms start going to the high scoring position at the end of the path.
-            new WaitUntilCommand(m_upperArmExtended),
-            // m_gripper.runMotorOut().withTimeout(0.4),
-
-            m_stowCommand.get(),
-            new InstantCommand(() -> OneMechanism.setScoreMode(false))
-        //
-        );
-
-        return cmd;
-    }
-
     public BeakAutonCommand ThreePiece(PathPosition position, boolean balance) {
         // The Three Piece paths are made to continue off of the two piece path. Rather
         // than doing everything again, we simply run the two piece auton and continue
@@ -407,11 +474,13 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            ThreePieceAcquire(position),
+            Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false),
+
             m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
                 .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
             new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
-            ThreePieceScore(position)
+
+            Score(position, "3", false)
         //
         );
 
