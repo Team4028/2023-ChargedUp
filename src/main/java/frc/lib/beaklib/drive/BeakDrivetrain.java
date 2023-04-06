@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
+import frc.lib.beaklib.units.Acceleration;
 import frc.lib.beaklib.units.AngularVelocity;
 import frc.lib.beaklib.units.Distance;
 import frc.lib.beaklib.units.Velocity;
@@ -37,6 +38,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
 
     protected Velocity m_maxVelocity;
     protected AngularVelocity m_maxAngularVelocity;
+    protected Acceleration m_maxAccel;
 
     protected Distance m_trackWidth;
     protected Distance m_wheelBase;
@@ -80,9 +82,12 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         super(gyroInverted);
         m_maxVelocity = physics.maxVelocity;
         m_maxAngularVelocity = physics.maxAngularVelocity;
+        m_maxAccel = physics.maxAccel;
+
         m_trackWidth = physics.trackWidth;
         m_wheelBase = physics.wheelBase;
         m_wheelDiameter = physics.wheelDiameter;
+
         m_gearRatio = physics.driveGearRatio;
         m_feedForward = physics.feedforward;
 
@@ -118,6 +123,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         return new RobotPhysics(
             m_maxVelocity,
             m_maxAngularVelocity,
+            m_maxAccel,
             m_trackWidth,
             m_wheelBase,
             m_wheelDiameter,

@@ -153,11 +153,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         logger.recordOutput("Swerve/Module Angles", getModuleAngles());
     }
 
-    // TODO: Put the runpath, etc. commands into BeakLib.
     public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
-        // return new RunPath(traj, this).andThen(new InstantCommand(() -> this.drive(0,
-        // 0, 0, false)));
-
         Command pathFollowingCommand = new PPSwerveControllerCommand(
             traj,
             this::getPoseMeters,

@@ -11,6 +11,7 @@ import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
 import frc.lib.beaklib.drive.swerve.SwerveDrivetrainConfiguration;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
 import frc.lib.beaklib.gyro.BeakPigeon2;
+import frc.lib.beaklib.units.Acceleration;
 import frc.lib.beaklib.units.AngularVelocity;
 import frc.lib.beaklib.units.Distance;
 import frc.lib.beaklib.units.Velocity;
@@ -79,6 +80,7 @@ public class CharlotteSwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
 
     private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
+    private static final Acceleration MAX_ACCEL = Acceleration.fromFeetPerSecondSquared(16.3);
 
     // distance from the right to left wheels on the robot
     private static final Distance TRACK_WIDTH = Distance.fromInches(26.);
@@ -88,6 +90,7 @@ public class CharlotteSwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final RobotPhysics PHYSICS = new RobotPhysics(
         MAX_VELOCITY,
         new AngularVelocity(),
+        MAX_ACCEL,
         TRACK_WIDTH,
         WHEEL_BASE,
         CONFIGURATION.wheelDiameter,

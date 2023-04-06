@@ -35,6 +35,7 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories;
+import frc.robot.utilities.Trajectories.PathPart;
 import frc.robot.utilities.Trajectories.PathPosition;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
@@ -388,13 +389,13 @@ public class RobotContainer {
         BooleanSupplier angleInterrupt = m_driverController.rs;
 
         m_operatorController.dpadUp.toggleOnTrue(new KeepAngle(
-            SnapDirection.UP, xSupplier, ySupplier, angleInterrupt, m_drive));
+            SnapDirection.UP, xSupplier, ySupplier, angleInterrupt, true, m_drive));
         m_operatorController.dpadLeft.toggleOnTrue(new KeepAngle(
-            SnapDirection.LEFT, xSupplier, ySupplier, angleInterrupt, m_drive));
+            SnapDirection.LEFT, xSupplier, ySupplier, angleInterrupt, true, m_drive));
         m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
-            SnapDirection.DOWN, xSupplier, ySupplier, angleInterrupt, m_drive));
+            SnapDirection.DOWN, xSupplier, ySupplier, angleInterrupt, true, m_drive));
         m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
-            SnapDirection.RIGHT, xSupplier, ySupplier, angleInterrupt, m_drive));
+            SnapDirection.RIGHT, xSupplier, ySupplier, angleInterrupt, true, m_drive));
 
         // ===============================================
         // EMERGENCY CONTROLLER
@@ -522,12 +523,12 @@ public class RobotContainer {
             m_autons.OneBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
 
         m_autoChooser.addOption("1 Piece Top Balance",
-            new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Top),
+            new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Top, "2").getInitialPose(),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
                 m_autons.Balance(PathPosition.Top, "2")));
 
         m_autoChooser.addOption("1 Piece Bottom Balance",
-            new BeakAutonCommand(m_drive, Trajectories.TwoPieceBalance(m_drive, PathPosition.Bottom),
+            new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Bottom, "2").getInitialPose(),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
                 m_autons.Balance(PathPosition.Bottom, "2")));
 

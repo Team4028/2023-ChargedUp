@@ -23,20 +23,18 @@ public class Trajectories {
         Top(0.6, 0.6, 0.75); // Short side
 
         /**
-         * What to multiply the max speed and acceleration of paths that acquire pieces
-         * by.
+         * What to multiply the max speed of paths that acquire pieces by.
          */
         public double acquireMultiplier;
 
         /**
-         * What to multiply the max speed and acceleration of paths that score pieces
-         * by.
+         * What to multiply the max speed of paths that score pieces by.
          */
         public double scoreMultiplier;
 
         /**
-         * What to multiply the max speed and acceleration of paths that balance on the
-         * charge station by.
+         * What to multiply the max speed of paths that balance on the charge station
+         * by.
          */
         public double balanceMultiplier;
 
@@ -78,70 +76,79 @@ public class Trajectories {
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
     }
 
-    // Since all autons use the same naming scheme, we can use a generic function to load all paths.
+    // Since all autons use the same naming scheme, we can use a generic function to
+    // load all paths.
 
     /**
      * Load an auton path.
      * 
-     * @param drivetrain    The drivetrain to use.
-     * @param position      What position this path is in (flat, bump, station)
-     * @param part          What part of the auton this is (acquire, score, balance, park)
-     * @param pieceNum      What piece this path is acquiring or scoring (for balance, the last piece scored)
-     * @param scoreHigh     Whether to score the preloaded game piece high or low.
-     * @param data          Any additional path data that may or may not be present.
+     * @param drivetrain
+     *            The drivetrain to use.
+     * @param position
+     *            What position this path is in (flat, bump, station)
+     * @param part
+     *            What part of the auton this is (acquire, score, balance, park)
+     * @param pieceNum
+     *            What piece this path is acquiring or scoring (for balance, the
+     *            last piece scored)
+     * @param scoreHigh
+     *            Whether to score the preloaded game piece high or low.
+     * @param data
+     *            Any additional path data that may or may not be present.
      * 
      * @return The final trajectory.
      */
     public static PathPlannerTrajectory loadPath(BeakDrivetrain drivetrain, PathPosition position, PathPart part,
         String pieceNum, boolean scoreHigh, String data) {
-        return PathPlanner.loadPath(pieceNum + " " + position.name() + " " + part.name() + (data.isEmpty() || data == null ? "" : " " + data),
+        return PathPlanner.loadPath(
+            pieceNum + " " + position.name() + " " + part.name() + (data.isEmpty() || data == null ? "" : " " + data),
             drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part),
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part));
+            drivetrain.getPhysics().maxAccel.getAsMetersPerSecondSquared());
     }
 
-    public static PathPlannerTrajectory OnePieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
-        // All autons are named with the same scheme. We multiply the max speed of the
-        // drivetrain by the position's desired multiplier to ensure that each position
-        // can run at the necessary speed.
+    // public static PathPlannerTrajectory OnePieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
+    //     // All autons are named with the same scheme. We multiply the max speed of the
+    //     // drivetrain by the position's desired multiplier to ensure that each position
+    //     // can run at the necessary speed.
 
-        return PathPlanner.loadPath("1 " + position.name() + " Bal",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
-    }
+    //     return PathPlanner.loadPath("1 " + position.name() + " Bal",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
+    // }
 
-    public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2 Piece " + position.name() + " Balance",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
-    }
+    // public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
+    //     return PathPlanner.loadPath("2 Piece " + position.name() + " Balance",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
+    // }
 
-    public static PathPlannerTrajectory TwoPieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2 Piece " + position.name() + " Acquire Piece",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
-    }
+    // public static PathPlannerTrajectory TwoPieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
+    //     return PathPlanner.loadPath("2 Piece " + position.name() + " Acquire Piece",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
+    // }
 
-    public static PathPlannerTrajectory TwoPieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2 Piece " + position.name() + " Score Piece",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
-    }
+    // public static PathPlannerTrajectory TwoPieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
+    //     return PathPlanner.loadPath("2 Piece " + position.name() + " Score Piece",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
+    // }
 
-    public static PathPlannerTrajectory ThreePieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("3 Piece " + position.name() + " Acquire Piece",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
-    }
+    // public static PathPlannerTrajectory ThreePieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
+    //     return PathPlanner.loadPath("3 Piece " + position.name() + " Acquire Piece",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
+    // }
 
-    public static PathPlannerTrajectory ThreePieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("3 Piece " + position.name() + " Score Piece",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
-    }
+    // public static PathPlannerTrajectory ThreePieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
+    //     return PathPlanner.loadPath("3 Piece " + position.name() + " Score Piece",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
+    // }
 
-    public static PathPlannerTrajectory TwoQuarterPiecePark(BeakDrivetrain drivetrain, PathPosition position) {
-        return PathPlanner.loadPath("2.25 Piece " + position.name() + " Park",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
-    }
+    // public static PathPlannerTrajectory TwoQuarterPiecePark(BeakDrivetrain drivetrain, PathPosition position) {
+    //     return PathPlanner.loadPath("2.25 Piece " + position.name() + " Park",
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
+    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
+    // }
 }

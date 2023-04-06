@@ -17,14 +17,18 @@ import frc.robot.OneMechanism;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class KeepAngle extends PIDCommand {
-    private BooleanSupplier m_interruptCondition;
-    private BeakSwerveDrivetrain m_drivetrain;
+    private final BooleanSupplier m_interruptCondition;
+    private final BeakSwerveDrivetrain m_drivetrain;
+
+    private final boolean m_updateBeacon;
+
     /** Creates a new KeepAngle. */
     public KeepAngle(
         SnapDirection target,
         DoubleSupplier xSupplier,
         DoubleSupplier ySupplier,
         BooleanSupplier interruptCondition,
+        boolean updateBeacon,
         BeakSwerveDrivetrain drivetrain) {
         super(
             // The controller that the command will use
@@ -40,27 +44,33 @@ public class KeepAngle extends PIDCommand {
             output -> {
                 // Use the output here
                 drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-                        xSupplier.getAsDouble(),
-                        ySupplier.getAsDouble(),
-                        output,
-                        drivetrain.getRotation2d()));
+                    xSupplier.getAsDouble(),
+                    ySupplier.getAsDouble(),
+                    output,
+                    drivetrain.getRotation2d()));
             });
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(drivetrain);
 
         // Configure additional PID options by calling `getController` here.
         getController().enableContinuousInput(-Math.PI, Math.PI);
-        
-        drivetrain.setSnapDirection(target);
-        
+
+        if (updateBeacon) {
+            drivetrain.setSnapDirection(target);
+        }
+
         m_drivetrain = drivetrain;
         m_interruptCondition = interruptCondition;
+        m_updateBeacon = updateBeacon;
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        OneMechanism.setSnappedMode(true);
+
+        if (m_updateBeacon) {
+            OneMechanism.setSnappedMode(true);
+        }
     }
 
     // Returns true when the command should end.
@@ -68,11 +78,14 @@ public class KeepAngle extends PIDCommand {
     public boolean isFinished() {
         return m_interruptCondition.getAsBoolean();
     }
-    
+
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
-        OneMechanism.setSnappedMode(false);
-        m_drivetrain.setSnapDirection(SnapDirection.NONE);
+
+        if (m_updateBeacon) {
+            OneMechanism.setSnappedMode(false);
+            m_drivetrain.setSnapDirection(SnapDirection.NONE);
+        }
     }
 }

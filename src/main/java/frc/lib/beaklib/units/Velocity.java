@@ -51,7 +51,7 @@ public class Velocity {
      */
     public static Velocity fromMilesPerHour(double mph) {
         /* Converts to feet per second first. */
-        return new Velocity(Units.feetToMeters(mph / 5280. / 3600.));
+        return new Velocity(Units.feetToMeters(mph * 5280. / 3600.));
     }
 
     /**
@@ -87,6 +87,6 @@ public class Velocity {
      */
     public double getAsMilesPerHour() {
         /* Convert to feet per hour first. */
-        return Units.metersToFeet(m_velocity * 3600.) * 5280.;
+        return Units.metersToFeet(m_velocity * 3600.) / 5280.;
     }
 }

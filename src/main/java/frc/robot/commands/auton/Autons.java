@@ -15,25 +15,21 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
 import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
+import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
 import frc.robot.subsystems.Vision;
@@ -212,7 +208,8 @@ public class Autons {
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
-            new WaitCommand(0.75).deadlineWith(OneMechanism.runArms(ScoringPositions.STOWED)));
+            new WaitCommand(0.75)
+                .raceWith(OneMechanism.runArms(ScoringPositions.STOWED).andThen(new WaitCommand(0.5))));
     }
 
     /**
@@ -265,10 +262,7 @@ public class Autons {
 
             // Drive fast until we hit the charge station
             new WaitUntilCommand(() -> m_drivetrain.getJerk() > 0.8).deadlineWith(
-                new RunCommand(
-                    () -> m_drivetrain
-                        .drive(ChassisSpeeds.fromFieldRelativeSpeeds(2.25, 0., 0., m_drivetrain.getRotation2d())),
-                    m_drivetrain)),
+                new KeepAngle(SnapDirection.DOWN, () -> 2.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // When the charge station first tips, drive until it's tipped the other way
             new WaitUntilCommand(() -> {
@@ -276,19 +270,14 @@ public class Autons {
                 return average < -4;
             }).andThen(new WaitCommand(1.0))
                 .deadlineWith(
-                    new RunCommand(
-                        () -> m_drivetrain
-                            .drive(ChassisSpeeds.fromFieldRelativeSpeeds(1.2, 0., 0., m_drivetrain.getRotation2d())),
-                        m_drivetrain)),
+                    new KeepAngle(SnapDirection.DOWN, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // drive backwards and balance
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
                 return average < -8;
-            }).deadlineWith(new RunCommand(
-                () -> m_drivetrain
-                    .drive(ChassisSpeeds.fromFieldRelativeSpeeds(-1.4, 0., 0., m_drivetrain.getRotation2d())),
-                m_drivetrain)),
+            }).andThen(new WaitCommand(0.5)).deadlineWith(
+                new KeepAngle(SnapDirection.DOWN, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
 
             new QuadraticAutoBalance(m_drivetrain)
         //
@@ -301,6 +290,7 @@ public class Autons {
     // ONE PIECE AUTONS
     // ================================================
 
+    // SUBJECT TO REMOVAL
     public BeakAutonCommand OneBalance(PathPosition position, GamePieceMode preload) {
         PathPlannerTrajectory traj = loadPath(position, PathPart.Bal, "1", true, "");
 
@@ -336,7 +326,7 @@ public class Autons {
     }
 
     // ================================================
-    // GENERIC & TWO PIECE AUTONS
+    // GENERIC AUTON PATHS
     // ================================================
 
     /**
@@ -403,21 +393,16 @@ public class Autons {
         return cmd;
     }
 
-    public BeakAutonCommand TwoPiece(PathPosition position, boolean balance) {
-        // Acquire and Score already have existing paths, so the full two piece is
-        // simply a combination of the two.
-        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.ORANGE_CONE, "2", true, true);
-
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            Score(position, "2", false),
-            balance ? Balance(position, "2") : Commands.none()
-        //
-        );
-
-        return cmd;
-    }
-
+    /**
+     * Run a charge station balance path.
+     * 
+     * @param position
+     *            The position of this path.
+     * @param pieces
+     *            The piece number of this path.
+     * 
+     * @return A {@link BeakAutonCommand} to run the balance path.
+     */
     public BeakAutonCommand Balance(PathPosition position, String pieces) {
         PathPlannerTrajectory traj = loadPath(position, PathPart.Bal, pieces, false, "");
 
@@ -434,11 +419,37 @@ public class Autons {
     }
 
     // ================================================
-    // 2.25 PIECE AUTONS
+    // AUTON SEQUENCES
     // ================================================
 
+    /**
+     * Two piece path.
+     * 
+     * @param position
+     *            The position of this path.
+     * @param balance
+     *            Whether or not to run a balance sequence at the end of this path.
+     * 
+     * @return A {@link BeakAutonCommand} to run the two piece path.
+     */
+    public BeakAutonCommand TwoPiece(PathPosition position, boolean balance) {
+        // Acquire and Score already have existing paths, so the full two piece is
+        // simply a combination of the two.
+        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.ORANGE_CONE, "2", true, true);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            Score(position, "2", false),
+            balance ? Balance(position, "2") : Commands.none()
+        //
+        );
+
+        return cmd;
+    }
+
+    // SUBJECT TO REMOVAL
     public BeakAutonCommand TwoQuarterPiecePark(PathPosition position) {
-        PathPlannerTrajectory traj = Trajectories.TwoQuarterPiecePark(m_drivetrain, position);
+        PathPlannerTrajectory traj = loadPath(position, PathPart.Park, "2.25", false, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap) //
@@ -462,10 +473,16 @@ public class Autons {
         return cmd;
     }
 
-    // ================================================
-    // THREE PIECE AUTONS
-    // ================================================
-
+    /**
+     * Three piece path.
+     * 
+     * @param position
+     *            The position of this path.
+     * @param balance
+     *            Whether or not to run a balance sequence at the end of this path.
+     * 
+     * @return A {@link BeakAutonCommand} to run the two piece path.
+     */
     public BeakAutonCommand ThreePiece(PathPosition position, boolean balance) {
         // The Three Piece paths are made to continue off of the two piece path. Rather
         // than doing everything again, we simply run the two piece auton and continue
@@ -491,17 +508,20 @@ public class Autons {
     // THIS IS NOT REAL
     // ================================================
 
-    public BeakAutonCommand JPath1() {
-        // example
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, Trajectories.JPath1(m_drivetrain),
-            m_drivetrain.getTrajectoryCommand(Trajectories.JPath1(m_drivetrain), m_eventMap),
-            new WaitCommand(0.1),
-            m_drivetrain.generatePath(() -> m_frontAprilTagVision.getTargetPose(m_drivetrain.getPoseMeters(),
-                new Transform3d(new Translation3d(Units.inchesToMeters(54.),
-                    Units.inchesToMeters(-0.), 0.),
-                    new Rotation3d()))) // 54 inches away from target
-        );
+    // public BeakAutonCommand JPath1() {
+    // // example
+    // BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
+    // Trajectories.JPath1(m_drivetrain),
+    // m_drivetrain.getTrajectoryCommand(Trajectories.JPath1(m_drivetrain),
+    // m_eventMap),
+    // new WaitCommand(0.1),
+    // m_drivetrain.generatePath(() ->
+    // m_frontAprilTagVision.getTargetPose(m_drivetrain.getPoseMeters(),
+    // new Transform3d(new Translation3d(Units.inchesToMeters(54.),
+    // Units.inchesToMeters(-0.), 0.),
+    // new Rotation3d()))) // 54 inches away from target
+    // );
 
-        return cmd;
-    }
+    // return cmd;
+    // }
 }

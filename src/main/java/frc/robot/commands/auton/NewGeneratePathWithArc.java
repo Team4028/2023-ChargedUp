@@ -75,6 +75,7 @@ public class NewGeneratePathWithArc extends CommandBase {
             () -> m_driveController.calculate(m_currentPose, m_setpoint).vxMetersPerSecond,
             () -> m_driveController.calculate(m_currentPose, m_setpoint).vyMetersPerSecond,
             () -> isFinished(),
+            true,
             drivetrain);
 
         // Use addRequirements() here to declare subsystem dependencies.
