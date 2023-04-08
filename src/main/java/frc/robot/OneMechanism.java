@@ -596,7 +596,7 @@ public class OneMechanism {
         if(getCANdleMode() == CANdleMode.ACTIVE) {
             m_leds.blinkWhite().schedule();
         } else {
-            m_leds.blinkBeaconWhiteAndRed().schedule();
+            m_leds.blinkBeaconWhite().schedule();
         }
     }
 

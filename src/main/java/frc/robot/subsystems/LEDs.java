@@ -43,6 +43,7 @@ public class LEDs extends SubsystemBase {
 
     private CANdleMode m_currentMode;
     private Color m_color, m_lastColor;
+    private Color m_beaconColor = Color.RED;
 
     // We need to be able to update animations on-the-fly for color changes.
     private final List<Supplier<Animation>> m_currentAnimations;
@@ -184,19 +185,23 @@ public class LEDs extends SubsystemBase {
             new InstantCommand(() -> setColor(m_lastColor)));
     }
 
-    public SequentialCommandGroup blinkBeaconWhiteAndRed() {
+    public SequentialCommandGroup blinkBeaconWhite() {
+        Color m_lastBeaconColor = OneMechanism.getBeaconState() ? m_beaconColor : Color.OFF;
         return new SequentialCommandGroup(
             new InstantCommand(() -> setBeaconColor(Color.WHITE)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeaconColor(Color.RED)),
+            new InstantCommand(() -> setBeaconColor(m_lastBeaconColor)),
             new WaitCommand(0.02),
             new InstantCommand(() -> setBeaconColor(Color.WHITE)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeaconColor(Color.RED)),
+            new InstantCommand(() -> setBeaconColor(m_lastBeaconColor)),
             new WaitCommand(0.02),
             new InstantCommand(() -> setBeaconColor(Color.WHITE)),
             new WaitCommand(0.02),
-            new InstantCommand(() -> setBeaconColor(Color.RED)));
+            new InstantCommand(() -> {
+                setBeaconColor(m_lastBeaconColor);
+                setBeaconState(m_lastBeaconColor != Color.OFF);
+            }));
     }
 
     /**
@@ -228,6 +233,8 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setBeaconColor(Color color) {
+        setBeaconState(true);
+        m_beaconColor = color;
         m_candle.setLEDs(color.r, color.g, color.b, 0, 8, 8);
         m_candle.setLEDs(color.r, color.g, color.b, 0, NUM_LEDS - 8, 8);
     }
