@@ -109,6 +109,10 @@ public abstract class Arm extends SubsystemBase {
         return (() -> atTargetPosition());
     }
 
+    public BooleanSupplier isReady() {
+        return (() -> this.getError() < 0.75 * this.m_distanceToTravel);
+    }
+
     public double getError() {
         return Math.abs(this.getEncoderPosition() - m_targetPosition);
     }

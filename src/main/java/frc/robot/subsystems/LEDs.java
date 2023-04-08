@@ -260,8 +260,24 @@ public class LEDs extends SubsystemBase {
             m_currentAnimations.set(1,
                 () -> OneMechanism.getBeaconState() ? new SingleFadeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.8,
                     STRIP_LENGTH + 1, STRIP_LENGTH + 8) : null);
+        } else {
+            if(m_currentMode != CANdleMode.ACTIVE) {
+                switch (m_currentMode) {
+                    case SLIDE: 
+                        setSlide();
+                        break;
+                    case VICTORY_SPIN:
+                        setVictorySpin();
+                        break;
+                    case FIRE:
+                        setFireWorkPlz();
+                        break;
+                    default:
+                        setIdle();
+                        break;
+                }
+            }
         }
-
     }
 
     public boolean getFade() {

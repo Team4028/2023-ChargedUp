@@ -7,6 +7,7 @@ package frc.robot.commands.arm;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
@@ -31,25 +32,17 @@ public class RunArmsWithPID extends SequentialCommandGroup {
                 // Then waits a period based on the distance needed to travel
                 // and then begins extending the upper arm.
                 new RunArmPID(targetPos.lowerPosition, lowerArm)
-                    .until(() -> lowerArm.getError() < .40 * lowerArm.getDistanceToTravel())
-                    /*
-                     * .alongWith(new SuppliedWaitCommand(() -> lowerArm.getDistanceToTravel() /
-                     * Constants.ArmConstants.EXTEND_COEFFICIENT)
-                     */
-                    .andThen(new RunArmPID(targetPos.upperPosition, upperArm)
-                        .alongWith(wrist.runToAngle(targetPos.wristAngle))),
+                    .alongWith(new WaitUntilCommand(lowerArm.isReady())
+                        .andThen(new RunArmPID(targetPos.upperPosition, upperArm)
+                        .alongWith(wrist.runToAngle(targetPos.wristAngle)))),
                 // RETRACTING COMMAND
                 // Begins retracting upper arm,
                 // Then waits a period based on the distance needed to travel
                 // and then begins retracting the lower arm.
-                (new RunArmPID(targetPos.upperPosition, upperArm)
-                    .until(() -> upperArm.getError() < .40 * upperArm.getDistanceToTravel()))
-                        .raceWith(wrist.runToAngle(targetPos.wristAngle))
-                        /*
-                         * .alongWith(new SuppliedWaitCommand(() -> upperArm.getDistanceToTravel() /
-                         * Constants.ArmConstants.RETRACT_COEFFICIENT)
-                         */
-                        .andThen(new RunArmPID(targetPos.lowerPosition, lowerArm)),
+                new RunArmPID(targetPos.upperPosition, upperArm)
+                    .raceWith(wrist.runToAngle(targetPos.wristAngle))
+                    .alongWith(new WaitUntilCommand(upperArm.isReady())
+                        .andThen(new RunArmPID(targetPos.lowerPosition, lowerArm))),
                 () -> targetPos.lowerPosition > lowerArm.getEncoderPosition()),
             new InstantCommand(() -> OneMechanism.setScoringPosition(targetPos)));
         addRequirements(upperArm, lowerArm, wrist);
