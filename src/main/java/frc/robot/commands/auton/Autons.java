@@ -27,7 +27,6 @@ import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
-import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
@@ -111,31 +110,36 @@ public class Autons {
         m_frontAprilTagVision = frontAprilTagVision;
         m_rearAprilTagVision = rearAprilTagVision;
 
-        m_upperArmStowed = () -> (m_upperArm.getError() <= 16.0);
+        m_upperArmStowed = () -> (m_upperArm.getError() <= 0.6 * m_upperArm.getDistanceToTravel());
         m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25);
 
-        m_stowCommand = () -> new SequentialCommandGroup(
-            new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
+        m_stowCommand = () -> OneMechanism.runArms(ScoringPositions.STOWED).until(m_upperArmStowed);
+        // shouldnt be needed?
+        // m_stowCommand = () -> new SequentialCommandGroup(
+        //     new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
+        //         .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
 
-            // Run the lower arm down but immediately end it.
-            new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() -> true));
+        //     // Run the lower arm down but immediately end it.
+        //     new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() -> true));
 
-        m_cubeExtendCommand = () -> new SequentialCommandGroup(
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
-                .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
+        m_cubeExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE).until(m_upperArmExtended);
+        // shouldnt be needed?
+        // m_cubeExtendCommand = () -> new SequentialCommandGroup(
+        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
+        //         .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
 
-            // Run until the upper arm is "almost" there
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
+        //     // Run until the upper arm is "almost" there
+        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
+        //         .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
 
-        m_coneExtendCommand = () -> new SequentialCommandGroup(
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
-                .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
+        m_coneExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE).until(m_upperArmExtended);
+        // m_coneExtendCommand = () -> new SequentialCommandGroup(
+        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
+        //         .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
 
-            // Run until the upper arm is "almost" there
-            new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
-                .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
+        //     // Run until the upper arm is "almost" there
+        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
+        //         .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.

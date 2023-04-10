@@ -34,8 +34,6 @@ import frc.robot.commands.chassis.XDrive;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
-import frc.robot.utilities.Trajectories;
-import frc.robot.utilities.Trajectories.PathPart;
 import frc.robot.utilities.Trajectories.PathPosition;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
