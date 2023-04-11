@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
@@ -31,6 +32,8 @@ import frc.robot.commands.chassis.FullFieldLocalize;
 import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.XDrive;
+import frc.robot.commands.vision.LimelightDrive;
+import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -280,7 +283,8 @@ public class RobotContainer {
         BooleanSupplier nodeInterrupt = () -> Math.abs(speedScaledDriverLeftX()) > 0.1 ||
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
-        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
+        // m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
+        m_driverController.dpadDown.onTrue(new LimelightSquare(m_drive).andThen(new LimelightDrive(m_drive)));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
@@ -534,6 +538,8 @@ public class RobotContainer {
             m_autons.OnePieceMobilityBalance());
 
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
+
+        // m_autoChooser.addOption("Cool preload sequence", new BeakAutonCommand(m_drive, new Pose2d(), m_autons.coolPreloadScoreSequence()));
     }
 
     public double speedScaledDriverLeftY() {
@@ -577,6 +583,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
+        // return m_autons.coolPreloadScoreSequence().andThen(new RunCommand(() -> m_drive.drive(new Chassis)).withTimeout(2.0));
         return m_autoChooser.get().resetPoseAndRun();
     }
 }

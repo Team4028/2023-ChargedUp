@@ -25,7 +25,7 @@ public abstract class Arm extends SubsystemBase {
     public static final double RETRACT_COEFFICIENT = 156.58;
     public static final double EXTEND_WAIT_INTERVAL = 0.2;
     public static final double RETRACT_WAIT_INTERVAL = 0.4;
-    protected static final double OPEN_LOOP_RAMP_RATE = 0.5;
+    protected static final double OPEN_LOOP_RAMP_RATE = 0.1;
     protected static final double RAMP_RATE = 0.25;
 
     protected SparkMaxPIDController m_pid;

@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -27,6 +28,7 @@ import frc.robot.Constants;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
+import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
@@ -116,30 +118,31 @@ public class Autons {
         m_stowCommand = () -> OneMechanism.runArms(ScoringPositions.STOWED).until(m_upperArmStowed);
         // shouldnt be needed?
         // m_stowCommand = () -> new SequentialCommandGroup(
-        //     new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
-        //         .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
+        // new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
+        // .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
 
-        //     // Run the lower arm down but immediately end it.
-        //     new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() -> true));
+        // // Run the lower arm down but immediately end it.
+        // new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() ->
+        // true));
 
         m_cubeExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE).until(m_upperArmExtended);
         // shouldnt be needed?
         // m_cubeExtendCommand = () -> new SequentialCommandGroup(
-        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
-        //         .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
+        // new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
+        // .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
 
-        //     // Run until the upper arm is "almost" there
-        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
-        //         .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
+        // // Run until the upper arm is "almost" there
+        // new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
+        // .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
 
         m_coneExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE).until(m_upperArmExtended);
         // m_coneExtendCommand = () -> new SequentialCommandGroup(
-        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
-        //         .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
+        // new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
+        // .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
 
-        //     // Run until the upper arm is "almost" there
-        //     new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
-        //         .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
+        // // Run until the upper arm is "almost" there
+        // new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
+        // .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
@@ -208,12 +211,27 @@ public class Autons {
             OneMechanism.orangeModeCommand(),
 
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
-            new WaitCommand(0.07),
+            new InstantCommand(() -> m_lowerArm.setEncoderPosition(0.)),
+            new WaitCommand(0.02),
+            new InstantCommand(() -> m_upperArm.runArmVbus(-0.5)),
+            new WaitCommand(0.04),
+            new InstantCommand(() -> m_lowerArm.runArmVbus(0.9)),
+            new WaitCommand(0.04),
+            new InstantCommand(() -> m_upperArm.runArmVbus(0.)),
+            new WaitCommand(0.16),
+            new InstantCommand(() -> m_lowerArm.runArmVbus(0.)),
 
-            new WaitCommand(0.75)
-                .raceWith(OneMechanism.runArms(ScoringPositions.STOWED).andThen(new WaitCommand(0.5))));
+            // new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
+            // .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).withTimeout(0.1),
+
+            // // Run the lower arm down but idk
+            // new WaitCommand(0.35).deadlineWith(new RunArmPID(10., m_lowerArm)),
+
+            new WaitCommand(0.25).deadlineWith(
+                new ParallelCommandGroup(
+                    new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm),
+                    new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm),
+                    m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle))));
     }
 
     /**
@@ -262,11 +280,11 @@ public class Autons {
         LinearFilter filter = LinearFilter.movingAverage(6);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, new Pose2d(1.73, 2.76, new Rotation2d()),
-            coolPreloadScoreSequence().withTimeout(1.25),
+            coolPreloadScoreSequence().withTimeout(2.0),
 
             // Drive fast until we hit the charge station
             new WaitUntilCommand(() -> m_drivetrain.getJerk() > 0.8).deadlineWith(
-                new KeepAngle(SnapDirection.DOWN, () -> 2.25, () -> 0., () -> false, false, m_drivetrain)),
+                new KeepAngle(SnapDirection.UP, () -> 2.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // When the charge station first tips, drive until it's tipped the other way
             new WaitUntilCommand(() -> {
@@ -274,14 +292,14 @@ public class Autons {
                 return average < -4;
             }).andThen(new WaitCommand(1.0))
                 .deadlineWith(
-                    new KeepAngle(SnapDirection.DOWN, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
+                    new KeepAngle(SnapDirection.UP, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // drive backwards and balance
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
                 return average < -8;
             }).andThen(new WaitCommand(0.5)).deadlineWith(
-                new KeepAngle(SnapDirection.DOWN, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
+                new KeepAngle(SnapDirection.UP, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
 
             new QuadraticAutoBalance(m_drivetrain)
         //
