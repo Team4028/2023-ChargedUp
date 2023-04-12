@@ -63,17 +63,13 @@ public class Trajectories {
         Bal, Acquire, Score, Park
     }
 
-    // Example paths
-    public static PathPlannerTrajectory JPath1(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("j path 1",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
-    }
+    // Bruh
 
-    public static PathPlannerTrajectory JPath2(BeakDrivetrain drivetrain) {
-        return PathPlanner.loadPath("j path 2",
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5,
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * 0.5);
+    public static PathPlannerTrajectory loadTrajectory(BeakDrivetrain drivetrain, String name,
+        double velocityMultiplier, double accelMultiplier) {
+        return PathPlanner.loadPath(name,
+            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * velocityMultiplier,
+            drivetrain.getPhysics().maxAccel.getAsMetersPerSecondSquared() * accelMultiplier);
     }
 
     // Since all autons use the same naming scheme, we can use a generic function to
@@ -100,55 +96,9 @@ public class Trajectories {
      */
     public static PathPlannerTrajectory loadPath(BeakDrivetrain drivetrain, PathPosition position, PathPart part,
         String pieceNum, boolean scoreHigh, String data) {
-        return PathPlanner.loadPath(
+        return loadTrajectory(drivetrain,
             pieceNum + " " + position.name() + " " + part.name() + (data.isEmpty() || data == null ? "" : " " + data),
-            drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part),
-            drivetrain.getPhysics().maxAccel.getAsMetersPerSecondSquared());
+            position.multiplier(part),
+            1.0);
     }
-
-    // public static PathPlannerTrajectory OnePieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
-    //     // All autons are named with the same scheme. We multiply the max speed of the
-    //     // drivetrain by the position's desired multiplier to ensure that each position
-    //     // can run at the necessary speed.
-
-    //     return PathPlanner.loadPath("1 " + position.name() + " Bal",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
-    // }
-
-    // public static PathPlannerTrajectory TwoPieceBalance(BeakDrivetrain drivetrain, PathPosition position) {
-    //     return PathPlanner.loadPath("2 Piece " + position.name() + " Balance",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.balanceMultiplier);
-    // }
-
-    // public static PathPlannerTrajectory TwoPieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
-    //     return PathPlanner.loadPath("2 Piece " + position.name() + " Acquire Piece",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
-    // }
-
-    // public static PathPlannerTrajectory TwoPieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
-    //     return PathPlanner.loadPath("2 Piece " + position.name() + " Score Piece",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
-    // }
-
-    // public static PathPlannerTrajectory ThreePieceAcquirePiece(BeakDrivetrain drivetrain, PathPosition position) {
-    //     return PathPlanner.loadPath("3 Piece " + position.name() + " Acquire Piece",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
-    // }
-
-    // public static PathPlannerTrajectory ThreePieceScorePiece(BeakDrivetrain drivetrain, PathPosition position) {
-    //     return PathPlanner.loadPath("3 Piece " + position.name() + " Score Piece",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.scoreMultiplier);
-    // }
-
-    // public static PathPlannerTrajectory TwoQuarterPiecePark(BeakDrivetrain drivetrain, PathPosition position) {
-    //     return PathPlanner.loadPath("2.25 Piece " + position.name() + " Park",
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier,
-    //         drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.acquireMultiplier);
-    // }
 }

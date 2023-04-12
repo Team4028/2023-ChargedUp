@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.filter.LinearFilter;
@@ -31,8 +30,11 @@ import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.KeepAngle;
+import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
+import frc.robot.commands.vision.LimelightDrive;
+import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -229,9 +231,9 @@ public class Autons {
 
             new WaitCommand(0.25).deadlineWith(
                 new ParallelCommandGroup(
-                    new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm),
-                    new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm),
-                    m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle))));
+                    new RunArmPID(ScoringPositions.FLOOR_CUBE_SEEK.lowerPosition, m_lowerArm),
+                    new RunArmPID(ScoringPositions.FLOOR_CUBE_SEEK.upperPosition, m_upperArm),
+                    m_wrist.runToAngle(ScoringPositions.FLOOR_CUBE_SEEK.wristAngle))));
     }
 
     /**
@@ -267,10 +269,28 @@ public class Autons {
      */
     public PathPlannerTrajectory loadPath(PathPosition position, PathPart part, String pieceNum, boolean scoreHigh,
         String data) {
-        return PathPlanner.loadPath(
-            pieceNum + " " + position.name() + " " + part.name() + (data.isEmpty() ? "" : " " + data),
-            m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part),
-            m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * position.multiplier(part));
+        return Trajectories.loadPath(m_drivetrain, position, part, pieceNum, scoreHigh, data);
+    }
+
+    // Fake
+    public BeakAutonCommand LimelightAuton() {
+        PathPlannerTrajectory traj = Trajectories.loadTrajectory(m_drivetrain, "Ignore this", 0.6, 1);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
+            coolPreloadScoreSequence(),
+            m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
+            new LimelightSquare(
+                () -> 3.0,
+                () -> 0.0,
+                m_drivetrain).withTimeout(0.5));
+        // new KeepAngle(
+        // false,
+        // Rotation2d.fromDegrees(15.),
+        // () -> 3.0,
+        // () -> 0., m_drivetrain).withTimeout(0.5));
+        // new LimelightDrive(m_gripper, m_drivetrain));
+
+        return cmd;
     }
 
     // ================================================
@@ -284,7 +304,7 @@ public class Autons {
 
             // Drive fast until we hit the charge station
             new WaitUntilCommand(() -> m_drivetrain.getJerk() > 0.8).deadlineWith(
-                new KeepAngle(SnapDirection.UP, () -> 2.25, () -> 0., () -> false, false, m_drivetrain)),
+                new SnapToAngle(SnapDirection.UP, () -> 2.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // When the charge station first tips, drive until it's tipped the other way
             new WaitUntilCommand(() -> {
@@ -292,14 +312,14 @@ public class Autons {
                 return average < -4;
             }).andThen(new WaitCommand(1.0))
                 .deadlineWith(
-                    new KeepAngle(SnapDirection.UP, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
+                    new SnapToAngle(SnapDirection.UP, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // drive backwards and balance
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
                 return average < -8;
             }).andThen(new WaitCommand(0.5)).deadlineWith(
-                new KeepAngle(SnapDirection.UP, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
+                new SnapToAngle(SnapDirection.UP, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
 
             new QuadraticAutoBalance(m_drivetrain)
         //

@@ -29,7 +29,7 @@ import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
 import frc.robot.commands.chassis.FullFieldLocalize;
-import frc.robot.commands.chassis.KeepAngle;
+import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.XDrive;
 import frc.robot.commands.vision.LimelightDrive;
@@ -273,8 +273,9 @@ public class RobotContainer {
         // ================================================
         // m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive,
         // m_frontAprilTagVision));
-        m_driverController.dpadUp
-            .whileTrue(new RepeatCommand(new FullFieldLocalize(m_drive, m_frontAprilTagVision, m_rearAprilTagVision)));
+        // m_driverController.dpadUp
+        //     .whileTrue(new RepeatCommand(new FullFieldLocalize(m_drive, m_frontAprilTagVision, m_rearAprilTagVision)));
+        m_driverController.dpadUp.toggleOnTrue(new LimelightDrive(m_gripper, m_drive));
 
         // ================================================
         // DRIVER CONTROLLER - DPAD DOWN
@@ -283,8 +284,8 @@ public class RobotContainer {
         BooleanSupplier nodeInterrupt = () -> Math.abs(speedScaledDriverLeftX()) > 0.1 ||
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
-        // m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
-        m_driverController.dpadDown.onTrue(new LimelightSquare(m_drive).andThen(new LimelightDrive(m_drive)));
+        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
+        // m_driverController.dpadDown.toggleOnTrue(new LimelightSquare(m_drive));//.andThen(new LimelightDrive(m_drive)));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
@@ -390,13 +391,13 @@ public class RobotContainer {
             * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
         BooleanSupplier angleInterrupt = m_driverController.rs;
 
-        m_operatorController.dpadUp.toggleOnTrue(new KeepAngle(
+        m_operatorController.dpadUp.toggleOnTrue(new SnapToAngle(
             SnapDirection.UP, xSupplier, ySupplier, angleInterrupt, true, m_drive));
-        m_operatorController.dpadLeft.toggleOnTrue(new KeepAngle(
+        m_operatorController.dpadLeft.toggleOnTrue(new SnapToAngle(
             SnapDirection.LEFT, xSupplier, ySupplier, angleInterrupt, true, m_drive));
-        m_operatorController.dpadDown.toggleOnTrue(new KeepAngle(
+        m_operatorController.dpadDown.toggleOnTrue(new SnapToAngle(
             SnapDirection.DOWN, xSupplier, ySupplier, angleInterrupt, true, m_drive));
-        m_operatorController.dpadRight.toggleOnTrue(new KeepAngle(
+        m_operatorController.dpadRight.toggleOnTrue(new SnapToAngle(
             SnapDirection.RIGHT, xSupplier, ySupplier, angleInterrupt, true, m_drive));
 
         // ===============================================
@@ -538,6 +539,8 @@ public class RobotContainer {
             m_autons.OnePieceMobilityBalance());
 
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
+
+        m_autoChooser.addOption("Cool Limelight Thing", m_autons.LimelightAuton());
 
         // m_autoChooser.addOption("Cool preload sequence", new BeakAutonCommand(m_drive, new Pose2d(), m_autons.coolPreloadScoreSequence()));
     }

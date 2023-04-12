@@ -4,88 +4,85 @@
 
 package frc.robot.commands.chassis;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
-import frc.robot.OneMechanism;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.lib.beaklib.drive.BeakDrivetrain;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class KeepAngle extends PIDCommand {
-    private final BooleanSupplier m_interruptCondition;
-    private final BeakSwerveDrivetrain m_drivetrain;
+public class KeepAngle extends CommandBase {
+    private final DoubleSupplier m_xSupplier;
+    private final DoubleSupplier m_ySupplier;
+    private final BeakDrivetrain m_drivetrain;
 
-    private final boolean m_updateBeacon;
+    private final boolean m_fieldRelative;
+
+    private PIDController m_pidController;
+
+    private Rotation2d m_target;
+    private final Rotation2d m_offset;
 
     /** Creates a new KeepAngle. */
+    // TODO: javadoc
     public KeepAngle(
-        SnapDirection target,
+        boolean fieldRelative,
+        Rotation2d angleOffset,
         DoubleSupplier xSupplier,
         DoubleSupplier ySupplier,
-        BooleanSupplier interruptCondition,
-        boolean updateBeacon,
-        BeakSwerveDrivetrain drivetrain) {
-        super(
-            // The controller that the command will use
-            new PIDController(
-                2.0,
-                0,
-                0),
-            // This should return the measurement
-            () -> drivetrain.getRotation2d().getRadians(),
-            // This should return the setpoint (can also be a constant)
-            () -> target.Angle.getRadians(),
-            // This uses the output
-            output -> {
-                // Use the output here
-                drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSupplier.getAsDouble(),
-                    ySupplier.getAsDouble(),
-                    output,
-                    drivetrain.getRotation2d()));
-            });
+        BeakDrivetrain drivetrain) {
+
+        m_xSupplier = xSupplier;
+        m_ySupplier = ySupplier;
+        m_drivetrain = drivetrain;
+
+        m_fieldRelative = fieldRelative;
+        m_offset = angleOffset;
+
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(drivetrain);
-
-        // Configure additional PID options by calling `getController` here.
-        getController().enableContinuousInput(-Math.PI, Math.PI);
-
-        if (updateBeacon) {
-            drivetrain.setSnapDirection(target);
-        }
-
-        m_drivetrain = drivetrain;
-        m_interruptCondition = interruptCondition;
-        m_updateBeacon = updateBeacon;
     }
 
+    public KeepAngle(
+        boolean fieldRelative,
+        DoubleSupplier xSupplier,
+        DoubleSupplier ySupplier,
+        BeakDrivetrain drivetrain) {
+        this(fieldRelative, new Rotation2d(), xSupplier, ySupplier, drivetrain);
+    }
+
+    // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        super.initialize();
+        m_pidController = new PIDController(2.0, 0, 0);
+        m_pidController.enableContinuousInput(-Math.PI, Math.PI);
 
-        if (m_updateBeacon) {
-            OneMechanism.setSnappedMode(true);
-        }
+        m_pidController.reset();
+
+        m_target = m_drivetrain.getRotation2d().plus(m_offset);
+    }
+
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        double x = m_xSupplier.getAsDouble();
+        double y = m_ySupplier.getAsDouble();
+        double rot = m_pidController.calculate(m_drivetrain.getRotation2d().getRadians(), m_target.getRadians());
+
+        m_drivetrain
+            .drive(m_fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rot, m_drivetrain.getRotation2d())
+                : new ChassisSpeeds(x, y, rot));
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_interruptCondition.getAsBoolean();
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        super.end(interrupted);
-
-        if (m_updateBeacon) {
-            OneMechanism.setSnappedMode(false);
-            m_drivetrain.setSnapDirection(SnapDirection.NONE);
-        }
+        return false;
     }
 }

@@ -51,7 +51,8 @@ public class Wrist extends SubsystemBase {
 
         m_absoluteEncoder = m_motor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         m_absoluteEncoder.setPositionConversionFactor(360.0);
-        m_absoluteEncoder.setZeroOffset(275.); // old infeed: 20.
+        // m_absoluteEncoder.setZeroOffset(275.);
+        m_absoluteEncoder.setZeroOffset(198.5); // 186.11
         m_absoluteEncoder.setInverted(false);
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);

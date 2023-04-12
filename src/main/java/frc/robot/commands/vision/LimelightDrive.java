@@ -5,44 +5,71 @@
 package frc.robot.commands.vision;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.ScoringPositions;
+import frc.robot.commands.chassis.KeepAngle;
+import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.utilities.LimelightHelpers;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class LimelightDrive extends PIDCommand {
+public class LimelightDrive extends CommandBase {
+    private final BeakDrivetrain m_drivetrain;
+    private final Gripper m_gripper;
+
+    private KeepAngle m_keepAngleCommand;
+
+    private PIDController m_pidController;
+    
     /** Creates a new LimelightDrive. */
-    public LimelightDrive(BeakDrivetrain drivetrain) {
-        super(
-            // The controller that the command will use
-            new PIDController(0.1, 0., 0.),
-            // This should return the measurement
-            () -> Units.degreesToRadians(LimelightHelpers.getTY("")),
-            // This should return the setpoint (can also be a constant)
-            () -> OneMechanism.getScoringPosition() == ScoringPositions.FLOOR_CUBE_SEEK ? -8.8 : -13.5,
-            // This uses the output
-            output -> {
-                // Use the output here
-                drivetrain.drive(new ChassisSpeeds(
-                    -output,
-                    0.,
-                    0.));
-            });
+    public LimelightDrive(Gripper gripper, BeakDrivetrain drivetrain) {
+        m_gripper = gripper;
+        m_drivetrain = drivetrain;
+
         // Use addRequirements() here to declare subsystem dependencies.
-        // Configure additional PID options by calling `getController` here.
-        addRequirements(drivetrain);
+        addRequirements(gripper);
+    }
+
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        m_pidController = new PIDController(
+            0.1,
+            0, 
+            0);
+
+        m_pidController.reset();
+
+        m_gripper.runMotorIn();
+
+        double setpoint = OneMechanism.getScoringPosition() == ScoringPositions.FLOOR_CUBE_SEEK ? -8.8 : -16.0;
+
+        m_keepAngleCommand = new KeepAngle(
+            true,
+            () -> m_pidController.calculate(Units.degreesToRadians(LimelightHelpers.getTY("")), setpoint) * 0.75,
+            () -> 0.,
+            m_drivetrain);
+        
+        m_keepAngleCommand.initialize();
+    }
+
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        m_keepAngleCommand.execute();
+        m_gripper.runMotorInWithoutReset();
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        m_keepAngleCommand.end(interrupted);
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(getController().getPositionError()) < Units.degreesToRadians(0.5)
-            || LimelightHelpers.getTY("") == 0. || LimelightHelpers.getTA("") < 2.;
+        return !LimelightHelpers.getTV("") || m_gripper.hasGamePiece();
     }
 }

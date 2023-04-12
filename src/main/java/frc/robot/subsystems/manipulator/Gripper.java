@@ -137,7 +137,7 @@ public class Gripper extends SubsystemBase {
         }
     }
 
-    private boolean hasGamePiece() {
+    public boolean hasGamePiece() {
         return m_hasGamePiece;
     }
 
@@ -145,7 +145,7 @@ public class Gripper extends SubsystemBase {
         return () -> hasGamePiece();
     }
 
-    private boolean atCurrentThreshold() {
+    public boolean atCurrentThreshold() {
         if (m_motor.getSupplyCurrent() > HOLD_THRESHOLD && m_motor.get() > 0.) {
             OneMechanism.signalAcquisition();
             m_hasGamePiece = true;

@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
-import frc.robot.commands.chassis.KeepAngle;
+import frc.robot.commands.chassis.SnapToAngle;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
 public class NewGeneratePathWithArc extends CommandBase {
@@ -53,7 +53,7 @@ public class NewGeneratePathWithArc extends CommandBase {
 
     private BeakSwerveDrivetrain m_drivetrain;
 
-    private final KeepAngle m_keepAngleCommand;
+    private final SnapToAngle m_keepAngleCommand;
 
     private Field2d field = new Field2d();
 
@@ -71,7 +71,7 @@ public class NewGeneratePathWithArc extends CommandBase {
 
         m_timer = new Timer();
 
-        m_keepAngleCommand = new KeepAngle(SnapDirection.DOWN,
+        m_keepAngleCommand = new SnapToAngle(SnapDirection.DOWN,
             () -> m_driveController.calculate(m_currentPose, m_setpoint).vxMetersPerSecond,
             () -> m_driveController.calculate(m_currentPose, m_setpoint).vyMetersPerSecond,
             () -> isFinished(),
