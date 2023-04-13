@@ -99,6 +99,6 @@ public class Trajectories {
         return loadTrajectory(drivetrain,
             pieceNum + " " + position.name() + " " + part.name() + (data.isEmpty() || data == null ? "" : " " + data),
             position.multiplier(part),
-            1.0);
+            position.multiplier(part));
     }
 }

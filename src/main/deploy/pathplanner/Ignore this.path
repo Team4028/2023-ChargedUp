@@ -28,11 +28,11 @@
         "y": 4.795438876592039
       },
       "prevControl": {
-        "x": 3.587212200672698,
-        "y": 4.970553720240796
+        "x": 3.57749891109862,
+        "y": 4.883339491352781
       },
       "nextControl": null,
-      "holonomicAngle": -8.47,
+      "holonomicAngle": -4.2363947990588375,
       "isReversal": false,
       "velOverride": 3.0,
       "isLocked": false,
@@ -53,7 +53,8 @@
       "position": 0.16363636363636358,
       "names": [
         "CubePickup",
-        "RunGripperIn"
+        "RunGripperIn",
+        "CubeTwo"
       ]
     }
   ]

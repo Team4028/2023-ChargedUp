@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -29,17 +30,16 @@ import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.chassis.AddVisionMeasurement;
-import frc.robot.commands.chassis.KeepAngle;
 import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
-import frc.robot.commands.vision.LimelightDrive;
 import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
+import frc.robot.utilities.LimelightHelpers;
 import frc.robot.utilities.Trajectories;
 import frc.robot.utilities.Trajectories.PathPart;
 import frc.robot.utilities.Trajectories.PathPosition;
@@ -73,6 +73,9 @@ public class Autons {
     // Auton Constants
     private static final double UPPER_ARM_OFFSET = 18.4;
     // private static final double LOWER_ARM_OFFSET = 0.86;
+
+    private static final double[] CUBE_TWO_CROP = { -1, 0.57, -1, 0.81 };
+    private static final double[] CUBE_THREE_CROP = { -0.57, 1, -1, 0.81 };
 
     // Global Subsystems -- initialized in the constructor
     private final BeakSwerveDrivetrain m_drivetrain;
@@ -127,7 +130,7 @@ public class Autons {
         // new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() ->
         // true));
 
-        m_cubeExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE).until(m_upperArmExtended);
+        m_cubeExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE);// .until(m_upperArmExtended);
         // shouldnt be needed?
         // m_cubeExtendCommand = () -> new SequentialCommandGroup(
         // new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
@@ -156,8 +159,10 @@ public class Autons {
             m_eventMap.put("CubePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CUBE));
             m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
-            m_eventMap.put("CubePickup", OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
-            m_eventMap.put("ConePickup", OneMechanism.runArms(ScoringPositions.AUTON_URPIGHT_CONE));
+            m_eventMap.put("CubePickup",
+                OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CUBE));
+            m_eventMap.put("ConePickup",
+                OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.AUTON_URPIGHT_CONE));
 
             m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
             m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
@@ -166,6 +171,11 @@ public class Autons {
             m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
 
             m_eventMap.put("RunGripperSmart", m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier()));
+
+            m_eventMap.put("CubeTwo", new InstantCommand(() -> LimelightHelpers.setCropWindow("", CUBE_TWO_CROP[0],
+                CUBE_TWO_CROP[1], CUBE_TWO_CROP[2], CUBE_TWO_CROP[3])));
+            m_eventMap.put("CubeThree", new InstantCommand(() -> LimelightHelpers.setCropWindow("", CUBE_THREE_CROP[0],
+                CUBE_THREE_CROP[1], CUBE_THREE_CROP[2], CUBE_THREE_CROP[3])));
         }
 
         m_eventMap.put("FrontLocalize", new AddVisionMeasurement(drivetrain, m_frontAprilTagVision));
@@ -280,9 +290,11 @@ public class Autons {
             coolPreloadScoreSequence(),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
             new LimelightSquare(
+                CUBE_TWO_CROP,
                 () -> 3.0,
                 () -> 0.0,
-                m_drivetrain).withTimeout(0.5));
+                m_drivetrain).withTimeout(0.5),
+            Score(PathPosition.Top, "2", false, "Limelight"));
         // new KeepAngle(
         // false,
         // Rotation2d.fromDegrees(15.),
@@ -413,19 +425,22 @@ public class Autons {
      *            The piece number of this path.
      * @param park
      *            Whether to park at the end or actually score the piece.
+     * @param data
+     *            Additional path data.
      * 
      * @return A {@link BeakAutonCommand} to run the score path.
      */
-    public BeakAutonCommand Score(PathPosition position, String pieces, boolean park) {
-        PathPlannerTrajectory traj = loadPath(position, PathPart.Score, pieces, false, "");
+    public BeakAutonCommand Score(PathPosition position, String pieces, boolean park, String data) {
+        PathPlannerTrajectory traj = loadPath(position, PathPart.Score, pieces, false, data);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             new InstantCommand(() -> OneMechanism.setScoreMode(true)),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
 
             // The arms start going to the high scoring position at the end of the path.
+            // OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE).until(m_upperArmExtended),
             new WaitUntilCommand(m_upperArmExtended),
-            m_gripper.runMotorOutSoft().withTimeout(0.4),
+            park ? Commands.none() : m_gripper.runMotorOutSoft().withTimeout(0.4),
 
             m_stowCommand.get(),
             new InstantCommand(() -> OneMechanism.setScoreMode(false))
@@ -481,7 +496,7 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            Score(position, "2", false),
+            Score(position, "2", false, ""),
             balance ? Balance(position, "2") : Commands.none()
         //
         );
@@ -539,7 +554,7 @@ public class Autons {
                 .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
             new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
 
-            Score(position, "3", false)
+            Score(position, "3", false, "")
         //
         );
 

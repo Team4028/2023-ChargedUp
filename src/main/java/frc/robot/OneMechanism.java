@@ -14,9 +14,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
@@ -300,7 +302,7 @@ public class OneMechanism {
     }
 
     public static void toggleSlide() {
-        if(m_leds.getMode() != CANdleMode.SLIDE) {
+        if (m_leds.getMode() != CANdleMode.SLIDE) {
             m_leds.setSlide();
         } else {
             m_leds.setActive();
@@ -308,7 +310,7 @@ public class OneMechanism {
     }
 
     public static void setFireWorkPlz() {
-        if(m_leds.getMode() != CANdleMode.FIRE) {
+        if (m_leds.getMode() != CANdleMode.FIRE) {
             m_leds.setFireWorkPlz();
         } else {
             m_leds.setActive();
@@ -581,6 +583,14 @@ public class OneMechanism {
     // return m_areTheLightsOn;
     // }
 
+    /**
+     * Run the arms and wrist to the specified position.
+     * 
+     * @param targetPos
+     *            The target scoring position.
+     * @return A {@link Command} that runs the arm and wrist to the passed-in
+     *         position.
+     */
     public static Command runArms(ScoringPositions targetPos) {
         // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
         return new InstantCommand(() -> {
@@ -593,9 +603,35 @@ public class OneMechanism {
             }
         }).alongWith(new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist));
     }
- //TODO
+
+    /**
+     * Run the arms and wrist to the specified position, running all simultaneously.
+     * 
+     * @param targetPos
+     *            The target scoring position.
+     * @return A {@link Command} that runs the arm and wrist to the passed-in
+     *         position all simultaneously.
+     */
+    public static Command runArmsSimultaneouslyCommand(ScoringPositions targetPos) {
+        // return new RunArmsSafely(targetPos, m_lowerArm, m_upperArm, m_wrist);
+        return new ParallelCommandGroup(
+            new InstantCommand(() -> {
+                if (targetPos.equals(ScoringPositions.ACQUIRE_SINGLE_SUBSTATION)) {
+                    toggleSlide();
+                } else {
+                    if (m_leds.getMode() == CANdleMode.SLIDE) {
+                        setActive();
+                    }
+                }
+            }),
+            new RunArmPID(targetPos.lowerPosition, m_lowerArm),
+            new RunArmPID(targetPos.upperPosition, m_upperArm),
+            m_wrist.runToAngle(targetPos.wristAngle));
+    }
+
+    // TODO
     public static void signalAcquisition() {
-        if(getCANdleMode() == CANdleMode.ACTIVE) {
+        if (getCANdleMode() == CANdleMode.ACTIVE) {
             m_leds.blinkWhite().schedule();
         } else {
             m_leds.blinkBeaconWhite().schedule();
@@ -604,6 +640,7 @@ public class OneMechanism {
 
     /**
      * Get the forward-backward jerk of the robot.
+     * 
      * @return The Y direction jerk.
      */
     public static double getJerk() {
