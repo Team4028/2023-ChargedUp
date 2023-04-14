@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.auton;
+package frc.robot.commands.auton.generation;
 
 import java.util.function.Supplier;
 
@@ -83,7 +83,7 @@ public class GeneratePath extends CommandBase {
         m_driveController.setEnabled(true);
 
         // Generate a trajectory and start the timer
-        m_traj = m_drivetrain.generateTrajectoryToPose(m_desiredPose);
+        m_traj = m_drivetrain.generateTrajectoryToPose(m_desiredPose, 0.25);
 
         Logger.getInstance().recordOutput("Desired Pose", m_desiredPose);
 

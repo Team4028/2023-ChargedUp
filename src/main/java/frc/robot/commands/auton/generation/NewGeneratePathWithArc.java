@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.auton;
+package frc.robot.commands.auton.generation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +27,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
+import frc.robot.commands.chassis.SnapToAngle;
 
 // credit: https://github.com/HaMosad1657/MiniProject2023/blob/chassis/src/main/java/frc/robot/commands/drivetrain/FollowGeneratedTrajectoryCommand.java
-public class GeneratePathWithArc extends CommandBase {
+public class NewGeneratePathWithArc extends CommandBase {
     private PIDController m_xController, m_yController, m_thetaController;
 
     private PPHolonomicDriveController m_driveController;
@@ -51,10 +53,12 @@ public class GeneratePathWithArc extends CommandBase {
 
     private BeakSwerveDrivetrain m_drivetrain;
 
+    private final SnapToAngle m_keepAngleCommand;
+
     private Field2d field = new Field2d();
 
     /** Creates a new GeneratePath. */
-    public GeneratePathWithArc(Supplier<Pose2d> desiredPose, BooleanSupplier interuptCondition,
+    public NewGeneratePathWithArc(Supplier<Pose2d> desiredPose, BooleanSupplier interuptCondition,
         BeakSwerveDrivetrain drivetrain) {
         m_drivetrain = drivetrain;
         m_poseSupplier = desiredPose;
@@ -67,8 +71,15 @@ public class GeneratePathWithArc extends CommandBase {
 
         m_timer = new Timer();
 
+        m_keepAngleCommand = new SnapToAngle(SnapDirection.DOWN,
+            () -> m_driveController.calculate(m_currentPose, m_setpoint).vxMetersPerSecond,
+            () -> m_driveController.calculate(m_currentPose, m_setpoint).vyMetersPerSecond,
+            () -> isFinished(),
+            true,
+            drivetrain);
+
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     // Called when the command is initially scheduled.
@@ -97,6 +108,8 @@ public class GeneratePathWithArc extends CommandBase {
         m_driveController.setTolerance(m_positionTolerance);
         m_driveController.setEnabled(true);
 
+        m_keepAngleCommand.initialize();
+
         // Generate a trajectory and start the timer
         m_traj = generateTrajectoryToPose(m_desiredPose);
 
@@ -123,10 +136,12 @@ public class GeneratePathWithArc extends CommandBase {
             // The drive controller's calculation takes in the current position
             // and the target position, and outputs a ChassisSpeeds object.
             // This is then passed into the drivetrain's drive method.
-            m_drivetrain.drive(
-                m_driveController.calculate(
-                    m_currentPose,
-                    m_setpoint));
+            // m_drivetrain.drive(
+            //     m_driveController.calculate(
+            //         m_currentPose,
+            //         m_setpoint));
+
+            m_keepAngleCommand.execute();
         }
     }
 
@@ -136,6 +151,7 @@ public class GeneratePathWithArc extends CommandBase {
         m_timer.stop();
         m_timer.reset();
         m_driveController.setEnabled(false);
+        m_keepAngleCommand.end(interrupted);
     }
 
     // Returns true when the command should end.

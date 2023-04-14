@@ -20,7 +20,7 @@ import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.arm.RunArmsWithPID;
-import frc.robot.commands.auton.GeneratePathWithArc;
+import frc.robot.commands.auton.generation.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDs.CANdleMode;

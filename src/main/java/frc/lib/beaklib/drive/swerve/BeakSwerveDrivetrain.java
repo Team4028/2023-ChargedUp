@@ -32,7 +32,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.gyro.BeakGyro;
-import frc.robot.commands.auton.GeneratePath;
+import frc.robot.commands.auton.generation.GeneratePath;
 
 /** Generic Swerve Drivetrain subsystem. */
 public class BeakSwerveDrivetrain extends BeakDrivetrain {

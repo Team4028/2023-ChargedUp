@@ -1,0 +1,73 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.8,
+        "y": 4.38
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.133295838020247,
+        "y": 4.938586305744041
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.822435502013861,
+        "y": 4.466199789542436
+      },
+      "prevControl": {
+        "x": 5.355865045200644,
+        "y": 4.986605299064871
+      },
+      "nextControl": null,
+      "holonomicAngle": -39.99935540244158,
+      "isReversal": false,
+      "velOverride": 3.0,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "maxVelocity": null,
+  "maxAcceleration": 3.0,
+  "isReversed": null,
+  "markers": [
+    {
+      "position": 0.05454545454545455,
+      "names": [
+        "ArmRetract",
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.2727272727272726,
+      "names": [
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 0.6181818181818182,
+      "names": [
+        "ConePickup",
+        "RunGripperSmart"
+      ]
+    }
+  ]
+}

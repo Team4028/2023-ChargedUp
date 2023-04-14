@@ -2,17 +2,17 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.9,
-        "y": 4.4
+        "x": 6.8101527631626695,
+        "y": 3.521426757139229
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.963602815777061,
-        "y": 4.444068362422439
+        "x": 5.349998548568527,
+        "y": 4.899809862476868
       },
-      "holonomicAngle": -16.0,
+      "holonomicAngle": -30.96375653207355,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 3.0,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 4.362331724663449,
-        "y": 4.580717732864038
+        "x": 4.161925323850648,
+        "y": 4.781124133676839
       },
       "prevControl": {
-        "x": 5.031052059519531,
-        "y": 4.635530875065356
+        "x": 5.348575884835106,
+        "y": 4.720270258754558
       },
       "nextControl": {
-        "x": 3.4891324068362426,
-        "y": 4.509144018288037
+        "x": 3.045375376465039,
+        "y": 4.838383105337639
       },
-      "holonomicAngle": 90.0,
+      "holonomicAngle": -90.0,
       "isReversal": false,
       "velOverride": 2.0,
       "isLocked": false,
@@ -50,14 +50,14 @@
     {
       "anchorPoint": {
         "x": 1.8,
-        "y": 4.38
+        "y": 4.437570303712036
       },
       "prevControl": {
-        "x": 2.9022279473130377,
-        "y": 4.738179904931239
+        "x": 2.615940346166407,
+        "y": 4.494829275372837
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -72,28 +72,17 @@
   ],
   "markers": [
     {
-      "position": 0.05454545454545449,
+      "position": 0.05454545454545455,
       "names": [
-        "ArmRetract"
-      ]
-    },
-    {
-      "position": 1.5818181818181811,
-      "names": [
-        "CubePrep",
-        "FrontLocalizeContinuous"
-      ]
-    },
-    {
-      "position": 1.9,
-      "names": [
-        "CubeHigh"
-      ]
-    },
-    {
-      "position": 0.21818181818181823,
-      "names": [
+        "ArmRetract",
         "StopGripper"
+      ]
+    },
+    {
+      "position": 1.2181818181818176,
+      "names": [
+        "CubeMid",
+        "FrontLocalizeContinuous"
       ]
     }
   ]

@@ -138,7 +138,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * @return {@link PathPlannerTrajectory} that leads the robot to the desired
      *         pose.
      */
-    public PathPlannerTrajectory generateTrajectoryToPose(Pose2d desiredPose) {
+    public PathPlannerTrajectory generateTrajectoryToPose(Pose2d desiredPose, double velocityMultiplier) {
         Pose2d robotPose = getPoseMeters();
 
         // If the current position is equal to the target position (for example, no
@@ -149,9 +149,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         }
 
         // PathPlanner takes in these constraints to determine maximum speed and
-        // acceleration. In order to maximize precision, we go at quarter speed.
-        PathConstraints constraints = new PathConstraints(getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25,
-            getPhysics().maxVelocity.getAsMetersPerSecond() * 0.25);
+        // acceleration.
+        PathConstraints constraints = new PathConstraints(getPhysics().maxVelocity.getAsMetersPerSecond() * velocityMultiplier,
+            getPhysics().maxVelocity.getAsMetersPerSecond() * velocityMultiplier);
 
         // Add our path points--start at the current robot pose and end at the desired
         // pose.

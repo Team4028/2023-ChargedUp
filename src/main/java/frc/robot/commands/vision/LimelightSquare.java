@@ -17,6 +17,9 @@ import frc.robot.utilities.LimelightHelpers;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class LimelightSquare extends PIDCommand {
+    /** The threshold for the TY value below which the cube will be considered "picked up" */
+    private static final double PICKUP_THRESHOLD = -12;
+
     private final double[] m_cropWindow;
 
     /** Creates a new LimelightSquare. */
@@ -27,7 +30,7 @@ public class LimelightSquare extends PIDCommand {
             // new ProfiledPIDController(5., 0.0, 0,
             //     new TrapezoidProfile.Constraints(
             //         drivetrain.getPhysics().maxAngularVelocity.getAsRadiansPerSecond() / 2., 1.0)),
-            new PIDController(5.5, 0, 0), // 5.0 good
+            new PIDController(20.56, 0, 0), // 5.0 good
             // This should return the measurement
             () -> Units.degreesToRadians(LimelightHelpers.getTX("")),
             // This should return the goal (can also be a constant)
@@ -57,6 +60,7 @@ public class LimelightSquare extends PIDCommand {
     @Override
     public boolean isFinished() {
         // return Math.abs(LimelightHelpers.getTX("")) < (0.5);
-        return false;
+        // return false;
+        return LimelightHelpers.getTY("") < PICKUP_THRESHOLD;
     }
 }

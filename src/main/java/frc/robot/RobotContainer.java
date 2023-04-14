@@ -8,45 +8,42 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.BeakXBoxController;
 import frc.lib.beaklib.Util;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.OneMechanism.GamePieceMode;
+import frc.robot.OneMechanism.ScoringPositions;
+import frc.robot.commands.arm.CurrentZero;
+import frc.robot.commands.auton.Autons;
+import frc.robot.commands.auton.BeakAutonCommand;
+import frc.robot.commands.chassis.QuadraticAutoBalance;
+import frc.robot.commands.chassis.SnapToAngle;
+import frc.robot.commands.chassis.XDrive;
+import frc.robot.commands.vision.LimelightDrive;
+import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
 import frc.robot.subsystems.kickstand.Kickstand;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
-import frc.robot.commands.arm.CurrentZero;
-import frc.robot.commands.auton.Autons;
-import frc.robot.commands.auton.BeakAutonCommand;
-import frc.robot.commands.chassis.FullFieldLocalize;
-import frc.robot.commands.chassis.SnapToAngle;
-import frc.robot.commands.chassis.QuadraticAutoBalance;
-import frc.robot.commands.chassis.XDrive;
-import frc.robot.commands.vision.LimelightDrive;
-import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
-import frc.robot.subsystems.LEDs;
-import frc.robot.subsystems.Vision;
 import frc.robot.utilities.Trajectories.PathPosition;
-import frc.robot.OneMechanism.GamePieceMode;
-import frc.robot.OneMechanism.ScoringPositions;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -57,8 +54,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
  */
 public class RobotContainer {
     // Constants
-    private static final String FRONT_APRILTAG_CAMERA_NAME = Constants.PRACTICE_CHASSIS ? "Front_AprilTag_Camera"
-        : "Global_Shutter_Camera";
+    private static final String FRONT_APRILTAG_CAMERA_NAME = "Front_AprilTag_Camera";
     private static final String REAR_APRILTAG_CAMERA_NAME = "Rear_AprilTag_Camera";
     // private static final String GAME_PIECE_CAMERA_NAME = "HD_Webcam_C525"; //
     // Very much subject to change.
@@ -120,21 +116,13 @@ public class RobotContainer {
         m_rearAprilTagVision = new Vision(REAR_APRILTAG_CAMERA_NAME, REAR_APRILTAG_CAMERA_TO_ROBOT);
         m_candle = LEDs.getInstance();
 
-        if (Constants.PRACTICE_CHASSIS) {
-            // m_manipulator = Manipulator.getInstance();
-            m_gripper = Gripper.getInstance();
-            m_wrist = Wrist.getInstance();
+        // m_manipulator = Manipulator.getInstance();
+        m_gripper = Gripper.getInstance();
+        m_wrist = Wrist.getInstance();
 
-            m_upperArm = UpperArm.getInstance();
-            m_lowerArm = LowerArm.getInstance();
-            m_kickstand = Kickstand.getInstance();
-        } else {
-            m_gripper = null;
-            m_wrist = null;
-
-            m_upperArm = null;
-            m_lowerArm = null;
-        }
+        m_upperArm = UpperArm.getInstance();
+        m_lowerArm = LowerArm.getInstance();
+        m_kickstand = Kickstand.getInstance();
 
         OneMechanism.addSubsystems(m_candle, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
 
@@ -274,7 +262,8 @@ public class RobotContainer {
         // m_driverController.dpadUp.onTrue(new ResetPoseToVision(m_drive,
         // m_frontAprilTagVision));
         // m_driverController.dpadUp
-        //     .whileTrue(new RepeatCommand(new FullFieldLocalize(m_drive, m_frontAprilTagVision, m_rearAprilTagVision)));
+        // .whileTrue(new RepeatCommand(new FullFieldLocalize(m_drive,
+        // m_frontAprilTagVision, m_rearAprilTagVision)));
         m_driverController.dpadUp.toggleOnTrue(new LimelightDrive(m_gripper, m_drive));
 
         // ================================================
@@ -285,7 +274,8 @@ public class RobotContainer {
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
         m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
-        // m_driverController.dpadDown.toggleOnTrue(new LimelightSquare(m_drive));//.andThen(new LimelightDrive(m_drive)));
+        // m_driverController.dpadDown.toggleOnTrue(new
+        // LimelightSquare(m_drive));//.andThen(new LimelightDrive(m_drive)));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
@@ -505,44 +495,46 @@ public class RobotContainer {
     }
 
     private void initAutonChooser() {
-        m_autoChooser.addDefaultOption("1.5 Piece Top", m_autons.OnePiece(PathPosition.Top));
-        m_autoChooser.addOption("1.5 Piece Bottom", m_autons.OnePiece(PathPosition.Bottom));
+        m_autoChooser.addDefaultOption("1.5 Top", m_autons.OnePiece(PathPosition.Top));
+        m_autoChooser.addOption("1.5 Bottom", m_autons.OnePiece(PathPosition.Bottom));
 
-        m_autoChooser.addOption("2 Piece Top", m_autons.TwoPiece(PathPosition.Top, false));
-        m_autoChooser.addOption("2 Piece Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
+        m_autoChooser.addOption("2 Top", m_autons.TwoPiece(PathPosition.Top, false));
+        m_autoChooser.addOption("2 Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
 
-        m_autoChooser.addOption("2 Piece Top Balance", m_autons.TwoPiece(PathPosition.Top, true));
-        m_autoChooser.addOption("2 Piece Bottom Balance", m_autons.TwoPiece(PathPosition.Bottom, true));
+        m_autoChooser.addOption("2 Top Bal", m_autons.TwoPiece(PathPosition.Top, true));
+        m_autoChooser.addOption("2 Bottom Bal", m_autons.TwoPiece(PathPosition.Bottom, true));
 
-        m_autoChooser.addOption("2.25 Piece Top", m_autons.TwoQuarterPiece(PathPosition.Top));
-        m_autoChooser.addOption("2.25 Piece Bottom", m_autons.TwoQuarterPiece(PathPosition.Bottom));
+        m_autoChooser.addOption("2.25 Top", m_autons.TwoQuarterPiece(PathPosition.Top));
+        m_autoChooser.addOption("2.25 Bottom", m_autons.TwoQuarterPiece(PathPosition.Bottom));
 
-        m_autoChooser.addOption("3 Piece Top", m_autons.ThreePiece(PathPosition.Top, false));
-        m_autoChooser.addOption("3 Piece Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
+        m_autoChooser.addOption("3 Top", m_autons.ThreePiece(PathPosition.Top, false));
+        m_autoChooser.addOption("3 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
 
-        m_autoChooser.addOption("1 Cube Middle Balance",
+        m_autoChooser.addOption("1 Cube Mid Bal",
             m_autons.OneBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
-        m_autoChooser.addOption("1 Cone Middle Balance",
+        m_autoChooser.addOption("1 Cone Mid Bal",
             m_autons.OneBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
 
-        m_autoChooser.addOption("1 Piece Top Balance",
+        m_autoChooser.addOption("1 Top Bal",
             new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Top, "2").getInitialPose(),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
                 m_autons.Balance(PathPosition.Top, "2")));
 
-        m_autoChooser.addOption("1 Piece Bottom Balance",
+        m_autoChooser.addOption("1 Bottom Bal",
             new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Bottom, "2").getInitialPose(),
                 m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
                 m_autons.Balance(PathPosition.Bottom, "2")));
 
-        m_autoChooser.addOption("1 Piece Mobility Balance",
+        m_autoChooser.addOption("1 Mobility Bal",
             m_autons.OnePieceMobilityBalance());
 
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
 
-        m_autoChooser.addOption("Cool Limelight Thing", m_autons.LimelightAuton());
+        m_autoChooser.addOption("2 Top Limelight", m_autons.LimelightTwoPiece(PathPosition.Top));
 
-        // m_autoChooser.addOption("Cool preload sequence", new BeakAutonCommand(m_drive, new Pose2d(), m_autons.coolPreloadScoreSequence()));
+        // m_autoChooser.addOption("Cool preload sequence", new
+        // BeakAutonCommand(m_drive, new Pose2d(),
+        // m_autons.coolPreloadScoreSequence()));
     }
 
     public double speedScaledDriverLeftY() {
@@ -586,7 +578,8 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        // return m_autons.coolPreloadScoreSequence().andThen(new RunCommand(() -> m_drive.drive(new Chassis)).withTimeout(2.0));
+        // return m_autons.coolPreloadScoreSequence().andThen(new RunCommand(() ->
+        // m_drive.drive(new Chassis)).withTimeout(2.0));
         return m_autoChooser.get().resetPoseAndRun();
     }
 }
