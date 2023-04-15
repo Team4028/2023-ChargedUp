@@ -251,6 +251,7 @@ public class LEDs extends SubsystemBase {
      */
     public void setFade(boolean fade) {
         clearAnimations();
+        m_locked = false;
         m_fade = fade;
         if (fade) {
             // Create two separate animations if we have an active beacon.
@@ -283,10 +284,11 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setLocked(boolean locked) {
+        m_fade = false;
         clearAnimations();
         m_locked = locked;
         if(locked) {
-            m_currentAnimations.set(0, () -> new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS));
+            m_currentAnimations.set(0, () -> new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.2, NUM_LEDS));
         } else {
             if(m_currentMode != CANdleMode.ACTIVE) {
                 switch (m_currentMode) {
@@ -312,6 +314,7 @@ public class LEDs extends SubsystemBase {
 
     // TODO: Test \/
     public Command setIdle() {
+        m_locked = false;
         m_fade = false;
         m_currentMode = CANdleMode.IDLE;
         clearAnimations();
@@ -341,6 +344,7 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setSlide() {
+        m_locked = false;
         m_fade = false;
         m_currentMode = CANdleMode.SLIDE;
         clearAnimations();
@@ -362,6 +366,7 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setVictorySpin() {
+        m_locked = false;
         m_fade = false;
         m_currentMode = CANdleMode.VICTORY_SPIN;
         clearAnimations();
@@ -370,6 +375,7 @@ public class LEDs extends SubsystemBase {
     }
 
     public void setFireWorkPlz() {
+        m_locked = false;
         m_fade = false;
         m_currentMode = CANdleMode.FIRE;
         clearAnimations();
@@ -382,6 +388,7 @@ public class LEDs extends SubsystemBase {
 
     // TODO: ALL of this needs javadoc.
     public void setActive() {
+        m_locked = false;
         m_fade = false;
         m_currentMode = CANdleMode.ACTIVE;
         clearAnimations();
@@ -419,15 +426,15 @@ public class LEDs extends SubsystemBase {
 
         // TODO: document this.
         if (m_currentMode == CANdleMode.ACTIVE) {
-            if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade) {
+            if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade && !m_locked) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b);
-            } else if (!OneMechanism.getScoreMode() && !m_fade) {
+            } else if (!OneMechanism.getScoreMode() && !m_fade && !m_locked) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 16, STRIP_LENGTH - 8);
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, NUM_LEDS - STRIP_LENGTH, STRIP_LENGTH - 8);
             }
         } else if (m_currentMode == CANdleMode.FIRE) {
-            if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade) {
+            if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade && !m_locked) {
                 m_candle.setLEDs(m_color.r, m_color.g, m_color.b, 0, 0, 8);
             }
         }
