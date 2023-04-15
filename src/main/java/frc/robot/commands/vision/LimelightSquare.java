@@ -56,14 +56,21 @@ public class LimelightSquare extends PIDCommand {
     }
 
     @Override
+    public void initialize() {
+        super.initialize();
+        OneMechanism.setLocked(true);
+    }
+
+    @Override
     public void execute() {
         super.execute();
-        if(m_cone.getAsBoolean()) {
-            OneMechanism.becomeOrangeMode();
-        } else {
-            OneMechanism.becomePurpleMode();
-        }
         LimelightHelpers.setPipelineIndex("limelight", m_cone.getAsBoolean() ? 1 : 0);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
+        OneMechanism.setLocked(false);
     }
 
     // Returns true when the command should end.

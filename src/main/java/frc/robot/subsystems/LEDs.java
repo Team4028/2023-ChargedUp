@@ -55,6 +55,7 @@ public class LEDs extends SubsystemBase {
     private CANdle m_candle;
     private boolean m_beacon = false;
     private boolean m_fade = false;
+    private boolean m_locked = false;
 
     private static LEDs m_instance;
 
@@ -281,12 +282,30 @@ public class LEDs extends SubsystemBase {
         }
     }
 
-    // public void setGamepieceAlign() { //TODO: WORK IN PROGRESS, USE BOOLEAN
-    //     clearAnimations();
-    //     m_currentMode = CANdleMode.GAMEPIECE_ALIGN;
-    //     m_currentAnimations.set(0, () -> new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS));
-    // }
-
+    public void setLocked(boolean locked) {
+        clearAnimations();
+        m_locked = locked;
+        if(locked) {
+            m_currentAnimations.set(0, () -> new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS));
+        } else {
+            if(m_currentMode != CANdleMode.ACTIVE) {
+                switch (m_currentMode) {
+                    case SLIDE: 
+                        setSlide();
+                        break;
+                    case VICTORY_SPIN:
+                        setVictorySpin();
+                        break;
+                    case FIRE:
+                        setFireWorkPlz();
+                        break;
+                    default:
+                        setIdle();
+                        break;
+                }
+            }
+        }
+    }
     public boolean getFade() {
         return m_fade;
     }

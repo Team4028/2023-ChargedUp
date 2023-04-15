@@ -432,6 +432,10 @@ public class OneMechanism {
         }
     }
 
+    public static void setLocked(boolean locked) {
+        m_leds.setLocked(locked);
+    }
+
     /**
      * switches between cone and cube mode
      */
