@@ -12,7 +12,7 @@
       },
       "holonomicAngle": -30.96375653207355,
       "isReversal": false,
-      "velOverride": 3.0,
+      "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -79,7 +79,7 @@
       ]
     },
     {
-      "position": 1.2181818181818176,
+      "position": 1.6727272727272722,
       "names": [
         "CubeMid",
         "FrontLocalizeContinuous"

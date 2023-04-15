@@ -23,6 +23,7 @@ public class RunArmPID extends CommandBase {
     @Override
     public void initialize() {
         m_arm.runToPosition(m_position);
+        m_arm.setTargetPosition(m_position);
 
         m_arm.setDistanceToTravel(Math.abs(m_position - m_arm.getEncoderPosition()));
     }

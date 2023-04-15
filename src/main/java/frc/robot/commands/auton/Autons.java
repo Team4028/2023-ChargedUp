@@ -28,7 +28,6 @@ import frc.robot.OneMechanism;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.RunArmPID;
-import frc.robot.commands.auton.generation.GeneratePathNonstationary;
 import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
@@ -118,7 +117,9 @@ public class Autons {
         m_rearAprilTagVision = rearAprilTagVision;
 
         m_upperArmStowed = () -> (m_upperArm.getError() <= 0.6 * m_upperArm.getDistanceToTravel());
-        m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25);
+        // m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25);
+        m_upperArmExtended = () -> (m_upperArm.getError() <= 0.04 * m_upperArm.getDistanceToTravel())
+            && (m_lowerArm.getError() <= 0.6 * m_lowerArm.getDistanceToTravel());
 
         m_stowCommand = () -> OneMechanism.runArms(ScoringPositions.STOWED).until(m_upperArmStowed);
         // shouldnt be needed?
@@ -297,7 +298,7 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
             new LimelightSquare(
-                CUBE_TWO_CROP,
+                false,
                 () -> 3.0,
                 () -> 0.0,
                 m_drivetrain).withTimeout(0.5),
@@ -316,13 +317,12 @@ public class Autons {
             initialPath,
             Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, "Limelight"),
             new LimelightSquare(
-                CUBE_THREE_CROP,
-                () -> 
-                    LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) * LimelightHelpers.getTY("") : 3.0,
+                false,
+                () -> LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) * LimelightHelpers.getTY("") : 3.0,
                 () -> 0.0,
                 m_drivetrain).withTimeout(0.5),
-            Score(position, "2", false, "Limelight"));
-        
+            Score(position, "3", false, "Limelight"));
+
         return cmd;
     }
 
@@ -351,7 +351,7 @@ public class Autons {
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
                 return average < -8;
-            }).andThen(new WaitCommand(0.5)).deadlineWith(
+            }).andThen(new WaitCommand(1.5)).deadlineWith(
                 new SnapToAngle(SnapDirection.UP, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
 
             new QuadraticAutoBalance(m_drivetrain)
@@ -513,7 +513,7 @@ public class Autons {
     public BeakAutonCommand TwoPiece(PathPosition position, boolean balance) {
         // Acquire and Score already have existing paths, so the full two piece is
         // simply a combination of the two.
-        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.ORANGE_CONE, "2", true, true, "");
+        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.PURPLE_CUBE, "2", true, true, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
@@ -575,7 +575,7 @@ public class Autons {
                 .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
             new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
 
-            Score(position, "3", false, "")
+            Score(position, "3", true, "")
         //
         );
 

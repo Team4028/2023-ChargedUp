@@ -35,6 +35,7 @@ import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.XDrive;
 import frc.robot.commands.vision.LimelightDrive;
+import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
@@ -273,7 +274,12 @@ public class RobotContainer {
         BooleanSupplier nodeInterrupt = () -> Math.abs(speedScaledDriverLeftX()) > 0.1 ||
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
-        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
+        // m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
+        m_driverController.dpadDown.onTrue(new LimelightSquare(
+            true,
+            () -> -speedScaledDriverLeftY(),
+            () -> speedScaledDriverLeftX(),
+            m_drive));
         // m_driverController.dpadDown.toggleOnTrue(new
         // LimelightSquare(m_drive));//.andThen(new LimelightDrive(m_drive)));
 
@@ -502,10 +508,10 @@ public class RobotContainer {
         m_autoChooser.addOption("2 Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
 
         m_autoChooser.addOption("2 Top Bal", m_autons.TwoPiece(PathPosition.Top, true));
-        m_autoChooser.addOption("2 Bottom Bal", m_autons.TwoPiece(PathPosition.Bottom, true));
+        m_autoChooser.addOption("2 Bottom Bal (OHCL)", m_autons.TwoPiece(PathPosition.Bottom, true));
 
         m_autoChooser.addOption("2.25 Top", m_autons.TwoQuarterPiece(PathPosition.Top));
-        m_autoChooser.addOption("2.25 Bottom", m_autons.TwoQuarterPiece(PathPosition.Bottom));
+        m_autoChooser.addOption("2.25 Bottom (OHCL)", m_autons.TwoQuarterPiece(PathPosition.Bottom));
 
         m_autoChooser.addOption("3 Top", m_autons.ThreePiece(PathPosition.Top, false));
         m_autoChooser.addOption("3 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
@@ -531,6 +537,10 @@ public class RobotContainer {
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
 
         m_autoChooser.addOption("2 Top Limelight", m_autons.LimelightTwoPiece(PathPosition.Top));
+        m_autoChooser.addOption("2 Bottom Limelight", m_autons.LimelightTwoPiece(PathPosition.Bottom));
+
+        m_autoChooser.addOption("3 Top Limelight", m_autons.LimelightThreePiece(PathPosition.Top));
+        // m_autoChooser.addOption("3 Bottom Limelight", m_autons.LimelightThreePiece(PathPosition.Bottom));
 
         // m_autoChooser.addOption("Cool preload sequence", new
         // BeakAutonCommand(m_drive, new Pose2d(),

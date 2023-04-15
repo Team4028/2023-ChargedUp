@@ -85,7 +85,6 @@ public abstract class Arm extends SubsystemBase {
      */
     public void runToPosition(double position) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition);
-        m_targetPosition = position;
     }
 
     /**
@@ -94,11 +93,10 @@ public abstract class Arm extends SubsystemBase {
      * @param position
      *            the encoder position to run it to
      * @param feedForward
-     *            The return of {@code ElevatorFeedForward.calculate();}
+     *            The feedforward value, in volts.
      */
     public void runToPosition(double position, double feedForward) {
         m_pid.setReference(position, CANSparkMax.ControlType.kPosition, 0, feedForward);
-        m_targetPosition = position;
     }
 
     public boolean atTargetPosition() {
@@ -143,34 +141,22 @@ public abstract class Arm extends SubsystemBase {
     }
 
     /**
+     * Get the goal position of the arm.
      * 
-     * @return the target position of the arm in rotations
+     * @return The goal position of the arm, in rotations.
      */
     public double getTargetPosition() {
         return m_targetPosition;
     }
 
     /**
-     * Example command factory method.
-     *
-     * @return a command
+     * Set the target commanded position of the arm.
+     * 
+     * @param rotations
+     *            The target position, in rotations.
      */
-    public Command exampleMethodCommand() {
-        // Inline construction of command goes here.
-        // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return new InstantCommand(() -> {
-        });
-    }
-
-    /**
-     * An example method querying a boolean state of the subsystem (for example, a
-     * digital sensor).
-     *
-     * @return value of some boolean subsystem state, such as a digital sensor.
-     */
-    public boolean exampleCondition() {
-        // Query some boolean state, such as a digital sensor.
-        return false;
+    public void setTargetPosition(double rotations) {
+        m_targetPosition = rotations;
     }
 
     /**
@@ -215,9 +201,9 @@ public abstract class Arm extends SubsystemBase {
     }
 
     public abstract Command changePositionCommand(double delta);
-    //     return runOnce(() -> {
-    //         runToPosition(m_targetPosition + delta);
-    //     });
+    // return runOnce(() -> {
+    // runToPosition(m_targetPosition + delta);
+    // });
     // }
 
     @Override

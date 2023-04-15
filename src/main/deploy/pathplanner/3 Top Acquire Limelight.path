@@ -24,12 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 5.822435502013861,
-        "y": 4.466199789542436
+        "x": 4.82,
+        "y": 4.094016473747233
       },
       "prevControl": {
-        "x": 5.355865045200644,
-        "y": 4.986605299064871
+        "x": 4.353429543186783,
+        "y": 4.614421983269668
       },
       "nextControl": null,
       "holonomicAngle": -39.99935540244158,
@@ -57,16 +57,10 @@
       ]
     },
     {
-      "position": 0.2727272727272726,
+      "position": 0.4727272727272734,
       "names": [
-        "FrontLocalize"
-      ]
-    },
-    {
-      "position": 0.6181818181818182,
-      "names": [
-        "ConePickup",
-        "RunGripperSmart"
+        "CubePickup",
+        "RunGripperIn"
       ]
     }
   ]

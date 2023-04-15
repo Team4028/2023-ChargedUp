@@ -20,10 +20,10 @@ public class LimelightSquare extends PIDCommand {
     /** The threshold for the TY value below which the cube will be considered "picked up" */
     private static final double PICKUP_THRESHOLD = -12;
 
-    private final double[] m_cropWindow;
+    private final boolean m_continuous;
 
     /** Creates a new LimelightSquare. */
-    public LimelightSquare(double[] cropWindow, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
+    public LimelightSquare(boolean continuous, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
         super(
             // The ProfiledPIDController used by the command
             // use pidcontroller
@@ -48,12 +48,7 @@ public class LimelightSquare extends PIDCommand {
         getController().enableContinuousInput(-Math.PI, Math.PI);
         addRequirements(drivetrain);
 
-        m_cropWindow = cropWindow;
-    }
-
-    @Override
-    public void initialize() {
-        super.initialize();
+        m_continuous = continuous;
     }
 
     // Returns true when the command should end.
@@ -61,6 +56,6 @@ public class LimelightSquare extends PIDCommand {
     public boolean isFinished() {
         // return Math.abs(LimelightHelpers.getTX("")) < (0.5);
         // return false;
-        return LimelightHelpers.getTY("") < PICKUP_THRESHOLD;
+        return m_continuous ? false : LimelightHelpers.getTY("") < PICKUP_THRESHOLD;
     }
 }

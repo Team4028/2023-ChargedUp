@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 6.95,
-        "y": 0.67
+        "x": 6.967614935229871,
+        "y": 0.9161435465728075
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.888881672049059,
-        "y": 0.4398486882688051
+        "x": 5.906496607278929,
+        "y": 0.6859922348416125
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -28,16 +28,16 @@
         "y": 0.7300518886752065
       },
       "prevControl": {
-        "x": 4.929402436354178,
-        "y": 0.8052700142533925
+        "x": 4.9345683540460685,
+        "y": 0.7491251352574971
       },
       "nextControl": {
-        "x": 2.6731920606698356,
-        "y": 0.47238651620160466
+        "x": 4.033092637613847,
+        "y": 0.7157371457600057
       },
-      "holonomicAngle": 90.0,
+      "holonomicAngle": 96.8427734126309,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.5,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -49,15 +49,40 @@
     },
     {
       "anchorPoint": {
-        "x": 2.14,
-        "y": 1.0
+        "x": 3.446188178090642,
+        "y": 0.73
       },
       "prevControl": {
-        "x": 2.9273108603360076,
-        "y": 0.7709641133567976
+        "x": 3.7328406815788155,
+        "y": 0.73
+      },
+      "nextControl": {
+        "x": 3.073731671143343,
+        "y": 0.73
+      },
+      "holonomicAngle": 96.84,
+      "isReversal": false,
+      "velOverride": 1.5,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.814307485757829,
+        "y": 1.073605718640009
+      },
+      "prevControl": {
+        "x": 2.558674117348234,
+        "y": 0.9734025182336075
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -72,7 +97,7 @@
   ],
   "markers": [
     {
-      "position": 1.1090909090909105,
+      "position": 1.254545454545453,
       "names": [
         "CubePrep"
       ]
