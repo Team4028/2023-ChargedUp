@@ -245,6 +245,12 @@ public class RobotContainer {
         m_driverController.y.toggleOnTrue(new QuadraticAutoBalance(m_drive));
 
         // ================================================
+        // DRIVER CONTROLLER - RS
+        // CANCEL SNAPS AND GAMEPIECE ALIGN
+        // ================================================
+        // m_driverController.rs.onTrue()
+
+        // ================================================
         // DRIVER CONTROLLER - DPAD LEFT
         // DECREMENT NODE
         // ================================================
@@ -275,18 +281,6 @@ public class RobotContainer {
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
         // m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
-        m_driverController.ls.toggleOnTrue(new LimelightSquare(
-            () -> false,
-            true,
-            () -> -speedScaledDriverLeftY(),
-            () -> speedScaledDriverLeftX(),
-            m_drive));
-        m_driverController.rs.toggleOnTrue(new LimelightSquare(
-            () -> true,
-            true,
-            () -> -speedScaledDriverLeftY(),
-            () -> speedScaledDriverLeftX(),
-            m_drive));
         // m_driverController.dpadDown.toggleOnTrue(new
         // LimelightSquare(m_drive));//.andThen(new LimelightDrive(m_drive)));
 
@@ -345,20 +339,34 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - LS
         // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBE
         // ================================================
-        m_operatorController.ls
-            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE), // Cubes if Purple
-                                                                                                      // Mode
-                OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED), // Cones Otherwise
-                () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+        m_operatorController.ls.toggleOnTrue(new LimelightSquare(
+            () -> false,
+            true,
+            () -> -speedScaledDriverLeftY(),
+            () -> speedScaledDriverLeftX(),
+            m_drive));
+        m_operatorController.rs.toggleOnTrue(new LimelightSquare(
+            () -> true,
+            true,
+            () -> -speedScaledDriverLeftY(),
+            () -> speedScaledDriverLeftX(),
+            m_drive));
+
+        m_operatorController.axisLessThan(1, -0.5)
+            .onTrue(OneMechanism.runArms(ScoringPositions.FLOOR_CUBE_SEEK));
+        
+        m_operatorController.axisGreaterThan(1, 0.5)
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
 
         // ================================================
-        // OPERATOR CONTROLLER - RS
+        // OPERATOR CONTROLLER - RY < -0.5
         // ACQUIRE_FLOOR_UPRIGHT_CONE
         // ================================================
-        m_operatorController.rs
-            .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT),
-                Commands.none(),
-                () -> OneMechanism.getGamePieceMode() == GamePieceMode.ORANGE_CONE));
+        m_operatorController.axisLessThan(5, -0.5)
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
+        
+        m_operatorController.axisGreaterThan(5, 0.5)
+            .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
 
         // ================================================
         // OPERATOR CONTROLLER - RT

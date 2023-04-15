@@ -14,6 +14,7 @@ import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -279,6 +280,12 @@ public class LEDs extends SubsystemBase {
             }
         }
     }
+
+    // public void setGamepieceAlign() { //TODO: WORK IN PROGRESS, USE BOOLEAN
+    //     clearAnimations();
+    //     m_currentMode = CANdleMode.GAMEPIECE_ALIGN;
+    //     m_currentAnimations.set(0, () -> new StrobeAnimation(m_color.r, m_color.g, m_color.b, 0, 0.5, NUM_LEDS));
+    // }
 
     public boolean getFade() {
         return m_fade;

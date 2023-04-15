@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
+import frc.robot.OneMechanism;
 import frc.robot.utilities.LimelightHelpers;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -41,8 +42,8 @@ public class LimelightSquare extends PIDCommand {
             (output) -> {
                 // Use the output (and setpoint, if desired) here
                 drivetrain.drive(new ChassisSpeeds(
-                    xSupplier.getAsDouble(),
-                    ySupplier.getAsDouble(),
+                    xSupplier.getAsDouble() * drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                    ySupplier.getAsDouble() * drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
                     output));
             });
         // Use addRequirements() here to declare subsystem dependencies.
@@ -57,6 +58,11 @@ public class LimelightSquare extends PIDCommand {
     @Override
     public void execute() {
         super.execute();
+        if(m_cone.getAsBoolean()) {
+            OneMechanism.becomeOrangeMode();
+        } else {
+            OneMechanism.becomePurpleMode();
+        }
         LimelightHelpers.setPipelineIndex("limelight", m_cone.getAsBoolean() ? 1 : 0);
     }
 

@@ -5,6 +5,7 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.OneMechanism;
 import frc.robot.subsystems.arms.Arm;
 
 public class RunArmPID extends CommandBase {
@@ -22,8 +23,8 @@ public class RunArmPID extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_arm.runToPosition(m_position);
         m_arm.setTargetPosition(m_position);
+        m_arm.runToPosition(m_position);
 
         m_arm.setDistanceToTravel(Math.abs(m_position - m_arm.getEncoderPosition()));
     }
