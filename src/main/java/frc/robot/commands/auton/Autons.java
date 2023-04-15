@@ -298,6 +298,7 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
             new LimelightSquare(
+                () -> false,
                 false,
                 () -> 3.0,
                 () -> 0.0,
@@ -317,6 +318,7 @@ public class Autons {
             initialPath,
             Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, "Limelight"),
             new LimelightSquare(
+                () -> false,
                 false,
                 () -> LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) * LimelightHelpers.getTY("") : 3.0,
                 () -> 0.0,

@@ -275,7 +275,14 @@ public class RobotContainer {
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
         // m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
-        m_driverController.dpadDown.onTrue(new LimelightSquare(
+        m_driverController.ls.toggleOnTrue(new LimelightSquare(
+            () -> false,
+            true,
+            () -> -speedScaledDriverLeftY(),
+            () -> speedScaledDriverLeftX(),
+            m_drive));
+        m_driverController.rs.toggleOnTrue(new LimelightSquare(
+            () -> true,
             true,
             () -> -speedScaledDriverLeftY(),
             () -> speedScaledDriverLeftX(),

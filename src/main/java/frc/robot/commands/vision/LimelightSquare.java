@@ -4,6 +4,7 @@
 
 package frc.robot.commands.vision;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -21,18 +22,19 @@ public class LimelightSquare extends PIDCommand {
     private static final double PICKUP_THRESHOLD = -12;
 
     private final boolean m_continuous;
+    private BooleanSupplier m_cone;
 
     /** Creates a new LimelightSquare. */
-    public LimelightSquare(boolean continuous, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
+    public LimelightSquare(BooleanSupplier cone, boolean continuous, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
         super(
             // The ProfiledPIDController used by the command
             // use pidcontroller
             // new ProfiledPIDController(5., 0.0, 0,
             //     new TrapezoidProfile.Constraints(
             //         drivetrain.getPhysics().maxAngularVelocity.getAsRadiansPerSecond() / 2., 1.0)),
-            new PIDController(20.56, 0, 0), // 5.0 good
+            new PIDController(5.0, 0, 0), // 5.0 good
             // This should return the measurement
-            () -> Units.degreesToRadians(LimelightHelpers.getTX("")),
+            () -> Units.degreesToRadians(LimelightHelpers.getTX("limelight")),
             // This should return the goal (can also be a constant)
             () -> 0.,
             // This uses the output
@@ -49,6 +51,13 @@ public class LimelightSquare extends PIDCommand {
         addRequirements(drivetrain);
 
         m_continuous = continuous;
+        m_cone = cone;
+    }
+
+    @Override
+    public void execute() {
+        super.execute();
+        LimelightHelpers.setPipelineIndex("limelight", m_cone.getAsBoolean() ? 1 : 0);
     }
 
     // Returns true when the command should end.
