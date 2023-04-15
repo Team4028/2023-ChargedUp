@@ -108,7 +108,7 @@ public abstract class Arm extends SubsystemBase {
     }
 
     public BooleanSupplier isReady() {
-        return (() -> this.getError() < 0.75 * this.m_distanceToTravel);
+        return () -> m_distanceToTravel > 1.0 ? getError() < 0.75 * m_distanceToTravel : getError() <= 1.0;
     }
 
     public double getError() {

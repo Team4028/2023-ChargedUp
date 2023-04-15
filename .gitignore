@@ -162,4 +162,4 @@ bin/
 *-window.json
 
 # This is regenerated each build and is unnecessary.
-BuildConstants.java
+src/main/java/frc/robot/BuildConstants.java

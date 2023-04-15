@@ -23,10 +23,10 @@ public class LimelightSquare extends PIDCommand {
     private static final double PICKUP_THRESHOLD = -12;
 
     private final boolean m_continuous;
-    private BooleanSupplier m_cone;
+    private boolean m_cone;
 
     /** Creates a new LimelightSquare. */
-    public LimelightSquare(BooleanSupplier cone, boolean continuous, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
+    public LimelightSquare(boolean cone, boolean continuous, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
         super(
             // The ProfiledPIDController used by the command
             // use pidcontroller
@@ -42,8 +42,8 @@ public class LimelightSquare extends PIDCommand {
             (output) -> {
                 // Use the output (and setpoint, if desired) here
                 drivetrain.drive(new ChassisSpeeds(
-                    xSupplier.getAsDouble() * drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                    ySupplier.getAsDouble() * drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                    xSupplier.getAsDouble(),
+                    ySupplier.getAsDouble(),
                     output));
             });
         // Use addRequirements() here to declare subsystem dependencies.
@@ -64,7 +64,7 @@ public class LimelightSquare extends PIDCommand {
     @Override
     public void execute() {
         super.execute();
-        LimelightHelpers.setPipelineIndex("limelight", m_cone.getAsBoolean() ? 1 : 0);
+        LimelightHelpers.setPipelineIndex("limelight", m_cone ? 1 : 0);
     }
 
     @Override

@@ -207,6 +207,7 @@ public class Autons {
             mode == GamePieceMode.ORANGE_CONE ? OneMechanism.orangeModeCommand() : OneMechanism.purpleModeCommand(),
 
             new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+            new InstantCommand(() -> m_lowerArm.setEncoderPosition(0.)),
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
@@ -298,7 +299,7 @@ public class Autons {
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
             new LimelightSquare(
-                () -> false,
+                false,
                 false,
                 () -> 3.0,
                 () -> 0.0,
@@ -318,7 +319,7 @@ public class Autons {
             initialPath,
             Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, "Limelight"),
             new LimelightSquare(
-                () -> false,
+                false,
                 false,
                 () -> LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) * LimelightHelpers.getTY("") : 3.0,
                 () -> 0.0,

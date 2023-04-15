@@ -11,6 +11,8 @@ import frc.robot.subsystems.arms.Arm;
 public class CurrentZero extends CommandBase {
     private Arm m_arm;
 
+    private final double m_zeroOffset;
+
     /**
      * Creates a new ExampleCommand.
      *
@@ -18,7 +20,8 @@ public class CurrentZero extends CommandBase {
      *            The subsystem used by this command.
      * @return
      */
-    public CurrentZero(Arm arm) {
+    public CurrentZero(double zeroOffset, Arm arm) {
+        m_zeroOffset = zeroOffset;
         m_arm = arm;
         addRequirements(arm);
         // Use addRequirements() here to declare subsystem dependencies.
@@ -40,7 +43,7 @@ public class CurrentZero extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_arm.zeroEncoder();
+        m_arm.setEncoderPosition(m_zeroOffset);
         m_arm.runArmVbus(0.0);
     }
 

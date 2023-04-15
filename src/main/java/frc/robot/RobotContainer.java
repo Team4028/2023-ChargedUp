@@ -192,8 +192,8 @@ public class RobotContainer {
         // CURRENT-ZERO ROUTINE
         // ================================================
         m_driverController.back.onTrue(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
-            .andThen(new CurrentZero(m_upperArm))
-            .andThen(new CurrentZero(m_lowerArm))
+            .andThen(new CurrentZero(0.65, m_upperArm))
+            .andThen(new CurrentZero(0., m_lowerArm))
             .andThen(new WaitCommand(0.5))
             .andThen(m_upperArm.holdArmPosition())
             .andThen(m_lowerArm.holdArmPosition()));
@@ -248,7 +248,8 @@ public class RobotContainer {
         // DRIVER CONTROLLER - RS
         // CANCEL SNAPS AND GAMEPIECE ALIGN
         // ================================================
-        // m_driverController.rs.onTrue()
+        m_driverController.rs.onTrue(new InstantCommand(() -> {
+        }, m_drive, m_gripper));
 
         // ================================================
         // DRIVER CONTROLLER - DPAD LEFT
@@ -280,9 +281,7 @@ public class RobotContainer {
         BooleanSupplier nodeInterrupt = () -> Math.abs(speedScaledDriverLeftX()) > 0.1 ||
             Math.abs(speedScaledDriverLeftY()) > 0.1 ||
             Math.abs(speedScaledDriverRightX()) > 0.1;
-        // m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
-        // m_driverController.dpadDown.toggleOnTrue(new
-        // LimelightSquare(m_drive));//.andThen(new LimelightDrive(m_drive)));
+        m_driverController.dpadDown.onTrue(OneMechanism.runToNodePosition(nodeInterrupt));
 
         // ================================================
         // OPERATOR CONTROLLER - LB
@@ -339,22 +338,24 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - LS
         // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBE
         // ================================================
-        m_operatorController.ls.toggleOnTrue(new LimelightSquare(
-            () -> false,
+        m_operatorController.ls.toggleOnTrue(OneMechanism.purpleModeCommand().andThen(
+            new LimelightSquare(
+                false,
+                true,
+                () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                m_drive)));
+
+        m_operatorController.rs.toggleOnTrue(OneMechanism.orangeModeCommand().andThen(new LimelightSquare(
             true,
-            () -> -speedScaledDriverLeftY(),
-            () -> speedScaledDriverLeftX(),
-            m_drive));
-        m_operatorController.rs.toggleOnTrue(new LimelightSquare(
-            () -> true,
             true,
-            () -> -speedScaledDriverLeftY(),
-            () -> speedScaledDriverLeftX(),
-            m_drive));
+            () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+            () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+            m_drive)));
 
         m_operatorController.axisLessThan(1, -0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.FLOOR_CUBE_SEEK));
-        
+
         m_operatorController.axisGreaterThan(1, 0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
 
@@ -364,7 +365,7 @@ public class RobotContainer {
         // ================================================
         m_operatorController.axisLessThan(5, -0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
-        
+
         m_operatorController.axisGreaterThan(5, 0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
 
@@ -555,7 +556,8 @@ public class RobotContainer {
         m_autoChooser.addOption("2 Bottom Limelight", m_autons.LimelightTwoPiece(PathPosition.Bottom));
 
         m_autoChooser.addOption("3 Top Limelight", m_autons.LimelightThreePiece(PathPosition.Top));
-        // m_autoChooser.addOption("3 Bottom Limelight", m_autons.LimelightThreePiece(PathPosition.Bottom));
+        // m_autoChooser.addOption("3 Bottom Limelight",
+        // m_autons.LimelightThreePiece(PathPosition.Bottom));
 
         // m_autoChooser.addOption("Cool preload sequence", new
         // BeakAutonCommand(m_drive, new Pose2d(),
