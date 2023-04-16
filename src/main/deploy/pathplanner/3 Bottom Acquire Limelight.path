@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.79,
-        "y": 0.48670125911680434
+        "x": 2.14,
+        "y": 1.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7900000000000036,
-        "y": 0.48670125911680434
+        "x": 2.6731920606698356,
+        "y": 0.6871076599296062
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -24,18 +24,18 @@
     },
     {
       "anchorPoint": {
-        "x": 4.26,
+        "x": 3.575020864327443,
         "y": 0.701422402844806
       },
       "prevControl": {
-        "x": 3.26,
-        "y": 0.701422402844806
+        "x": 3.2298960613410936,
+        "y": 0.7290323870837142
       },
       "nextControl": {
-        "x": 5.260000000000001,
-        "y": 0.701422402844806
+        "x": 3.9328894372074457,
+        "y": 0.6727929170144054
       },
-      "holonomicAngle": -75.67774418684645,
+      "holonomicAngle": 90.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -49,42 +49,17 @@
     },
     {
       "anchorPoint": {
-        "x": 6.75,
-        "y": 0.62
+        "x": 5.249845785405857,
+        "y": 0.8445698319968078
       },
       "prevControl": {
-        "x": 5.8623705052893955,
-        "y": 0.62
-      },
-      "nextControl": {
-        "x": 6.950127670251875,
-        "y": 0.62
-      },
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.95,
-        "y": 0.62
-      },
-      "prevControl": {
-        "x": 6.780625498291416,
-        "y": 0.62
+        "x": 4.777459269204253,
+        "y": 0.2719801153888028
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 36.06,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 3.25,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -97,9 +72,15 @@
   ],
   "markers": [
     {
-      "position": 1.2000000000000002,
+      "position": 0.1272727272727273,
       "names": [
-        "CubePickup",
+        "FrontLocalize"
+      ]
+    },
+    {
+      "position": 1.4727272727272707,
+      "names": [
+        "ConePickup",
         "RunGripperIn"
       ]
     }

@@ -4,7 +4,6 @@
 
 package frc.robot.commands.vision;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -20,10 +19,13 @@ import frc.robot.utilities.LimelightHelpers;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class LimelightSquare extends PIDCommand {
     /** The threshold for the TY value below which the cube will be considered "picked up" */
-    private static final double PICKUP_THRESHOLD = -12;
+    private static final double CUBE_PICKUP_THRESHOLD = -12;
+
+    /** The threshold for the TY value below which the cone will be considered "picked up" */
+    private static final double CONE_PICKUP_THRESHOLD = -1;
 
     private final boolean m_continuous;
-    private boolean m_cone;
+    private final boolean m_cone;
 
     /** Creates a new LimelightSquare. */
     public LimelightSquare(boolean cone, boolean continuous, DoubleSupplier xSupplier, DoubleSupplier ySupplier, BeakDrivetrain drivetrain) {
@@ -35,7 +37,7 @@ public class LimelightSquare extends PIDCommand {
             //         drivetrain.getPhysics().maxAngularVelocity.getAsRadiansPerSecond() / 2., 1.0)),
             new PIDController(5.0, 0, 0), // 5.0 good
             // This should return the measurement
-            () -> Units.degreesToRadians(LimelightHelpers.getTX("limelight")),
+            () -> Units.degreesToRadians(LimelightHelpers.getTX("")),
             // This should return the goal (can also be a constant)
             () -> 0.,
             // This uses the output
@@ -44,7 +46,8 @@ public class LimelightSquare extends PIDCommand {
                 drivetrain.drive(new ChassisSpeeds(
                     xSupplier.getAsDouble(),
                     ySupplier.getAsDouble(),
-                    output));
+                    // FIXME: ugly
+                    continuous ? output : (LimelightHelpers.getTY("") < (cone ? CONE_PICKUP_THRESHOLD : CUBE_PICKUP_THRESHOLD) ? 0. : output)));
             });
         // Use addRequirements() here to declare subsystem dependencies.
         // Configure additional PID options by calling `getController` here.
@@ -55,6 +58,8 @@ public class LimelightSquare extends PIDCommand {
         m_cone = cone;
     }
 
+    // think about: fast accel for second part of the path
+
     @Override
     public void initialize() {
         super.initialize();
@@ -64,7 +69,7 @@ public class LimelightSquare extends PIDCommand {
     @Override
     public void execute() {
         super.execute();
-        LimelightHelpers.setPipelineIndex("limelight", m_cone ? 1 : 0);
+        LimelightHelpers.setPipelineIndex("", m_cone ? 1 : 0);
     }
 
     @Override
@@ -78,6 +83,6 @@ public class LimelightSquare extends PIDCommand {
     public boolean isFinished() {
         // return Math.abs(LimelightHelpers.getTX("")) < (0.5);
         // return false;
-        return m_continuous ? false : LimelightHelpers.getTY("") < PICKUP_THRESHOLD;
+        return false;
     }
 }

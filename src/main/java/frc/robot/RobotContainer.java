@@ -16,7 +16,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -552,10 +551,7 @@ public class RobotContainer {
 
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
 
-        m_autoChooser.addOption("2 Top Limelight", m_autons.LimelightTwoPiece(PathPosition.Top));
-        m_autoChooser.addOption("2 Bottom Limelight", m_autons.LimelightTwoPiece(PathPosition.Bottom));
-
-        m_autoChooser.addOption("3 Top Limelight", m_autons.LimelightThreePiece(PathPosition.Top));
+        m_autoChooser.addOption("3 Bottom Limelight", m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.ORANGE_CONE));
         // m_autoChooser.addOption("3 Bottom Limelight",
         // m_autons.LimelightThreePiece(PathPosition.Bottom));
 

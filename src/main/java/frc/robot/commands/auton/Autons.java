@@ -167,6 +167,8 @@ public class Autons {
             OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CUBE));
         m_eventMap.put("ConePickup",
             OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.AUTON_URPIGHT_CONE));
+        m_eventMap.put("TippedConePickup",
+            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
 
         m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
         m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
@@ -292,42 +294,46 @@ public class Autons {
     }
 
     // Fake
-    public BeakAutonCommand LimelightTwoPiece(PathPosition position) {
-        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.PURPLE_CUBE, "2", true, false,
-            "Limelight");
+    // public BeakAutonCommand LimelightTwoPiece(PathPosition position) {
+    // BeakAutonCommand initialPath = Acquire(position, GamePieceMode.PURPLE_CUBE,
+    // "2", true, false,
+    // "Limelight");
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            new LimelightSquare(
-                false,
-                false,
-                () -> 3.0,
-                () -> 0.0,
-                m_drivetrain).withTimeout(0.5),
-            Score(position, "2", false, "Limelight"));
-        // new GeneratePathNonstationary(() -> new Pose2d(7.08, 4.60,
-        // Rotation2d.fromDegrees(-8.)), () -> false,
-        // m_drivetrain),
+    // BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
+    // initialPath.getInitialPose(),
+    // initialPath,
+    // new LimelightSquare(
+    // false,
+    // false,
+    // () -> 3.0,
+    // () -> 0.0,
+    // m_drivetrain).withTimeout(0.5),
+    // Score(position, "2", false, "Limelight"));
+    // // new GeneratePathNonstationary(() -> new Pose2d(7.08, 4.60,
+    // // Rotation2d.fromDegrees(-8.)), () -> false,
+    // // m_drivetrain),
 
-        return cmd;
-    }
+    // return cmd;
+    // }
 
-    public BeakAutonCommand LimelightThreePiece(PathPosition position) {
-        BeakAutonCommand initialPath = LimelightTwoPiece(position);
+    // public BeakAutonCommand LimelightThreePiece(PathPosition position) {
+    // BeakAutonCommand initialPath = LimelightTwoPiece(position);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, "Limelight"),
-            new LimelightSquare(
-                false,
-                false,
-                () -> LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) * LimelightHelpers.getTY("") : 3.0,
-                () -> 0.0,
-                m_drivetrain).withTimeout(0.5),
-            Score(position, "3", false, "Limelight"));
+    // BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
+    // initialPath.getInitialPose(),
+    // initialPath,
+    // Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, "Limelight"),
+    // new LimelightSquare(
+    // false,
+    // false,
+    // () -> LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) *
+    // LimelightHelpers.getTY("") : 3.0,
+    // () -> 0.0,
+    // m_drivetrain).withTimeout(0.5),
+    // Score(position, "3", false, "Limelight"));
 
-        return cmd;
-    }
+    // return cmd;
+    // }
 
     // ================================================
     // CHARGE STATION CUSTOM AUTOS
@@ -581,6 +587,23 @@ public class Autons {
             Score(position, "3", true, "")
         //
         );
+
+        return cmd;
+    }
+
+    public BeakAutonCommand LimelightThreePiece(PathPosition position, GamePieceMode mode) {
+        BeakAutonCommand initialPath = TwoPiece(position, false);
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+            initialPath,
+            Acquire(position, mode, "3", false, false, "Limelight"),
+            new LimelightSquare(
+                mode == GamePieceMode.ORANGE_CONE,
+                false,
+                () -> LimelightHelpers.getTY("") < 5. ? 3.25 + (1. / 8.) * (5 + LimelightHelpers.getTY("")) : 3.25,
+                () -> 0.0,
+                m_drivetrain).withTimeout(0.72),
+            Score(position, "3", true, "Limelight"));
 
         return cmd;
     }
