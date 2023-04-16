@@ -547,13 +547,13 @@ public class RobotContainer {
                 m_autons.Balance(PathPosition.Bottom, "2")));
 
         m_autoChooser.addOption("1 Mobility Bal",
-            m_autons.OnePieceMobilityBalance());
+            m_autons.OnePieceMobilityBalance(true));
 
+        m_autoChooser.addOption("3 Bottom Limelight", m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
+
+        m_autoChooser.addOption("Preload Sequence", new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));
+        m_autoChooser.addOption("Auton Zero", new BeakAutonCommand(m_autons.autonZero()));
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
-
-        m_autoChooser.addOption("3 Bottom Limelight", m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.ORANGE_CONE));
-        // m_autoChooser.addOption("3 Bottom Limelight",
-        // m_autons.LimelightThreePiece(PathPosition.Bottom));
 
         // m_autoChooser.addOption("Cool preload sequence", new
         // BeakAutonCommand(m_drive, new Pose2d(),

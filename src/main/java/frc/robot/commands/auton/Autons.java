@@ -164,11 +164,16 @@ public class Autons {
         m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
         m_eventMap.put("CubePickup",
-            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CUBE));
+            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CUBE)
+                .alongWith(new InstantCommand(() -> LimelightHelpers.setPipelineIndex("", 0))));
+
         m_eventMap.put("ConePickup",
-            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.AUTON_URPIGHT_CONE));
+            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.AUTON_URPIGHT_CONE)
+                .alongWith(new InstantCommand(() -> LimelightHelpers.setPipelineIndex("", 1))));
+
         m_eventMap.put("TippedConePickup",
-            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
+            OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
+                .alongWith(new InstantCommand(() -> LimelightHelpers.setPipelineIndex("", 1))));
 
         m_eventMap.put("RunGripperIn", m_gripper.runMotorIn());
         m_eventMap.put("RunGripperOut", m_gripper.runMotorOut());
@@ -196,6 +201,17 @@ public class Autons {
     }
 
     /**
+     * Zero the arms based on the starting point of auton.
+     * 
+     * @return A {@link Command} that sets the arms to the offsets the arms live at
+     *         at the beginning of a match.
+     */
+    public Command autonZero() {
+        return new SequentialCommandGroup(new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
+            new InstantCommand(() -> m_lowerArm.setEncoderPosition(0.)));
+    }
+
+    /**
      * Sequence of commands to score the preloaded game piece.
      * 
      * @param mode
@@ -208,8 +224,8 @@ public class Autons {
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
             mode == GamePieceMode.ORANGE_CONE ? OneMechanism.orangeModeCommand() : OneMechanism.purpleModeCommand(),
 
-            new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-            new InstantCommand(() -> m_lowerArm.setEncoderPosition(0.)),
+            autonZero(),
+            
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
@@ -233,8 +249,9 @@ public class Autons {
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
             OneMechanism.orangeModeCommand(),
 
-            new InstantCommand(() -> m_upperArm.setEncoderPosition(UPPER_ARM_OFFSET)),
-            new InstantCommand(() -> m_lowerArm.setEncoderPosition(0.)),
+            autonZero(),
+
+            // wacky timing stuff
             new WaitCommand(0.02),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.5)),
             new WaitCommand(0.04),
@@ -293,75 +310,37 @@ public class Autons {
         return Trajectories.loadPath(m_drivetrain, position, part, pieceNum, scoreHigh, data);
     }
 
-    // Fake
-    // public BeakAutonCommand LimelightTwoPiece(PathPosition position) {
-    // BeakAutonCommand initialPath = Acquire(position, GamePieceMode.PURPLE_CUBE,
-    // "2", true, false,
-    // "Limelight");
-
-    // BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
-    // initialPath.getInitialPose(),
-    // initialPath,
-    // new LimelightSquare(
-    // false,
-    // false,
-    // () -> 3.0,
-    // () -> 0.0,
-    // m_drivetrain).withTimeout(0.5),
-    // Score(position, "2", false, "Limelight"));
-    // // new GeneratePathNonstationary(() -> new Pose2d(7.08, 4.60,
-    // // Rotation2d.fromDegrees(-8.)), () -> false,
-    // // m_drivetrain),
-
-    // return cmd;
-    // }
-
-    // public BeakAutonCommand LimelightThreePiece(PathPosition position) {
-    // BeakAutonCommand initialPath = LimelightTwoPiece(position);
-
-    // BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
-    // initialPath.getInitialPose(),
-    // initialPath,
-    // Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, "Limelight"),
-    // new LimelightSquare(
-    // false,
-    // false,
-    // () -> LimelightHelpers.getTY("") < 0. ? 3.0 + (1. / 12.) *
-    // LimelightHelpers.getTY("") : 3.0,
-    // () -> 0.0,
-    // m_drivetrain).withTimeout(0.5),
-    // Score(position, "3", false, "Limelight"));
-
-    // return cmd;
-    // }
-
     // ================================================
     // CHARGE STATION CUSTOM AUTOS
     // ================================================
-    public BeakAutonCommand OnePieceMobilityBalance() {
+    public BeakAutonCommand OnePieceMobilityBalance(boolean scoreHigh) {
         LinearFilter filter = LinearFilter.movingAverage(6);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, new Pose2d(1.73, 2.76, new Rotation2d()),
-            coolPreloadScoreSequence().withTimeout(2.0),
+        SnapDirection direction = scoreHigh ? SnapDirection.DOWN : SnapDirection.UP;
+        Rotation2d initialRotation = scoreHigh ? Rotation2d.fromDegrees(180.) : new Rotation2d();
+
+        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, new Pose2d(1.73, 2.76, initialRotation),
+            getPreloadScoreSequence(GamePieceMode.ORANGE_CONE, scoreHigh),
 
             // Drive fast until we hit the charge station
-            new WaitUntilCommand(() -> m_drivetrain.getJerk() > 0.8).deadlineWith(
-                new SnapToAngle(SnapDirection.UP, () -> 2.25, () -> 0., () -> false, false, m_drivetrain)),
+            new WaitUntilCommand(() -> scoreHigh ? m_drivetrain.getJerk() < -0.8 : m_drivetrain.getJerk() > 0.8)
+                .deadlineWith(
+                    new SnapToAngle(direction, () -> 2.5, () -> 0., () -> false, false, m_drivetrain)),
 
             // When the charge station first tips, drive until it's tipped the other way
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
-                return average < -4;
-            }).andThen(new WaitCommand(1.0))
+                return scoreHigh ? average > 4 : average < -4;
+            }).andThen(new WaitCommand(0.85))
                 .deadlineWith(
-                    new SnapToAngle(SnapDirection.UP, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
+                    new SnapToAngle(direction, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
 
             // drive backwards and balance
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
-                return average < -8;
-            }).andThen(new WaitCommand(1.5)).deadlineWith(
-                new SnapToAngle(SnapDirection.UP, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
+                return scoreHigh ? average > 8 : average < -8;
+            }).andThen(new WaitCommand(0.75)).deadlineWith(
+                new SnapToAngle(direction, () -> -1.45, () -> 0., () -> false, false, m_drivetrain)),
 
             new QuadraticAutoBalance(m_drivetrain)
         //
@@ -578,7 +557,7 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, ""),
+            Acquire(position, GamePieceMode.ORANGE_CONE, "3", false, false, ""),
 
             m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
                 .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
@@ -600,32 +579,11 @@ public class Autons {
             new LimelightSquare(
                 mode == GamePieceMode.ORANGE_CONE,
                 false,
-                () -> LimelightHelpers.getTY("") < 5. ? 3.25 + (1. / 8.) * (5 + LimelightHelpers.getTY("")) : 3.25,
+                () -> LimelightHelpers.getTY("") < 0. ? 4.5 + (1. / 12.) * (LimelightHelpers.getTY("")) : 4.5,
                 () -> 0.0,
-                m_drivetrain).withTimeout(0.72),
+                m_drivetrain).withTimeout(0.66),
             Score(position, "3", true, "Limelight"));
 
         return cmd;
     }
-
-    // ================================================
-    // THIS IS NOT REAL
-    // ================================================
-
-    // public BeakAutonCommand JPath1() {
-    // // example
-    // BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain,
-    // Trajectories.JPath1(m_drivetrain),
-    // m_drivetrain.getTrajectoryCommand(Trajectories.JPath1(m_drivetrain),
-    // m_eventMap),
-    // new WaitCommand(0.1),
-    // m_drivetrain.generatePath(() ->
-    // m_frontAprilTagVision.getTargetPose(m_drivetrain.getPoseMeters(),
-    // new Transform3d(new Translation3d(Units.inchesToMeters(54.),
-    // Units.inchesToMeters(-0.), 0.),
-    // new Rotation3d()))) // 54 inches away from target
-    // );
-
-    // return cmd;
-    // }
 }

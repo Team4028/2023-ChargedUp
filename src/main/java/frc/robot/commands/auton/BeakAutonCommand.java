@@ -4,6 +4,7 @@
 
 package frc.robot.commands.auton;
 
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,10 +29,50 @@ public class BeakAutonCommand extends SequentialCommandGroup {
     private Pose2d m_initialPose;
     private BeakDrivetrain m_drivetrain;
 
-    /** Default Constructor */
-    public BeakAutonCommand() {
-        // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
+    /**
+     * Create an auton command that does not use the drivetrain or have an initial
+     * pose.
+     * 
+     * @param commands
+     *            A list of commands to run, in order. This is NOT limited to
+     *            trajectory commands! If you want a blank auton, pass nothing to
+     *            this argument.
+     */
+    public BeakAutonCommand(Command... commands) {
+        this(null, new Pose2d(), commands);
+    }
+
+    /**
+     * Create an auton command that uses the drivetrain but does not have an initial
+     * pose.
+     * 
+     * @param drivetrain
+     *            The drivetrain to use for the paths.
+     * @param commands
+     *            A list of commands to run, in order. This is NOT limited to
+     *            trajectory commands! If you want a blank auton, pass nothing to
+     *            this argument.
+     */
+    public BeakAutonCommand(BeakDrivetrain drivetrain, Command... commands) {
+        this(drivetrain, (Pose2d) null, commands);
+    }
+
+    /**
+     * Create a new BeakAutonCommand.
+     * 
+     * @param drivetrain
+     *            The drivetrain to use for the paths.
+     * @param initialCommand
+     *            The first auton command that is run by the robot.
+     * @param commands
+     *            A list of commands to run, in order. This is NOT limited to
+     *            trajectory commands! If you want a blank auton, pass nothing to
+     *            this argument.
+     */
+    public BeakAutonCommand(BeakDrivetrain drivetrain, BeakAutonCommand initialCommand, Command... commands) {
+        this(drivetrain,
+            initialCommand.getInitialPose(),
+            commands);
     }
 
     /**
@@ -43,12 +84,14 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      *            The first trajectory that is run by the robot.
      * @param commands
      *            A list of commands to run, in order. This is NOT limited to
-     *            trajectory commands!
+     *            trajectory commands! If you want a blank auton, pass nothing to
+     *            this argument.
      */
     public BeakAutonCommand(BeakDrivetrain drivetrain, PathPlannerTrajectory initialTrajectory, Command... commands) {
-        this(drivetrain, 
-        drivetrain.isHolonomic() ? initialTrajectory.getInitialHolonomicPose()
-            : initialTrajectory.getInitialPose(), commands);
+        this(drivetrain,
+            drivetrain.isHolonomic() ? initialTrajectory.getInitialHolonomicPose()
+                : initialTrajectory.getInitialPose(),
+            commands);
     }
 
     /**
@@ -60,14 +103,17 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      *            The initial pose of the robot.
      * @param commands
      *            A list of commands to run, in order. This is NOT limited to
-     *            trajectory commands!
+     *            trajectory commands! If you want a blank auton, pass nothing to
+     *            this argument.
      */
     public BeakAutonCommand(BeakDrivetrain drivetrain, Pose2d initialPose, Command... commands) {
         m_drivetrain = drivetrain;
         setInitialPose(initialPose);
 
-        super.addCommands(commands);
-        super.addRequirements(drivetrain);
+        addCommands(commands);
+        if (drivetrain != null) {
+            addRequirements(drivetrain);
+        }
     }
 
     /**
@@ -79,18 +125,33 @@ public class BeakAutonCommand extends SequentialCommandGroup {
      */
     public SequentialCommandGroup resetPoseAndRun() {
         return new InstantCommand(() -> {
-            Pose2d transformedPose = m_initialPose;
+            if (m_drivetrain == null) {
+                DriverStation.reportWarning(
+                    "<BeakAutonCommand>.resetPoseAndRun called without a specified drivetrain object. " +
+                        "You may be using a default or non-standard constructor. If this was intentional, " +
+                        "you can ignore this warning. This command will still run normally.",
+                    false);
+            } else if (m_initialPose == null) {
+                DriverStation.reportWarning(
+                    "<BeakAutonCommand>.resetPoseAndRun called without a specified initial pose value. " +
+                        "You may be using a default or non-standard constructor. If this was intentional, " +
+                        "you can ignore this warning. This command will still run normally.",
+                    false);
+            } else {
+                Pose2d transformedPose = m_initialPose;
 
-            // We need to invert the starting pose for the red alliance.
-            if (DriverStation.getAlliance() == Alliance.Red) {
-                Translation2d transformedTranslation = new Translation2d(m_initialPose.getX(),
-                    FieldConstants.FIELD_WIDTH.getAsMeters() - m_initialPose.getY());
-                Rotation2d transformedHeading = m_initialPose.getRotation().times(-1);
+                // We need to invert the starting pose for the red alliance.
+                if (DriverStation.getAlliance() == Alliance.Red) {
+                    PathPlannerTrajectory.transformTrajectoryForAlliance(null, null);
+                    Translation2d transformedTranslation = new Translation2d(m_initialPose.getX(),
+                        FieldConstants.FIELD_WIDTH.getAsMeters() - m_initialPose.getY());
+                    Rotation2d transformedHeading = m_initialPose.getRotation().times(-1);
 
-                transformedPose = new Pose2d(transformedTranslation, transformedHeading);
+                    transformedPose = new Pose2d(transformedTranslation, transformedHeading);
+                }
+
+                m_drivetrain.resetOdometry(transformedPose);
             }
-
-            m_drivetrain.resetOdometry(transformedPose);
         }).andThen(this);
     }
 
