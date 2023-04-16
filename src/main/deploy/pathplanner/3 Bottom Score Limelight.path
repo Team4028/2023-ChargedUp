@@ -72,9 +72,9 @@
   ],
   "markers": [
     {
-      "position": 0.036363636363636334,
+      "position": 0.03636363636363636,
       "names": [
-        "ArmRetract",
+        "KeepCube",
         "StopGripper"
       ]
     },

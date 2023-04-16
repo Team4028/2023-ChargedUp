@@ -180,6 +180,7 @@ public class Autons {
         m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.beIdleMode()));
 
         m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
+        m_eventMap.put("KeepCube", OneMechanism.runArms(ScoringPositions.STOWED).andThen(OneMechanism.runArms(ScoringPositions.KEEP_CUBE_DISABLE)));
 
         m_eventMap.put("RunGripperSmart", m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier()));
 

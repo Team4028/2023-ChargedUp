@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.robot.OneMechanism;
@@ -53,7 +54,7 @@ public class LimelightSquare extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        m_controller = new PIDController(5.0, 0., 0.);
+        m_controller = new PIDController(DriverStation.isAutonomousEnabled() ? 7.5 : 5.0, 0., 0.);
         m_controller.reset();
 
         OneMechanism.setLocked(true);
