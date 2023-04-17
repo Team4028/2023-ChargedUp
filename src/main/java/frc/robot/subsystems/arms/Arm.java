@@ -199,11 +199,19 @@ public abstract class Arm extends SubsystemBase {
         });
     }
 
-    public abstract Command changePositionCommand(double delta);
-    // return runOnce(() -> {
-    // runToPosition(m_targetPosition + delta);
-    // });
-    // }
+    /**
+     * Change the current arm position.
+     * 
+     * @param delta
+     *            The amount to change the position.
+     * @return A {@link Command} that changes the current position by the delta.
+     */
+    public Command changePositionCommand(double delta) {
+        return runOnce(() -> {
+            setTargetPosition(m_targetPosition + delta);
+            runToPosition(m_targetPosition);
+        });
+    }
 
     @Override
     public void periodic() {

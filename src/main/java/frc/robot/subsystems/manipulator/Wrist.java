@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.motor.BeakSparkMAX;
-import frc.robot.OneMechanism;
 
 public class Wrist extends SubsystemBase {
     private static final double kP = 0.06;
@@ -32,16 +31,17 @@ public class Wrist extends SubsystemBase {
     private BeakSparkMAX m_motor;
     private SparkMaxAbsoluteEncoder m_absoluteEncoder;
     private SparkMaxPIDController m_pid;
+
     private double m_targetAngle;
 
     // encoder in RIO:
     // private DutyCycleEncoder m_absEncoder;
     // private PIDController my_pid;
-    //private boolean pidEnabled;
+    // private boolean pidEnabled;
 
     /** Creates a new Wrist. */
     public Wrist() {
-        //pidEnabled = false;
+        // pidEnabled = false;
         m_motor = new BeakSparkMAX(12);
         m_motor.restoreFactoryDefault();
         m_motor.setSmartCurrentLimit(25);
@@ -54,6 +54,7 @@ public class Wrist extends SubsystemBase {
         // m_absoluteEncoder.setZeroOffset(275.);
         m_absoluteEncoder.setZeroOffset(198.5); // 186.11
         m_absoluteEncoder.setInverted(false);
+
         m_pid = m_motor.getPIDController();
         m_pid.setFeedbackDevice(m_absoluteEncoder);
 
@@ -82,14 +83,15 @@ public class Wrist extends SubsystemBase {
     /**
      * Run the wrist.
      * 
-     * @param vbus The percent output to run at.
+     * @param vbus
+     *            The percent output to run at.
      * @return A command that runs the motor, stopping it when cancelled.
      */
     public Command runMotor(double vbus) {
         return startEnd(
             () -> {
                 m_motor.set(vbus);
-            }, 
+            },
             () -> {
                 m_motor.set(0.0);
                 m_pid.setReference(getAbsoluteEncoderPosition(), ControlType.kPosition);
@@ -124,24 +126,36 @@ public class Wrist extends SubsystemBase {
                 () -> Math.abs(getAbsoluteEncoderPosition() - angle) < 0.9);
     }
 
-    /**@return A Command to hold the wrist at its current angle. Used after running open loop to stay put and not drop with gravity. */
+    /**
+     * @return A Command to hold the wrist at its current angle. Used after running
+     *         open loop to stay put and not drop with gravity.
+     */
     public Command holdWristAngle() {
         return runOnce(
             () -> {
                 m_motor.set(0.0);
                 m_targetAngle = getAbsoluteEncoderPosition();
                 m_pid.setReference(m_targetAngle, ControlType.kPosition);
-            }
-        );
+            });
     }
 
+    /**
+     * Change the angle of the wrist.
+     * 
+     * @param delta
+     *            The angle to change the wrist by.
+     * @return A {@link Command} that changes the wrist position by the specified
+     *         amount.
+     */
     public Command changeAngleCommand(double delta) {
         return runOnce(() -> {
             // m_targetAngle += delta;
-            OneMechanism.getScoringPosition().wristAngle += delta;
-            m_pid.setReference(OneMechanism.getScoringPosition().wristAngle, ControlType.kPosition);
+            runToAngle(m_targetAngle + delta);
+            // OneMechanism.getScoringPosition().wristAngle += delta;
+            // m_pid.setReference(OneMechanism.getScoringPosition().wristAngle,
+            // ControlType.kPosition);
         });
-        
+
     }
 
     public static Wrist getInstance() {

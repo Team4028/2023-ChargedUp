@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 7.05,
-        "y": 2.02
+        "x": 7.65,
+        "y": 2.25
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.352487390689067,
-        "y": 1.472844805689612
+        "x": 6.952487390689067,
+        "y": 1.702844805689612
       },
-      "holonomicAngle": 45.0,
+      "holonomicAngle": 28.5,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -25,15 +25,15 @@
     {
       "anchorPoint": {
         "x": 4.290758010087449,
-        "y": 0.8445698319968078
+        "y": 0.74
       },
       "prevControl": {
         "x": 5.206901556660257,
-        "y": 0.8588845749120088
+        "y": 0.754314742915201
       },
       "nextControl": {
         "x": 3.3777504163964633,
-        "y": 0.8303040883453854
+        "y": 0.7257342563485776
       },
       "holonomicAngle": 90.0,
       "isReversal": false,
@@ -74,7 +74,7 @@
     {
       "position": 0.036363636363636334,
       "names": [
-        "KeepCube",
+        "ArmRetract",
         "StopGripper"
       ]
     },

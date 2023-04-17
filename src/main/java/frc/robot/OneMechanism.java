@@ -138,7 +138,7 @@ public class OneMechanism {
         // ACQUIRE_FLOOR_CONE_UPRIGHT(    8.1,        18.9,       259.1),
 
         FLOOR_CUBE_SEEK(               7.7,        5.3,       232.7),
-        KEEP_CUBE_DISABLE(             1.6,       14.3,       325.9),
+        KEEP_CUBE_DISABLE(             1.6,       14.3,       0.),
         
         AUTON_URPIGHT_CONE(            8.5,        19.6,       261.5),
 
