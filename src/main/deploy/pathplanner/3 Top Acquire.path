@@ -24,20 +24,20 @@
     },
     {
       "anchorPoint": {
-        "x": 5.965582931165863,
-        "y": 4.194219674153635
+        "x": 6.237563046554665,
+        "y": 3.91
       },
       "prevControl": {
-        "x": 5.149642584999456,
-        "y": 5.053104249065641
+        "x": 5.421622700388258,
+        "y": 4.768884574912006
       },
       "nextControl": {
-        "x": 6.132900316476415,
-        "y": 4.018096110668843
+        "x": 6.404880431865217,
+        "y": 3.7338764365152084
       },
       "holonomicAngle": -45.0,
       "isReversal": false,
-      "velOverride": 0.75,
+      "velOverride": 1.0,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -50,11 +50,11 @@
     {
       "anchorPoint": {
         "x": 6.71,
-        "y": 3.46
+        "y": 3.43
       },
       "prevControl": {
         "x": 6.581116876519468,
-        "y": 3.6073152146304297
+        "y": 3.57731521463043
       },
       "nextControl": null,
       "holonomicAngle": -45.0,
@@ -81,7 +81,7 @@
     {
       "position": 0.6181818181818182,
       "names": [
-        "ConePickup",
+        "CubePickup",
         "RunGripperSmart"
       ]
     }

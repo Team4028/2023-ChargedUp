@@ -22,7 +22,6 @@ import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.arm.RunArmsWithPID;
 import frc.robot.commands.auton.generation.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
-import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDs.CANdleMode;
 import frc.robot.subsystems.LEDs.Color;
 import frc.robot.subsystems.arms.LowerArm;
@@ -137,8 +136,8 @@ public class OneMechanism {
         ACQUIRE_FLOOR_CONE_UPRIGHT(    8.5,        19.6,       261.5),
         // ACQUIRE_FLOOR_CONE_UPRIGHT(    8.1,        18.9,       259.1),
 
-        FLOOR_CUBE_SEEK(               7.7,        5.3,       232.7),
-        KEEP_CUBE_DISABLE(             1.6,       14.3,       0.),
+        FLOOR_CUBE_SEEK(               7.7,        5.3,        232.7),
+        KEEP_CUBE_DISABLE(             1.6,        14.3,       0.),
         
         AUTON_URPIGHT_CONE(            8.5,        19.6,       261.5),
 
@@ -148,9 +147,11 @@ public class OneMechanism {
 
         AUTON_PREP_CONE(               51.0,       4.0,        203.0),
 
-        ACQUIRE_SINGLE_SUBSTATION(     3.6,        2.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        193.5),
-        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7);
+        OLD_SLIDE(                     3.6,        2.0,        320.0),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(52.0,       2.0,        193.5),
+        ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7),
+        
+        ACQUIRE_SINGLE_SUBSTATION(     5.9,        2.0,        327.7);
 
         public double lowerPosition;
         public double upperPosition;
@@ -222,7 +223,6 @@ public class OneMechanism {
 
     private static LEDs m_leds;
     private static BeakSwerveDrivetrain m_drive;
-    private static Vision m_vision;
     private static UpperArm m_upperArm;
     private static LowerArm m_lowerArm;
     private static Wrist m_wrist;
@@ -547,11 +547,10 @@ public class OneMechanism {
             });
     }
 
-    public static void addSubsystems(LEDs leds, BeakSwerveDrivetrain drivetrain, Vision vision, LowerArm lowerArm,
+    public static void addSubsystems(LEDs leds, BeakSwerveDrivetrain drivetrain, LowerArm lowerArm,
         UpperArm upperArm, Wrist wrist) {
         m_leds = leds;
         m_drive = drivetrain;
-        m_vision = vision;
         m_upperArm = upperArm;
         m_lowerArm = lowerArm;
         m_wrist = wrist;

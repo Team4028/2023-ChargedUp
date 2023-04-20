@@ -124,7 +124,7 @@ public class RobotContainer {
         m_lowerArm = LowerArm.getInstance();
         m_kickstand = Kickstand.getInstance();
 
-        OneMechanism.addSubsystems(m_candle, m_drive, m_frontAprilTagVision, m_lowerArm, m_upperArm, m_wrist);
+        OneMechanism.addSubsystems(m_candle, m_drive, m_lowerArm, m_upperArm, m_wrist);
 
         m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
             m_rearAprilTagVision);
@@ -302,9 +302,11 @@ public class RobotContainer {
         // OPERATOR CONTROLLER - A
         // SCORE LOW
         // ================================================
-        m_operatorController.a.onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_LOW_CUBE),
-            OneMechanism.runArms(ScoringPositions.SCORE_LOW_CONE),
-            () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+        // m_operatorController.a.onTrue(new
+        // ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_LOW_CUBE),
+        // OneMechanism.runArms(ScoringPositions.SCORE_LOW_CONE),
+        // () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
+        m_operatorController.a.onTrue(OneMechanism.runArms(ScoringPositions.OLD_SLIDE));
 
         // ================================================
         // OPERATOR CONTROLLER - B
@@ -549,9 +551,11 @@ public class RobotContainer {
         m_autoChooser.addOption("1 Mobility Bal",
             m_autons.OnePieceMobilityBalance(true));
 
-        m_autoChooser.addOption("3 Bottom Limelight", m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
+        m_autoChooser.addOption("3 Bottom Limelight",
+            m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
 
-        m_autoChooser.addOption("Preload Sequence", new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));
+        m_autoChooser.addOption("Preload Sequence",
+            new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));
         m_autoChooser.addOption("Auton Zero", new BeakAutonCommand(m_autons.autonZero()));
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
 
