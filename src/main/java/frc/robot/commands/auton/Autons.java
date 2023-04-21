@@ -97,6 +97,30 @@ public class Autons {
     private final Supplier<Command> m_cubeExtendCommand;
     private final Supplier<Command> m_coneExtendCommand;
 
+    // TODO: attempt auton impl
+    public enum NodeLocation {
+        LOW(ScoringPositions.FLOOR_CUBE_SEEK, ScoringPositions.FLOOR_CUBE_SEEK, ScoringPositions.FLOOR_CUBE_SEEK), MID(
+            ScoringPositions.SCORE_MID_CUBE, ScoringPositions.SCORE_MID_CONE, ScoringPositions.SCORE_MID_CUBE), HIGH(
+                ScoringPositions.AUTON_PREP_CUBE, ScoringPositions.SCORE_HIGH_CONE, ScoringPositions.SCORE_HIGH_CUBE);
+
+        /** Scoring location for arm prep. */
+        public ScoringPositions PrepPosition;
+
+        /** Scoring location for cone scoring. */
+        public ScoringPositions ConePosition;
+
+        private NodeLocation(ScoringPositions prepPosition, ScoringPositions conePosition,
+            ScoringPositions cubePosition) {
+            PrepPosition = prepPosition;
+            ConePosition = conePosition;
+            CubePosition = cubePosition;
+        }
+
+        /** Scoring location for cube scoring. */
+        public ScoringPositions CubePosition;
+
+    }
+
     // Subsystem & Event setup
     public Autons(
         BeakSwerveDrivetrain drivetrain,
@@ -122,33 +146,10 @@ public class Autons {
             && (m_lowerArm.getError() <= 0.6 * m_lowerArm.getDistanceToTravel());
 
         m_stowCommand = () -> OneMechanism.runArms(ScoringPositions.STOWED).until(m_upperArmStowed);
-        // shouldnt be needed?
-        // m_stowCommand = () -> new SequentialCommandGroup(
-        // new RunArmPID(ScoringPositions.STOWED.upperPosition, m_upperArm)
-        // .alongWith(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)).until(m_upperArmStowed),
-
-        // // Run the lower arm down but immediately end it.
-        // new RunArmPID(ScoringPositions.STOWED.lowerPosition, m_lowerArm).until(() ->
-        // true));
 
         m_cubeExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE);// .until(m_upperArmExtended);
-        // shouldnt be needed?
-        // m_cubeExtendCommand = () -> new SequentialCommandGroup(
-        // new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.lowerPosition, m_lowerArm)
-        // .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
-
-        // // Run until the upper arm is "almost" there
-        // new RunArmPID(ScoringPositions.SCORE_HIGH_CUBE.upperPosition, m_upperArm)
-        // .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CUBE.wristAngle)).until(m_upperArmExtended));
 
         m_coneExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE).until(m_upperArmExtended);
-        // m_coneExtendCommand = () -> new SequentialCommandGroup(
-        // new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.lowerPosition, m_lowerArm)
-        // .until(() -> m_lowerArm.getError() < .40 * m_lowerArm.getDistanceToTravel()),
-
-        // // Run until the upper arm is "almost" there
-        // new RunArmPID(ScoringPositions.SCORE_HIGH_CONE.upperPosition, m_upperArm)
-        // .alongWith(m_wrist.runToAngle(ScoringPositions.SCORE_HIGH_CONE.wristAngle)).until(m_upperArmExtended));
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
@@ -159,6 +160,8 @@ public class Autons {
 
         m_eventMap.put("CubeMid", OneMechanism.runArms(ScoringPositions.SCORE_MID_CUBE));
         m_eventMap.put("ConeMid", OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE));
+
+        m_eventMap.put("ScoreLow", OneMechanism.runArms(ScoringPositions.FLOOR_CUBE_SEEK));
 
         m_eventMap.put("CubePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CUBE));
         m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
@@ -180,7 +183,8 @@ public class Autons {
         m_eventMap.put("StopGripper", new InstantCommand(() -> m_gripper.beIdleMode()));
 
         m_eventMap.put("ArmRetract", OneMechanism.runArms(ScoringPositions.STOWED));
-        m_eventMap.put("KeepCube", OneMechanism.runArms(ScoringPositions.STOWED).andThen(OneMechanism.runArms(ScoringPositions.KEEP_CUBE_DISABLE)));
+        m_eventMap.put("KeepCube", OneMechanism.runArms(ScoringPositions.STOWED)
+            .andThen(OneMechanism.runArms(ScoringPositions.KEEP_CUBE_DISABLE)));
 
         m_eventMap.put("RunGripperSmart", m_gripper.runMotorIn().until(m_gripper.atCurrentThresholdSupplier()));
 
@@ -226,7 +230,7 @@ public class Autons {
             mode == GamePieceMode.ORANGE_CONE ? OneMechanism.orangeModeCommand() : OneMechanism.purpleModeCommand(),
 
             autonZero(),
-            
+
             new WaitCommand(0.1),
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
@@ -547,10 +551,14 @@ public class Autons {
      *            The position of this path.
      * @param balance
      *            Whether or not to run a balance sequence at the end of this path.
+     * @param score
+     *            Whether or not to score the piece at the end.
+     * @param data
+     *            Additional path data.
      * 
      * @return A {@link BeakAutonCommand} to run the two piece path.
      */
-    public BeakAutonCommand ThreePiece(PathPosition position, boolean balance) {
+    public BeakAutonCommand ThreePiece(PathPosition position, boolean balance, boolean score, String data) {
         // The Three Piece paths are made to continue off of the two piece path. Rather
         // than doing everything again, we simply run the two piece auton and continue
         // where we left off for the three piece paths.
@@ -558,13 +566,14 @@ public class Autons {
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            Acquire(position, GamePieceMode.ORANGE_CONE, "3", false, false, ""),
+            Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, ""),
 
             m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
                 .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
             new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
 
-            Score(position, "3", true, "")
+            // TODO: make conditional Prep and Score events
+            Score(position, "3", !score, data)
         //
         );
 

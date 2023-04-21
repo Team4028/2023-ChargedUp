@@ -530,8 +530,12 @@ public class RobotContainer {
         m_autoChooser.addOption("2.25 Top", m_autons.TwoQuarterPiece(PathPosition.Top));
         m_autoChooser.addOption("2.25 Bottom (OHCL)", m_autons.TwoQuarterPiece(PathPosition.Bottom));
 
-        m_autoChooser.addOption("3 Top", m_autons.ThreePiece(PathPosition.Top, false));
-        m_autoChooser.addOption("3 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false));
+        m_autoChooser.addOption("2.9 Top", m_autons.ThreePiece(PathPosition.Top, false, false, ""));
+        m_autoChooser.addOption("2.9 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false, false, ""));
+
+        m_autoChooser.addOption("3 Top Mid", m_autons.ThreePiece(PathPosition.Top, false, true, "Mid"));
+
+        m_autoChooser.addOption("3 Top Low", m_autons.ThreePiece(PathPosition.Top, false, true, "Low"));
 
         m_autoChooser.addOption("1 Cube Mid Bal",
             m_autons.OneBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
@@ -558,10 +562,6 @@ public class RobotContainer {
             new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));
         m_autoChooser.addOption("Auton Zero", new BeakAutonCommand(m_autons.autonZero()));
         m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
-
-        // m_autoChooser.addOption("Cool preload sequence", new
-        // BeakAutonCommand(m_drive, new Pose2d(),
-        // m_autons.coolPreloadScoreSequence()));
     }
 
     public double speedScaledDriverLeftY() {
