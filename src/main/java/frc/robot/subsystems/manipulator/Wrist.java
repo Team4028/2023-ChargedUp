@@ -159,6 +159,15 @@ public class Wrist extends SubsystemBase {
 
     }
 
+    // TEMP functions
+    public void buckeyeConstants() {
+        m_pid.setOutputRange(-0.85, 0.85);
+    }
+
+    public void worldsConstants() {
+        m_pid.setOutputRange(kMinOutput, kMaxOutput);
+    }
+
     public static Wrist getInstance() {
         if (m_instance == null) {
             m_instance = new Wrist();

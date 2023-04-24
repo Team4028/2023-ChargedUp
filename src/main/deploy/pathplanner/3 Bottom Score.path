@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 7.65,
-        "y": 2.3
+        "y": 2.42
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.952487390689067,
-        "y": 1.7528448056896118
+        "y": 1.8728448056896119
       },
       "holonomicAngle": 28.5,
       "isReversal": false,
@@ -74,7 +74,7 @@
     {
       "position": 0.036363636363636334,
       "names": [
-        "ArmRetract",
+        "KeepCube",
         "StopGripper"
       ]
     },

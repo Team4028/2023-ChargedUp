@@ -93,6 +93,15 @@ public class UpperArm extends Arm {
         return false;
     }
 
+    // TEMP functions
+    public void buckeyeConstants() {
+        m_pid.setOutputRange(-0.8, 0.8);
+    }
+
+    public void worldsConstants() {
+        m_pid.setOutputRange(kMinOutput, kMaxOutput);
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Up Arm Pos", getEncoderPosition());

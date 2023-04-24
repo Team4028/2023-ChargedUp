@@ -145,6 +145,8 @@ public class OneMechanism {
         SCORE_MID_CONE(                39.0,       6.0,        215.0), 
         SCORE_HIGH_CONE(               51.0,       34.0,       203.0),
 
+        AUTON_PRELOAD_SCORE(           51.0,       34.0,       203.0),
+
         AUTON_PREP_CONE(               51.0,       4.0,        203.0),
 
         OLD_SLIDE(                     3.6,        2.0,        320.0),
@@ -650,5 +652,17 @@ public class OneMechanism {
      */
     public static double getJerk() {
         return m_drive.getJerk();
+    }
+
+    /** Temp function */
+    public static void buckeyeConstants() {
+        m_upperArm.buckeyeConstants();
+        m_wrist.buckeyeConstants();
+    }
+
+    /** Temp function */
+    public static void worldsConstants() {
+        m_upperArm.worldsConstants();
+        m_wrist.worldsConstants();
     }
 }

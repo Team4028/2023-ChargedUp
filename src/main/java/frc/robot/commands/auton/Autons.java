@@ -142,7 +142,7 @@ public class Autons {
 
         m_upperArmStowed = () -> (m_upperArm.getError() <= 0.6 * m_upperArm.getDistanceToTravel());
         // m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25);
-        m_upperArmExtended = () -> (m_upperArm.getError() <= 0.04 * m_upperArm.getDistanceToTravel())
+        m_upperArmExtended = () -> (m_upperArm.getError() <= 1.25)
             && (m_lowerArm.getError() <= 0.6 * m_lowerArm.getDistanceToTravel());
 
         m_stowCommand = () -> OneMechanism.runArms(ScoringPositions.STOWED).until(m_upperArmStowed);
@@ -166,6 +166,7 @@ public class Autons {
         m_eventMap.put("CubePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CUBE));
         m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
 
+        // TODO: these should control LEDs.
         m_eventMap.put("CubePickup",
             OneMechanism.runArmsSimultaneouslyCommand(ScoringPositions.ACQUIRE_FLOOR_CUBE)
                 .alongWith(new InstantCommand(() -> LimelightHelpers.setPipelineIndex("", 0))));
@@ -228,6 +229,7 @@ public class Autons {
             new InstantCommand(() -> OneMechanism.setScoreMode(true)),
             new InstantCommand(() -> OneMechanism.setClimbMode(false)),
             mode == GamePieceMode.ORANGE_CONE ? OneMechanism.orangeModeCommand() : OneMechanism.purpleModeCommand(),
+            new InstantCommand(() -> OneMechanism.buckeyeConstants()),
 
             autonZero(),
 
@@ -235,8 +237,9 @@ public class Autons {
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
-            mode == GamePieceMode.ORANGE_CONE ? m_coneExtendCommand.get() : m_cubeExtendCommand.get(),
+            OneMechanism.runArms(ScoringPositions.AUTON_PRELOAD_SCORE),//.until(m_upperArmExtended),
             m_gripper.modeSensitiveOutfeedCommand().withTimeout(0.4),
+            new InstantCommand(() -> OneMechanism.buckeyeConstants()),
 
             m_stowCommand.get(),
 
