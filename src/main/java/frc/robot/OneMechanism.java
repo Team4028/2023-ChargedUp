@@ -150,7 +150,7 @@ public class OneMechanism {
         AUTON_PREP_CONE(               51.0,       4.0,        203.0),
 
         OLD_SLIDE(                     3.6,        2.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        193.5),
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        191.5),
         ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7),
         
         ACQUIRE_SINGLE_SUBSTATION(     5.9,        2.0,        327.7);
