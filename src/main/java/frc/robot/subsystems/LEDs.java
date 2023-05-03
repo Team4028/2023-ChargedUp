@@ -420,10 +420,6 @@ public class LEDs extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("animations 0", m_currentAnimations.get(0).get() != null);
-        SmartDashboard.putBoolean("animations 1", m_currentAnimations.get(1).get() != null);
-        SmartDashboard.putString("Mode", m_currentMode.name());
-
         // TODO: document this.
         if (m_currentMode == CANdleMode.ACTIVE) {
             if (!OneMechanism.getScoreMode() && !m_beacon && !m_fade && !m_locked) {
