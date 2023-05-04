@@ -54,7 +54,8 @@ public class Wrist extends SubsystemBase {
         // NOTE: If the encoder reads BELOW 341.7, you have to SUBTRACT from the offset.
         // m_absoluteEncoder.setZeroOffset(275.); //good infeed
         // m_absoluteEncoder.setZeroOffset(198.5); // 186.11 // crap infeed
-        m_absoluteEncoder.setZeroOffset(205.8); // spare encoder
+        // m_absoluteEncoder.setZeroOffset(205.8); // good infeed, new mount, spare encoder
+        m_absoluteEncoder.setZeroOffset(141.2); // good infeed, good encoder, new mount
         m_absoluteEncoder.setInverted(false);
 
         m_pid = m_motor.getPIDController();
