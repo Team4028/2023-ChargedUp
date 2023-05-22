@@ -10,32 +10,6 @@ import frc.lib.beaklib.units.Distance;
 /** Common interface for all motor controllers. */
 public interface BeakMotorController extends MotorController {
     /**
-     * Set PIDF gains.
-     * 
-     * @param p
-     *            Proportional gain.
-     * @param i
-     *            Integral gain.
-     * @param d
-     *            Derivative gain.
-     * @param f
-     *            Feed-Forward gain.
-     * @param slot
-     *            The slot to set these values in.
-     */
-    default void setPIDF(
-        double p,
-        double i,
-        double d,
-        double f,
-        int slot) {
-        setP(p, slot);
-        setI(i, slot);
-        setD(d, slot);
-        setF(f, slot);
-    }
-
-    /**
      * Set the motor to be on brake or coast mode.
      * 
      * @param brake
@@ -292,34 +266,34 @@ public interface BeakMotorController extends MotorController {
     /**
      * Get the motor velocity, in RPM.
      * 
-     * @return Velocity in RPM.
+     * @return Velocity in RPM combined with the timestamp of the received data.
      */
-    public double getVelocityRPM();
+    public DataSignal<Double> getVelocityRPM();
 
     /**
      * Get the motor velocity, in NU.
      * </p>
      * NU/100ms for Talons, RPM for SparkMAX.
      * 
-     * @return Velocity in NU.
+     * @return Velocity in NU combined with the timestamp of the received data.
      */
-    public double getVelocityNU();
+    public DataSignal<Double> getVelocityNU();
 
     /**
      * Get the motor position, in motor rotations.
      * 
      * @return Position in motor rotations.
      */
-    public double getPositionMotorRotations();
+    public DataSignal<Double> getPositionMotorRotations();
 
     /**
      * Get the motor position, in NU.
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
      * SparkMAX.
      * 
-     * @return Position in NU.
+     * @return Position in NU combined with the timestamp of the received data.
      */
-    public double getPositionNU();
+    public DataSignal<Double> getPositionNU();
 
     /**
      * Stop the motor.
@@ -339,96 +313,45 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
-     * Get the voltage currently being run to the motor controller.
+     * Get the voltage currently being run to the motor controller, with the
+     * timestamp of the received data.
      */
-    public double getBusVoltage();
+    public DataSignal<Double> getBusVoltage();
 
     /**
      * Get the current applied voltage to the motor controller.
      * 
      * @return Applied voltage.
      */
-    default double getOutputVoltage() {
-        return get() * getBusVoltage();
+    default DataSignal<Double> getOutputVoltage() {
+        DataSignal<Double> voltage = getBusVoltage();
+        voltage.Value *= get();
+        return voltage;
     }
 
     /**
-     * Get the P value of the PID controller.
+     * Set PIDF gains.
+     * 
+     * @param constants
+     *            PIDF Constants.
+     * @param slot
+     *            The slot to set these values in.
+     */
+    public void setPID(
+        BeakPIDConstants constants,
+        int slot);
+    
+    /**
+     * Get PIDF gains.
      * 
      * @param slot
-     *            Slot to get from.
-     * @return Proportional gain.
+     *            The slot to get these values from.
      */
-    public double getP(int slot);
+    public BeakPIDConstants getPID(int slot);
 
     /**
-     * Get the I value of the PID controller.
-     * 
-     * @param slot
-     *            Slot to get from.
-     * @return Integral gain.
-     */
-    public double getI(int slot);
-
-    /**
-     * Get the D value of the PID controller.
-     * 
-     * @param slot
-     *            Slot to get from.
-     * @return Derivative gain.
-     */
-    public double getD(int slot);
-
-    /**
-     * Get the F value of the PID controller.
-     * 
-     * @param slot
-     *            Slot to get from.
-     * @return Feed-Forward gain.
-     */
-    public double getF(int slot);
-
-    /**
-     * Set the P value of the PID controller.
-     * 
-     * @param p
-     *            Proportional gain.
-     * @param slot
-     *            Slot to set to.
-     */
-    public void setP(double p, int slot);
-
-    /**
-     * Set the I value of the PID controller.
-     * 
-     * @param i
-     *            Integral gain.
-     * @param slot
-     *            Slot to set to.
-     */
-    public void setI(double i, int slot);
-
-    /**
-     * Set the D value of the PID controller.
-     * 
-     * @param D
-     *            Derivative gain.
-     * @param slot
-     *            Slot to set to.
-     */
-    public void setD(double d, int slot);
-
-    /**
-     * Set the F value of the PID controller.
-     * 
-     * @param f
-     *            Feed-Forward gain.
-     * @param slot
-     *            Slot to set to.
-     */
-    public void setF(double f, int slot);
-
-    /**
+     * @deprecated Not implemented for v6 TalonFX due to improved units.
+     * </p>
      * Calculate the desired feed-forward, given a percent output and the NU that
      * the PID controller should return.
      * </p>
@@ -450,6 +373,7 @@ public interface BeakMotorController extends MotorController {
      *         </p>
      *         For SparkMAXes, this will be a very small number.
      */
+    @Deprecated(forRemoval = true)
     public double calculateFeedForward(double percentOutput, double desiredOutputNU);
 
     /**
@@ -657,20 +581,26 @@ public interface BeakMotorController extends MotorController {
      * Get the traveled distance of the encoder, scaled from the distance per pulse.
      * 
      * @return Traveled motor distance, in whatever units were passed in
-     *         setDistancePerPulse
+     *         setDistancePerPulse, combined with the timestamp of the received
+     *         data.
      */
-    default double getDistance() {
-        return getPositionNU() * (getDistancePerPulse() / getPositionEncoderCPR()) / 10.;
+    default DataSignal<Double> getDistance() {
+        DataSignal<Double> position = getPositionNU();
+        position.Value *= (getDistancePerPulse() / getPositionEncoderCPR()) / 10.;
+        return position;
     }
 
     /**
      * Get the current velocity of the encoder, scaled from the distance per pulse.
      * 
      * @return Current motor velocity, in whatever units were passed in
-     *         setDistancePerPulse
+     *         setDistancePerPulse, combined with the timestamp of the received
+     *         data.
      */
-    default double getRate() {
-        return getVelocityNU() * (getDistancePerPulse() / getVelocityEncoderCPR());
+    default DataSignal<Double> getRate() {
+        DataSignal<Double> velocity = getVelocityNU();
+        velocity.Value *= (getDistancePerPulse() / getVelocityEncoderCPR());
+        return velocity;
     }
 
     /**

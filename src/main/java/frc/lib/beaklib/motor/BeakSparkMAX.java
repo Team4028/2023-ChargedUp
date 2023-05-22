@@ -80,63 +80,23 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public double getVelocityRPM() {
+    public DataSignal<Double> getVelocityRPM() {
         return getVelocityNU();
     }
 
     @Override
-    public double getVelocityNU() {
+    public DataSignal<Double> getVelocityNU() {
         return encoder.getVelocity();
     }
 
     @Override
-    public double getPositionMotorRotations() {
+    public DataSignal<Double> getPositionMotorRotations() {
         return getPositionNU() / encoder.getCountsPerRevolution();
     }
 
     @Override
-    public double getPositionNU() {
+    public DataSignal<Double> getPositionNU() {
         return encoder.getPosition();
-    }
-
-    @Override
-    public double getP(int slot) {
-        return pid.getP(slot);
-    }
-
-    @Override
-    public double getI(int slot) {
-        return pid.getI(slot);
-    }
-
-    @Override
-    public double getD(int slot) {
-        return pid.getD(slot);
-    }
-
-    @Override
-    public double getF(int slot) {
-        return pid.getFF(slot);
-    }
-
-    @Override
-    public void setP(double p, int slot) {
-        pid.setP(p, slot);
-    }
-
-    @Override
-    public void setI(double i, int slot) {
-        pid.setI(i, slot);
-    }
-
-    @Override
-    public void setD(double d, int slot) {
-        pid.setD(d, slot);
-    }
-
-    @Override
-    public void setF(double f, int slot) {
-        pid.setFF(f, slot);
     }
 
     @Override

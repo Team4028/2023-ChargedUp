@@ -107,7 +107,7 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
         return super.getMotorOutputVoltage();
     }
 
-    public SlotConfiguration getPIDF(int slot) {
+    public SlotConfiguration getPID(int slot) {
         SlotConfiguration config = new SlotConfiguration();
         super.getSlotConfigs(config, slot, 50);
         return config;
@@ -115,22 +115,22 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
 
     @Override
     public double getP(int slot) {
-        return getPIDF(slot).kP;
+        return getPID(slot).kP;
     }
 
     @Override
     public double getI(int slot) {
-        return getPIDF(slot).kI;
+        return getPID(slot).kI;
     }
 
     @Override
     public double getD(int slot) {
-        return getPIDF(slot).kD;
+        return getPID(slot).kD;
     }
 
     @Override
     public double getF(int slot) {
-        return getPIDF(slot).kF;
+        return getPID(slot).kF;
     }
 
     public TalonSRXSimCollection getTalonSRXSimCollection() {

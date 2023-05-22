@@ -40,7 +40,7 @@ public class BeakSwerveModule {
      * Call this function in a subclass AFTER setting up motors and encoders
      */
     public void setup(SwerveModuleConfiguration config) {
-        turnCPR = config.turnGearRatio * m_turningMotor.getVelocityEncoderCPR(); // ratio * NU / rev
+        turnCPR = config.turnGearRatio * m_turningMotor.getPositionEncoderCPR(); // ratio * NU / rev
         driveEncoderDistancePerPulse = (config.wheelDiameter.getAsMeters() * Math.PI)
             * config.driveGearRatio / m_driveMotor.getVelocityEncoderCPR();
 
