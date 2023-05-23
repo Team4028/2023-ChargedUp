@@ -4,30 +4,43 @@
 
 package frc.lib.beaklib.motor;
 
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
+import com.ctre.phoenix6.signals.ForwardLimitTypeValue;
+import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
+import com.ctre.phoenix6.signals.ReverseLimitTypeValue;
+import com.ctre.phoenix6.signals.ReverseLimitValue;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Add your docs here. */
 public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
-    private double m_distancePerPulse = 1.;
-
     private TalonFXConfigurator m_configurator;
     private TalonFXConfiguration m_config = new TalonFXConfiguration();
 
+    private DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0.);
+    private VoltageOut m_voltageOut = new VoltageOut(0.);
     private VelocityDutyCycle m_velocityOut = new VelocityDutyCycle(0.);
     private VelocityVoltage m_velocityVoltage = new VelocityVoltage(0.);
     private PositionDutyCycle m_positionOut = new PositionDutyCycle(0.);
@@ -40,10 +53,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     public BeakV6TalonFX(int port, String canBus) {
         super(port, canBus);
         m_configurator = super.getConfigurator();
-        // super.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-        // LimitSwitchNormal.NormallyOpen);
-        // super.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector,
-        // LimitSwitchNormal.NormallyOpen);
+        m_configurator.refresh(m_config);
     }
 
     public BeakV6TalonFX(int port) {
@@ -56,7 +66,10 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
         NeutralModeValue neutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
         MotorOutputConfigs config = new MotorOutputConfigs();
+        m_configurator.refresh(config);
+
         config.NeutralMode = neutralMode;
+
         m_configurator.apply(config, 0.1);
     }
 
@@ -153,7 +166,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public DataSignal<Double> getBusVoltage() {
+    public DataSignal<Double> getSuppliedVoltage() {
         return new DataSignal<Double>(super.getSupplyVoltage());
     }
 
@@ -199,6 +212,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     public BeakPIDConstants getPID(int slot) {
         // The v6 slot API is wacky
         BeakPIDConstants constants = new BeakPIDConstants();
+        m_configurator.refresh(m_config);
         switch (slot) {
             case 0:
                 Slot0Configs slot0Config = m_config.Slot0;
@@ -234,7 +248,8 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public double calculateFeedForward(double percentOutput, double desiredOutputNU) {
-        throw new UnsupportedOperationException("Unimplemented method 'calculateFeedForward'");
+        DriverStation.reportWarning("calculateFeedForward method is not implemented for BeakV6TalonFX.", null);
+        return 1.;
     }
 
     @Override
@@ -249,90 +264,152 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
-        
+        HardwareLimitSwitchConfigs config = new HardwareLimitSwitchConfigs();
+        m_configurator.refresh(config);
+
+        config.ReverseLimitEnable = true;
+        config.ReverseLimitType = normallyClosed ? ReverseLimitTypeValue.NormallyClosed
+            : ReverseLimitTypeValue.NormallyOpen;
+        config.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
+
+        m_configurator.apply(config);
     }
 
     @Override
     public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setForwardLimitSwitchNormallyClosed'");
+        HardwareLimitSwitchConfigs config = new HardwareLimitSwitchConfigs();
+        m_configurator.refresh(config);
+
+        config.ForwardLimitEnable = true;
+        config.ForwardLimitType = normallyClosed ? ForwardLimitTypeValue.NormallyClosed
+            : ForwardLimitTypeValue.NormallyOpen;
+        config.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
+
+        m_configurator.apply(config);
     }
 
     @Override
-    public boolean getReverseLimitSwitch() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getReverseLimitSwitch'");
+    public void setReverseExtremePosition(double nu) {
+        HardwareLimitSwitchConfigs config = new HardwareLimitSwitchConfigs();
+        m_configurator.refresh(config);
+
+        config.ReverseLimitAutosetPositionEnable = true;
+        config.ReverseLimitAutosetPositionValue = nu;
+
+        m_configurator.apply(config);
     }
 
     @Override
-    public boolean getForwardLimitSwitch() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getForwardLimitSwitch'");
+    public void setForwardExtremePosition(double nu) {
+        HardwareLimitSwitchConfigs config = new HardwareLimitSwitchConfigs();
+        m_configurator.refresh(config);
+
+        config.ForwardLimitAutosetPositionEnable = true;
+        config.ForwardLimitAutosetPositionValue = nu;
+
+        m_configurator.apply(config);
+    }
+
+    @Override
+    public DataSignal<Boolean> getReverseLimitSwitch() {
+        StatusSignal<ReverseLimitValue> value = super.getReverseLimit();
+        boolean boolValue = value.getValue() == ReverseLimitValue.ClosedToGround;
+        return new DataSignal<Boolean>(boolValue, value.getTimestamp().getTime());
+    }
+
+    @Override
+    public DataSignal<Boolean> getForwardLimitSwitch() {
+        StatusSignal<ForwardLimitValue> value = super.getForwardLimit();
+        boolean boolValue = value.getValue() == ForwardLimitValue.ClosedToGround;
+        return new DataSignal<Boolean>(boolValue, value.getTimestamp().getTime());
     }
 
     @Override
     public void setSupplyCurrentLimit(int amps) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setSupplyCurrentLimit'");
+        CurrentLimitsConfigs config = new CurrentLimitsConfigs();
+        m_configurator.refresh(config);
+
+        config.SupplyCurrentLimitEnable = true;
+        config.SupplyCurrentLimit = amps;
+        config.SupplyCurrentThreshold = amps + 5.;
+        config.SupplyTimeThreshold = 0.1;
+
+        m_configurator.apply(config);
     }
 
     @Override
     public void setStatorCurrentLimit(int amps) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setStatorCurrentLimit'");
+        CurrentLimitsConfigs config = new CurrentLimitsConfigs();
+        m_configurator.refresh(config);
+
+        config.StatorCurrentLimitEnable = true;
+        config.StatorCurrentLimit = amps;
+
+        m_configurator.apply(config);
     }
 
     @Override
     public void restoreFactoryDefault() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'restoreFactoryDefault'");
+        m_config = new TalonFXConfiguration();
+        m_configurator.apply(m_config);
     }
 
     @Override
     public void setAllowedClosedLoopError(double error, int slot) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setAllowedClosedLoopError'");
+        MotorOutputConfigs config = new MotorOutputConfigs();
+        m_configurator.refresh(config);
+
     }
 
     @Override
     public void setVoltageCompensationSaturation(double saturation) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setVoltageCompensationSaturation'");
+        DriverStation.reportWarning("setVoltageCompensationSaturation method has no effect for BeakV6TalonFX.", null);
     }
 
     @Override
     public void setMotionMagicCruiseVelocity(double velocity, int slot) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setMotionMagicCruiseVelocity'");
+        MotionMagicConfigs config = new MotionMagicConfigs();
+        m_configurator.refresh(config);
+
+        config.MotionMagicCruiseVelocity = velocity;
+
+        m_configurator.apply(config);
     }
 
     @Override
     public void setMotionMagicAcceleration(double accel, int slot) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setMotionMagicAcceleration'");
+        MotionMagicConfigs config = new MotionMagicConfigs();
+        m_configurator.refresh(config);
+
+        config.MotionMagicAcceleration = accel;
+
+        m_configurator.apply(config);
     }
 
     @Override
     public void set(double percentOutput, double arbFeedforward) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        if (m_voltageCompEnabled) {
+            super.setControl(m_voltageOut
+            .withOutput(percentOutput * getSuppliedVoltage().Value + arbFeedforward));
+        } else {
+            super.setControl(m_dutyCycleOut
+            .withOutput(percentOutput + arbFeedforward / 12.));
+        }
     }
 
     @Override
     public void setStatusPeriod(int value, int period) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setStatusPeriod'");
+        DriverStation.reportWarning("setStatusPeriod method has no effect for BeakV6TalonFX.", null);
     }
 
     @Override
     public void setDistancePerPulse(double dpr) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setDistancePerPulse'");
+        DriverStation.reportWarning("setDistancePerPulse method has no effect for BeakV6TalonFX.", null);
     }
 
     @Override
     public double getDistancePerPulse() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDistancePerPulse'");
+        DriverStation.reportWarning("getDistancePerPulse method has no effect for BeakV6TalonFX.", null);
+        return 1.;
     }
 }

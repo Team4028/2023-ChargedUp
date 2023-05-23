@@ -5,6 +5,7 @@
 package frc.lib.beaklib.motor;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.lib.beaklib.units.Distance;
 
 /** Common interface for all motor controllers. */
@@ -316,7 +317,7 @@ public interface BeakMotorController extends MotorController {
      * Get the voltage currently being run to the motor controller, with the
      * timestamp of the received data.
      */
-    public DataSignal<Double> getBusVoltage();
+    public DataSignal<Double> getSuppliedVoltage();
 
     /**
      * Get the current applied voltage to the motor controller.
@@ -324,7 +325,7 @@ public interface BeakMotorController extends MotorController {
      * @return Applied voltage.
      */
     default DataSignal<Double> getOutputVoltage() {
-        DataSignal<Double> voltage = getBusVoltage();
+        DataSignal<Double> voltage = getSuppliedVoltage();
         voltage.Value *= get();
         return voltage;
     }
@@ -340,7 +341,7 @@ public interface BeakMotorController extends MotorController {
     public void setPID(
         BeakPIDConstants constants,
         int slot);
-    
+
     /**
      * Get PIDF gains.
      * 
@@ -351,16 +352,19 @@ public interface BeakMotorController extends MotorController {
 
     /**
      * @deprecated Not implemented for v6 TalonFX due to improved units.
-     * </p>
-     * Calculate the desired feed-forward, given a percent output and the NU that
-     * the PID controller should return.
-     * </p>
-     * Example process: Run the motor at 100% output (safely).
-     * </p>
-     * Get the motor's velocity in NU (i.e. 22000 NU/100ms for a free-spinning
-     * Falcon, 11000 RPM for a free-spinning NEO 550)
-     * </p>
-     * Pass 1 to percentOutput, and your recorded velocity to desiredOutputNU.
+     *             </p>
+     *             Calculate the desired feed-forward, given a percent output and
+     *             the NU that
+     *             the PID controller should return.
+     *             </p>
+     *             Example process: Run the motor at 100% output (safely).
+     *             </p>
+     *             Get the motor's velocity in NU (i.e. 22000 NU/100ms for a
+     *             free-spinning
+     *             Falcon, 11000 RPM for a free-spinning NEO 550)
+     *             </p>
+     *             Pass 1 to percentOutput, and your recorded velocity to
+     *             desiredOutputNU.
      * 
      * @param percentOutput
      *            Percent output of the motor (0-1).
@@ -377,13 +381,21 @@ public interface BeakMotorController extends MotorController {
     public double calculateFeedForward(double percentOutput, double desiredOutputNU);
 
     /**
-     * Get the counts per revolution for the encoder when in velocity mode.
+     * @deprecated This method is being replaced with a new conversion API.
+     *             </p>
+     *             Get the counts per revolution for the encoder when in velocity
+     *             mode.
      */
+    @Deprecated(forRemoval = true)
     public double getVelocityEncoderCPR();
 
     /**
-     * Get the counts per revolution for the encoder when in velocity mode.
+     * @deprecated This method is being replaced with a new conversion API.
+     *             </p>
+     *             Get the counts per revolution for the encoder when in velocity
+     *             mode.
      */
+    @Deprecated(forRemoval = true)
     public double getPositionEncoderCPR();
 
     /**
@@ -405,13 +417,32 @@ public interface BeakMotorController extends MotorController {
     public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed);
 
     /**
-     * Whether or not the limit switch is closed. This is independent of the
-     * polarity (normally-closed) option on
-     * CTRE devices, but on Spark MAXes, it is dependent--i.e. returning true if the
-     * limit switch is not pressed,
-     * when it's configured to be normally closed.
+     * Set the position at which the encoder will be reset to once the reverse limit
+     * switch is hit.
+     * </p>
+     * 
+     * Only applies to v6 Talon FX.
+     * 
+     * @param nu
+     *            Position in NU (shaft rotations) to set the encoder to when
+     *            hitting the reverse limit switch.
      */
-    public boolean getReverseLimitSwitch();
+    default void setReverseExtremePosition(double nu) {
+    }
+
+    /**
+     * Set the position at which the encoder will be reset to once the forward limit
+     * switch is hit.
+     * </p>
+     * 
+     * Only applies to v6 Talon FX.
+     * 
+     * @param nu
+     *            Position in NU (shaft rotations) to set the encoder to when
+     *            hitting the forward limit switch.
+     */
+    default void setForwardExtremePosition(double nu) {
+    }
 
     /**
      * Whether or not the limit switch is closed. This is independent of the
@@ -419,8 +450,21 @@ public interface BeakMotorController extends MotorController {
      * CTRE devices, but on Spark MAXes, it is dependent--i.e. returning true if the
      * limit switch is not pressed,
      * when it's configured to be normally closed.
+     * </p>
+     * Also returns the timestamp of the received data.
      */
-    public boolean getForwardLimitSwitch();
+    public DataSignal<Boolean> getReverseLimitSwitch();
+
+    /**
+     * Whether or not the limit switch is closed. This is independent of the
+     * polarity (normally-closed) option on
+     * CTRE devices, but on Spark MAXes, it is dependent--i.e. returning true if the
+     * limit switch is not pressed,
+     * when it's configured to be normally closed.
+     * </p>
+     * Also returns the timestamp of the received data.
+     */
+    public DataSignal<Boolean> getForwardLimitSwitch();
 
     /**
      * Set the supply (PDH to controller) current limit.
@@ -523,29 +567,38 @@ public interface BeakMotorController extends MotorController {
     public void set(double percentOutput, double arbFeedforward);
 
     /**
-     * Set a status frame period of the motor controller.
-     * </p>
+     * @deprecated This method will no longer be used. Instead, configure motor
+     *             controllers directly through the respective vendor's motor
+     *             controller API.
+     *             </p>
      * 
-     * Values are dependent upon the individual motor controller.
-     * Pass a corresponding value for your motor controller (by appending .value to
-     * the enum), i.e.:
-     * </p>
+     *             Set a status frame period of the motor controller.
+     *             </p>
      * 
-     * <pre>
+     *             Values are dependent upon the individual motor controller.
+     *             Pass a corresponding value for your motor controller (by
+     *             appending .value to
+     *             the enum), i.e.:
+     *             </p>
+     * 
+     *             <pre>
      * <code>
      * controller.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General.value, 11); // TalonFX
      * sparkController.setStatusFramePeriod(PeriodicFrame.kStatus0.value, 1); // SparkMAX
      * </code>
-     * </pre>
+     *             </pre>
      * 
      * @param value
      *            Value of the status frame, from an enum.
      * @param period
      *            Period of the status frame, in ms.
      */
+    @Deprecated(forRemoval = true)
     public void setStatusPeriod(int value, int period);
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Set the encoder "distance per pulse". This can essentially be described as
      * the circumference of the wheel divided by the
      * CPR of the encoder. For example, with a 4 inch (.1 meter) wheel, on a 1:1
@@ -560,11 +613,15 @@ public interface BeakMotorController extends MotorController {
      * @param dpr
      *            The calculated Distance per Pulse.
      */
+    @Deprecated(forRemoval = true)
     public void setDistancePerPulse(double dpr);
 
+    @Deprecated(forRemoval = true)
     public double getDistancePerPulse();
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Set the encoder distance per pulse to meters per second.
      * 
      * @param wheelDiameter
@@ -573,17 +630,21 @@ public interface BeakMotorController extends MotorController {
      *            The gear ratio between the encoder and the wheel
      *            (1 if the encoder is mounted directly on the wheel)
      */
+    @Deprecated(forRemoval = true)
     default void setDistancePerPulse(Distance wheelDiameter, double encoderGearRatio) {
         setDistancePerPulse((wheelDiameter.getAsMeters() * Math.PI) / encoderGearRatio);
     }
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Get the traveled distance of the encoder, scaled from the distance per pulse.
      * 
      * @return Traveled motor distance, in whatever units were passed in
      *         setDistancePerPulse, combined with the timestamp of the received
      *         data.
      */
+    @Deprecated(forRemoval = true)
     default DataSignal<Double> getDistance() {
         DataSignal<Double> position = getPositionNU();
         position.Value *= (getDistancePerPulse() / getPositionEncoderCPR()) / 10.;
@@ -591,12 +652,15 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Get the current velocity of the encoder, scaled from the distance per pulse.
      * 
      * @return Current motor velocity, in whatever units were passed in
      *         setDistancePerPulse, combined with the timestamp of the received
      *         data.
      */
+    @Deprecated(forRemoval = true)
     default DataSignal<Double> getRate() {
         DataSignal<Double> velocity = getVelocityNU();
         velocity.Value *= (getDistancePerPulse() / getVelocityEncoderCPR());
@@ -604,17 +668,22 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Run the motor at the specified speed, scaled from the distance per pulse.
      * 
      * @param velocity
      *            Target motor velocity, in whatever units were passed in
      *            setDistancePerPulse
      */
+    @Deprecated(forRemoval = true)
     default void setRate(double velocity) {
         setRate(velocity, 0, 0);
     }
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Run the motor at the specified speed, scaled from the distance per pulse.
      * 
      * @param velocity
@@ -623,11 +692,14 @@ public interface BeakMotorController extends MotorController {
      * @param arbFeedforward
      *            Arbitrary feed forward to pass to the motor controller, in volts.
      */
+    @Deprecated(forRemoval = true)
     default void setRate(double velocity, double arbFeedforward) {
         setRate(velocity, arbFeedforward, 0);
     }
 
     /**
+     * @deprecated This method is being replaced with a new conversion API.
+     * </p>
      * Run the motor at the specified speed, scaled from the distance per pulse.
      * 
      * @param velocity
@@ -638,6 +710,7 @@ public interface BeakMotorController extends MotorController {
      * @param slot
      *            The PID slot to use.
      */
+    @Deprecated(forRemoval = true)
     default void setRate(double velocity, double arbFeedforward, int slot) {
         setVelocityNU(velocity / (getDistancePerPulse() / getVelocityEncoderCPR()), arbFeedforward, slot);
     }

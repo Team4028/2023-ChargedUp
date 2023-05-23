@@ -15,6 +15,8 @@ import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import frc.lib.beaklib.pid.BeakPIDConstants;
+
 /** Common motor controller interface for Talon SRX. */
 public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     private double m_distancePerPulse;
@@ -248,5 +250,11 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     @Override
     public double getDistancePerPulse() {
         return m_distancePerPulse;
+    }
+
+    @Override
+    public void setPID(BeakPIDConstants constants, int slot) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPID'");
     }
 }

@@ -13,12 +13,12 @@ Tasks related to implementing support for v6.
 
 ### Done
 - [x] Generic implementation of the `StatusSignal` class - `DataSignal`
+- [x] Complete BeakV6TalonFX class
+- [x] Overhaul of BeakMotorController to use the new `DataSignal` class (generic implementation of `StatusSignal`)
 
 ### To Do
-- [ ] Complete BeakV6TalonFX class
 - [ ] Complete BeakV6CANCoder class
 - [ ] Complete BeakV6Pigeon2 class
-- [ ] Overhaul of BeakMotorController to use the new `DataSignal` class (generic implementation of `StatusSignal`)
 - [ ] Overhaul of BeakGyro to use the new `DataSignal` class (generic implementation of `StatusSignal`)
 - [ ] Overhaul of BeakAbsoluteEncoder to use the new `DataSignal` class (generic implementation of `StatusSignal`)
 - [ ] Implement latency compensated position functions for motor controllers
@@ -51,6 +51,18 @@ Tasks related to improvements to the common motor controller API to improve reli
 - [ ] Implement a proper status signal API
 - [ ] Venom Support
 - [ ] Implementation of kS (static feedforward constant) for non-v6 motor controllers
+- [ ] Reverse and Forward Soft Limits
+- [ ] Neutral Deadbands
+
+## Differential Drive Overhaul
+Tasks related to improvements to the crude differential drivetrain API.
+
+### Done
+
+### To Do
+- [ ] Reimplement direct driving through the `BeakDifferentialDrivetrain` class, not requiring user-defined functions
+- [ ] Similarly, remove some methods that pass in `BeakMotorController`s
+- [ ] Implement PathPlanner's event map
 
 ## Improved Conversion & Gear Ratio API
 The following is a writeup on a planned improvement to the motor controller API to more correctly implement an API akin to the old "CPR" functions.
