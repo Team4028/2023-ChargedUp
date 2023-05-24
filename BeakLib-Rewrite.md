@@ -54,6 +54,7 @@ Tasks related to improvements to the common motor controller API to improve reli
 - [ ] Reverse and Forward Soft Limits
 - [ ] Neutral Deadbands
 - [ ] Latency-compensated position
+- [ ] `BeakMotorControllerGroup`
 
 ## Differential Drive Overhaul
 Tasks related to improvements to the crude differential drivetrain API.
@@ -64,6 +65,15 @@ Tasks related to improvements to the crude differential drivetrain API.
 - [ ] Reimplement direct driving through the `BeakDifferentialDrivetrain` class, not requiring user-defined functions
 - [ ] Similarly, remove some methods that pass in `BeakMotorController`s
 - [ ] Implement PathPlanner's event map
+
+## Drivetrain Overhaul
+Tasks related to all drivetrain types to improve configurability.
+
+### Done
+
+### To Do
+- [ ] Take in PID Constants
+- [ ] Support open-loop control in config
 
 ## Improved Conversion & Gear Ratio API
 The following is a writeup on a planned improvement to the motor controller API to more correctly implement an API akin to the old "CPR" functions.
