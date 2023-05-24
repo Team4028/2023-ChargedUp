@@ -4,26 +4,49 @@
 
 package frc.lib.beaklib.encoder;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.lib.beaklib.motor.DataSignal;
+import frc.lib.beaklib.units.AngularVelocity;
 
 /** CANCoder, as a {@link BeakAbsoluteEncoder}. */
 public class BeakAnalogInput extends AnalogInput implements BeakAbsoluteEncoder {
-    private double offset;
+    private Rotation2d m_offset;
 
     public BeakAnalogInput(int deviceNumber) {
         super(deviceNumber);
     }
 
     @Override
-    public void setEncoderPosition(double position) {
+    public DataSignal<Rotation2d> getAbsoluteEncoderPosition() {
+        // SUSSY
+        double radians = (1.0 - super.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI + m_offset.getRadians();
+        return new DataSignal<Rotation2d>(new Rotation2d(radians));
     }
 
     @Override
-    public void setAbsoluteOffset(double degrees) {
-        System.out.println("Offset: " + degrees);
-        offset = Units.degreesToRadians(degrees);
+    public Rotation2d getAbsoluteOffset() {
+        return m_offset;
+    }
+
+    @Override
+    public DataSignal<Rotation2d> getEncoderPosition() {
+        return getAbsoluteEncoderPosition();
+    }
+
+    @Override
+    public void setEncoderPosition(Rotation2d position) {
+    }
+
+    @Override
+    public DataSignal<AngularVelocity> getEncoderVelocity() {
+        return new DataSignal<AngularVelocity>(new AngularVelocity());
+    }
+
+    @Override
+    public void setAbsoluteOffset(Rotation2d offset) {
+        m_offset = offset;
     }
 
     @Override
@@ -31,33 +54,11 @@ public class BeakAnalogInput extends AnalogInput implements BeakAbsoluteEncoder 
     }
 
     @Override
-    public void setSensorDirection(boolean direction) {
+    public void setCWPositive(boolean cwPositive) {
     }
 
     @Override
     public void restoreFactoryDefault() {
-    }
-
-    @Override
-    public double getPosition() {
-        // System.out.println("abs Position: " + getAbsolutePosition());
-        return getAbsolutePosition() + offset;
-    }
-
-    @Override
-    public double getVelocity() {
-        return 0.;
-    }
-
-    @Override
-    public double getAbsolutePosition() {
-        // SUSSY
-        return (1.0 - super.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI;
-    }
-
-    @Override
-    public double getAbsoluteOffset() {
-        return offset;
     }
 
 }

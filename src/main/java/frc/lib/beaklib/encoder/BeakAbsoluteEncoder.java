@@ -4,51 +4,55 @@
 
 package frc.lib.beaklib.encoder;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import frc.lib.beaklib.motor.DataSignal;
+import frc.lib.beaklib.units.AngularVelocity;
+
 /** Generic external absolute encoder. */
 public interface BeakAbsoluteEncoder {
     /**
      * Get the encoder's position. Depending on the configuration,
      * this may be either relative (based on the magnet offset), or absolute.
      * 
-     * @return Position, in radians.
+     * @return Position.
      */
-    public double getPosition();
+    public DataSignal<Rotation2d> getEncoderPosition();
 
     /**
      * Set the encoder's position.
      * 
      * @param position
-     *            New position, radians.
+     *            New position.
      */
-    public void setEncoderPosition(double position);
+    public void setEncoderPosition(Rotation2d position);
 
     /**
      * Get the encoder's velocity.
      * 
-     * @return Velocity, usually in degrees per second.
+     * @return Velocity of the absolute encoder.
      */
-    public double getVelocity();
+    public DataSignal<AngularVelocity> getEncoderVelocity();
 
     /**
      * Get the encoder's absolute position, independent of calls to setPosition().
      * 
-     * @return Absolute position, in radians.
+     * @return Absolute position.
      */
-    public double getAbsolutePosition();
+    public DataSignal<Rotation2d> getAbsoluteEncoderPosition();
 
     /**
      * Configure the zero point of the absolute position.
      * 
-     * @param degrees
+     * @param offset The zero point of the absolute position.
      */
-    public void setAbsoluteOffset(double degrees);
+    public void setAbsoluteOffset(Rotation2d offset);
 
     /**
      * Get the zero point of the absolute position.
      *
      * @return Zero point
      */
-    public double getAbsoluteOffset();
+    public Rotation2d getAbsoluteOffset();
 
     /**
      * Set the period in which updated data is sent to the CAN bus or motor.
@@ -61,12 +65,12 @@ public interface BeakAbsoluteEncoder {
     /**
      * Set the direction in which positive rotation is reported.
      * 
-     * @param direction
+     * @param cwPositive
      *            False means counter-clockwise rotation results in positive
      *            rotation,
      *            true means it results in negative rotation.
      */
-    public void setSensorDirection(boolean direction);
+    public void setCWPositive(boolean cwPositive);
 
     /**
      * Restore factory defaults of the encoder.

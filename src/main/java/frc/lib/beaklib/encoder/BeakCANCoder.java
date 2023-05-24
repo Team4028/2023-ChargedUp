@@ -7,6 +7,10 @@ package frc.lib.beaklib.encoder;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import frc.lib.beaklib.motor.DataSignal;
+import frc.lib.beaklib.units.AngularVelocity;
+
 /** CANCoder, as a {@link BeakAbsoluteEncoder}. */
 public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     public BeakCANCoder(int deviceNumber) {
@@ -18,23 +22,18 @@ public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public double getPosition() {
-        return Math.toRadians(super.getPosition());
+    public DataSignal<Rotation2d> getAbsoluteEncoderPosition() {
+        return new DataSignal<Rotation2d>(new Rotation2d(Math.toRadians(super.getAbsolutePosition())));
     }
 
     @Override
-    public double getAbsolutePosition() {
-        return Math.toRadians(super.getAbsolutePosition());
+    public void setEncoderPosition(Rotation2d position) {
+        super.setPosition(position.getDegrees());
     }
 
     @Override
-    public void setEncoderPosition(double position) {
-        super.setPosition(position);
-    }
-
-    @Override
-    public void setAbsoluteOffset(double degrees) {
-        super.configMagnetOffset(degrees);
+    public void setAbsoluteOffset(Rotation2d offset) {
+        super.configMagnetOffset(offset.getDegrees());
     }
 
     @Override
@@ -43,7 +42,7 @@ public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public void setSensorDirection(boolean direction) {
+    public void setCWPositive(boolean direction) {
         super.configSensorDirection(direction);
     }
 
@@ -53,8 +52,19 @@ public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public double getAbsoluteOffset() {
-        return super.configGetMagnetOffset();
+    public Rotation2d getAbsoluteOffset() {
+        return Rotation2d.fromDegrees(super.configGetMagnetOffset());
+    }
+
+    @Override
+    public DataSignal<Rotation2d> getEncoderPosition() {
+        return new DataSignal<Rotation2d>(new Rotation2d(Math.toRadians(super.getPosition())));
+    }
+
+    @Override
+    public DataSignal<AngularVelocity> getEncoderVelocity() {
+        AngularVelocity velocity = AngularVelocity.fromDegreesPerSecond(super.getVelocity());
+        return new DataSignal<AngularVelocity>(velocity);
     }
 
 }

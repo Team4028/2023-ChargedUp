@@ -87,7 +87,7 @@ public class BeakSwerveModule {
     }
 
     public void configTurningEncoder(SwerveModuleConfiguration config) {
-        m_turningEncoder.setAbsoluteOffset(Units.radiansToDegrees(config.angleOffset));
+        m_turningEncoder.setAbsoluteOffset(new Rotation2d(config.angleOffset));
 
         // Prevent huge CAN spikes
         m_turningEncoder.setDataFramePeriod(101);
@@ -159,17 +159,18 @@ public class BeakSwerveModule {
      * @return Angle of the wheel in radians.
      */
     public double getAbsoluteEncoderRadians() {
-        double angle = m_turningEncoder.getPosition();
-        // angle %= 2.0 * Math.PI;
-        // if (angle < 0.0) {
-        //     angle += 2.0 * Math.PI;
-        // }
+        double angle = m_turningEncoder.getAbsoluteEncoderPosition().Value.getRadians();
+        angle %= 2.0 * Math.PI;
+        if (angle < 0.0) {
+            angle += 2.0 * Math.PI;
+        }
 
         return angle;
     }
 
     public double getTurningEncoderRadians() {
-        double angle = m_turningMotor.getPositionMotorRotations().Value * (2 * Math.PI); // (NU) / (NU / rev) => rev * 360. deg / 1 rev = degrees
+        double angle = m_turningMotor.getPositionMotorRotations().Value * (2 * Math.PI); // (NU) / (NU / rev) => rev *
+                                                                                         // 360. deg / 1 rev = degrees
 
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
