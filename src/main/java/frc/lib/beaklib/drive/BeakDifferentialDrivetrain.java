@@ -125,8 +125,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
      */
     public DifferentialDriveWheelSpeeds getWheelSpeeds(BeakMotorController frontLeft, BeakMotorController frontRight) {
         return new DifferentialDriveWheelSpeeds(
-            frontLeft.getRate(),
-            frontRight.getRate());
+            frontLeft.getRate().Value,
+            frontRight.getRate().Value);
     }
 
     /**
@@ -158,8 +158,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         BeakMotorController frontRightMotorController) {
         if (RobotBase.isSimulation()) {
             sim.setInputs(
-                frontRightMotorController.getOutputVoltage(),
-                frontLeftMotorController.getOutputVoltage());
+                frontRightMotorController.getOutputVoltage().Value,
+                frontLeftMotorController.getOutputVoltage().Value);
             sim.update(0.02);
 
             m_gyroSim.setAngle(-sim.getHeading().getDegrees());
@@ -167,8 +167,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         Rotation2d rot = getGyroRotation2d();
 
         m_pose = m_odom.update(rot,
-            frontLeftMotorController.getDistance(),
-            frontRightMotorController.getDistance());
+            frontLeftMotorController.getDistance().Value,
+            frontRightMotorController.getDistance().Value);
 
         return m_pose;
     }

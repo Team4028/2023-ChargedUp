@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 
 import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.beaklib.units.Distance;
 
 /** Common motor controller interface for REV Spark MAX. */
 public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
@@ -20,7 +21,10 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     private SparkMaxLimitSwitch m_revLimitSwitch;
     private SparkMaxLimitSwitch m_fwdLimitSwitch;
 
-    private double m_distancePerPulse;
+    private double m_velocityConversionConstant = 1.;
+    private double m_positionConversionConstant = 1.;
+    private double m_gearRatio = 1.;
+    private Distance m_wheelDiameter = Distance.fromInches(4.);
 
     public BeakSparkMAX(int port) {
         super(port, MotorType.kBrushless);
@@ -94,23 +98,6 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public double calculateFeedForward(double percentOutput, double desiredOutputNU) {
-        return percentOutput / desiredOutputNU;
-    }
-
-    @Override
-    public double getVelocityEncoderCPR() {
-        // return encoder.getCountsPerRevolution();
-        return 600.; // TEMP
-    }
-
-    @Override
-    public double getPositionEncoderCPR() {
-        // return encoder.getCountsPerRevolution();
-        return 1.; // TEMP
-    }
-
-    @Override
     public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
         m_revLimitSwitch = super.getReverseLimitSwitch(normallyClosed ? Type.kNormallyClosed : Type.kNormallyOpen);
     }
@@ -176,16 +163,6 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setDistancePerPulse(double dpr) {
-        m_distancePerPulse = dpr;
-    }
-
-    @Override
-    public double getDistancePerPulse() {
-        return m_distancePerPulse;
-    }
-
-    @Override
     public void setPID(BeakPIDConstants constants, int slot) {
         m_pid.setP(constants.kP, slot);
         m_pid.setI(constants.kI, slot);
@@ -199,13 +176,52 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
             m_pid.getP(slot),
             m_pid.getI(slot),
             m_pid.getD(slot),
-            m_pid.getFF(slot)
-        );
+            m_pid.getFF(slot));
     }
 
     @Override
     public DataSignal<Double> getSuppliedVoltage() {
         return new DataSignal<Double>(getBusVoltage());
+    }
+
+    @Override
+    public void setVelocityConversionConstant(double constant) {
+        m_velocityConversionConstant = constant;
+    }
+
+    @Override
+    public double getVelocityConversionConstant() {
+        return m_velocityConversionConstant;
+    }
+
+    @Override
+    public void setPositionConversionConstant(double constant) {
+        m_positionConversionConstant = constant;
+    }
+
+    @Override
+    public double getPositionConversionConstant() {
+        return m_positionConversionConstant;
+    }
+
+    @Override
+    public void setEncoderGearRatio(double ratio) {
+        m_gearRatio = ratio;
+    }
+
+    @Override
+    public double getEncoderGearRatio() {
+        return m_gearRatio;
+    }
+
+    @Override
+    public void setWheelDiameter(Distance diameter) {
+        m_wheelDiameter = diameter;
+    }
+
+    @Override
+    public Distance getWheelDiameter() {
+        return m_wheelDiameter;
     }
 
     private void resetControllers() {

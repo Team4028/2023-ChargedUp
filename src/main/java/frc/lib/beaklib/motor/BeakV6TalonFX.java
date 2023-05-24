@@ -33,6 +33,7 @@ import com.ctre.phoenix6.signals.ReverseLimitValue;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.beaklib.units.Distance;
 
 /** Add your docs here. */
 public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
@@ -47,6 +48,11 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     private PositionVoltage m_positionVoltage = new PositionVoltage(0.);
     private MotionMagicDutyCycle m_motionMagicOut = new MotionMagicDutyCycle(0.);
     private MotionMagicVoltage m_motionMagicVoltage = new MotionMagicVoltage(0.);
+
+    private double m_velocityConversionConstant = 1.;
+    private double m_positionConversionConstant = 1.;
+    private double m_gearRatio = 1.;
+    private Distance m_wheelDiameter = Distance.fromInches(4.);
 
     private boolean m_voltageCompEnabled = false;
 
@@ -247,22 +253,6 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public double calculateFeedForward(double percentOutput, double desiredOutputNU) {
-        DriverStation.reportWarning("calculateFeedForward method is not implemented for BeakV6TalonFX.", null);
-        return 1.;
-    }
-
-    @Override
-    public double getVelocityEncoderCPR() {
-        return 10.; // probably need to re-evaluate the CPR methods as a whole.
-    }
-
-    @Override
-    public double getPositionEncoderCPR() {
-        return 1.;
-    }
-
-    @Override
     public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed) {
         HardwareLimitSwitchConfigs config = new HardwareLimitSwitchConfigs();
         m_configurator.refresh(config);
@@ -403,13 +393,42 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setDistancePerPulse(double dpr) {
-        DriverStation.reportWarning("setDistancePerPulse method has no effect for BeakV6TalonFX.", null);
+    public void setVelocityConversionConstant(double constant) {
+        m_velocityConversionConstant = constant;
     }
 
     @Override
-    public double getDistancePerPulse() {
-        DriverStation.reportWarning("getDistancePerPulse method has no effect for BeakV6TalonFX.", null);
-        return 1.;
+    public double getVelocityConversionConstant() {
+        return m_velocityConversionConstant;
+    }
+
+    @Override
+    public void setPositionConversionConstant(double constant) {
+        m_positionConversionConstant = constant;
+    }
+
+    @Override
+    public double getPositionConversionConstant() {
+        return m_positionConversionConstant;
+    }
+
+    @Override
+    public void setEncoderGearRatio(double ratio) {
+        m_gearRatio = ratio;
+    }
+
+    @Override
+    public double getEncoderGearRatio() {
+        return m_gearRatio;
+    }
+
+    @Override
+    public void setWheelDiameter(Distance diameter) {
+        m_wheelDiameter = diameter;
+    }
+
+    @Override
+    public Distance getWheelDiameter() {
+        return m_wheelDiameter;
     }
 }

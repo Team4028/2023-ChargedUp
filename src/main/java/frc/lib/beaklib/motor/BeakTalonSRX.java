@@ -16,10 +16,14 @@ import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.beaklib.units.Distance;
 
 /** Common motor controller interface for Talon SRX. */
 public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
-    private double m_distancePerPulse;
+    private double m_velocityConversionConstant = 600. / 4096.;
+    private double m_positionConversionConstant = 4096.;
+    private double m_gearRatio = 1.;
+    private Distance m_wheelDiameter = Distance.fromInches(4.);
 
     public BeakTalonSRX(int port) {
         super(port);
@@ -78,54 +82,35 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public double getVelocityRPM() {
-        return getVelocityNU() * 4096 / 600;
+    public DataSignal<Double> getVelocityRPM() {
+        return new DataSignal<Double>(getVelocityNU().Value * 4096 / 600);
     }
 
     @Override
-    public double getVelocityNU() {
-        return super.getSelectedSensorVelocity();
+    public DataSignal<Double> getVelocityNU() {
+        return new DataSignal<Double>(super.getSelectedSensorVelocity());
     }
 
     @Override
-    public double getPositionMotorRotations() {
-        return getPositionNU() * 4096;
+    public DataSignal<Double> getPositionMotorRotations() {
+        return new DataSignal<Double>(getPositionNU().Value * 4096);
     }
 
     @Override
-    public double getPositionNU() {
-        return super.getSelectedSensorPosition();
+    public DataSignal<Double> getPositionNU() {
+        return new DataSignal<Double>(super.getSelectedSensorPosition());
     }
 
     @Override
-    public double getOutputVoltage() {
-        return super.getMotorOutputVoltage();
+    public DataSignal<Double> getOutputVoltage() {
+        return new DataSignal<Double>(super.getMotorOutputVoltage());
     }
 
-    public SlotConfiguration getPID(int slot) {
+    @Override
+    public BeakPIDConstants getPID(int slot) {
         SlotConfiguration config = new SlotConfiguration();
         super.getSlotConfigs(config, slot, 50);
-        return config;
-    }
-
-    @Override
-    public double getP(int slot) {
-        return getPID(slot).kP;
-    }
-
-    @Override
-    public double getI(int slot) {
-        return getPID(slot).kI;
-    }
-
-    @Override
-    public double getD(int slot) {
-        return getPID(slot).kD;
-    }
-
-    @Override
-    public double getF(int slot) {
-        return getPID(slot).kF;
+        return new BeakPIDConstants(config);
     }
 
     public TalonSRXSimCollection getTalonSRXSimCollection() {
@@ -134,42 +119,6 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
 
     public TalonFXSimCollection getTalonFXSimCollection() {
         return super.getTalonFXSimCollection();
-    }
-
-    @Override
-    public void setP(double p, int slot) {
-        super.config_kP(slot, p);
-    }
-
-    @Override
-    public void setI(double i, int slot) {
-        super.config_kI(slot, i);
-    }
-
-    @Override
-    public void setD(double d, int slot) {
-        super.config_kD(slot, d);
-    }
-
-    @Override
-    public void setF(double f, int slot) {
-        super.config_kF(slot, f);
-    }
-
-    @Override
-    public double calculateFeedForward(double percentOutput, double desiredOutputNU) {
-        double pidControllerOutput = percentOutput * 1023;
-        return pidControllerOutput / desiredOutputNU;
-    }
-
-    @Override
-    public double getVelocityEncoderCPR() {
-        return 4096;
-    }
-
-    @Override
-    public double getPositionEncoderCPR() {
-        return 4096;
     }
 
     @Override
@@ -185,13 +134,13 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public boolean getReverseLimitSwitch() {
-        return super.isRevLimitSwitchClosed() == 1;
+    public DataSignal<Boolean> getReverseLimitSwitch() {
+        return new DataSignal<Boolean>(super.isRevLimitSwitchClosed() == 1);
     }
 
     @Override
-    public boolean getForwardLimitSwitch() {
-        return super.isFwdLimitSwitchClosed() == 1;
+    public DataSignal<Boolean> getForwardLimitSwitch() {
+        return new DataSignal<Boolean>(super.isFwdLimitSwitchClosed() == 1);
     }
 
     @Override
@@ -243,18 +192,55 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public void setDistancePerPulse(double dpr) {
-        m_distancePerPulse = dpr;
-    }
-
-    @Override
-    public double getDistancePerPulse() {
-        return m_distancePerPulse;
-    }
-
-    @Override
     public void setPID(BeakPIDConstants constants, int slot) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPID'");
+        super.config_kP(slot, constants.kP);
+        super.config_kI(slot, constants.kI);
+        super.config_kD(slot, constants.kD);
+        super.config_kF(slot, constants.kF);
+    }
+
+    @Override
+    public DataSignal<Double> getSuppliedVoltage() {
+        return new DataSignal<Double>(getBusVoltage());
+    }
+
+    @Override
+    public void setVelocityConversionConstant(double constant) {
+        m_velocityConversionConstant = constant;
+    }
+
+    @Override
+    public double getVelocityConversionConstant() {
+        return m_velocityConversionConstant;
+    }
+
+    @Override
+    public void setPositionConversionConstant(double constant) {
+        m_positionConversionConstant = constant;
+    }
+
+    @Override
+    public double getPositionConversionConstant() {
+        return m_positionConversionConstant;
+    }
+
+    @Override
+    public void setEncoderGearRatio(double ratio) {
+        m_gearRatio = ratio;
+    }
+
+    @Override
+    public double getEncoderGearRatio() {
+        return m_gearRatio;
+    }
+
+    @Override
+    public void setWheelDiameter(Distance diameter) {
+        m_wheelDiameter = diameter;
+    }
+
+    @Override
+    public Distance getWheelDiameter() {
+        return m_wheelDiameter;
     }
 }

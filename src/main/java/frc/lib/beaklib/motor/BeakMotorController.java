@@ -7,6 +7,7 @@ package frc.lib.beaklib.motor;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.lib.beaklib.units.Distance;
+import frc.lib.beaklib.units.Velocity;
 
 /** Common interface for all motor controllers. */
 public interface BeakMotorController extends MotorController {
@@ -19,17 +20,56 @@ public interface BeakMotorController extends MotorController {
     public void setBrake(boolean brake);
 
     /**
+     * Run the motor in velocity mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setVelocityNU}.
+     * 
+     * @param velocity
+     *            Velocity to run.
+     * @param arbFeedforward
+     *            Arbitrary feed-forward to pass to the motor controller, in volts.
+     */
+    default void setVelocity(Velocity velocity, double arbFeedforward, int slot) {
+        setVelocityNU(
+            (velocity.getAsMetersPerSecond() / (getWheelDiameter().getAsMeters() * Math.PI) * 60.) // rpm
+                * getEncoderGearRatio() * getVelocityConversionConstant(),
+            arbFeedforward, slot);
+    }
+
+    /**
+     * Run the motor in velocity mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setVelocityNU}.
+     * 
+     * @param velocity
+     *            Velocity to run.
+     */
+    default void setVelocity(Velocity velocity, int slot) {
+        setVelocity(velocity, 0, slot);
+    }
+
+    /**
      * Run the motor in velocity mode, in RPM.
+     * </p>
+     * 
+     * To run in native units, use {@link setVelocityNU}.
      * 
      * @param rpm
      *            RPM to run.
      * @param arbFeedforward
      *            Arbitrary feed-forward to pass to the motor controller, in volts.
      */
-    public void setVelocityRPM(double rpm, double arbFeedforward, int slot);
+    default void setVelocityRPM(double rpm, double arbFeedforward, int slot) {
+        setVelocityNU(rpm * getVelocityConversionConstant() * getEncoderGearRatio(), arbFeedforward, slot);
+    }
 
     /**
      * Run the motor in velocity mode, in RPM.
+     * </p>
+     * 
+     * To run in native units, use {@link setVelocityNU}.
      * 
      * @param rpm
      *            RPM to run.
@@ -79,7 +119,46 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * Run the motor in position mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setPositionNU}.
+     * 
+     * @param distance
+     *            Distance to run.
+     * @param arbFeedforward
+     *            Arbitrary feed-forward to pass to the motor controller, in volts.
+     * @param slot
+     *            PID slot to run.
+     */
+    default void setPosition(Distance distance, double arbFeedforward, int slot) {
+        setPositionNU(
+            (distance.getAsMeters() * getPositionConversionConstant() * getEncoderGearRatio()) //
+                / (getWheelDiameter().getAsMeters() * Math.PI),
+            arbFeedforward,
+            slot);
+    }
+
+    /**
+     * Run the motor in position mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setPositionNU}.
+     * 
+     * @param distance
+     *            Distance to run.
+     * @param slot
+     *            PID slot to run.
+     */
+    default void setPosition(Distance distance, int slot) {
+        setPosition(distance, 0, slot);
+    }
+
+    /**
      * Run the motor in position mode, in motor rotations.
+     * </p>
+     * 
+     * To run in native units, use {@link setPositionNU}.
      * 
      * @param rotations
      *            Rotations to run.
@@ -88,10 +167,15 @@ public interface BeakMotorController extends MotorController {
      * @param slot
      *            PID slot to run.
      */
-    public void setPositionMotorRotations(double rotations, double arbFeedforward, int slot);
+    default void setPositionMotorRotations(double rotations, double arbFeedforward, int slot) {
+        setPositionNU(rotations * getPositionConversionConstant() * getEncoderGearRatio(), arbFeedforward, slot);
+    }
 
     /**
      * Run the motor in position mode, in motor rotations.
+     * </p>
+     * 
+     * To run in native units, use {@link setPositionNU}.
      * 
      * @param rotations
      *            Rotations to run.
@@ -104,6 +188,9 @@ public interface BeakMotorController extends MotorController {
 
     /**
      * Run the motor in position mode, in motor rotations.
+     * </p>
+     * 
+     * To run in native units, use {@link setPositionNU}.
      * 
      * @param rotations
      *            Rotations to run.
@@ -156,12 +243,32 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * Sets the encoder's position.
+     * </p>
+     * 
+     * To set in native units, use {@link setEncoderPositionNU}.
+     * 
+     * @param distance
+     *            Distance to set the encoder to.
+     */
+    default void setEncoderPosition(Distance distance) {
+        setEncoderPositionNU(
+            (distance.getAsMeters() * getPositionConversionConstant() * getEncoderGearRatio()) //
+                / (getWheelDiameter().getAsMeters() * Math.PI));
+    }
+
+    /**
      * Sets the encoder's position, in motor rotations.
+     * </p>
+     * 
+     * To set in native units, use {@link setEncoderPositionNU}.
      * 
      * @param rotations
      *            Rotations to set the encoder to.
      */
-    public void setEncoderPositionMotorRotations(double rotations);
+    default void setEncoderPositionMotorRotations(double rotations) {
+        setEncoderPositionNU(rotations * getPositionConversionConstant() * getEncoderGearRatio());
+    }
 
     /**
      * Sets the encoder's position, in NU.
@@ -182,9 +289,46 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * Run the motor in motion magic mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setMotionMagicNU}.
+     * 
+     * @param distance
+     *            Distance to run.
+     * @param arbFeedforward
+     *            Arbitrary feed-forward to pass to the motor controller, in volts.
+     * @param slot
+     *            PID slot to run.
+     */
+    default void setMotionMagic(Distance distance, double arbFeedforward, int slot) {
+        setMotionMagicNU(
+            (distance.getAsMeters() * getPositionConversionConstant() * getEncoderGearRatio()) //
+                / (getWheelDiameter().getAsMeters() * Math.PI),
+            arbFeedforward,
+            slot);
+    }
+
+    /**
+     * Run the motor in motion magic mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setMotionMagicNU}.
+     * 
+     * @param distance
+     *            Distance to run.
+     * @param slot
+     *            PID slot to run.
+     */
+    default void setMotionMagic(Distance distance, int slot) {
+        setMotionMagic(distance, 0., slot);
+    }
+
+    /**
      * Runs the motor in motion magic mode, in motor rotations.
      * </p>
-     * Not currently supported by SparkMAX.
+     * 
+     * To run in native units, use {@link setMotionMagicNU}.
      * 
      * @param rotations
      *            Rotations to run.
@@ -193,7 +337,9 @@ public interface BeakMotorController extends MotorController {
      * @param slot
      *            PID slot to run.
      */
-    public void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot);
+    default void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot) {
+        setMotionMagicNU(rotations * getPositionConversionConstant() * getEncoderGearRatio(), arbFeedforward, slot);
+    }
 
     /**
      * Runs the motor in motion magic mode, in motor rotations.
@@ -269,7 +415,10 @@ public interface BeakMotorController extends MotorController {
      * 
      * @return Velocity in RPM combined with the timestamp of the received data.
      */
-    public DataSignal<Double> getVelocityRPM();
+    default DataSignal<Double> getVelocityRPM() {
+        DataSignal<Double> velocity = getVelocityNU();
+        return new DataSignal<Double>(velocity.Value / getVelocityConversionConstant() / getEncoderGearRatio());
+    }
 
     /**
      * Get the motor velocity, in NU.
@@ -285,7 +434,10 @@ public interface BeakMotorController extends MotorController {
      * 
      * @return Position in motor rotations.
      */
-    public DataSignal<Double> getPositionMotorRotations();
+    default DataSignal<Double> getPositionMotorRotations() {
+        DataSignal<Double> position = getPositionNU();
+        return new DataSignal<Double>(position.Value / getPositionConversionConstant() / getEncoderGearRatio());
+    }
 
     /**
      * Get the motor position, in NU.
@@ -349,54 +501,6 @@ public interface BeakMotorController extends MotorController {
      *            The slot to get these values from.
      */
     public BeakPIDConstants getPID(int slot);
-
-    /**
-     * @deprecated Not implemented for v6 TalonFX due to improved units.
-     *             </p>
-     *             Calculate the desired feed-forward, given a percent output and
-     *             the NU that
-     *             the PID controller should return.
-     *             </p>
-     *             Example process: Run the motor at 100% output (safely).
-     *             </p>
-     *             Get the motor's velocity in NU (i.e. 22000 NU/100ms for a
-     *             free-spinning
-     *             Falcon, 11000 RPM for a free-spinning NEO 550)
-     *             </p>
-     *             Pass 1 to percentOutput, and your recorded velocity to
-     *             desiredOutputNU.
-     * 
-     * @param percentOutput
-     *            Percent output of the motor (0-1).
-     * @param desiredOutputNU
-     *            Velocity in NU.
-     * 
-     * @return A calculated feed forward.
-     *         </p>
-     *         For Talons, this will be in the 0.005-0.2 range.
-     *         </p>
-     *         For SparkMAXes, this will be a very small number.
-     */
-    @Deprecated(forRemoval = true)
-    public double calculateFeedForward(double percentOutput, double desiredOutputNU);
-
-    /**
-     * @deprecated This method is being replaced with a new conversion API.
-     *             </p>
-     *             Get the counts per revolution for the encoder when in velocity
-     *             mode.
-     */
-    @Deprecated(forRemoval = true)
-    public double getVelocityEncoderCPR();
-
-    /**
-     * @deprecated This method is being replaced with a new conversion API.
-     *             </p>
-     *             Get the counts per revolution for the encoder when in velocity
-     *             mode.
-     */
-    @Deprecated(forRemoval = true)
-    public double getPositionEncoderCPR();
 
     /**
      * Set the reverse limit switch's default state
@@ -596,122 +700,123 @@ public interface BeakMotorController extends MotorController {
     @Deprecated(forRemoval = true)
     public void setStatusPeriod(int value, int period);
 
-    /**
-     * @deprecated This method is being replaced with a new conversion API.
-     * </p>
-     * Set the encoder "distance per pulse". This can essentially be described as
-     * the circumference of the wheel divided by the
-     * CPR of the encoder. For example, with a 4 inch (.1 meter) wheel, on a 1:1
-     * TalonFX:
-     * 
-     * <pre>
-     * <code>
-     * talon.setDistancePerPulse((.1 * Math.PI) / 2048);
-     * </code>
-     * </pre>
-     * 
-     * @param dpr
-     *            The calculated Distance per Pulse.
-     */
-    @Deprecated(forRemoval = true)
-    public void setDistancePerPulse(double dpr);
-
-    @Deprecated(forRemoval = true)
-    public double getDistancePerPulse();
+    /* CONVERSION API */
 
     /**
-     * @deprecated This method is being replaced with a new conversion API.
+     * Set the velocity conversion constant for this motor.
      * </p>
-     * Set the encoder distance per pulse to meters per second.
      * 
-     * @param wheelDiameter
-     *            The diameter of the driven wheel, in inches.
-     * @param encoderGearRatio
-     *            The gear ratio between the encoder and the wheel
-     *            (1 if the encoder is mounted directly on the wheel)
+     * The velocity conversion constant is a factor that, when dividing native
+     * velocity units by the constant, outputs rotations per minute.
+     * </p>
+     * 
+     * Default values:
+     * <ul>
+     * <li>v6 Talon FX, Spark MAX: 1 (NU are RPM)</li>
+     * <li>v5 Talon FX: 600 / 2048 (NU/100ms -> RPM).</li>
+     * <li>Talon SRX: 600 / 4096 (NU/100ms -> RPM)</li>
+     * </ul>
+     * 
+     * @param constant
+     *            Conversion constant. Units: <code>NU/rev/min</code>
      */
-    @Deprecated(forRemoval = true)
-    default void setDistancePerPulse(Distance wheelDiameter, double encoderGearRatio) {
-        setDistancePerPulse((wheelDiameter.getAsMeters() * Math.PI) / encoderGearRatio);
-    }
+    public void setVelocityConversionConstant(double constant);
 
     /**
-     * @deprecated This method is being replaced with a new conversion API.
+     * Get the velocity conversion constant for this motor.
      * </p>
-     * Get the traveled distance of the encoder, scaled from the distance per pulse.
      * 
-     * @return Traveled motor distance, in whatever units were passed in
-     *         setDistancePerPulse, combined with the timestamp of the received
-     *         data.
+     * This is used by the RPM and m/s getter/setter methods. Divide the native
+     * velocity units by this constant to output rotations per minute.
+     * 
+     * @return Conversion constant. Units: <code>NU/rev/min</code>
      */
-    @Deprecated(forRemoval = true)
-    default DataSignal<Double> getDistance() {
-        DataSignal<Double> position = getPositionNU();
-        position.Value *= (getDistancePerPulse() / getPositionEncoderCPR()) / 10.;
-        return position;
-    }
+    public double getVelocityConversionConstant();
 
     /**
-     * @deprecated This method is being replaced with a new conversion API.
+     * Set the position conversion constant for this motor.
      * </p>
-     * Get the current velocity of the encoder, scaled from the distance per pulse.
      * 
-     * @return Current motor velocity, in whatever units were passed in
-     *         setDistancePerPulse, combined with the timestamp of the received
-     *         data.
+     * The position conversion constant is a factor that, when dividing native
+     * position units by the constant, outputs rotations.
+     * </p>
+     * 
+     * Default values:
+     * <ul>
+     * <li>v6 Talon FX, Spark MAX: 1 (NU are rotations)</li>
+     * <li>v5 Talon FX: 2048 (NU -> rotations).</li>
+     * <li>Talon SRX: 4096 (NU -> rotations)</li>
+     * </ul>
+     * 
+     * @param constant
+     *            Conversion constant. Units: <code>NU/rev</code>
      */
-    @Deprecated(forRemoval = true)
-    default DataSignal<Double> getRate() {
-        DataSignal<Double> velocity = getVelocityNU();
-        velocity.Value *= (getDistancePerPulse() / getVelocityEncoderCPR());
-        return velocity;
-    }
+    public void setPositionConversionConstant(double constant);
 
     /**
-     * @deprecated This method is being replaced with a new conversion API.
+     * Get the position conversion constant for this motor.
      * </p>
-     * Run the motor at the specified speed, scaled from the distance per pulse.
      * 
-     * @param velocity
-     *            Target motor velocity, in whatever units were passed in
-     *            setDistancePerPulse
+     * This is used by the rotationsd and meters getter/setter methods. Divide the
+     * native
+     * position units by this constant to output rotations.
+     * 
+     * @return Conversion constant. Units: <code>NU/rev</code>
      */
-    @Deprecated(forRemoval = true)
-    default void setRate(double velocity) {
-        setRate(velocity, 0, 0);
-    }
+    public double getPositionConversionConstant();
 
     /**
-     * @deprecated This method is being replaced with a new conversion API.
+     * Set the gear ratio between the encoder and output shaft.
      * </p>
-     * Run the motor at the specified speed, scaled from the distance per pulse.
      * 
-     * @param velocity
-     *            Target motor velocity, in whatever units were passed in
-     *            setDistancePerPulse
-     * @param arbFeedforward
-     *            Arbitrary feed forward to pass to the motor controller, in volts.
+     * For motors with integrated encoders, this will generally be greater than 1 if
+     * the motor has a gearbox. However, if a non-integrated encoder is mounted
+     * after the gearbox, this will be 1.
+     * 
+     * @param ratio
+     *            Gear ratio. Units: coefficient
      */
-    @Deprecated(forRemoval = true)
-    default void setRate(double velocity, double arbFeedforward) {
-        setRate(velocity, arbFeedforward, 0);
-    }
+    public void setEncoderGearRatio(double ratio);
 
     /**
-     * @deprecated This method is being replaced with a new conversion API.
+     * Get the gear ratio between the encoder and output shaft.
      * </p>
-     * Run the motor at the specified speed, scaled from the distance per pulse.
      * 
-     * @param velocity
-     *            Target motor velocity, in whatever units were passed in
-     *            setDistancePerPulse
-     * @param arbFeedforward
-     *            Arbitrary feed forward to pass to the motor controller, in volts.
-     * @param slot
-     *            The PID slot to use.
+     * Divide the motor rotations or RPM by this number to get the actual rotations
+     * or RPM of the final output shaft. Multiply rotations of the output shaft by
+     * this number to get the number of motor rotations.
+     * 
+     * @return Gear ratio. Units: coefficient
      */
-    @Deprecated(forRemoval = true)
-    default void setRate(double velocity, double arbFeedforward, int slot) {
-        setVelocityNU(velocity / (getDistancePerPulse() / getVelocityEncoderCPR()), arbFeedforward, slot);
-    }
+    public double getEncoderGearRatio();
+
+    /**
+     * Set the diameter of the wheel driven by this motor.
+     * </p>
+     * 
+     * If the motor does not drive a traditional wheel but instead operates a linear
+     * actuation mechanism, set this to the diameter of whatever circular object it
+     * is rotating.
+     * 
+     * @param diameter
+     *            Diameter of the wheel. Units: distance
+     */
+    public void setWheelDiameter(Distance diameter);
+
+    /**
+     * Get the diameter of the wheel driven by this motor.
+     * </p>
+     * 
+     * Multiply the number of motor rotations or RPM by this number to get the
+     * distance travelled by this motor, or the linear speed of the wheel attached
+     * to it. Divide the speed or distance by this number to get output shaft
+     * rotations.
+     * </p>
+     * 
+     * Note that multiplying RPM by this will net meters per minute, so to get
+     * meters per second, you need to divide by 60.
+     * 
+     * @return Diameter of the wheel. Units: distance
+     */
+    public Distance getWheelDiameter();
 }

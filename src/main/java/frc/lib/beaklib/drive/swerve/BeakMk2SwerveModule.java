@@ -38,8 +38,6 @@ public class BeakMk2SwerveModule extends BeakSwerveModule {
     public void configDriveMotor(SwerveModuleConfiguration config) {
         super.configDriveMotor(config);
 
-        m_driveMotor.setD(config.drive_kP * 10., 0);
-
         // Prevent huge CAN spikes
         // TODO: CAN status frames
     }
