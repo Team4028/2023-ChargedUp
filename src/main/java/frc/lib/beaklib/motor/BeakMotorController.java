@@ -411,6 +411,18 @@ public interface BeakMotorController extends MotorController {
     }
 
     /**
+     * Get the motor velocity.
+     * 
+     * @return Velocity combined with the timestamp of the received data.
+     */
+    default DataSignal<Velocity> getSpeed() {
+        DataSignal<Double> velocity = getVelocityNU();
+        Velocity motorVelocity = new Velocity(velocity.Value * (getWheelDiameter().getAsMeters() * Math.PI)
+            / getVelocityConversionConstant() / getEncoderGearRatio());
+        return new DataSignal<Velocity>(motorVelocity);
+    }
+
+    /**
      * Get the motor velocity, in RPM.
      * 
      * @return Velocity in RPM combined with the timestamp of the received data.
@@ -428,6 +440,18 @@ public interface BeakMotorController extends MotorController {
      * @return Velocity in NU combined with the timestamp of the received data.
      */
     public DataSignal<Double> getVelocityNU();
+
+    /**
+     * Get the motor distance.
+     * 
+     * @return Distance combined with the timestamp of the received data.
+     */
+    default DataSignal<Distance> getDistance() {
+        DataSignal<Double> position = getPositionNU();
+        Distance motorDistance = new Distance(position.Value * (getWheelDiameter().getAsMeters() * Math.PI)
+            / getPositionConversionConstant() / getEncoderGearRatio());
+        return new DataSignal<Distance>(motorDistance);
+    }
 
     /**
      * Get the motor position, in motor rotations.

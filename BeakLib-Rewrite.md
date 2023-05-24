@@ -29,23 +29,23 @@ Tasks related to improvements to swerve that will benefit accuracy, reliability,
 ### Done
 - [x] Fix NEOs not working with onboard PID as azimuth motors
     * This was due to basing the rotations to degrees conversion factor on velocity CPR, not position CPR. :)
+- [x] Utilize improved conversion APIs for MCs
 
 ### To Do
 - [ ] Get rid of dedicated classes for MK4i, MK2, etc.
     * Instead, users should be able to pass in what motor type they want for the drive and azimuth, gear ratio for each, and the type of absolute encoder.
-- [ ] Utilize improved conversion APIs for MCs
 - [ ] Support v6's timestamped data
 
 ## Motor Controller Overhaul
 Tasks related to improvements to the common motor controller API to improve reliability, simplify the process of adding new motor controllers, and create a more intuitive API with features that are easier to implement.
 
 ### Done
+- [x] Get rid of the CPR functions
+    * The CPR functions are unstable and improperly documented, implemented, and used.
+- [x] Improve gear ratio and improved conversion APIs
+    * See the bottom of this document for a full writeup on the planned improved API and the problems with the existing CPR and Distance per Pulse APIs.
 
 ### To Do
-- [ ] Get rid of the CPR functions
-    * The CPR functions are unstable and improperly documented, implemented, and used.
-- [ ] Improve gear ratio and improved conversion APIs
-    * See the bottom of this document for a full writeup on the planned improved API and the problems with the existing CPR and Distance per Pulse APIs.
 - [ ] Implement a proper follower API
 - [ ] Implement a proper alternate/remote encoder API
 - [ ] Implement a proper status signal API
@@ -53,6 +53,7 @@ Tasks related to improvements to the common motor controller API to improve reli
 - [ ] Implementation of kS (static feedforward constant) for non-v6 motor controllers
 - [ ] Reverse and Forward Soft Limits
 - [ ] Neutral Deadbands
+- [ ] Latency-compensated position
 
 ## Differential Drive Overhaul
 Tasks related to improvements to the crude differential drivetrain API.

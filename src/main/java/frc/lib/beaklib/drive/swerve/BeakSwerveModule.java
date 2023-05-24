@@ -12,14 +12,11 @@ import edu.wpi.first.math.util.Units;
 import frc.lib.beaklib.encoder.BeakAbsoluteEncoder;
 import frc.lib.beaklib.motor.BeakMotorController;
 import frc.lib.beaklib.pid.BeakPIDConstants;
+import frc.lib.beaklib.units.Velocity;
 
 /** Base class for any non-differential swerve module. */
 public class BeakSwerveModule {
-    protected double turnCPR;
     protected int bruh;
-
-    // Calculated from Drive CPR.
-    protected double driveEncoderDistancePerPulse;
 
     protected SimpleMotorFeedforward m_feedforward;
 
@@ -41,10 +38,6 @@ public class BeakSwerveModule {
      * Call this function in a subclass AFTER setting up motors and encoders
      */
     public void setup(SwerveModuleConfiguration config) {
-        turnCPR = config.turnGearRatio * m_turningMotor.getPositionEncoderCPR(); // ratio * NU / rev
-        driveEncoderDistancePerPulse = (config.wheelDiameter.getAsMeters() * Math.PI)
-            * config.driveGearRatio / m_driveMotor.getVelocityEncoderCPR();
-
         m_feedforward = config.feedforward;
 
         bruh = config.driveMotorID;
@@ -57,6 +50,9 @@ public class BeakSwerveModule {
     public void configDriveMotor(SwerveModuleConfiguration config) {
         m_driveMotor.restoreFactoryDefault();
 
+        m_driveMotor.setEncoderGearRatio(config.driveGearRatio);
+        m_driveMotor.setWheelDiameter(config.wheelDiameter);
+
         m_driveMotor.setBrake(true);
         m_driveMotor.setInverted(config.driveInverted);
 
@@ -68,12 +64,12 @@ public class BeakSwerveModule {
 
         // Configure PID
         m_driveMotor.setPID(new BeakPIDConstants(config.drive_kP), 0);
-
-        m_driveMotor.setDistancePerPulse(config.wheelDiameter, config.driveGearRatio);
     }
 
     public void configTurningMotor(SwerveModuleConfiguration config) {
         m_turningMotor.restoreFactoryDefault();
+
+        m_turningMotor.setEncoderGearRatio(config.turnGearRatio);
 
         m_turningMotor.setBrake(true);
         m_turningMotor.setInverted(config.turnInverted);
@@ -85,7 +81,6 @@ public class BeakSwerveModule {
         // Generally, turning motor current draw isn't a problem.
         // This is done to prevent stalls from killing the motor.
         m_turningMotor.setSupplyCurrentLimit(config.turnCurrentLimit);
-
         m_turningMotor.setAllowedClosedLoopError(config.allowedError, 0);
 
         m_turningMotor.setPID(new BeakPIDConstants(config.turn_kP, 0, 0.3), 0);
@@ -107,8 +102,7 @@ public class BeakSwerveModule {
      */
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-            m_driveMotor.getVelocityNU().Value * driveEncoderDistancePerPulse * 10., // TODO
-            // m_driveMotor.getRate() / 10.,
+            m_driveMotor.getSpeed().Value.getAsMetersPerSecond(),
             new Rotation2d(getAbsoluteEncoderRadians())); // FUTURE: Using Absolute reverses some wheels.
     }
 
@@ -118,10 +112,8 @@ public class BeakSwerveModule {
      * @return Current position of the module.
      */
     public SwerveModulePosition getPosition() {
-        double positionDistancePerPulse = driveEncoderDistancePerPulse * m_driveMotor.getVelocityEncoderCPR()
-            / m_driveMotor.getPositionEncoderCPR();
         return new SwerveModulePosition(
-            m_driveMotor.getPositionNU().Value * positionDistancePerPulse,
+            m_driveMotor.getDistance().Value.getAsMeters(),
             new Rotation2d(getTurningEncoderRadians()));
     }
 
@@ -141,8 +133,8 @@ public class BeakSwerveModule {
         // NOTE: feedforward MUST be in meters!
         double arbFeedforward = m_feedforward.calculate(optimizedState.speedMetersPerSecond);
 
-        m_driveMotor.setVelocityNU(
-            optimizedState.speedMetersPerSecond / 10.0 / driveEncoderDistancePerPulse,
+        m_driveMotor.setVelocity(
+            new Velocity(optimizedState.speedMetersPerSecond),
             arbFeedforward,
             0);
 
@@ -157,8 +149,8 @@ public class BeakSwerveModule {
      * angle from the CANCoder.
      */
     public void resetTurningMotor() {
-        m_turningMotor.setEncoderPositionNU(
-            Math.toDegrees(getAbsoluteEncoderRadians()) / 360.0 * turnCPR);
+        m_turningMotor.setEncoderPositionMotorRotations(
+            Math.toDegrees(getAbsoluteEncoderRadians()) / 360.0);
     }
 
     /**
@@ -177,7 +169,7 @@ public class BeakSwerveModule {
     }
 
     public double getTurningEncoderRadians() {
-        double angle = m_turningMotor.getPositionNU().Value * (2 * Math.PI) / turnCPR; // (NU) / (NU / rev) => rev * 360. deg / 1 rev = degrees
+        double angle = m_turningMotor.getPositionMotorRotations().Value * (2 * Math.PI); // (NU) / (NU / rev) => rev * 360. deg / 1 rev = degrees
 
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
@@ -203,7 +195,7 @@ public class BeakSwerveModule {
      */
     public void setAngle(double newAngle) {
         // Does some funky stuff to do the cool thing
-        double currentSensorPosition = m_turningMotor.getPositionNU().Value * 360.0 / turnCPR;
+        double currentSensorPosition = m_turningMotor.getPositionMotorRotations().Value * 360.0;
         double remainder = Math.IEEEremainder(currentSensorPosition, 360.0);
         double newAngleDemand = newAngle + currentSensorPosition - remainder;
 
@@ -213,7 +205,7 @@ public class BeakSwerveModule {
             newAngleDemand += 360.0;
         }
 
-        m_turningMotor.setPositionNU(newAngleDemand / 360.0 * turnCPR);
+        m_turningMotor.setPositionMotorRotations(newAngleDemand / 360.0);
     }
 
     public static BeakSwerveModule fromSwerveModuleConfig(SwerveModuleConfiguration config) {
