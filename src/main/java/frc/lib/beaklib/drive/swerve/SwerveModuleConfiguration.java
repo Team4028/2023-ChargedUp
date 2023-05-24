@@ -4,94 +4,64 @@
 
 package frc.lib.beaklib.drive.swerve;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration.ModuleType;
 import frc.lib.beaklib.units.Distance;
 
 /** Class containing general configuration for a {@link BeakSwerveModule}. */
 public class SwerveModuleConfiguration {
-    public int driveMotorID;
-    public int turnMotorID;
-    public int turnEncoderID;
-    public double angleOffset;
-    public Translation2d moduleLocation;
+    public final Rotation2d AngleOffset;
+    public final Translation2d ModuleLocation;
 
-    public double driveGearRatio;
-    public double turnGearRatio;
+    public final double DriveGearRatio;
+    public final double TurnGearRatio;
 
-    public Distance wheelDiameter;
+    public final Distance WheelDiameter;
 
-    public boolean driveInverted;
-    public boolean turnInverted;
+    public final boolean DriveInverted;
+    public final boolean TurnInverted;
 
-    public double drive_kP;
-    public double turn_kP;
-
-    public double allowedError;
-
-    public int turnCurrentLimit;
-
-    public int driveSupplyCurrentLimit;
-    public int driveStatorCurrentLimit;
-
-    public String CANBus;
-
-    public SimpleMotorFeedforward feedforward;
-
-    public ModuleType moduleType;
+    public final SwerveDrivetrainConfiguration DriveConfig;
 
     /**
-     * Generate a new Swerve Module configuration.
-     * 
-     * @param driveMotorID
-     *            CAN ID of the drive motor.
-     * @param turnMotorID
-     *            CAN ID of the turning motor.
-     * @param turnEncoderID
-     *            CAN ID of the CANCoder.
      * @param angleOffset
-     *            Offset of the CANCoder, in radians.
+     *            Zero offset of this module.
      * @param moduleLocation
-     *            The module's translation relative to the robot center.
+     *            Translation from the center of the robot to this module.
+     * @param driveGearRatio
+     *            Gear ratio between the drive motor and wheel.
+     * @param turnGearRatio
+     *            Gear ratio between the turning motor and wheel.
+     * @param wheelDiameter
+     *            Diameter of the wheel.
+     * @param driveInverted
+     *            Whether or not the drive motor is inverted.
+     * @param turnInverted
+     *            Whether or not the turning motor is inverted.
      * @param driveConfig
-     *            {@link SwerveDrivetrainConfiguration} for the
-     *            drivetrain this module lies on.
+     *            {@link SwerveDrivetrainConfiguration} of the drivetrain this
+     *            module is on.
      */
     public SwerveModuleConfiguration(
-        int driveMotorID,
-        int turnMotorID,
-        int turnEncoderID,
-        double angleOffset,
+        Rotation2d angleOffset,
         Translation2d moduleLocation,
+        double driveGearRatio,
+        double turnGearRatio,
+        Distance wheelDiameter,
+        boolean driveInverted,
+        boolean turnInverted,
         SwerveDrivetrainConfiguration driveConfig) {
-        this.driveMotorID = driveMotorID;
-        this.turnMotorID = turnMotorID;
-        this.turnEncoderID = turnEncoderID;
-        this.angleOffset = angleOffset;
-        this.moduleLocation = moduleLocation;
+        this.DriveConfig = driveConfig;
 
-        this.drive_kP = driveConfig.drive_kP;
-        this.turn_kP = driveConfig.turn_kP;
+        this.AngleOffset = angleOffset;
+        this.ModuleLocation = moduleLocation;
 
-        this.allowedError = driveConfig.allowedClosedLoopError;
+        this.WheelDiameter = wheelDiameter;
 
-        this.turnCurrentLimit = driveConfig.turnCurrentLimit;
-        this.driveSupplyCurrentLimit = driveConfig.driveSupplyLimit;
-        this.driveStatorCurrentLimit = driveConfig.driveStatorLimit;
+        this.DriveGearRatio = driveGearRatio;
+        this.DriveInverted = driveInverted;
 
-        this.CANBus = driveConfig.CANBus;
-
-        this.feedforward = driveConfig.feedforward;
-
-        this.wheelDiameter = driveConfig.moduleConfiguration.wheelDiameter;
-
-        this.driveGearRatio = driveConfig.moduleConfiguration.driveGearRatio;
-        this.driveInverted = driveConfig.moduleConfiguration.driveInverted;
-
-        this.turnGearRatio = driveConfig.moduleConfiguration.turnGearRatio;
-        this.turnInverted = driveConfig.moduleConfiguration.turnInverted;
-
-        this.moduleType = driveConfig.moduleConfiguration.moduleType;
+        this.TurnGearRatio = turnGearRatio;
+        this.TurnInverted = turnInverted;
     }
 }

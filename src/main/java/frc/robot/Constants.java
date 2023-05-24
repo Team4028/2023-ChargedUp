@@ -30,14 +30,6 @@ public final class Constants {
         REPLAY
     }
 
-    public static final class PIDConstants {
-        public static final class Theta { // TODO: put in drivetrains
-            public static final double kP = 5.0;
-            public static final double kD = 0.2;
-            public static final double[] gains = { kP, 0, kD };
-        }
-    }
-
     public static final class DriveConstants {
         public static final double SPEED_SCALE = 0.25;
         public static final double SLOW_SPEED_SCALE = 0.08;

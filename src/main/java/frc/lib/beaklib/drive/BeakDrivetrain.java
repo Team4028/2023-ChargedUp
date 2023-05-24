@@ -26,6 +26,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
 import frc.lib.beaklib.units.Acceleration;
 import frc.lib.beaklib.units.AngularVelocity;
@@ -50,9 +51,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     protected SimpleMotorFeedforward m_feedForward;
 
     protected ProfiledPIDController m_thetaController;
-    protected PIDController m_autonThetaController;
-    protected PIDController m_driveController;
-    protected PIDController m_generatedDriveController;
+    protected BeakPIDConstants m_thetaPID;
+    protected BeakPIDConstants m_drivePID;
+    protected BeakPIDConstants m_generatedDrivePID;
 
     protected BuiltInAccelerometer m_accelerometer = new BuiltInAccelerometer();
     protected double m_lastAccel = 0.;
@@ -66,18 +67,18 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      *            A {@link RobotPhysics} object containing the
      *            relevant
      *            information for your robot.
-     * @param thetaPIDGains
+     * @param thetaPID
      *            The PID gains for the theta controller.
-     * @param drivePIDGains
+     * @param drivePID
      *            The PID gains for the auton drive controller.
-     * @param generatedDrivePIDGains
+     * @param generatedDrivePID
      *            The PID gains for generated paths using a path generation command.
      */
     public BeakDrivetrain(
         RobotPhysics physics,
-        double[] thetaPIDGains,
-        double[] drivePIDGains,
-        double[] generatedDrivePIDGains,
+        BeakPIDConstants thetaPID,
+        BeakPIDConstants drivePID,
+        BeakPIDConstants generatedDrivePID,
         boolean gyroInverted) {
         super(gyroInverted);
         m_maxVelocity = physics.maxVelocity;
@@ -95,25 +96,14 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
             physics.maxAngularVelocity.getAsRadiansPerSecond(), physics.maxAngularVelocity.getAsRadiansPerSecond());
 
         m_thetaController = new ProfiledPIDController(
-            thetaPIDGains[0],
-            thetaPIDGains[1],
-            thetaPIDGains[2],
+            thetaPID.kP,
+            thetaPID.kI,
+            thetaPID.kD,
             thetaConstraints);
 
-        m_autonThetaController = new PIDController(
-            thetaPIDGains[0],
-            thetaPIDGains[1],
-            thetaPIDGains[2]);
-
-        m_driveController = new PIDController(
-            drivePIDGains[0],
-            drivePIDGains[1],
-            drivePIDGains[2]);
-
-        m_generatedDriveController = new PIDController(
-            generatedDrivePIDGains[0],
-            generatedDrivePIDGains[1],
-            generatedDrivePIDGains[2]);
+        m_thetaPID = thetaPID;
+        m_drivePID = drivePID;
+        m_generatedDrivePID = generatedDrivePID;
     }
 
     public void configMotors() {
@@ -173,9 +163,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      */
     public PIDController createDriveController() {
         return new PIDController(
-            m_driveController.getP(),
-            m_driveController.getI(),
-            m_driveController.getD());
+            m_drivePID.kP,
+            m_drivePID.kI,
+            m_drivePID.kD);
     }
 
     /**
@@ -186,9 +176,9 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      */
     public PIDController createGeneratedDriveController() {
         return new PIDController(
-            m_generatedDriveController.getP(),
-            m_generatedDriveController.getI(),
-            m_generatedDriveController.getD());
+            m_generatedDrivePID.kP,
+            m_generatedDrivePID.kI,
+            m_generatedDrivePID.kD);
     }
 
     /**
@@ -202,44 +192,17 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
             getPhysics().maxAngularVelocity.getAsRadiansPerSecond());
 
         return new ProfiledPIDController(
-            m_thetaController.getP(),
-            m_thetaController.getI(),
-            m_thetaController.getD(),
+            m_thetaPID.kP,
+            m_thetaPID.kI,
+            m_thetaPID.kD,
             thetaConstraints);
     }
 
     public PIDController createAutonThetaController() {
         return new PIDController(
-            m_autonThetaController.getP(),
-            m_autonThetaController.getI(),
-            m_autonThetaController.getD());
-    }
-
-    /**
-     * Get the theta controller for auton usage.
-     * 
-     * @return Theta PID Controller.
-     */
-    public ProfiledPIDController getThetaController() {
-        return m_thetaController;
-    }
-
-    /**
-     * Get the drive controller for auton usage.
-     *
-     * @return Auton Drive PID Controller.
-     */
-    public PIDController getDriveController() {
-        return m_driveController;
-    }
-
-    /**
-     * Get the drive controller for path generation usage
-     * 
-     * @return PID Controller used for dynamically generated paths.
-     */
-    public PIDController getGeneratedDriveController() {
-        return m_generatedDriveController;
+            m_thetaPID.kP,
+            m_thetaPID.kI,
+            m_thetaPID.kD);
     }
 
     public SimpleMotorFeedforward getFeedforward() {

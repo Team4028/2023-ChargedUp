@@ -14,14 +14,14 @@ Tasks related to implementing support for v6.
 ### Done
 - [x] Generic implementation of the `StatusSignal` class - `DataSignal`
 - [x] Complete BeakV6TalonFX class
+- [x] Complete BeakV6CANCoder class
 - [x] Overhaul of BeakMotorController to use the new `DataSignal` class (generic implementation of `StatusSignal`)
+- [x] Overhaul of BeakAbsoluteEncoder to use the new `DataSignal` class (generic implementation of `StatusSignal`)
 
 ### To Do
-- [ ] Complete BeakV6CANCoder class
 - [ ] Complete BeakV6Pigeon2 class
 - [ ] Overhaul of BeakGyro to use the new `DataSignal` class (generic implementation of `StatusSignal`)
-- [ ] Overhaul of BeakAbsoluteEncoder to use the new `DataSignal` class (generic implementation of `StatusSignal`)
-- [ ] Implement latency compensated position functions for motor controllers
+- [ ] Implement latency compensated position functions
 
 ## Swerve Overhaul
 Tasks related to improvements to swerve that will benefit accuracy, reliability, long-term stability, extensibility, and maintainability.
@@ -30,10 +30,10 @@ Tasks related to improvements to swerve that will benefit accuracy, reliability,
 - [x] Fix NEOs not working with onboard PID as azimuth motors
     * This was due to basing the rotations to degrees conversion factor on velocity CPR, not position CPR. :)
 - [x] Utilize improved conversion APIs for MCs
+- [x] Get rid of dedicated classes for MK4i, MK2, etc.
+    * Instead, users should be able to pass in what motor type they want for the drive and azimuth, gear ratio for each, and the type of absolute encoder.
 
 ### To Do
-- [ ] Get rid of dedicated classes for MK4i, MK2, etc.
-    * Instead, users should be able to pass in what motor type they want for the drive and azimuth, gear ratio for each, and the type of absolute encoder.
 - [ ] Support v6's timestamped data
 
 ## Motor Controller Overhaul
@@ -46,9 +46,6 @@ Tasks related to improvements to the common motor controller API to improve reli
     * See the bottom of this document for a full writeup on the planned improved API and the problems with the existing CPR and Distance per Pulse APIs.
 
 ### To Do
-- [ ] Implement a proper follower API
-- [ ] Implement a proper alternate/remote encoder API
-- [ ] Implement a proper status signal API
 - [ ] Venom Support
 - [ ] Implementation of kS (static feedforward constant) for non-v6 motor controllers
 - [ ] Reverse and Forward Soft Limits
@@ -70,10 +67,10 @@ Tasks related to improvements to the crude differential drivetrain API.
 Tasks related to all drivetrain types to improve configurability.
 
 ### Done
+- [x] Take in PID Constants
+- [x] Support open-loop control in config
 
 ### To Do
-- [ ] Take in PID Constants
-- [ ] Support open-loop control in config
 
 ## Improved Conversion & Gear Ratio API
 The following is a writeup on a planned improvement to the motor controller API to more correctly implement an API akin to the old "CPR" functions.

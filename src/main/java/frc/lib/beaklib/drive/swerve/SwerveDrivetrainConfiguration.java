@@ -5,33 +5,36 @@
 package frc.lib.beaklib.drive.swerve;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import frc.lib.beaklib.drive.RobotPhysics;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Constants that are common among all swerve modules in a drivetrain. */
 public class SwerveDrivetrainConfiguration {
-    public final double drive_kP;
-    public final double turn_kP;
-    public final double turn_kD;
+    public final BeakPIDConstants DrivePID;
+    public final BeakPIDConstants TurnPID;
 
-    public final double allowedClosedLoopError;
+    public final double AllowedClosedLoopError;
 
-    public final int turnCurrentLimit;
-    public final int driveSupplyLimit;
-    public final int driveStatorLimit;
+    public final int TurnCurrentLimit;
+    public final int DriveSupplyLimit;
+    public final int DriveStatorLimit;
 
     public final String CANBus;
-    public final SimpleMotorFeedforward feedforward;
+    public final SimpleMotorFeedforward Feedforward;
 
-    public final SdsModuleConfiguration moduleConfiguration;
+    public final boolean IsOpenLoop;
+
+    public final RobotPhysics Physics;
 
     /**
      * Create a new Swerve Drivetrain Configuration.
      * 
-     * @param drive_kP
-     *            Proportional gain to use for the drive motor.
-     * @param turn_kP
-     *            Proportional gain to use for the turning motor.
-     * @param turn_kD
-     *            Derivative gain to use for the turning motor.
+     * @param drivePID
+     *            PID constants for the drive motor, if applicable.
+     * @param turnPID
+     *            PID constants for the turning motor.
+     * @param isOpenLoop
+     *            Set to true if your drivetrain is not characterized.
      * @param allowedClosedLoopError
      *            Allowed error of the turning motor, in NU.
      * @param turnCurrentLimit
@@ -47,30 +50,29 @@ public class SwerveDrivetrainConfiguration {
      * @param feedforward
      *            {@link SimpleMotorFeedforward} for the
      *            drivetrain.
-     * @param moduleConfiguration
-     *            {@link SdsModuleConfiguration} of the modules
-     *            on the drivetrain.
+     * @param physics
+     *            {@link RobotPhysics} of the drivetrain.
      */
     public SwerveDrivetrainConfiguration(
-        double drive_kP,
-        double turn_kP,
-        double turn_kD,
+        BeakPIDConstants drivePID,
+        BeakPIDConstants turnPID,
+        boolean isOpenLoop,
         double allowedClosedLoopError,
         int turnCurrentLimit,
         int driveSupplyLimit,
         int driveStatorLimit,
         String CANBus,
         SimpleMotorFeedforward feedforward,
-        SdsModuleConfiguration moduleConfiguration) {
-        this.drive_kP = drive_kP;
-        this.turn_kP = turn_kP;
-        this.turn_kD = turn_kD;
-        this.allowedClosedLoopError = allowedClosedLoopError;
-        this.turnCurrentLimit = turnCurrentLimit;
-        this.driveSupplyLimit = driveSupplyLimit;
-        this.driveStatorLimit = driveStatorLimit;
+        RobotPhysics physics) {
+        this.DrivePID = drivePID;
+        this.TurnPID = turnPID;
+        this.IsOpenLoop = isOpenLoop;
+        this.AllowedClosedLoopError = allowedClosedLoopError;
+        this.TurnCurrentLimit = turnCurrentLimit;
+        this.DriveSupplyLimit = driveSupplyLimit;
+        this.DriveStatorLimit = driveStatorLimit;
         this.CANBus = CANBus;
-        this.feedforward = feedforward;
-        this.moduleConfiguration = moduleConfiguration;
+        this.Feedforward = feedforward;
+        this.Physics = physics;
     }
 }

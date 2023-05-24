@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.gyro.BeakGyro;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.robot.commands.auton.generation.GeneratePath;
 
 /** Generic Swerve Drivetrain subsystem. */
@@ -87,11 +88,11 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      *            details.
      * @param gyro
      *            The gyroscope used by this drivetrain.
-     * @param thetaPIDGains
+     * @param thetaPID
      *            The PID gains for the theta controller.
-     * @param drivePIDGains
+     * @param drivePID
      *            The PID gains for the auton drive controller.
-     * @param generatedDrivePIDGains
+     * @param generatedDrivePID
      *            The PID gains for generated paths using the
      *            {@link GeneratePath} command.
      * @param configs
@@ -101,34 +102,35 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         RobotPhysics physics,
         BeakGyro gyro,
         boolean gyroInverted,
-        double[] thetaPIDGains,
-        double[] drivePIDGains,
-        double[] generatedDrivePIDGains,
-        SwerveModuleConfiguration... configs) {
+        BeakPIDConstants thetaPID,
+        BeakPIDConstants drivePID,
+        BeakPIDConstants generatedDrivePID) {
         super(physics,
-            thetaPIDGains,
-            drivePIDGains,
-            generatedDrivePIDGains,
+            thetaPID,
+            drivePID,
+            generatedDrivePID,
             gyroInverted);
 
         m_physics = physics;
 
-        m_numModules = configs.length;
+        m_gyro = gyro;
+
+        m_snapDirection = SnapDirection.NONE;
+    }
+
+    public void setup(BeakSwerveModule... modules) {
+        m_numModules = modules.length;
         Translation2d[] moduleLocations = new Translation2d[m_numModules];
 
         for (int i = 0; i < m_numModules; i++) {
-            BeakSwerveModule module = BeakSwerveModule.fromSwerveModuleConfig(configs[i]);
+            BeakSwerveModule module = modules[i];
             m_modules.add(module);
-            moduleLocations[i] = configs[i].moduleLocation;
+            moduleLocations[i] = module.Config.ModuleLocation;
         }
-
-        m_gyro = gyro;
 
         m_kinematics = new SwerveDriveKinematics(moduleLocations);
 
         m_odom = new SwerveDrivePoseEstimator(m_kinematics, getGyroRotation2d(), getModulePositions(), new Pose2d());
-
-        m_snapDirection = SnapDirection.NONE;
 
         resetTurningMotors();
     }

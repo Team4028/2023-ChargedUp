@@ -353,7 +353,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     @Override
     public void setVoltageCompensationSaturation(double saturation) {
-        DriverStation.reportWarning("setVoltageCompensationSaturation method has no effect for BeakV6TalonFX.", null);
+        m_voltageCompEnabled = saturation != 0.;
     }
 
     @Override

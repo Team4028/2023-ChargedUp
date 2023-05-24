@@ -17,7 +17,7 @@ public class RotateDrivetrainToTargetPosition extends ProfiledPIDCommand {
     public RotateDrivetrainToTargetPosition(Distance x, Distance y, BeakDrivetrain drivetrain) {
         super(
             // The ProfiledPIDController used by the command
-            drivetrain.getThetaController(),
+            drivetrain.createThetaController(),
             // This should return the measurement
             () -> drivetrain.getRotation2d().getRadians(),
             // This should return the goal (can also be a constant)
