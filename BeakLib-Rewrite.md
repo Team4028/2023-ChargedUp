@@ -44,6 +44,7 @@ Tasks related to improvements to the common motor controller API to improve reli
     * The CPR functions are unstable and improperly documented, implemented, and used.
 - [x] Improve gear ratio and improved conversion APIs
     * See the bottom of this document for a full writeup on the planned improved API and the problems with the existing CPR and Distance per Pulse APIs.
+- [x] `BeakMotorControllerGroup`
 
 ### To Do
 - [ ] Venom Support
@@ -51,7 +52,6 @@ Tasks related to improvements to the common motor controller API to improve reli
 - [ ] Reverse and Forward Soft Limits
 - [ ] Neutral Deadbands
 - [ ] Latency-compensated position
-- [ ] `BeakMotorControllerGroup`
 
 ## Differential Drive Overhaul
 Tasks related to improvements to the crude differential drivetrain API.
