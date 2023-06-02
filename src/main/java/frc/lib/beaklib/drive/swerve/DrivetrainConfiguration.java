@@ -8,8 +8,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 
-/** Constants that are common among all swerve modules in a drivetrain. */
-public class SwerveDrivetrainConfiguration {
+/** Constants of any drivetrain type. */
+public class DrivetrainConfiguration {
     public final BeakPIDConstants DrivePID;
     public final BeakPIDConstants TurnPID;
 
@@ -27,18 +27,18 @@ public class SwerveDrivetrainConfiguration {
     public final RobotPhysics Physics;
 
     /**
-     * Create a new Swerve Drivetrain Configuration.
+     * Create a new Drivetrain Configuration.
      * 
      * @param drivePID
      *            PID constants for the drive motor, if applicable.
      * @param turnPID
-     *            PID constants for the turning motor.
+     *            PID constants for the turning motor, if applicable.
      * @param isOpenLoop
      *            Set to true if your drivetrain is not characterized.
      * @param allowedClosedLoopError
-     *            Allowed error of the turning motor, in NU.
+     *            Allowed error of the turning motor, in NU, if applicable.
      * @param turnCurrentLimit
-     *            Current limit of the turning motor.
+     *            Current limit of the turning motor, if applicable.
      * @param driveSupplyLimit
      *            Supply current limit of the drive motor.
      * @param driveStatorLimit
@@ -53,7 +53,7 @@ public class SwerveDrivetrainConfiguration {
      * @param physics
      *            {@link RobotPhysics} of the drivetrain.
      */
-    public SwerveDrivetrainConfiguration(
+    public DrivetrainConfiguration(
         BeakPIDConstants drivePID,
         BeakPIDConstants turnPID,
         boolean isOpenLoop,

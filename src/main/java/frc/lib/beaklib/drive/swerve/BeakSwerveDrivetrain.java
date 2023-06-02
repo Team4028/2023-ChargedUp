@@ -25,7 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,8 +50,6 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
     protected SwerveDrivePoseEstimator m_odom;
     protected SwerveDriveKinematics m_kinematics;
-
-    protected RobotPhysics m_physics;
 
     /**
      * An enum representing the direction the robot is currently trying to snap to.
@@ -111,8 +109,6 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
             generatedDrivePID,
             gyroInverted);
 
-        m_physics = physics;
-
         m_gyro = gyro;
 
         m_snapDirection = SnapDirection.NONE;
@@ -155,6 +151,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         logger.recordOutput("Swerve/Module Angles", getModuleAngles());
     }
 
+    @Override
     public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
         Command pathFollowingCommand = new PPSwerveControllerCommand(
             traj,
@@ -172,19 +169,22 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
             eventMap);
     }
 
+    @Override
     public Command generatePath(Supplier<Pose2d> desiredPose) {
         return new GeneratePath(desiredPose, this).andThen(new InstantCommand(() -> this.drive(0, 0, 0, false)));
     }
 
+    @Override
     public Pose2d updateOdometry() {
         m_pose = m_odom.updateWithTime(
-            Timer.getFPGATimestamp(),
+            RobotController.getFPGATime() / 1000000.,
             getGyroRotation2d(),
             getModulePositions());
 
         return m_pose;
     }
 
+    @Override
     public void addVisionMeasurement(Pose2d estimatedPose, double timestamp) {
         Transform2d poseError = estimatedPose.minus(m_odom.getEstimatedPosition());
 
@@ -195,19 +195,22 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         }
     }
 
+    @Override
     public Pose2d getPoseMeters() {
         return m_odom.getEstimatedPosition();
     }
 
+    @Override
     public void resetOdometry(Pose2d pose) {
         if (!pose.equals(new Pose2d()))
             m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), pose);
     }
 
+    @Override
     public void drive(double x, double y, double rot, boolean fieldRelative) {
-        x *= m_physics.maxVelocity.getAsMetersPerSecond();
-        y *= m_physics.maxVelocity.getAsMetersPerSecond();
-        rot *= m_physics.maxAngularVelocity.getAsRadiansPerSecond();
+        x *= m_maxVelocity.getAsMetersPerSecond();
+        y *= m_maxVelocity.getAsMetersPerSecond();
+        rot *= m_maxAngularVelocity.getAsRadiansPerSecond();
 
         ChassisSpeeds speeds = fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rot, getRotation2d())
             : new ChassisSpeeds(x, y, rot);
@@ -215,6 +218,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         drive(speeds);
     }
 
+    @Override
     public void drive(ChassisSpeeds speeds) {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(speeds);
 
@@ -232,7 +236,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      *            An array of the desired states for the m_modules.
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_physics.maxVelocity.getAsMetersPerSecond());
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_maxVelocity.getAsMetersPerSecond());
 
         for (int i = 0; i < desiredStates.length; i++) {
             m_modules.get(i).setDesiredState(desiredStates[i]);

@@ -21,7 +21,7 @@ public class SwerveModuleConfiguration {
     public final boolean DriveInverted;
     public final boolean TurnInverted;
 
-    public final SwerveDrivetrainConfiguration DriveConfig;
+    public final DrivetrainConfiguration DriveConfig;
 
     /**
      * @param angleOffset
@@ -39,7 +39,7 @@ public class SwerveModuleConfiguration {
      * @param turnInverted
      *            Whether or not the turning motor is inverted.
      * @param driveConfig
-     *            {@link SwerveDrivetrainConfiguration} of the drivetrain this
+     *            {@link DrivetrainConfiguration} of the drivetrain this
      *            module is on.
      */
     public SwerveModuleConfiguration(
@@ -50,7 +50,7 @@ public class SwerveModuleConfiguration {
         Distance wheelDiameter,
         boolean driveInverted,
         boolean turnInverted,
-        SwerveDrivetrainConfiguration driveConfig) {
+        DrivetrainConfiguration driveConfig) {
         this.DriveConfig = driveConfig;
 
         this.AngleOffset = angleOffset;

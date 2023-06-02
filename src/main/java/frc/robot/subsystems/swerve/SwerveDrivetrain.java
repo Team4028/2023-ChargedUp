@@ -8,7 +8,7 @@ import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
 import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
-import frc.lib.beaklib.drive.swerve.SwerveDrivetrainConfiguration;
+import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
 import frc.lib.beaklib.gyro.BeakPigeon2;
 import frc.lib.beaklib.pid.BeakPIDConstants;
@@ -128,7 +128,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     private final static BeakPigeon2 m_gyro = new BeakPigeon2(PIGEON2_ID, CAN_BUS);
 
-    private static final SwerveDrivetrainConfiguration DRIVE_CONFIG = new SwerveDrivetrainConfiguration(
+    private static final DrivetrainConfiguration DRIVE_CONFIG = new DrivetrainConfiguration(
         DRIVE_PID,
         TURN_PID,
         false,
