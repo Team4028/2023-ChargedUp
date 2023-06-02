@@ -444,23 +444,27 @@ public interface BeakMotorController extends MotorController {
     /**
      * Get the motor distance.
      * 
+     * @param latencyCompensated Whether or not to attempt latency compensation.
+     * 
      * @return Distance combined with the timestamp of the received data.
      */
-    default DataSignal<Distance> getDistance() {
-        DataSignal<Double> position = getPositionNU();
+    default DataSignal<Distance> getDistance(boolean latencyCompensated) {
+        DataSignal<Double> position = getPositionNU(latencyCompensated);
         Distance motorDistance = new Distance(position.Value * (getWheelDiameter().getAsMeters() * Math.PI)
             / getPositionConversionConstant() / getEncoderGearRatio());
-        return new DataSignal<Distance>(motorDistance);
+        return new DataSignal<Distance>(motorDistance, position.Timestamp);
     }
 
     /**
      * Get the motor position, in motor rotations.
      * 
+     * @param latencyCompensated Whether or not to attempt latency compensation.
+     * 
      * @return Position in motor rotations.
      */
-    default DataSignal<Double> getPositionMotorRotations() {
-        DataSignal<Double> position = getPositionNU();
-        return new DataSignal<Double>(position.Value / getPositionConversionConstant() / getEncoderGearRatio());
+    default DataSignal<Double> getPositionMotorRotations(boolean latencyCompensated) {
+        DataSignal<Double> position = getPositionNU(latencyCompensated);
+        return new DataSignal<Double>(position.Value / getPositionConversionConstant() / getEncoderGearRatio(), position.Timestamp);
     }
 
     /**
@@ -468,9 +472,11 @@ public interface BeakMotorController extends MotorController {
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
      * SparkMAX.
      * 
+     * @param latencyCompensated Whether or not to attempt latency compensation.
+     * 
      * @return Position in NU combined with the timestamp of the received data.
      */
-    public DataSignal<Double> getPositionNU();
+    public DataSignal<Double> getPositionNU(boolean latencyCompensated);
 
     /**
      * Stop the motor.

@@ -20,7 +20,7 @@ import frc.lib.beaklib.units.Distance;
 
 /** Common motor controller interface for Talon SRX. */
 public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
-    private double m_velocityConversionConstant = 600. / 4096.;
+    private double m_velocityConversionConstant = 4096. / 600.;
     private double m_positionConversionConstant = 4096.;
     private double m_gearRatio = 1.;
     private Distance m_wheelDiameter = Distance.fromInches(4.);
@@ -39,19 +39,9 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityRPM(double rpm, double arbFeedforward, int slot) {
-        setVelocityNU(rpm * 4096 / 600, arbFeedforward, slot);
-    }
-
-    @Override
     public void setVelocityNU(double nu, double arbFeedforward, int slot) {
         setSlot(slot);
         super.set(ControlMode.Velocity, nu, DemandType.ArbitraryFeedForward, arbFeedforward / 12.);
-    }
-
-    @Override
-    public void setPositionMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setPositionNU(rotations * 4096, arbFeedforward, slot);
     }
 
     @Override
@@ -61,18 +51,8 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public void setEncoderPositionMotorRotations(double rotations) {
-        setEncoderPositionNU(rotations * 4096);
-    }
-
-    @Override
     public void setEncoderPositionNU(double nu) {
         super.setSelectedSensorPosition(nu);
-    }
-
-    @Override
-    public void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setMotionMagicNU(rotations * 4096, arbFeedforward, slot);
     }
 
     @Override
@@ -82,22 +62,12 @@ public class BeakTalonSRX extends WPI_TalonSRX implements BeakMotorController {
     }
 
     @Override
-    public DataSignal<Double> getVelocityRPM() {
-        return new DataSignal<Double>(getVelocityNU().Value * 4096 / 600);
-    }
-
-    @Override
     public DataSignal<Double> getVelocityNU() {
         return new DataSignal<Double>(super.getSelectedSensorVelocity());
     }
 
     @Override
-    public DataSignal<Double> getPositionMotorRotations() {
-        return new DataSignal<Double>(getPositionNU().Value * 4096);
-    }
-
-    @Override
-    public DataSignal<Double> getPositionNU() {
+    public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
         return new DataSignal<Double>(super.getSelectedSensorPosition());
     }
 

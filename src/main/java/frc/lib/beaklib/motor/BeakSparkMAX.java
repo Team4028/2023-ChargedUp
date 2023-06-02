@@ -38,18 +38,8 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityRPM(double rpm, double arbFeedforward, int slot) {
-        setVelocityNU(rpm, arbFeedforward, slot);
-    }
-
-    @Override
     public void setVelocityNU(double nu, double arbFeedforward, int slot) {
         m_pid.setReference(nu, ControlType.kVelocity, slot, arbFeedforward);
-    }
-
-    @Override
-    public void setPositionMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setPositionNU(rotations * m_encoder.getCountsPerRevolution(), arbFeedforward, slot);
     }
 
     @Override
@@ -58,18 +48,8 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public void setEncoderPositionMotorRotations(double rotations) {
-        setEncoderPositionNU(rotations * m_encoder.getCountsPerRevolution());
-    }
-
-    @Override
     public void setEncoderPositionNU(double nu) {
         m_encoder.setPosition(nu);
-    }
-
-    @Override
-    public void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setMotionMagicNU(rotations, arbFeedforward, slot);
     }
 
     @Override
@@ -78,22 +58,12 @@ public class BeakSparkMAX extends CANSparkMax implements BeakMotorController {
     }
 
     @Override
-    public DataSignal<Double> getVelocityRPM() {
-        return getVelocityNU();
-    }
-
-    @Override
     public DataSignal<Double> getVelocityNU() {
         return new DataSignal<Double>(m_encoder.getVelocity());
     }
 
     @Override
-    public DataSignal<Double> getPositionMotorRotations() {
-        return new DataSignal<Double>(getPositionNU().Value / m_encoder.getCountsPerRevolution());
-    }
-
-    @Override
-    public DataSignal<Double> getPositionNU() {
+    public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
         return new DataSignal<Double>(m_encoder.getPosition());
     }
 

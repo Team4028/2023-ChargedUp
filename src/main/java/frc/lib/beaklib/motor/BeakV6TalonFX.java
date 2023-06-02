@@ -49,7 +49,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     private MotionMagicDutyCycle m_motionMagicOut = new MotionMagicDutyCycle(0.);
     private MotionMagicVoltage m_motionMagicVoltage = new MotionMagicVoltage(0.);
 
-    private double m_velocityConversionConstant = 1.;
+    private double m_velocityConversionConstant = 1. / 60.;
     private double m_positionConversionConstant = 1.;
     private double m_gearRatio = 1.;
     private Distance m_wheelDiameter = Distance.fromInches(4.);
@@ -80,11 +80,6 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityRPM(double rpm, double arbFeedforward, int slot) {
-        setVelocityNU(rpm / 60., arbFeedforward, slot);
-    }
-
-    @Override
     public void setVelocityNU(double nu, double arbFeedforward, int slot) {
         if (m_voltageCompEnabled) {
             super.setControl(m_velocityVoltage
@@ -97,11 +92,6 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
                 .withSlot(slot)
                 .withVelocity(nu));
         }
-    }
-
-    @Override
-    public void setPositionMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setPositionNU(rotations, arbFeedforward, slot);
     }
 
     @Override
@@ -120,18 +110,8 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setEncoderPositionMotorRotations(double rotations) {
-        setEncoderPositionNU(rotations);
-    }
-
-    @Override
     public void setEncoderPositionNU(double nu) {
         super.setRotorPosition(nu, 0.1);
-    }
-
-    @Override
-    public void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setMotionMagicNU(rotations, arbFeedforward, slot);
     }
 
     @Override
@@ -150,24 +130,17 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public DataSignal<Double> getVelocityRPM() {
-        DataSignal<Double> velocity = getVelocityNU();
-        velocity.Value *= 60.;
-        return velocity;
-    }
-
-    @Override
     public DataSignal<Double> getVelocityNU() {
         return new DataSignal<Double>(super.getVelocity());
     }
 
     @Override
-    public DataSignal<Double> getPositionMotorRotations() {
-        return getPositionNU();
-    }
-
-    @Override
-    public DataSignal<Double> getPositionNU() {
+    public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
+        if (latencyCompensated) {
+            return new DataSignal<Double>(
+                StatusSignal.getLatencyCompensatedValue(super.getPosition(), super.getVelocity())
+            );
+        }
         return new DataSignal<Double>(super.getPosition());
     }
 

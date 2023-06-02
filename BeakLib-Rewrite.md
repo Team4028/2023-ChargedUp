@@ -45,13 +45,13 @@ Tasks related to improvements to the common motor controller API to improve reli
 - [x] Improve gear ratio and improved conversion APIs
     * See the bottom of this document for a full writeup on the planned improved API and the problems with the existing CPR and Distance per Pulse APIs.
 - [x] `BeakMotorControllerGroup`
+- [x] Latency-compensated position
 
 ### To Do
 - [ ] Venom Support
 - [ ] Implementation of kS (static feedforward constant) for non-v6 motor controllers
 - [ ] Reverse and Forward Soft Limits
 - [ ] Neutral Deadbands
-- [ ] Latency-compensated position
 
 ## Differential Drive Overhaul
 Tasks related to improvements to the crude differential drivetrain API.

@@ -91,8 +91,8 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public DataSignal<Double> getPositionNU() {
-        return m_controllers[0].getPositionNU();
+    public DataSignal<Double> getPositionNU(boolean latencyCompensated) {
+        return m_controllers[0].getPositionNU(latencyCompensated);
     }
 
     @Override

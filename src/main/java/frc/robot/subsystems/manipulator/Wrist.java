@@ -181,7 +181,7 @@ public class Wrist extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Wrist Pos", getAbsoluteEncoderPosition());
         SmartDashboard.putNumber("Wrist Targ", m_targetAngle);
-        SmartDashboard.putNumber("Wrist RelPos", m_motor.getPositionNU().Value);
+        SmartDashboard.putNumber("Wrist RelPos", m_motor.getPositionNU(true).Value);
         SmartDashboard.putNumber("Wrist Amps", m_motor.getOutputCurrent());
     }
 }
