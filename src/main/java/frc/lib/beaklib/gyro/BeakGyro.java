@@ -6,6 +6,8 @@ package frc.lib.beaklib.gyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import frc.lib.beaklib.motor.DataSignal;
+import frc.lib.beaklib.units.AngularVelocity;
 
 /** Standard WPILib Gyro with pitch & roll methods. */
 public interface BeakGyro extends Gyro {
@@ -15,9 +17,11 @@ public interface BeakGyro extends Gyro {
      * <p>
      * Note that if your gyro is rotated, you may have to switch pitch and roll.
      * 
+     * @param latencyCompensated Whether or not to latency-compensate the gyro reading.
+     * 
      * @return The current pitch of the robot.
      */
-    public Rotation2d getPitchRotation2d();
+    public DataSignal<Rotation2d> getPitchRotation2d(boolean latencyCompensated);
 
     /**
      * Return the roll of the robot.
@@ -25,7 +29,29 @@ public interface BeakGyro extends Gyro {
      * <p>
      * Note that if your gyro is rotated, you may have to switch pitch and roll.
      * 
+     * @param latencyCompensated Whether or not to latency-compensate the gyro reading.
+     * 
      * @return The current roll of the robot.
      */
-    public Rotation2d getRollRotation2d();
+    public DataSignal<Rotation2d> getRollRotation2d(boolean latencyCompensated);
+
+    /**
+     * Return the yaw of the robot.
+     * 
+     * <p>
+     * Note that depending on your gyro's orientation/implementation, you may have to invert this.
+     * Call <code>setGyroInverted</code> to invert the gyro yaw.
+     * 
+     * @param latencyCompensated Whether or not to latency-compensate the gyro reading.
+     * 
+     * @return The current yaw of the robot.
+     */
+    public DataSignal<Rotation2d> getYawRotation2d(boolean latencyCompensated);
+    
+    /**
+     * Get the angular velocity of the robot.
+     * 
+     * @return The current angular velocity of the robot.
+     */
+    public DataSignal<AngularVelocity> getAngularVelocity();
 }

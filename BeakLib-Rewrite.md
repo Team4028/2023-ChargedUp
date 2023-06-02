@@ -17,11 +17,12 @@ Tasks related to implementing support for v6.
 - [x] Complete BeakV6CANCoder class
 - [x] Overhaul of BeakMotorController to use the new `DataSignal` class (generic implementation of `StatusSignal`)
 - [x] Overhaul of BeakAbsoluteEncoder to use the new `DataSignal` class (generic implementation of `StatusSignal`)
+- [x] Complete BeakV6Pigeon2 class
+- [x] Overhaul of BeakGyro to use the new `DataSignal` class (generic implementation of `StatusSignal`)
+- [x] Implement latency compensated position functions
 
 ### To Do
-- [ ] Complete BeakV6Pigeon2 class
-- [ ] Overhaul of BeakGyro to use the new `DataSignal` class (generic implementation of `StatusSignal`)
-- [ ] Implement latency compensated position functions
+- done :)
 
 ## Swerve Overhaul
 Tasks related to improvements to swerve that will benefit accuracy, reliability, long-term stability, extensibility, and maintainability.
@@ -32,9 +33,10 @@ Tasks related to improvements to swerve that will benefit accuracy, reliability,
 - [x] Utilize improved conversion APIs for MCs
 - [x] Get rid of dedicated classes for MK4i, MK2, etc.
     * Instead, users should be able to pass in what motor type they want for the drive and azimuth, gear ratio for each, and the type of absolute encoder.
+- [x] Support v6's timestamped data
+    * This was actually replaced with latency-compensated data. Here's hoping more vendors start implementing v6 features like latency compensation and timestamped data.
 
 ### To Do
-- [ ] Support v6's timestamped data
 
 ## Motor Controller Overhaul
 Tasks related to improvements to the common motor controller API to improve reliability, simplify the process of adding new motor controllers, and create a more intuitive API with features that are easier to implement.

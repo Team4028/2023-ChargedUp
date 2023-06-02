@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.motor.DataSignal;
 import frc.lib.beaklib.units.AngularVelocity;
 
@@ -30,10 +31,21 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<Rotation2d> getEncoderPosition() { // TODO
-        StatusSignal<Double> position = super.getPosition();
-        Rotation2d rotation = new Rotation2d(position.getValue() * 2 * Math.PI);
-        return new DataSignal<Rotation2d>(rotation, position.getTimestamp().getTime());
+    public DataSignal<Rotation2d> getEncoderPosition(boolean latencyCompensated) {
+        double positionValue;
+        double positionTime;
+        StatusSignal<Double> position = getPosition();
+
+        if (latencyCompensated) {
+            positionValue = StatusSignal.getLatencyCompensatedValue(position, getVelocity());
+            positionTime = RobotController.getFPGATime() / 1000000.;
+        } else {
+            positionValue = position.getValue();
+            positionTime = position.getTimestamp().getTime();
+        }
+
+        Rotation2d rotation = new Rotation2d(positionValue * 2 * Math.PI);
+        return new DataSignal<Rotation2d>(rotation, positionTime);
     }
 
     @Override
@@ -89,9 +101,20 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<Rotation2d> getAbsoluteEncoderPosition() { // TODO
-        StatusSignal<Double> position = super.getAbsolutePosition();
-        Rotation2d rotation = new Rotation2d(position.getValue() * 2 * Math.PI);
-        return new DataSignal<Rotation2d>(rotation, position.getTimestamp().getTime());
+    public DataSignal<Rotation2d> getAbsoluteEncoderPosition(boolean latencyCompensated) {
+        double positionValue;
+        double positionTime;
+        StatusSignal<Double> position = getAbsolutePosition();
+
+        if (latencyCompensated) {
+            positionValue = StatusSignal.getLatencyCompensatedValue(position, getVelocity());
+            positionTime = RobotController.getFPGATime() / 1000000.;
+        } else {
+            positionValue = position.getValue();
+            positionTime = position.getTimestamp().getTime();
+        }
+
+        Rotation2d rotation = new Rotation2d(positionValue * 2 * Math.PI);
+        return new DataSignal<Rotation2d>(rotation, positionTime);
     }
 }

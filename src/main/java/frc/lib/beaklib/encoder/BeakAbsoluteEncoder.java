@@ -14,9 +14,11 @@ public interface BeakAbsoluteEncoder {
      * Get the encoder's position. Depending on the configuration,
      * this may be either relative (based on the magnet offset), or absolute.
      * 
+     * @param latencyCompensated Whether or not to attempt to latency-compensate the encoder position.
+     * 
      * @return Position.
      */
-    public DataSignal<Rotation2d> getEncoderPosition();
+    public DataSignal<Rotation2d> getEncoderPosition(boolean latencyCompensated);
 
     /**
      * Set the encoder's position.
@@ -38,7 +40,7 @@ public interface BeakAbsoluteEncoder {
      * 
      * @return Absolute position.
      */
-    public DataSignal<Rotation2d> getAbsoluteEncoderPosition();
+    public DataSignal<Rotation2d> getAbsoluteEncoderPosition(boolean latencyCompensated);
 
     /**
      * Configure the zero point of the absolute position.

@@ -22,7 +22,7 @@ public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<Rotation2d> getAbsoluteEncoderPosition() {
+    public DataSignal<Rotation2d> getAbsoluteEncoderPosition(boolean latencyCompensated) {
         return new DataSignal<Rotation2d>(new Rotation2d(Math.toRadians(super.getAbsolutePosition())));
     }
 
@@ -57,7 +57,7 @@ public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<Rotation2d> getEncoderPosition() {
+    public DataSignal<Rotation2d> getEncoderPosition(boolean latencyCompensated) {
         return new DataSignal<Rotation2d>(new Rotation2d(Math.toRadians(super.getPosition())));
     }
 
