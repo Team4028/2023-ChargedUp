@@ -444,7 +444,8 @@ public interface BeakMotorController extends MotorController {
     /**
      * Get the motor distance.
      * 
-     * @param latencyCompensated Whether or not to attempt latency compensation.
+     * @param latencyCompensated
+     *            Whether or not to attempt latency compensation.
      * 
      * @return Distance combined with the timestamp of the received data.
      */
@@ -458,13 +459,15 @@ public interface BeakMotorController extends MotorController {
     /**
      * Get the motor position, in motor rotations.
      * 
-     * @param latencyCompensated Whether or not to attempt latency compensation.
+     * @param latencyCompensated
+     *            Whether or not to attempt latency compensation.
      * 
      * @return Position in motor rotations.
      */
     default DataSignal<Double> getPositionMotorRotations(boolean latencyCompensated) {
         DataSignal<Double> position = getPositionNU(latencyCompensated);
-        return new DataSignal<Double>(position.Value / getPositionConversionConstant() / getEncoderGearRatio(), position.Timestamp);
+        return new DataSignal<Double>(position.Value / getPositionConversionConstant() / getEncoderGearRatio(),
+            position.Timestamp);
     }
 
     /**
@@ -472,7 +475,8 @@ public interface BeakMotorController extends MotorController {
      * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
      * SparkMAX.
      * 
-     * @param latencyCompensated Whether or not to attempt latency compensation.
+     * @param latencyCompensated
+     *            Whether or not to attempt latency compensation.
      * 
      * @return Position in NU combined with the timestamp of the received data.
      */
@@ -799,6 +803,11 @@ public interface BeakMotorController extends MotorController {
      * Set the gear ratio between the encoder and output shaft.
      * </p>
      * 
+     * This number represents the number of rotations of the motor shaft per
+     * rotation of the output shaft. Therefore, if a motor has a 16:1 gearbox
+     * attached, this value should be 16.
+     * </p>
+     * 
      * For motors with integrated encoders, this will generally be greater than 1 if
      * the motor has a gearbox. However, if a non-integrated encoder is mounted
      * after the gearbox, this will be 1.
@@ -810,6 +819,11 @@ public interface BeakMotorController extends MotorController {
 
     /**
      * Get the gear ratio between the encoder and output shaft.
+     * </p>
+     * 
+     * This number represents the number of rotations of the motor shaft per
+     * rotation of the output shaft. Therefore, if a motor has a 16:1 gearbox
+     * attached, this value should be 16.
      * </p>
      * 
      * Divide the motor rotations or RPM by this number to get the actual rotations

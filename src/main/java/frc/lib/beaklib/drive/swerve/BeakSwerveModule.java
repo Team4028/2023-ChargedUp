@@ -82,6 +82,8 @@ public class BeakSwerveModule {
         m_turningMotor.setSupplyCurrentLimit(Config.DriveConfig.TurnCurrentLimit);
         m_turningMotor.setAllowedClosedLoopError(Config.DriveConfig.AllowedClosedLoopError, 0);
 
+        m_turningMotor.setVoltageCompensationSaturation(0.);
+
         m_turningMotor.setPID(Config.DriveConfig.TurnPID, 0);
     }
 

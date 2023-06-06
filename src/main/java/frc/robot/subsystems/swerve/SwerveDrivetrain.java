@@ -10,7 +10,7 @@ import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
 import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.gyro.BeakPigeon2;
+import frc.lib.beaklib.gyro.BeakV6Pigeon2;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.lib.beaklib.units.Acceleration;
 import frc.lib.beaklib.units.AngularVelocity;
@@ -53,8 +53,8 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final Vector<N3> m_visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1,
         Units.degreesToRadians(25));
 
-    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.0125);
-    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(0.2);
+    private static final BeakPIDConstants DRIVE_PID = new BeakPIDConstants(0.03);
+    private static final BeakPIDConstants TURN_PID = new BeakPIDConstants(0.15);
 
     private static final BeakPIDConstants AUTON_DRIVE_PID = new BeakPIDConstants(4.0, 0., 0.01);
     private static final BeakPIDConstants GENERATED_AUTON_DRIVE_PID = new BeakPIDConstants(7.5, 0., 0.01);
@@ -126,7 +126,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int DRIVE_SUPPLY_LIMIT = 60;
     private static final int DRIVE_STATOR_LIMIT = 80;
 
-    private final static BeakPigeon2 m_gyro = new BeakPigeon2(PIGEON2_ID, CAN_BUS);
+    private final static BeakV6Pigeon2 m_gyro = new BeakV6Pigeon2(PIGEON2_ID, CAN_BUS);
 
     private static final DrivetrainConfiguration DRIVE_CONFIG = new DrivetrainConfiguration(
         DRIVE_PID,
@@ -191,23 +191,23 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
         super.setup(
             new MK4iSwerveModule(
-                FL_TURN_ID,
                 FL_DRIVE_ID,
+                FL_TURN_ID,
                 FL_ENCODER_ID,
                 m_frontLeftConfig),
             new MK4iSwerveModule(
-                FR_TURN_ID,
                 FR_DRIVE_ID,
+                FR_TURN_ID,
                 FR_ENCODER_ID,
                 m_frontRightConfig),
             new MK4iSwerveModule(
-                BL_TURN_ID,
                 BL_DRIVE_ID,
+                BL_TURN_ID,
                 BL_ENCODER_ID,
                 m_backLeftConfig),
             new MK4iSwerveModule(
-                BR_TURN_ID,
                 BR_DRIVE_ID,
+                BR_TURN_ID,
                 BR_ENCODER_ID,
                 m_backRightConfig) //
             );
@@ -237,13 +237,15 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
         SmartDashboard.putNumber("Pitch", getGyroPitchRotation2d().getDegrees());
 
-        SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getTurningEncoderRadians()));
-        SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getTurningEncoderRadians()));
-        SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getTurningEncoderRadians()));
-        SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getTurningEncoderRadians()));
+        SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getAbsoluteEncoderRadians()));
+        SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getAbsoluteEncoderRadians()));
+        SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getAbsoluteEncoderRadians()));
+        SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getAbsoluteEncoderRadians()));
 
         SmartDashboard.putNumber("X (meters)", m_odom.getEstimatedPosition().getX());
         SmartDashboard.putNumber("Y (meters)", m_odom.getEstimatedPosition().getY());
         SmartDashboard.putNumber("Heading (deg)", getHeading());
+
+        SmartDashboard.putNumber("Velocity", super.getForwardVelocity());
     }
 }
