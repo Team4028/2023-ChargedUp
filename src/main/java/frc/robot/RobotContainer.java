@@ -90,6 +90,7 @@ public class RobotContainer {
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
     private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
     private final BeakXBoxController m_emergencyController = new BeakXBoxController(2);
+    private final BeakXBoxController m_eventController = new BeakXBoxController(3);
 
     // Auton stuff
     private final LoggedDashboardChooser<BeakAutonCommand> m_autoChooser = new LoggedDashboardChooser<>("Auto Choices");
@@ -515,6 +516,34 @@ public class RobotContainer {
         // ================================================
         // m_emergencyController.rb.onTrue(new
         // InstantCommand(OneMechanism::toggleSnappedMode));
+
+        // event controller :)
+        m_eventController.ls.toggleOnTrue(
+            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED)
+                .alongWith(OneMechanism.orangeModeCommand().andThen(new LimelightSquare(
+                    true,
+                    true,
+                    () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                    () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                    m_drive))));
+
+        m_eventController.rs.toggleOnTrue(
+            OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE)
+                .alongWith(OneMechanism.purpleModeCommand().andThen(new LimelightSquare(
+                    false,
+                    true,
+                    () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                    () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                    m_drive))));
+
+        m_eventController.y.onTrue(OneMechanism.runArms(ScoringPositions.SCORE_MID_CUBE));
+        m_eventController.x.onTrue(OneMechanism.runArms(ScoringPositions.STOWED));
+
+        m_eventController.lt.whileTrue(m_gripper.runMotorIn().andThen(m_gripper::beIdleMode));
+        m_eventController.rt.whileTrue(m_gripper.runMotorOut().andThen(m_gripper::beIdleMode));
+
+        m_eventController.lb.onTrue(new InstantCommand(OneMechanism::becomePurpleMode));
+        m_eventController.rb.onTrue(new InstantCommand(OneMechanism::becomeOrangeMode));
     }
 
     private void initAutonChooser() {
