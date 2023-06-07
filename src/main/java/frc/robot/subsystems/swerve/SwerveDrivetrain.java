@@ -4,11 +4,11 @@
 
 package frc.robot.subsystems.swerve;
 
+import frc.lib.beaklib.drive.DrivetrainConfiguration;
 import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
 import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
-import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
 import frc.lib.beaklib.gyro.BeakV6Pigeon2;
 import frc.lib.beaklib.pid.BeakPIDConstants;

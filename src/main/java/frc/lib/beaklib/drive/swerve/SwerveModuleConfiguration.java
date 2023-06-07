@@ -6,6 +6,7 @@ package frc.lib.beaklib.drive.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.lib.beaklib.drive.DrivetrainConfiguration;
 import frc.lib.beaklib.units.Distance;
 
 /** Class containing general configuration for a {@link BeakSwerveModule}. */

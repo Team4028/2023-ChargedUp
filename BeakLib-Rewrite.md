@@ -59,11 +59,11 @@ Tasks related to improvements to the common motor controller API to improve reli
 Tasks related to improvements to the crude differential drivetrain API.
 
 ### Done
+- [x] Reimplement direct driving through the `BeakDifferentialDrivetrain` class, not requiring user-defined functions
+- [x] Similarly, remove some methods that pass in `BeakMotorController`s
+- [x] Implement PathPlanner's event map
 
 ### To Do
-- [ ] Reimplement direct driving through the `BeakDifferentialDrivetrain` class, not requiring user-defined functions
-- [ ] Similarly, remove some methods that pass in `BeakMotorController`s
-- [ ] Implement PathPlanner's event map
 
 ## Drivetrain Overhaul
 Tasks related to all drivetrain types to improve configurability.

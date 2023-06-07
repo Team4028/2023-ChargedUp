@@ -19,7 +19,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.motor.BeakMotorControllerGroup;
 import frc.lib.beaklib.pid.BeakPIDConstants;
