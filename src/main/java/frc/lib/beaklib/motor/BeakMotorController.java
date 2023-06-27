@@ -418,7 +418,7 @@ public interface BeakMotorController extends MotorController {
     default DataSignal<Velocity> getSpeed() {
         DataSignal<Double> velocity = getVelocityNU();
         Velocity motorVelocity = new Velocity(velocity.Value * (getWheelDiameter().getAsMeters() * Math.PI)
-            / getVelocityConversionConstant() / getEncoderGearRatio());
+            / getVelocityConversionConstant() / getEncoderGearRatio() / 60.);
         return new DataSignal<Velocity>(motorVelocity);
     }
 

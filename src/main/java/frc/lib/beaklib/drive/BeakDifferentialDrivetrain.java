@@ -35,6 +35,20 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
 
     protected DrivetrainConfiguration m_config;
 
+    /**
+     * Create a new Differential Drivetrain.
+     * 
+     * @param config
+     *            {@link DrivetrainConfiguration} for this drivetrain
+     * @param thetaPID
+     *            PID Constants for autonomous rotation
+     * @param drivePID
+     *            PID Constants for autonomous driving
+     * @param generatedDrivePID
+     *            PID Constants for autonomous driving with generated paths
+     * @param gyroInverted
+     *            Whether or not the gyroscope is inverted.
+     */
     public BeakDifferentialDrivetrain(
         DrivetrainConfiguration config,
         BeakPIDConstants thetaPID,
@@ -49,6 +63,12 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         m_odom = new DifferentialDrivePoseEstimator(m_kinematics, getGyroRotation2d(), 0., 0., new Pose2d());
     }
 
+    /**
+     * Setup motor and gyro configurations.
+     * @param leftMotorControllers Motor Controllers that control the left side of the drivetrain.
+     * @param rightMotorControllers Motor Controllers that control the right side of the drivetrain.
+     * @param gyro The gyroscope in use for this drivetrain.
+     */
     public void setup(
         BeakMotorControllerGroup leftMotorControllers,
         BeakMotorControllerGroup rightMotorControllers,

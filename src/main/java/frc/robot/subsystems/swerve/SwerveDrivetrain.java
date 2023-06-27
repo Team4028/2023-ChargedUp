@@ -10,7 +10,7 @@ import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
 import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.gyro.BeakV6Pigeon2;
+import frc.lib.beaklib.gyro.BeakPigeon2;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.lib.beaklib.units.Acceleration;
 import frc.lib.beaklib.units.AngularVelocity;
@@ -126,7 +126,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int DRIVE_SUPPLY_LIMIT = 60;
     private static final int DRIVE_STATOR_LIMIT = 80;
 
-    private final static BeakV6Pigeon2 m_gyro = new BeakV6Pigeon2(PIGEON2_ID, CAN_BUS);
+    private final static BeakPigeon2 m_gyro = new BeakPigeon2(PIGEON2_ID, CAN_BUS);
 
     private static final DrivetrainConfiguration DRIVE_CONFIG = new DrivetrainConfiguration(
         DRIVE_PID,

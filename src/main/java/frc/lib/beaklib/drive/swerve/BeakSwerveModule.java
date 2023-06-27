@@ -114,7 +114,7 @@ public class BeakSwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            m_driveMotor.getDistance(true).Value.getAsMeters(),
+            m_driveMotor.getDistance(false).Value.getAsMeters(),
             new Rotation2d(getTurningEncoderRadians()));
     }
 
@@ -165,7 +165,7 @@ public class BeakSwerveModule {
      * @return Angle of the wheel in radians.
      */
     public double getAbsoluteEncoderRadians() {
-        double angle = m_turningEncoder.getAbsoluteEncoderPosition(true).Value.getRadians();
+        double angle = m_turningEncoder.getAbsoluteEncoderPosition(false).Value.getRadians();
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
             angle += 2.0 * Math.PI;
@@ -175,7 +175,7 @@ public class BeakSwerveModule {
     }
 
     public double getTurningEncoderRadians() {
-        double angle = m_turningMotor.getPositionMotorRotations(true).Value * (2 * Math.PI);
+        double angle = m_turningMotor.getPositionMotorRotations(false).Value * (2 * Math.PI);
 
         angle %= 2.0 * Math.PI;
         if (angle < 0.0) {
@@ -201,7 +201,7 @@ public class BeakSwerveModule {
      */
     public void setAngle(double newAngle) {
         // Does some funky stuff to do the cool thing
-        double currentSensorPosition = m_turningMotor.getPositionMotorRotations(true).Value * 360.0;
+        double currentSensorPosition = m_turningMotor.getPositionMotorRotations(false).Value * 360.0;
         double remainder = Math.IEEEremainder(currentSensorPosition, 360.0);
         double newAngleDemand = newAngle + currentSensorPosition - remainder;
 

@@ -665,4 +665,8 @@ public class OneMechanism {
         m_upperArm.worldsConstants();
         m_wrist.worldsConstants();
     }
+
+    public static void the() {
+        m_leds.setColor(Color.BLUE);
+    }
 }

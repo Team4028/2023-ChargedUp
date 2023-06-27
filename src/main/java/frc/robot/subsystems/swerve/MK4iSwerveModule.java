@@ -6,8 +6,8 @@ package frc.robot.subsystems.swerve;
 
 import frc.lib.beaklib.drive.swerve.BeakSwerveModule;
 import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.encoder.BeakV6CANCoder;
-import frc.lib.beaklib.motor.BeakV6TalonFX;
+import frc.lib.beaklib.encoder.BeakCANCoder;
+import frc.lib.beaklib.motor.BeakTalonFX;
 
 /** Add your docs here. */
 public class MK4iSwerveModule extends BeakSwerveModule {
@@ -18,9 +18,9 @@ public class MK4iSwerveModule extends BeakSwerveModule {
         SwerveModuleConfiguration config) {
         super(config);
 
-        BeakV6TalonFX driveMotor = new BeakV6TalonFX(driveMotorPort, config.DriveConfig.CANBus);
-        BeakV6TalonFX turnMotor = new BeakV6TalonFX(turnMotorPort, config.DriveConfig.CANBus);
-        BeakV6CANCoder turnEncoder = new BeakV6CANCoder(encoderPort, config.DriveConfig.CANBus);
+        BeakTalonFX driveMotor = new BeakTalonFX(driveMotorPort, config.DriveConfig.CANBus);
+        BeakTalonFX turnMotor = new BeakTalonFX(turnMotorPort, config.DriveConfig.CANBus);
+        BeakCANCoder turnEncoder = new BeakCANCoder(encoderPort, config.DriveConfig.CANBus);
 
         super.setup(driveMotor, turnMotor, turnEncoder);
     }
