@@ -102,7 +102,7 @@ public class Robot extends LoggedRobot {
 
         SmartDashboard.putString("Target Position", OneMechanism.getScoringPosition().name());
 
-        SmartDashboard.putBoolean("WALL", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE));
+        SmartDashboard.putBoolean("WALL", (OneMechanism.getScoringPosition() == ScoringPositions.OLD_WALL || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE));
         SmartDashboard.putBoolean("SLIDE", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_SINGLE_SUBSTATION));
         SmartDashboard.putBoolean("FLOOR", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CUBE || OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
         SmartDashboard.putBoolean("UPRIGHT", (OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));

@@ -295,18 +295,19 @@ public class RobotContainer {
         // ================================================
         m_operatorController.rb
             .onTrue(new ConditionalCommand(OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CUBE),
-                OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE),
+                OneMechanism.runArms(ScoringPositions.OLD_WALL),
                 () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
         // OPERATOR CONTROLLER - A
-        // SCORE LOW
+        // NEW WALL
         // ================================================
         // m_operatorController.a.onTrue(new
         // ConditionalCommand(OneMechanism.runArms(ScoringPositions.SCORE_LOW_CUBE),
         // OneMechanism.runArms(ScoringPositions.SCORE_LOW_CONE),
         // () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
-        m_operatorController.a.onTrue(OneMechanism.runArms(ScoringPositions.OLD_SLIDE));
+        // m_operatorController.a.onTrue(OneMechanism.runArms(ScoringPositions.OLD_SLIDE));
+        m_operatorController.a.onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_DOUBLE_SUBSTATION_CONE));
 
         // ================================================
         // OPERATOR CONTROLLER - B

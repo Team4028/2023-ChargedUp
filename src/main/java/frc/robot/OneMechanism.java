@@ -150,15 +150,16 @@ public class OneMechanism {
         AUTON_PREP_CONE(               51.0,       4.0,        203.0),
 
         OLD_SLIDE(                     3.6,        2.0,        320.0),
-        ACQUIRE_DOUBLE_SUBSTATION_CONE(51.0,       2.0,        195.5),
+        OLD_WALL(                      51.0,       2.0,        195.5),
         ACQUIRE_DOUBLE_SUBSTATION_CUBE(47.1,       2.0,        203.7),
+
+        ACQUIRE_DOUBLE_SUBSTATION_CONE(33.7,       2.0,        111. + 152.4),
         
         ACQUIRE_SINGLE_SUBSTATION(     5.9,        2.0,        327.7);
 
         public double lowerPosition;
         public double upperPosition;
         public double wristAngle;
-
 
         private ScoringPositions(double lowerPosition, double upperPosition, double wristAngle) {
             this.lowerPosition = lowerPosition;

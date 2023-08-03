@@ -339,7 +339,7 @@ public class Autons {
             new WaitUntilCommand(() -> {
                 double average = filter.calculate(m_drivetrain.getGyroPitchRotation2d().getDegrees());
                 return scoreHigh ? average > 4 : average < -4;
-            }).andThen(new WaitCommand(0.85))
+            }).andThen(new WaitCommand(0.7))
                 .deadlineWith(
                     new SnapToAngle(direction, () -> 1.25, () -> 0., () -> false, false, m_drivetrain)),
 

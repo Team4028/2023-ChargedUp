@@ -61,7 +61,7 @@ public class Gripper extends SubsystemBase {
     /** @return A Command to run the motor in. */
     public Command runMotorInWithoutReset() {
         return run(() -> {
-            m_motor.set(0.8);
+            m_motor.set(RUN_SPEED);
             m_currentState = GripState.HOLD;
         });
     }
