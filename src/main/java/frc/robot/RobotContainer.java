@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -241,7 +242,11 @@ public class RobotContainer {
         // DRIVER CONTROLLER - Y
         // AUTO-BALANCE
         // ================================================
-        m_driverController.y.toggleOnTrue(new QuadraticAutoBalance(m_drive));
+        // m_driverController.y.toggleOnTrue(new QuadraticAutoBalance(m_drive));
+        m_driverController.y.onTrue(new InstantCommand(() -> {
+            Logger logger = Logger.getInstance();
+            logger.recordOutput("AprilTag Pose", m_frontAprilTagVision.getLatestEstimatedRobotPose(m_drive.getPoseMeters()).estimatedPose.toPose2d());
+        }));
 
         // ================================================
         // DRIVER CONTROLLER - RS

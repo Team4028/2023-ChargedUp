@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -103,8 +104,6 @@ public class Vision {
             if (bestTarget == null || target.getPoseAmbiguity() < bestTarget.getPoseAmbiguity()) {
                 bestTarget = target;
             }
-            
-             
         }
 
         return bestTarget;
@@ -127,13 +126,14 @@ public class Vision {
     /**
      * Get targets from the camera under the pose ambiguity threshold.
      * 
-     * @return A list of {@link PhotonTrackedTarget}s filtered to remove high-ambiguity tags.
+     * @return A list of {@link PhotonTrackedTarget}s filtered to remove
+     *         high-ambiguity tags.
      */
     public List<PhotonTrackedTarget> getFilteredTargets() {
         List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
 
         for (PhotonTrackedTarget target : getTargets())
-            if (target.getPoseAmbiguity() < 0.15) {
+            if (target.getPoseAmbiguity() < 0.45) {
                 targets.add(target);
             }
 
@@ -171,10 +171,12 @@ public class Vision {
         m_poseEstimator.setReferencePose(pose);
         Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
 
+        Logger logger = Logger.getInstance();
+
         if (pose != null) {
             if (!estimatedPose.isPresent()) {
-                SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated empty.");
-                return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
+                logger.recordOutput("Pose Status " + m_camera.getName(), "Pose exists, estimated empty.");
+                return new EstimatedRobotPose(new Pose3d(pose), result.getTimestampSeconds(), result.getTargets());
             }
 
             Pose2d aprilTagPose = estimatedPose.get().estimatedPose.toPose2d();
@@ -190,17 +192,17 @@ public class Vision {
                 finalPose,
                 result.getTimestampSeconds(),
                 result.getTargets());
-            
-            SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose exists, estimated exists.");
+
+            logger.recordOutput("Pose Status " + m_camera.getName(), "Pose exists, estimated exists.");
             return finalEstimatedPose;
         }
 
         if (!estimatedPose.isPresent()) {
-            SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose empty, estimated empty.");
+            logger.recordOutput("Pose Status " + m_camera.getName(), "Pose empty, estimated empty.");
             return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
         }
 
-        SmartDashboard.putString("Pose Status " + m_camera.getName(), "Pose empty, estimated exists.");
+        logger.recordOutput("Pose Status " + m_camera.getName(), "Pose empty, estimated exists.");
 
         return estimatedPose.get();
     }

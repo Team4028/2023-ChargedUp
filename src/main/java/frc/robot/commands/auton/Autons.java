@@ -4,21 +4,29 @@
 
 package frc.robot.commands.auton;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -237,7 +245,7 @@ public class Autons {
             new InstantCommand(() -> m_upperArm.runArmVbus(-0.3)),
             new WaitCommand(0.07),
 
-            OneMechanism.runArms(ScoringPositions.AUTON_PRELOAD_SCORE),//.until(m_upperArmExtended),
+            OneMechanism.runArms(ScoringPositions.AUTON_PRELOAD_SCORE), // .until(m_upperArmExtended),
             m_gripper.modeSensitiveOutfeedCommand().withTimeout(0.4),
             new InstantCommand(() -> OneMechanism.buckeyeConstants()),
 
@@ -568,15 +576,52 @@ public class Autons {
         BeakAutonCommand initialPath = TwoPiece(position, false);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, ""),
+            new ParallelDeadlineGroup(
+                new SequentialCommandGroup(
+                    initialPath,
+                    Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, ""),
 
-            m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
-                .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
-            new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
+                    m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
+                        .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
+                    new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
 
-            // TODO: make conditional Prep and Score events
-            Score(position, "3", !score, data)
+                    // TODO: make conditional Prep and Score events
+                    Score(position, "3", !score, data)
+                ),
+                new RunCommand(() -> {
+                    Logger logger = Logger.getInstance();
+                    Pose2d frontPose = m_frontAprilTagVision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()).estimatedPose.toPose2d();
+                    Pose2d rearPose = m_rearAprilTagVision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()).estimatedPose.toPose2d();
+
+                    List<Pose2d> poses = new ArrayList<Pose2d>();
+                    poses.add(frontPose);
+                    poses.add(rearPose);
+
+                    Predicate<Pose2d> poseExists = (pose) -> (!pose.equals(m_drivetrain.getPoseMeters()) && !pose.equals(new Pose2d(0, 0, m_drivetrain.getRotation2d())));
+
+                    boolean frontPoseExists = poseExists.test(frontPose);
+                    boolean rearPoseExists = poseExists.test(rearPose);
+
+                    Pose2d loggedPose;
+                    
+                    logger.recordOutput("rear exists", rearPoseExists);
+                    logger.recordOutput("front exists", frontPoseExists);
+
+                    if (frontPoseExists) {
+                        if (rearPoseExists) {
+                            loggedPose = m_drivetrain.getPoseMeters().nearest(poses);
+                        } else {
+                            loggedPose = frontPose;
+                        }
+                    } else if (rearPoseExists) {
+                        loggedPose = rearPose;
+                    } else {
+                        loggedPose = m_drivetrain.getPoseMeters();
+                    }
+
+                    logger.recordOutput("AprilTag Pose", loggedPose);
+                })
+            )
         //
         );
 
