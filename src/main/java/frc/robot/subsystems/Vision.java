@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonUtils;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -23,13 +24,11 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision {
     private final PhotonCamera m_camera;
@@ -98,15 +97,12 @@ public class Vision {
     public PhotonTrackedTarget getBestTarget() {
         List<PhotonTrackedTarget> targets = getTargets();
 
-        PhotonTrackedTarget bestTarget = null;
+        targets.sort((targ1, targ2) -> {
+            // descending sort
+            return Double.compare(targ2.getPoseAmbiguity(), targ1.getPoseAmbiguity());
+        });
 
-        for (PhotonTrackedTarget target : targets) {
-            if (bestTarget == null || target.getPoseAmbiguity() < bestTarget.getPoseAmbiguity()) {
-                bestTarget = target;
-            }
-        }
-
-        return bestTarget;
+        return targets.get(0);
     }
 
     /**
@@ -155,6 +151,28 @@ public class Vision {
     }
 
     /**
+     * testing
+     */
+    public void logRawPoses() {
+        List<PhotonTrackedTarget> targets = getTargets();
+        PhotonTrackedTarget bestTarget = getBestTarget();
+        
+        Logger logger = Logger.getInstance();
+
+        for (PhotonTrackedTarget target : targets) {
+            int id = target.getFiducialId();
+            Pose3d tagPose = m_layout.getTagPose(id).get();
+
+            Pose3d estimatedPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, m_camToRobot);
+
+            logger.recordOutput("Target ID " + id, estimatedPose.toPose2d());
+            if (target.equals(bestTarget)) {
+                logger.recordOutput("Best Target", estimatedPose.toPose2d());
+            }
+        }
+    }
+
+    /**
      * Gets the best estimated pose of the robot in the current frame.
      * 
      * @param pose
@@ -169,42 +187,25 @@ public class Vision {
         }
 
         m_poseEstimator.setReferencePose(pose);
-        Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
+        Optional<EstimatedRobotPose> estimatedRobotPose = m_poseEstimator.update();
 
-        Logger logger = Logger.getInstance();
+        boolean poseExists = pose != null;
+        boolean estimatedExists = estimatedRobotPose.isPresent();
 
-        if (pose != null) {
-            if (!estimatedPose.isPresent()) {
-                logger.recordOutput("Pose Status " + m_camera.getName(), "Pose exists, estimated empty.");
-                return new EstimatedRobotPose(new Pose3d(pose), result.getTimestampSeconds(), result.getTargets());
-            }
+        Pose3d estimatedPose = estimatedExists ? estimatedRobotPose.get().estimatedPose : new Pose3d();
 
-            Pose2d aprilTagPose = estimatedPose.get().estimatedPose.toPose2d();
-            Pose3d finalPose = new Pose3d(
-                new Translation3d(aprilTagPose.getTranslation().getX(), aprilTagPose.getTranslation().getY(), 0.),
-                new Rotation3d(0., 0., pose.getRotation().getRadians())
-            // An equivalent to a 2d pose, with the passed-in pose's rotation.
-            // We ignore AprilTag theta data because it sucks balls
-            );
+        // Prefer estimated translation, but use passed-in translation if unavailable
+        Translation2d finalTranslation = (estimatedExists
+            ? estimatedPose.getTranslation().toTranslation2d()
+            : (poseExists ? pose.getTranslation() : new Translation2d()));
 
-            // Construct the final object
-            EstimatedRobotPose finalEstimatedPose = new EstimatedRobotPose(
-                finalPose,
-                result.getTimestampSeconds(),
-                result.getTargets());
+        // Prefer passed-in rotation, but use estimated rotation if unavailable
+        Rotation2d finalRotation = (poseExists ? pose.getRotation()
+            : (estimatedExists ? estimatedPose.getRotation().toRotation2d() : new Rotation2d()));
 
-            logger.recordOutput("Pose Status " + m_camera.getName(), "Pose exists, estimated exists.");
-            return finalEstimatedPose;
-        }
+        Pose2d finalPose = new Pose2d(finalTranslation, finalRotation);
 
-        if (!estimatedPose.isPresent()) {
-            logger.recordOutput("Pose Status " + m_camera.getName(), "Pose empty, estimated empty.");
-            return new EstimatedRobotPose(new Pose3d(), result.getTimestampSeconds(), result.getTargets());
-        }
-
-        logger.recordOutput("Pose Status " + m_camera.getName(), "Pose empty, estimated exists.");
-
-        return estimatedPose.get();
+        return new EstimatedRobotPose(new Pose3d(finalPose), result.getTimestampSeconds(), result.getTargets());
     }
 
     /**

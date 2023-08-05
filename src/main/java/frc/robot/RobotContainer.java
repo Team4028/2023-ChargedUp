@@ -31,6 +31,7 @@ import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
+import frc.robot.commands.auton.Autons.NodeLocation;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.XDrive;
@@ -536,12 +537,12 @@ public class RobotContainer {
         m_autoChooser.addOption("2.25 Top", m_autons.TwoQuarterPiece(PathPosition.Top));
         m_autoChooser.addOption("2.25 Bottom (OHCL)", m_autons.TwoQuarterPiece(PathPosition.Bottom));
 
-        m_autoChooser.addOption("2.9 Top", m_autons.ThreePiece(PathPosition.Top, false, false, ""));
-        m_autoChooser.addOption("2.9 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false, false, ""));
+        m_autoChooser.addOption("2.9 Top", m_autons.ThreePiece(PathPosition.Top, NodeLocation.LOW, false, false, ""));
+        m_autoChooser.addOption("2.9 Bottom", m_autons.ThreePiece(PathPosition.Bottom, NodeLocation.LOW, false, false, ""));
 
-        m_autoChooser.addOption("3 Top Mid", m_autons.ThreePiece(PathPosition.Top, false, true, "Mid"));
+        m_autoChooser.addOption("3 Top Mid", m_autons.ThreePiece(PathPosition.Top, NodeLocation.MID, false, true, "Mid"));
 
-        m_autoChooser.addOption("3 Top Low", m_autons.ThreePiece(PathPosition.Top, false, true, "Low"));
+        m_autoChooser.addOption("3 Top Low", m_autons.ThreePiece(PathPosition.Top, NodeLocation.LOW, false, true, "Low"));
 
         m_autoChooser.addOption("1 Cube Mid Bal",
             m_autons.OneBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
@@ -561,8 +562,8 @@ public class RobotContainer {
         m_autoChooser.addOption("1 Mobility Bal",
             m_autons.OnePieceMobilityBalance(true));
 
-        m_autoChooser.addOption("3 Bottom Limelight",
-            m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
+        // m_autoChooser.addOption("3 Bottom Limelight",
+        //     m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
 
         m_autoChooser.addOption("Preload Sequence",
             new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));

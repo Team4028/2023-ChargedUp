@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** Basic Limelight subsystem. */
 public class BeakLimelight extends SubsystemBase {
     /* Height of the goal, in inches--based on the center of the reflective tape */
-    public static double TARGET_HEIGHT = 0.;
+    public static double TargetHeight = 0.;
 
     public enum TargetHeight {
         RAPID_REACT(104.);
@@ -29,9 +29,9 @@ public class BeakLimelight extends SubsystemBase {
     /*
      * Mounting height of the Limelight, in inches--center of the lens to the floor
      */
-    public static double MOUNT_HEIGHT = 0.;
+    public static double MountHeight = 0.;
 
-    public static double HEIGHT_DELTA;
+    public static double HeightDelta;
 
     /*
      * Mounting angle of the Limelight, in degrees, from perfect-vertical--see
@@ -40,7 +40,7 @@ public class BeakLimelight extends SubsystemBase {
      * either case,
      * ensure to tune further.
      */
-    public static double MOUNT_ANGLE = 0.;
+    public static double MountAngle = 0.;
 
     protected NetworkTable nt = NetworkTableInstance.getDefault().getTable("limelight");
     protected NetworkTableEntry tx = entry("tx");
@@ -70,8 +70,8 @@ public class BeakLimelight extends SubsystemBase {
      *            Distance from the floor to the center of the lens, in inches.
      */
     public void setMountHeight(double height) {
-        MOUNT_HEIGHT = height;
-        HEIGHT_DELTA = TARGET_HEIGHT - height;
+        MountHeight = height;
+        HeightDelta = TargetHeight - height;
     }
 
     /**
@@ -92,8 +92,8 @@ public class BeakLimelight extends SubsystemBase {
      *            inches.
      */
     public void setTargetHeight(double height) {
-        TARGET_HEIGHT = height;
-        HEIGHT_DELTA = TARGET_HEIGHT - MOUNT_HEIGHT;
+        TargetHeight = height;
+        HeightDelta = TargetHeight - MountHeight;
     }
 
     /**
@@ -107,7 +107,7 @@ public class BeakLimelight extends SubsystemBase {
      *            ensure to tune further.
      */
     public void setMountAngle(double angle) {
-        MOUNT_ANGLE = angle;
+        MountAngle = angle;
     }
 
     public double getX() {
@@ -209,8 +209,8 @@ public class BeakLimelight extends SubsystemBase {
      * @return Distance, in feet.
      */
     public double getDistance() {
-        double goalAngle = (MOUNT_ANGLE + getY()) * (Math.PI / 180.);
-        double dist = HEIGHT_DELTA / (Math.tan(goalAngle));
+        double goalAngle = (MountAngle + getY()) * (Math.PI / 180.);
+        double dist = HeightDelta / (Math.tan(goalAngle));
 
         return dist / 12.0;
     }

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -18,10 +19,10 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -40,7 +41,6 @@ import frc.robot.commands.chassis.AddVisionMeasurement;
 import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.ResetPoseToVision;
-import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
@@ -105,11 +105,17 @@ public class Autons {
     private final Supplier<Command> m_cubeExtendCommand;
     private final Supplier<Command> m_coneExtendCommand;
 
+    private final Function<NodeLocation, Command> m_setNextLocationCommand;
+    private final Function<GroundPickup, Command> m_setNextPickupCommand;
+
+    private NodeLocation m_nextScoringLocation = NodeLocation.HIGH;
+    private GroundPickup m_nextPickup = GroundPickup.CUBE;
+
     // TODO: attempt auton impl
     public enum NodeLocation {
-        LOW(ScoringPositions.FLOOR_CUBE_SEEK, ScoringPositions.FLOOR_CUBE_SEEK, ScoringPositions.FLOOR_CUBE_SEEK), MID(
-            ScoringPositions.SCORE_MID_CUBE, ScoringPositions.SCORE_MID_CONE, ScoringPositions.SCORE_MID_CUBE), HIGH(
-                ScoringPositions.AUTON_PREP_CUBE, ScoringPositions.SCORE_HIGH_CONE, ScoringPositions.SCORE_HIGH_CUBE);
+        LOW(ScoringPositions.FLOOR_CUBE_SEEK, ScoringPositions.FLOOR_CUBE_SEEK, ScoringPositions.FLOOR_CUBE_SEEK), //
+        MID(ScoringPositions.SCORE_MID_CUBE, ScoringPositions.SCORE_MID_CONE, ScoringPositions.SCORE_MID_CUBE), //
+        HIGH(ScoringPositions.AUTON_PREP_CUBE, ScoringPositions.SCORE_HIGH_CONE, ScoringPositions.SCORE_HIGH_CUBE);
 
         /** Scoring location for arm prep. */
         public ScoringPositions PrepPosition;
@@ -117,16 +123,32 @@ public class Autons {
         /** Scoring location for cone scoring. */
         public ScoringPositions ConePosition;
 
+        /** Scoring location for cube scoring. */
+        public ScoringPositions CubePosition;
+
         private NodeLocation(ScoringPositions prepPosition, ScoringPositions conePosition,
             ScoringPositions cubePosition) {
             PrepPosition = prepPosition;
             ConePosition = conePosition;
             CubePosition = cubePosition;
         }
+    }
 
-        /** Scoring location for cube scoring. */
-        public ScoringPositions CubePosition;
+    public enum GroundPickup {
+        CUBE(ScoringPositions.ACQUIRE_FLOOR_CUBE, GamePieceMode.PURPLE_CUBE), //
+        UPRIGHT_CONE(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT, GamePieceMode.ORANGE_CONE), //
+        TIPPED_CONE(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED, GamePieceMode.ORANGE_CONE);
 
+        /** Arm position for picking up this game piece */
+        public ScoringPositions PickupPosition;
+
+        /** LED mode for this game piece */
+        public GamePieceMode Mode;
+
+        private GroundPickup(ScoringPositions pickupPosition, GamePieceMode mode) {
+            PickupPosition = pickupPosition;
+            Mode = mode;
+        }
     }
 
     // Subsystem & Event setup
@@ -156,8 +178,10 @@ public class Autons {
         m_stowCommand = () -> OneMechanism.runArms(ScoringPositions.STOWED).until(m_upperArmStowed);
 
         m_cubeExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE);// .until(m_upperArmExtended);
-
         m_coneExtendCommand = () -> OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CONE).until(m_upperArmExtended);
+
+        m_setNextLocationCommand = (location) -> new InstantCommand(() -> m_nextScoringLocation = location);
+        m_setNextPickupCommand = (pickup) -> new InstantCommand(() -> m_nextPickup = pickup);
 
         // The event map is used for PathPlanner's FollowPathWithEvents function.
         // Almost all pickup, scoring, and localization logic is done through events.
@@ -173,6 +197,18 @@ public class Autons {
 
         m_eventMap.put("CubePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CUBE));
         m_eventMap.put("ConePrep", OneMechanism.runArms(ScoringPositions.AUTON_PREP_CONE));
+
+        // TODO: This is all test garbage
+        m_eventMap.put("Pickup", OneMechanism.runArms(m_nextPickup.PickupPosition)
+            .alongWith(OneMechanism.getModeCommand(m_nextPickup.Mode)));
+
+        m_eventMap.put("Prep", OneMechanism.runArms(m_nextScoringLocation.PrepPosition)
+            .alongWith(new InstantCommand(() -> OneMechanism.setScoreMode(false))));
+
+        m_eventMap.put("Score", new ConditionalCommand(
+            OneMechanism.runArms(m_nextScoringLocation.CubePosition),
+            OneMechanism.runArms(m_nextScoringLocation.ConePosition),
+            () -> m_nextPickup == GroundPickup.CUBE));
 
         // TODO: these should control LEDs.
         m_eventMap.put("CubePickup",
@@ -369,6 +405,7 @@ public class Autons {
     // ONE PIECE AUTONS
     // ================================================
 
+    // TODO: rewrite this garbage :skull:
     // SUBJECT TO REMOVAL
     public BeakAutonCommand OneBalance(PathPosition position, GamePieceMode preload) {
         PathPlannerTrajectory traj = loadPath(position, PathPart.Bal, "1", true, "");
@@ -393,7 +430,7 @@ public class Autons {
      */
     public BeakAutonCommand OnePiece(PathPosition position) {
         // Score a piece, acquire a piece, then balance.
-        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.ORANGE_CONE, "2", true, true, "");
+        BeakAutonCommand initialPath = Acquire(position, GroundPickup.CUBE, "2", true, true, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
@@ -413,8 +450,8 @@ public class Autons {
      * 
      * @param position
      *            The position of this path.
-     * @param mode
-     *            Whether to switch to cone or cube mode before acquiring.
+     * @param pickup
+     *            Which game piece this path will pick up.
      * @param pieces
      *            The piece number of this path.
      * @param initialPath
@@ -426,14 +463,15 @@ public class Autons {
      * 
      * @see Trajectories
      */
-    public BeakAutonCommand Acquire(PathPosition position, GamePieceMode mode, String pieces, boolean initialPath,
+    public BeakAutonCommand Acquire(PathPosition position, GroundPickup pickup, String pieces, boolean initialPath,
         boolean scoreHigh, String data) {
         PathPlannerTrajectory traj = loadPath(position, PathPart.Acquire, pieces, scoreHigh, data);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
             initialPath ? getPreloadScoreSequence(GamePieceMode.ORANGE_CONE, scoreHigh) : Commands.none(),
+            m_setNextPickupCommand.apply(pickup),
 
-            OneMechanism.getModeCommand(mode),
+            // OneMechanism.getModeCommand(mode), // temp
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap)
         //
         );
@@ -446,6 +484,8 @@ public class Autons {
      * 
      * @param position
      *            The position of this path.
+     * @param location
+     *            Where this path will place the game piece.
      * @param pieces
      *            The piece number of this path.
      * @param park
@@ -455,20 +495,22 @@ public class Autons {
      * 
      * @return A {@link BeakAutonCommand} to run the score path.
      */
-    public BeakAutonCommand Score(PathPosition position, String pieces, boolean park, String data) {
+    public BeakAutonCommand Score(PathPosition position, NodeLocation location, String pieces, boolean park,
+        String data) {
         PathPlannerTrajectory traj = loadPath(position, PathPart.Score, pieces, false, data);
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, traj,
-            new InstantCommand(() -> OneMechanism.setScoreMode(true)),
+            // new InstantCommand(() -> OneMechanism.setScoreMode(true)),
+            m_setNextLocationCommand.apply(location),
             m_drivetrain.getTrajectoryCommand(traj, m_eventMap),
 
             // The arms start going to the high scoring position at the end of the path.
             // OneMechanism.runArms(ScoringPositions.SCORE_HIGH_CUBE).until(m_upperArmExtended),
             new WaitUntilCommand(m_upperArmExtended),
-            park ? Commands.none() : m_gripper.runMotorOutSoft().withTimeout(0.4),
+            park ? Commands.none() : m_gripper.modeSensitiveOutfeedCommand().withTimeout(0.4),
 
-            m_stowCommand.get(),
-            new InstantCommand(() -> OneMechanism.setScoreMode(false))
+            new InstantCommand(() -> OneMechanism.setScoreMode(false)),
+            m_stowCommand.get()
         //
         );
 
@@ -517,11 +559,11 @@ public class Autons {
     public BeakAutonCommand TwoPiece(PathPosition position, boolean balance) {
         // Acquire and Score already have existing paths, so the full two piece is
         // simply a combination of the two.
-        BeakAutonCommand initialPath = Acquire(position, GamePieceMode.PURPLE_CUBE, "2", true, true, "");
+        BeakAutonCommand initialPath = Acquire(position, GroundPickup.CUBE, "2", true, true, "");
 
         BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
             initialPath,
-            Score(position, "2", false, ""),
+            Score(position, NodeLocation.HIGH, "2", false, ""),
             balance ? Balance(position, "2") : Commands.none()
         //
         );
@@ -560,6 +602,8 @@ public class Autons {
      * 
      * @param position
      *            The position of this path.
+     * @param location
+     * Where to score the final piece.
      * @param balance
      *            Whether or not to run a balance sequence at the end of this path.
      * @param score
@@ -569,7 +613,7 @@ public class Autons {
      * 
      * @return A {@link BeakAutonCommand} to run the two piece path.
      */
-    public BeakAutonCommand ThreePiece(PathPosition position, boolean balance, boolean score, String data) {
+    public BeakAutonCommand ThreePiece(PathPosition position, NodeLocation location, boolean balance, boolean score, String data) {
         // The Three Piece paths are made to continue off of the two piece path. Rather
         // than doing everything again, we simply run the two piece auton and continue
         // where we left off for the three piece paths.
@@ -579,31 +623,32 @@ public class Autons {
             new ParallelDeadlineGroup(
                 new SequentialCommandGroup(
                     initialPath,
-                    Acquire(position, GamePieceMode.PURPLE_CUBE, "3", false, false, ""),
+                    Acquire(position, GroundPickup.CUBE, "3", false, false, ""),
 
                     m_gripper.runMotorInWithoutReset().until(m_gripper.atCurrentThresholdSupplier())
                         .until(m_gripper.hasGamePieceSupplier()).withTimeout(3.0),
                     new WaitUntilCommand(m_gripper.hasGamePieceSupplier()),
 
-                    // TODO: make conditional Prep and Score events
-                    Score(position, "3", !score, data)
-                ),
+                    Score(position, location, "3", !score, data)),
                 new RunCommand(() -> {
                     Logger logger = Logger.getInstance();
-                    Pose2d frontPose = m_frontAprilTagVision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()).estimatedPose.toPose2d();
-                    Pose2d rearPose = m_rearAprilTagVision.getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()).estimatedPose.toPose2d();
+                    Pose2d frontPose = m_frontAprilTagVision
+                        .getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()).estimatedPose.toPose2d();
+                    Pose2d rearPose = m_rearAprilTagVision
+                        .getLatestEstimatedRobotPose(m_drivetrain.getPoseMeters()).estimatedPose.toPose2d();
 
                     List<Pose2d> poses = new ArrayList<Pose2d>();
                     poses.add(frontPose);
                     poses.add(rearPose);
 
-                    Predicate<Pose2d> poseExists = (pose) -> (!pose.equals(m_drivetrain.getPoseMeters()) && !pose.equals(new Pose2d(0, 0, m_drivetrain.getRotation2d())));
+                    Predicate<Pose2d> poseExists = (pose) -> (!pose.equals(m_drivetrain.getPoseMeters())
+                        && !pose.equals(new Pose2d(0, 0, m_drivetrain.getRotation2d())));
 
                     boolean frontPoseExists = poseExists.test(frontPose);
                     boolean rearPoseExists = poseExists.test(rearPose);
 
                     Pose2d loggedPose;
-                    
+
                     logger.recordOutput("rear exists", rearPoseExists);
                     logger.recordOutput("front exists", frontPoseExists);
 
@@ -620,28 +665,27 @@ public class Autons {
                     }
 
                     logger.recordOutput("AprilTag Pose", loggedPose);
-                })
-            )
+                }))
         //
         );
 
         return cmd;
     }
 
-    public BeakAutonCommand LimelightThreePiece(PathPosition position, GamePieceMode mode) {
-        BeakAutonCommand initialPath = TwoPiece(position, false);
+    // public BeakAutonCommand LimelightThreePiece(PathPosition position, GamePieceMode mode) {
+    //     BeakAutonCommand initialPath = TwoPiece(position, false);
 
-        BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
-            initialPath,
-            Acquire(position, mode, "3", false, false, "Limelight"),
-            new LimelightSquare(
-                mode == GamePieceMode.ORANGE_CONE,
-                false,
-                () -> LimelightHelpers.getTY("") < 0. ? 4.5 + (1. / 12.) * (LimelightHelpers.getTY("")) : 4.5,
-                () -> 0.0,
-                m_drivetrain).withTimeout(0.66),
-            Score(position, "3", true, "Limelight"));
+    //     BeakAutonCommand cmd = new BeakAutonCommand(m_drivetrain, initialPath.getInitialPose(),
+    //         initialPath,
+    //         Acquire(position, mode, "3", false, false, "Limelight"),
+    //         new LimelightSquare(
+    //             mode == GamePieceMode.ORANGE_CONE,
+    //             false,
+    //             () -> LimelightHelpers.getTY("") < 0. ? 4.5 + (1. / 12.) * (LimelightHelpers.getTY("")) : 4.5,
+    //             () -> 0.0,
+    //             m_drivetrain).withTimeout(0.66),
+    //         Score(position, "3", true, "Limelight"));
 
-        return cmd;
-    }
+    //     return cmd;
+    // }
 }
