@@ -39,40 +39,41 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
      * Create a new Differential Drivetrain.
      * 
      * @param config
-     *            {@link DrivetrainConfiguration} for this drivetrain
+     *                          {@link DrivetrainConfiguration} for this drivetrain
      * @param thetaPID
-     *            PID Constants for autonomous rotation
+     *                          PID Constants for autonomous rotation
      * @param drivePID
-     *            PID Constants for autonomous driving
+     *                          PID Constants for autonomous driving
      * @param generatedDrivePID
-     *            PID Constants for autonomous driving with generated paths
+     *                          PID Constants for autonomous driving with generated
+     *                          paths
      * @param gyroInverted
-     *            Whether or not the gyroscope is inverted.
+     *                          Whether or not the gyroscope is inverted.
      */
     public BeakDifferentialDrivetrain(
-        DrivetrainConfiguration config,
-        BeakPIDConstants thetaPID,
-        BeakPIDConstants drivePID,
-        BeakPIDConstants generatedDrivePID,
-        boolean gyroInverted) {
+            DrivetrainConfiguration config,
+            BeakPIDConstants thetaPID,
+            BeakPIDConstants drivePID,
+            BeakPIDConstants generatedDrivePID,
+            boolean gyroInverted) {
         super(config.Physics, thetaPID, drivePID, generatedDrivePID, gyroInverted);
 
         m_config = config;
-
-        m_kinematics = new DifferentialDriveKinematics(m_trackWidth.getAsMeters());
-        m_odom = new DifferentialDrivePoseEstimator(m_kinematics, getGyroRotation2d(), 0., 0., new Pose2d());
     }
 
     /**
      * Setup motor and gyro configurations.
-     * @param leftMotorControllers Motor Controllers that control the left side of the drivetrain.
-     * @param rightMotorControllers Motor Controllers that control the right side of the drivetrain.
-     * @param gyro The gyroscope in use for this drivetrain.
+     * 
+     * @param leftMotorControllers  Motor Controllers that control the left side of
+     *                              the drivetrain.
+     * @param rightMotorControllers Motor Controllers that control the right side of
+     *                              the drivetrain.
+     * @param gyro                  The gyroscope in use for this drivetrain.
      */
     public void setup(
-        BeakMotorControllerGroup leftMotorControllers,
-        BeakMotorControllerGroup rightMotorControllers,
-        BeakGyro gyro) {
+            BeakMotorControllerGroup leftMotorControllers,
+            BeakMotorControllerGroup rightMotorControllers,
+            BeakGyro gyro) {
         m_gyro = gyro;
 
         m_leftControllers = leftMotorControllers;
@@ -93,8 +94,11 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         m_rightControllers.setStatorCurrentLimit(m_config.DriveStatorLimit);
 
         // PID
-        m_leftControllers.setPID(m_config.DrivePID, 0);
-        m_rightControllers.setPID(m_config.DrivePID, 0);
+        m_leftControllers.setPID(m_config.DrivePID);
+        m_rightControllers.setPID(m_config.DrivePID);
+
+        m_kinematics = new DifferentialDriveKinematics(m_trackWidth.getAsMeters());
+        m_odom = new DifferentialDrivePoseEstimator(m_kinematics, getGyroRotation2d(), 0., 0., new Pose2d());
     }
 
     /* Differential-specific methods */
@@ -103,9 +107,9 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
      * Open-loop drive with voltage input.
      * 
      * @param leftVolts
-     *            Volts to send to the left side.
+     *                   Volts to send to the left side.
      * @param rightVolts
-     *            Volts to send to the right side.
+     *                   Volts to send to the right side.
      */
     public void driveVolts(double leftVolts, double rightVolts) {
         m_leftControllers.setVoltage(leftVolts);
@@ -116,22 +120,22 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
      * Closed-loop drive with direct velocity input.
      * 
      * @param leftMetersPerSecond
-     *            Left-side velocity.
+     *                             Left-side velocity.
      * @param rightMetersPerSecond
-     *            Right-side velocity.
+     *                             Right-side velocity.
      */
     public void drive(double leftMetersPerSecond, double rightMetersPerSecond) {
-        m_leftControllers.setVelocity(new Velocity(leftMetersPerSecond), m_feedForward.calculate(leftMetersPerSecond),
-            0);
-        m_rightControllers.setVelocity(new Velocity(rightMetersPerSecond),
-            m_feedForward.calculate(rightMetersPerSecond),
-            0);
+        m_leftControllers.setNextArbFeedforward(m_feedForward.calculate(leftMetersPerSecond));
+        m_leftControllers.setVelocity(new Velocity(leftMetersPerSecond));
+
+        m_rightControllers.setNextArbFeedforward(m_feedForward.calculate(rightMetersPerSecond));
+        m_rightControllers.setVelocity(new Velocity(rightMetersPerSecond));
     }
 
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
         return new DifferentialDriveWheelSpeeds(
-            m_leftControllers.getSpeed().Value.getAsMetersPerSecond(),
-            m_rightControllers.getSpeed().Value.getAsMetersPerSecond());
+                m_leftControllers.getSpeed().Value.getAsMetersPerSecond(),
+                m_rightControllers.getSpeed().Value.getAsMetersPerSecond());
     }
 
     /* Overrides */
@@ -142,7 +146,7 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         rot *= m_maxAngularVelocity.getAsRadiansPerSecond();
 
         ChassisSpeeds speeds = fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rot, getRotation2d())
-            : new ChassisSpeeds(x, y, rot);
+                : new ChassisSpeeds(x, y, rot);
 
         drive(speeds);
     }
@@ -153,7 +157,7 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
 
         if (m_config.IsOpenLoop) {
             driveVolts(wheelSpeeds.leftMetersPerSecond / m_maxVelocity.getAsMetersPerSecond() * 12.,
-                wheelSpeeds.rightMetersPerSecond / m_maxVelocity.getAsMetersPerSecond() * 12.);
+                    wheelSpeeds.rightMetersPerSecond / m_maxVelocity.getAsMetersPerSecond() * 12.);
         } else {
             drive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
         }
@@ -162,38 +166,38 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     @Override
     public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
         Command pathFollowingCommand = m_config.IsOpenLoop ? new PPRamseteCommand(
-            traj,
-            this::getPoseMeters,
-            new RamseteController(),
-            m_feedForward,
-            m_kinematics,
-            this::getWheelSpeeds,
-            createDriveController(),
-            createDriveController(),
-            this::driveVolts,
-            this) :
-
-            new PPRamseteCommand(
                 traj,
                 this::getPoseMeters,
                 new RamseteController(),
+                m_feedForward,
                 m_kinematics,
-                this::drive,
-                this);
+                this::getWheelSpeeds,
+                createDriveController(),
+                createDriveController(),
+                this::driveVolts,
+                this) :
+
+                new PPRamseteCommand(
+                        traj,
+                        this::getPoseMeters,
+                        new RamseteController(),
+                        m_kinematics,
+                        this::drive,
+                        this);
 
         return new FollowPathWithEvents(
-            pathFollowingCommand,
-            traj.getMarkers(),
-            eventMap);
+                pathFollowingCommand,
+                traj.getMarkers(),
+                eventMap);
     }
 
     @Override
     public Pose2d updateOdometry() {
         m_odom.updateWithTime(
-            RobotController.getFPGATime() / 1000000.,
-            getGyroRotation2d(),
-            m_leftControllers.getDistance(true).Value.getAsMeters(),
-            m_rightControllers.getDistance(true).Value.getAsMeters());
+                RobotController.getFPGATime() / 1000000.,
+                getGyroRotation2d(),
+                m_leftControllers.getDistance(true).Value.getAsMeters(),
+                m_rightControllers.getDistance(true).Value.getAsMeters());
 
         return getPoseMeters();
     }
@@ -203,8 +207,8 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         Transform2d poseError = estimatedPose.minus(m_odom.getEstimatedPosition());
 
         if (!estimatedPose.equals(new Pose2d()) && !estimatedPose.equals(getPoseMeters()) &&
-            Math.abs(poseError.getX()) < 0.5 &&
-            Math.abs(poseError.getY()) < 0.5) {
+                Math.abs(poseError.getX()) < 0.5 &&
+                Math.abs(poseError.getY()) < 0.5) {
             m_odom.addVisionMeasurement(estimatedPose, timestamp);
         }
     }
@@ -218,9 +222,9 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     public void resetOdometry(Pose2d pose) {
         if (!pose.equals(new Pose2d()))
             m_odom.resetPosition(getGyroRotation2d(),
-                m_leftControllers.getDistance(true).Value.getAsMeters(),
-                m_rightControllers.getDistance(true).Value.getAsMeters(),
-                pose);
+                    m_leftControllers.getDistance(true).Value.getAsMeters(),
+                    m_rightControllers.getDistance(true).Value.getAsMeters(),
+                    pose);
     }
 
     @Override

@@ -665,6 +665,9 @@ public class Autons {
                     }
 
                     logger.recordOutput("AprilTag Pose", loggedPose);
+
+                    m_frontAprilTagVision.logRawPoses();
+                    m_rearAprilTagVision.logRawPoses();
                 }))
         //
         );

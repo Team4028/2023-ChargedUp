@@ -97,7 +97,7 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int FL_ENCODER_ID = 1; // SHOULD BE 9
     private static final Rotation2d FL_OFFSET = Rotation2d.fromDegrees(-357.4);
     private static final Translation2d FL_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-        TRACK_WIDTH.getAsMeters() / 2); // TODO: Please God BeakTranslation2d
+        TRACK_WIDTH.getAsMeters() / 2);
 
     private static final int FR_DRIVE_ID = 4;
     private static final int FR_TURN_ID = 3;

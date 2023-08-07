@@ -155,8 +155,7 @@ public class BeakAutonCommand extends SequentialCommandGroup {
     }
 
     protected void setInitialPose(Pose2d initialPose) {
-        m_initialPose = initialPose; // TODO: specify each drivetrain as holonomic or
-                                     // not
+        m_initialPose = initialPose;
     }
 
     /**

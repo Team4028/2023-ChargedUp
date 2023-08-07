@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -33,7 +31,6 @@ import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.robot.commands.auton.generation.GeneratePath;
 
 /** Generic Swerve Drivetrain subsystem. */
 public class BeakSwerveDrivetrain extends BeakDrivetrain {
@@ -132,8 +129,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     }
 
     public void logData() {
-        Logger logger = Logger.getInstance();
-        logger.recordOutput("Pose", getPoseMeters());
+        // Logger logger = Logger.getInstance();
+        // logger.recordOutput("Pose", getPoseMeters());
         // logger.recordOutput("Module States", getModuleStates());
 
         double[] modulePositions = new double[m_numModules];
@@ -146,9 +143,9 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
             modulePositions[i] = moduleRecordedPositions[i].distanceMeters;
             moduleVelocities[i] = moduleRecordedStates[i].speedMetersPerSecond;
         }
-        logger.recordOutput("Swerve/Module Positions", modulePositions);
-        logger.recordOutput("Swerve/Module States", getModuleStates());
-        logger.recordOutput("Swerve/Module Angles", getModuleAngles());
+        // logger.recordOutput("Swerve/Module Positions", modulePositions);
+        // logger.recordOutput("Swerve/Module States", getModuleStates());
+        // logger.recordOutput("Swerve/Module Angles", getModuleAngles());
     }
 
     @Override
@@ -222,7 +219,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     public void drive(ChassisSpeeds speeds) {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(speeds);
 
-        Logger.getInstance().recordOutput("Swerve/Module Setpoints", states);
+        // Logger.getInstance().recordOutput("Swerve/Module Setpoints", states);
 
         setModuleStates(states);
     }

@@ -4,9 +4,8 @@
 
 package frc.lib.beaklib.subsystem;
 
-import org.littletonrobotics.junction.LoggedRobot;
-
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.beaklib.gyro.BeakGyro;
@@ -32,7 +31,7 @@ public class BeakGyroSubsystem extends SubsystemBase {
      * @return A {@link Rotation2d} containing the reported angle of the gyro.
      */
     public Rotation2d getGyroRotation2d() {
-        if (LoggedRobot.isSimulation()) {
+        if (RobotBase.isSimulation()) {
             return Rotation2d.fromDegrees(m_gyroSim.getAngle());
         } else {
             return m_gyroInverted ? new Rotation2d(0).minus(m_gyro.getYawRotation2d(true).Value)
@@ -44,7 +43,7 @@ public class BeakGyroSubsystem extends SubsystemBase {
      * Zero the gyro.
      */
     public void resetGyro() {
-        if (LoggedRobot.isReal()) {
+        if (RobotBase.isReal()) {
             m_gyro.reset();
         }
     }
@@ -64,7 +63,7 @@ public class BeakGyroSubsystem extends SubsystemBase {
      * @return The reported rate of the gyro in degrees per second.
      */
     public double getGyroRate() {
-        if (LoggedRobot.isSimulation()) {
+        if (RobotBase.isSimulation()) {
             return m_gyroSim.getRate();
         } else {
             return m_gyro.getRate();

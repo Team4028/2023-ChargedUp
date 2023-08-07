@@ -26,6 +26,9 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     private double m_gearRatio = 1.;
     private Distance m_wheelDiameter = Distance.fromInches(4.);
 
+    private double m_arbFeedforward = 0.;
+    private int m_slot = 0;
+
     public BeakTalonFX(int port, String canBus) {
         super(port, canBus);
         super.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
@@ -36,7 +39,9 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
         this(port, "");
     }
 
+    @Override
     public void setSlot(int slot) {
+        m_slot = slot;
         super.selectProfileSlot(slot, 0);
     }
 
@@ -46,15 +51,13 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityNU(double nu, double arbFeedforward, int slot) {
-        setSlot(slot);
-        super.set(ControlMode.Velocity, nu, DemandType.ArbitraryFeedForward, arbFeedforward / 12.);
+    public void setVelocityNU(double nu) {
+        super.set(ControlMode.Velocity, nu, DemandType.ArbitraryFeedForward, m_arbFeedforward / 12.);
     }
 
     @Override
-    public void setPositionNU(double nu, double arbFeedforward, int slot) {
-        setSlot(slot);
-        super.set(ControlMode.Position, nu, DemandType.ArbitraryFeedForward, arbFeedforward / 12.);
+    public void setPositionNU(double nu) {
+        super.set(ControlMode.Position, nu, DemandType.ArbitraryFeedForward, m_arbFeedforward / 12.);
     }
 
     @Override
@@ -63,9 +66,8 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicNU(double nu, double arbFeedforward, int slot) {
-        setSlot(slot);
-        super.set(ControlMode.MotionMagic, nu, DemandType.ArbitraryFeedForward, arbFeedforward / 12.);
+    public void setMotionMagicNU(double nu) {
+        super.set(ControlMode.MotionMagic, nu, DemandType.ArbitraryFeedForward, m_arbFeedforward / 12.);
     }
 
     @Override
@@ -83,9 +85,9 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
         return new DataSignal<Double>(super.getMotorOutputVoltage());
     }
 
-    public BeakPIDConstants getPID(int slot) {
+    public BeakPIDConstants getPID() {
         SlotConfiguration config = new SlotConfiguration();
-        super.getSlotConfigs(config, slot, 50);
+        super.getSlotConfigs(config, m_slot, 50);
         return new BeakPIDConstants(config);
     }
 
@@ -135,8 +137,8 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setAllowedClosedLoopError(double error, int slot) {
-        super.configAllowableClosedloopError(slot, error);
+    public void setAllowedClosedLoopError(double error) {
+        super.configAllowableClosedloopError(m_slot, error);
     }
 
     @Override
@@ -146,20 +148,18 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicAcceleration(double accel, int slot) {
-        setSlot(slot);
+    public void setMotionMagicAcceleration(double accel) {
         super.configMotionAcceleration(accel);
     }
 
     @Override
-    public void setMotionMagicCruiseVelocity(double velocity, int slot) {
-        setSlot(slot);
+    public void setMotionMagicCruiseVelocity(double velocity) {
         super.configMotionCruiseVelocity(velocity);
     }
 
     @Override
-    public void set(double percentOutput, double arbFeedforward) {
-        super.set(ControlMode.PercentOutput, percentOutput, DemandType.ArbitraryFeedForward, arbFeedforward);
+    public void set(double percentOutput) {
+        super.set(ControlMode.PercentOutput, percentOutput, DemandType.ArbitraryFeedForward, m_arbFeedforward);
     }
 
     @Override
@@ -173,11 +173,11 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setPID(BeakPIDConstants constants, int slot) {
-        super.config_kP(slot, constants.kP);
-        super.config_kI(slot, constants.kI);
-        super.config_kD(slot, constants.kD);
-        super.config_kF(slot, constants.kF);
+    public void setPID(BeakPIDConstants constants) {
+        super.config_kP(m_slot, constants.kP);
+        super.config_kI(m_slot, constants.kI);
+        super.config_kD(m_slot, constants.kD);
+        super.config_kF(m_slot, constants.kF);
     }
 
     @Override
@@ -218,5 +218,10 @@ public class BeakTalonFX extends WPI_TalonFX implements BeakMotorController {
     @Override
     public Distance getWheelDiameter() {
         return m_wheelDiameter;
+    }
+
+    @Override
+    public void setNextArbFeedforward(double arbFeedforward) {
+        m_arbFeedforward = arbFeedforward;
     }
 }

@@ -56,6 +56,9 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
 
     private boolean m_voltageCompEnabled = false;
 
+    private int m_slot = 0;
+    private double m_arbFeedforward = 0.;
+
     public BeakV6TalonFX(int port, String canBus) {
         super(port, canBus);
         m_configurator = super.getConfigurator();
@@ -80,31 +83,31 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityNU(double nu, double arbFeedforward, int slot) {
+    public void setVelocityNU(double nu) {
         if (m_voltageCompEnabled) {
             super.setControl(m_velocityVoltage
-                .withFeedForward(arbFeedforward)
-                .withSlot(slot)
+                .withFeedForward(m_arbFeedforward)
+                .withSlot(m_slot)
                 .withVelocity(nu));
         } else {
             super.setControl(m_velocityOut
-                .withFeedForward(arbFeedforward)
-                .withSlot(slot)
+                .withFeedForward(m_arbFeedforward)
+                .withSlot(m_slot)
                 .withVelocity(nu));
         }
     }
 
     @Override
-    public void setPositionNU(double nu, double arbFeedforward, int slot) {
+    public void setPositionNU(double nu) {
         if (m_voltageCompEnabled) {
             super.setControl(m_positionVoltage
-                .withFeedForward(arbFeedforward)
-                .withSlot(slot)
+                .withFeedForward(m_arbFeedforward)
+                .withSlot(m_slot)
                 .withPosition(nu));
         } else {
             super.setControl(m_positionOut
-                .withFeedForward(arbFeedforward)
-                .withSlot(slot)
+                .withFeedForward(m_arbFeedforward)
+                .withSlot(m_slot)
                 .withPosition(nu));
         }
     }
@@ -115,16 +118,16 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicNU(double nu, double arbFeedforward, int slot) {
+    public void setMotionMagicNU(double nu) {
         if (m_voltageCompEnabled) {
             super.setControl(m_motionMagicVoltage
-                .withFeedForward(arbFeedforward)
-                .withSlot(slot)
+                .withFeedForward(m_arbFeedforward)
+                .withSlot(m_slot)
                 .withPosition(nu));
         } else {
             super.setControl(m_motionMagicOut
-                .withFeedForward(arbFeedforward)
-                .withSlot(slot)
+                .withFeedForward(m_arbFeedforward)
+                .withSlot(m_slot)
                 .withPosition(nu));
         }
     }
@@ -150,9 +153,9 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setPID(BeakPIDConstants constants, int slot) {
+    public void setPID(BeakPIDConstants constants) {
         // The v6 slot API is wacky
-        switch (slot) {
+        switch (m_slot) {
             case 0:
                 Slot0Configs slot0Config = new Slot0Configs();
                 slot0Config.kP = constants.kP;
@@ -188,11 +191,11 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public BeakPIDConstants getPID(int slot) {
+    public BeakPIDConstants getPID() {
         // The v6 slot API is wacky
         BeakPIDConstants constants = new BeakPIDConstants();
         m_configurator.refresh(m_config);
-        switch (slot) {
+        switch (m_slot) {
             case 0:
                 Slot0Configs slot0Config = m_config.Slot0;
                 constants.kP = slot0Config.kP;
@@ -318,7 +321,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setAllowedClosedLoopError(double error, int slot) {
+    public void setAllowedClosedLoopError(double error) {
         MotorOutputConfigs config = new MotorOutputConfigs();
         m_configurator.refresh(config);
 
@@ -330,7 +333,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicCruiseVelocity(double velocity, int slot) {
+    public void setMotionMagicCruiseVelocity(double velocity) {
         MotionMagicConfigs config = new MotionMagicConfigs();
         m_configurator.refresh(config);
 
@@ -340,7 +343,7 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicAcceleration(double accel, int slot) {
+    public void setMotionMagicAcceleration(double accel) {
         MotionMagicConfigs config = new MotionMagicConfigs();
         m_configurator.refresh(config);
 
@@ -350,13 +353,13 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     }
 
     @Override
-    public void set(double percentOutput, double arbFeedforward) {
+    public void set(double percentOutput) {
         if (m_voltageCompEnabled) {
             super.setControl(m_voltageOut
-            .withOutput(percentOutput * getSuppliedVoltage().Value + arbFeedforward));
+            .withOutput(percentOutput * getSuppliedVoltage().Value + m_arbFeedforward));
         } else {
             super.setControl(m_dutyCycleOut
-            .withOutput(percentOutput + arbFeedforward / 12.));
+            .withOutput(percentOutput + m_arbFeedforward / 12.));
         }
     }
 
@@ -403,5 +406,15 @@ public class BeakV6TalonFX extends TalonFX implements BeakMotorController {
     @Override
     public Distance getWheelDiameter() {
         return m_wheelDiameter;
+    }
+
+    @Override
+    public void setNextArbFeedforward(double arbFeedforward) {
+        m_arbFeedforward = arbFeedforward;
+    }
+
+    @Override
+    public void setSlot(int slot) {
+        m_slot = slot;
     }
 }
