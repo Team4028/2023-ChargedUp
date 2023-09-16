@@ -337,8 +337,8 @@ public class RobotContainer {
                 () -> OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE));
 
         // ================================================
-        // OPERATOR CONTROLLER - LS
-        // ACQUIRE_FLOOR_TIPPED_CONE OR ACQUIRE_FLOOR_CUBE
+        // OPERATOR CONTROLLER - L3
+        // SEEK MODE
         // ================================================
         m_operatorController.ls.toggleOnTrue(OneMechanism.purpleModeCommand().andThen(
             new LimelightSquare(
@@ -355,9 +355,17 @@ public class RobotContainer {
             () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
             m_drive)));
 
+        // ================================================
+        // OPERATOR CONTROLLER - LY < -0.5
+        // ACQUIRE_FLOOR_CUBE_SEEK
+        // ================================================
         m_operatorController.axisLessThan(1, -0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.FLOOR_CUBE_SEEK));
-
+            
+        // ================================================
+        // OPERATOR CONTROLLER - LY > 0.5
+        // ACQUIRE_FLOOR_CUBE
+        // ================================================
         m_operatorController.axisGreaterThan(1, 0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE));
 
@@ -368,6 +376,11 @@ public class RobotContainer {
         m_operatorController.axisLessThan(5, -0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT));
 
+        
+        // ================================================
+        // OPERATOR CONTROLLER - RY > 0.5
+        // ACQUIRE_FLOOR_TIPPED_CONE
+        // ================================================
         m_operatorController.axisGreaterThan(5, 0.5)
             .onTrue(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_TIPPED));
 
