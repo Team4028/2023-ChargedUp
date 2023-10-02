@@ -160,14 +160,19 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        m_drive.setDefaultCommand(makeSupplier(new RunCommand(
-            () -> m_drive.drive(-speedScaledDriverLeftY(), speedScaledDriverLeftX(), speedScaledDriverRightX(), true),
-            m_drive)).get());
+
+        // Drive default command
+        m_drive.setDefaultCommand(
+            makeSupplier(new InstantCommand(() -> m_drive.drive(-speedScaledDriverLeftY(), speedScaledDriverLeftX(),
+                speedScaledDriverRightX(), true), m_drive)).get().repeatedly());
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
-        m_gripper.setDefaultCommand(makeSupplier(new RunCommand(m_gripper::beIdleMode, m_gripper)).get());
+        // Gripper default command
+        m_gripper
+            .setDefaultCommand(new InstantCommand(m_gripper::beIdleMode, m_gripper).repeatedly());
 
+        // Zero
         m_driverController.back.onTrue(makeSupplier(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(0.65, m_upperArm))
             .andThen(new CurrentZero(0., m_lowerArm))
@@ -175,19 +180,30 @@ public class RobotContainer {
             .andThen(m_upperArm.holdArmPosition())
             .andThen(m_lowerArm.holdArmPosition())).get());
 
+        // Infeed
         m_driverController.lt.whileTrue(makeSupplier(m_gripper.runMotorIn().withTimeout(1.)).get());
 
+        // Outfeed
         m_driverController.rt.whileTrue(
             makeSupplier(m_gripper.runMotorOut().withTimeout(1.)).get());
 
+        // Purple
         m_driverController.lb.onTrue(new InstantCommand(OneMechanism::becomePurpleMode));
 
+        // Orange
         m_driverController.rb.onTrue(new InstantCommand(OneMechanism::becomeOrangeMode));
 
+        // Stow
         m_driverController.x.onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.STOWED)).get());
+
+        // Score
         m_driverController.y.onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE)).get());
+
+        // Pickup [line]
         m_driverController.a
             .onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT)).get());
+
+        // Seek
         m_driverController.b.onTrue(makeSupplier(new ConditionalCommand(
             new LimelightSquare(false, true,
                 () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
@@ -195,19 +211,33 @@ public class RobotContainer {
             new InstantCommand(() -> {
             }), () -> OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT)).get());
 
+        // HotFire
         m_driverController.dpadDown.onTrue(new InstantCommand(OneMechanism::setFireWorkPlz));
+        // Rainbow
         m_driverController.dpadUp.onTrue(new InstantCommand(OneMechanism::toggleVictorySpin));
+        // Slide
         m_driverController.dpadLeft.onTrue(new InstantCommand(OneMechanism::toggleSlide));
+        // Normal
         m_driverController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
 
+        //This is for when toddler
         m_ourController.a.onTrue(new InstantCommand(() -> deadmanOn = true))
             .onFalse(new InstantCommand(() -> deadmanOn = false));
+
+        //this is for when led die
         m_ourController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
+
+        //this is for when x.com
         m_ourController.b.onTrue(new InstantCommand(() -> {
         }, m_drive, m_gripper, m_candle, m_lowerArm, m_upperArm, m_wrist));
 
     }
 
+    /**
+     * Wraps a Command in a conditional supplier based on {@link RobotContainer#deadmanOn}
+     * @param cmd the command to wrap in a condditional supplier
+     * @return the supplier
+     */
     private Supplier<Command> makeSupplier(Command cmd) {
         return () -> deadmanOn ? cmd : new InstantCommand(() -> {
         });
