@@ -24,17 +24,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.BeakXBoxController;
 import frc.lib.beaklib.Util;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain.SnapDirection;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.CurrentZero;
 import frc.robot.commands.auton.Autons;
 import frc.robot.commands.auton.BeakAutonCommand;
-import frc.robot.commands.chassis.QuadraticAutoBalance;
-import frc.robot.commands.chassis.SnapToAngle;
-import frc.robot.commands.chassis.XDrive;
-import frc.robot.commands.vision.LimelightDrive;
 import frc.robot.commands.vision.LimelightSquare;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
@@ -85,13 +80,11 @@ public class RobotContainer {
 
     private final Gripper m_gripper;
     private final Wrist m_wrist;
-    private final Kickstand m_kickstand;
     private final LEDs m_candle;
 
     // Controller
     private final BeakXBoxController m_driverController = new BeakXBoxController(0);
-    private final BeakXBoxController m_operatorController = new BeakXBoxController(1);
-    private final BeakXBoxController m_emergencyController = new BeakXBoxController(2);
+    private final BeakXBoxController m_ourController = new BeakXBoxController(1);
 
     // Auton stuff
     private final LoggedDashboardChooser<BeakAutonCommand> m_autoChooser = new LoggedDashboardChooser<>("Auto Choices");
@@ -124,7 +117,6 @@ public class RobotContainer {
 
         m_upperArm = UpperArm.getInstance();
         m_lowerArm = LowerArm.getInstance();
-        m_kickstand = Kickstand.getInstance();
 
         OneMechanism.addSubsystems(m_candle, m_drive, m_lowerArm, m_upperArm, m_wrist);
 
@@ -168,16 +160,57 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        m_drive.setDefaultCommand(makeSupplier(new RunCommand(
+            () -> m_drive.drive(-speedScaledDriverLeftY(), speedScaledDriverLeftX(), speedScaledDriverRightX(), true),
+            m_drive)).get());
+
+        m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
+
+        m_gripper.setDefaultCommand(makeSupplier(new RunCommand(m_gripper::beIdleMode, m_gripper)).get());
+
+        m_driverController.back.onTrue(makeSupplier(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
+            .andThen(new CurrentZero(0.65, m_upperArm))
+            .andThen(new CurrentZero(0., m_lowerArm))
+            .andThen(new WaitCommand(0.5))
+            .andThen(m_upperArm.holdArmPosition())
+            .andThen(m_lowerArm.holdArmPosition())).get());
+
+        m_driverController.lt.whileTrue(makeSupplier(m_gripper.runMotorIn().withTimeout(1.)).get());
+
+        m_driverController.rt.whileTrue(
+            makeSupplier(m_gripper.runMotorOut().withTimeout(1.)).get());
+
+        m_driverController.lb.onTrue(new InstantCommand(OneMechanism::becomePurpleMode));
+
+        m_driverController.rb.onTrue(new InstantCommand(OneMechanism::becomeOrangeMode));
+
+        m_driverController.x.onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.STOWED)).get());
+        m_driverController.y.onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE)).get());
+        m_driverController.a
+            .onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT)).get());
+        m_driverController.b.onTrue(makeSupplier(new ConditionalCommand(
+            new LimelightSquare(false, true,
+                () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(), m_drive),
+            new InstantCommand(() -> {
+            }), () -> OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT)).get());
+
+        m_driverController.dpadDown.onTrue(new InstantCommand(OneMechanism::setFireWorkPlz));
+        m_driverController.dpadUp.onTrue(new InstantCommand(OneMechanism::toggleVictorySpin));
+        m_driverController.dpadLeft.onTrue(new InstantCommand(OneMechanism::toggleSlide));
+        m_driverController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
+
+        m_ourController.a.onTrue(new InstantCommand(() -> deadmanOn = true))
+            .onFalse(new InstantCommand(() -> deadmanOn = false));
+        m_ourController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
+        m_ourController.b.onTrue(new InstantCommand(() -> {
+        }, m_drive, m_gripper, m_candle, m_lowerArm, m_upperArm, m_wrist));
 
     }
 
-    private Supplier<Command> driveSupplier() {
-        return () -> new RunCommand(() -> m_drive.drive(
-            -speedScaledDriverLeftY(),
-            speedScaledDriverLeftX(),
-            speedScaledDriverRightX(),
-            true),
-            m_drive);
+    private Supplier<Command> makeSupplier(Command cmd) {
+        return () -> deadmanOn ? cmd : new InstantCommand(() -> {
+        });
     }
 
     private void initAutonChooser() {
@@ -246,8 +279,7 @@ public class RobotContainer {
     }
 
     private double getCurrentSpeedScale() {
-        return (OneMechanism.getScoreMode() || OneMechanism.getClimbMode()) ? DriveConstants.SLOW_SPEED_SCALE
-            : DriveConstants.SPEED_SCALE;
+        return DriveConstants.SLOW_SPEED_SCALE / 2;
     }
 
     private SlewRateLimiter getCurrentXLimiter() {

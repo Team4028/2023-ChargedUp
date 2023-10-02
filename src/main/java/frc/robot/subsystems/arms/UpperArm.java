@@ -22,8 +22,8 @@ public class UpperArm extends Arm {
     private static final double kIz = 0.0;
     private static final double kFF = 0.0;
 
-    private static final double kMaxOutput = 0.9;
-    private static final double kMinOutput = -0.9;
+    private static final double kMaxOutput = 0.45;
+    private static final double kMinOutput = -0.45;
 
     private static final double kS = 0.089792;
     private static final double kG = 0; //-0.22255;
