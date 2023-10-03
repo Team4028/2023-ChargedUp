@@ -242,7 +242,7 @@ public class RobotContainer {
      * @return the supplier
      */
     private Supplier<Command> makeSupplier(Command cmd, Subsystem... requirements) {
-        return () -> deadmanOn ? new InstantCommand(cmd::execute, requirements) : new InstantCommand(() -> {
+        return () -> deadmanOn ? new InstantCommand(cmd::schedule, requirements) : new InstantCommand(() -> {
         }, requirements);
     }
 
