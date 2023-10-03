@@ -10,6 +10,8 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.fasterxml.jackson.core.util.RequestPayload;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.BeakXBoxController;
 import frc.lib.beaklib.Util;
@@ -164,7 +167,7 @@ public class RobotContainer {
         // Drive default command
         m_drive.setDefaultCommand(
             makeSupplier(new InstantCommand(() -> m_drive.drive(-speedScaledDriverLeftY(), speedScaledDriverLeftX(),
-                speedScaledDriverRightX(), true), m_drive)).get().repeatedly());
+                speedScaledDriverRightX(), true), m_drive), m_drive).get().repeatedly());
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
@@ -178,14 +181,14 @@ public class RobotContainer {
             .andThen(new CurrentZero(0., m_lowerArm))
             .andThen(new WaitCommand(0.5))
             .andThen(m_upperArm.holdArmPosition())
-            .andThen(m_lowerArm.holdArmPosition())).get());
+            .andThen(m_lowerArm.holdArmPosition()), m_upperArm, m_lowerArm).get());
 
         // Infeed
         m_driverController.lt.whileTrue(makeSupplier(m_gripper.runMotorIn().withTimeout(1.)).get());
 
         // Outfeed
         m_driverController.rt.whileTrue(
-            makeSupplier(m_gripper.runMotorOut().withTimeout(1.)).get());
+            makeSupplier(m_gripper.runMotorOut().withTimeout(1)).get());
 
         // Purple
         m_driverController.lb.onTrue(new InstantCommand(OneMechanism::becomePurpleMode));
@@ -238,9 +241,9 @@ public class RobotContainer {
      * @param cmd the command to wrap in a condditional supplier
      * @return the supplier
      */
-    private Supplier<Command> makeSupplier(Command cmd) {
-        return () -> deadmanOn ? cmd : new InstantCommand(() -> {
-        });
+    private Supplier<Command> makeSupplier(Command cmd, Subsystem... requirements) {
+        return () -> deadmanOn ? new InstantCommand(cmd::execute, requirements) : new InstantCommand(() -> {
+        }, requirements);
     }
 
     private void initAutonChooser() {
@@ -309,7 +312,7 @@ public class RobotContainer {
     }
 
     private double getCurrentSpeedScale() {
-        return DriveConstants.SLOW_SPEED_SCALE / 2;
+        return DriveConstants.SLOW_SPEED_SCALE;
     }
 
     private SlewRateLimiter getCurrentXLimiter() {
