@@ -170,6 +170,10 @@ public class Gripper extends SubsystemBase {
         return m_currentState;
     }
 
+    public boolean getHasGamePiece() {
+        return m_hasGamePiece;
+    }
+
     public void periodic() {
         SmartDashboard.putNumber("Gripper Amps", m_motor.getSupplyCurrent());
         SmartDashboard.putString("Gripper Mode", getGripState().name());

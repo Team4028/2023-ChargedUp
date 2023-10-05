@@ -142,6 +142,12 @@ public class Wrist extends SubsystemBase {
             });
     }
 
+    public void holdWristAngleNotCmd() {
+        m_motor.set(0.0);
+        m_targetAngle = getAbsoluteEncoderPosition();
+        m_pid.setReference(m_targetAngle, ControlType.kPosition);
+    }
+
     /**
      * Change the angle of the wrist.
      * 

@@ -4,13 +4,11 @@
 
 package frc.robot;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import com.fasterxml.jackson.core.util.RequestPayload;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,7 +19,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.beaklib.BeakXBoxController;
@@ -38,7 +35,6 @@ import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.arms.LowerArm;
 import frc.robot.subsystems.arms.UpperArm;
-import frc.robot.subsystems.kickstand.Kickstand;
 import frc.robot.subsystems.manipulator.Gripper;
 import frc.robot.subsystems.manipulator.Wrist;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
@@ -166,8 +162,8 @@ public class RobotContainer {
 
         // Drive default command
         m_drive.setDefaultCommand(
-            makeSupplier(new InstantCommand(() -> m_drive.drive(-speedScaledDriverLeftY(), speedScaledDriverLeftX(),
-                speedScaledDriverRightX(), true), m_drive), m_drive).get().repeatedly());
+            makeConditional(new InstantCommand(() -> m_drive.drive(-speedScaledDriverLeftY(), speedScaledDriverLeftX(),
+                speedScaledDriverRightX(), true), m_drive), m_drive).repeatedly());
 
         m_driverController.start.onTrue(new InstantCommand(m_drive::zero));
 
@@ -176,19 +172,19 @@ public class RobotContainer {
             .setDefaultCommand(new InstantCommand(m_gripper::beIdleMode, m_gripper).repeatedly());
 
         // Zero
-        m_driverController.back.onTrue(makeSupplier(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
+        m_driverController.back.onTrue(makeConditional(m_wrist.runToAngle(ScoringPositions.STOWED.wristAngle)
             .andThen(new CurrentZero(0.65, m_upperArm))
             .andThen(new CurrentZero(0., m_lowerArm))
             .andThen(new WaitCommand(0.5))
             .andThen(m_upperArm.holdArmPosition())
-            .andThen(m_lowerArm.holdArmPosition()), m_upperArm, m_lowerArm).get());
+            .andThen(m_lowerArm.holdArmPosition()), m_upperArm, m_lowerArm));
 
         // Infeed
-        m_driverController.lt.whileTrue(makeSupplier(m_gripper.runMotorIn().withTimeout(1.)).get());
+        m_driverController.lt.whileTrue(makeConditional(m_gripper.runMotorIn().withTimeout(2.)));
 
         // Outfeed
         m_driverController.rt.whileTrue(
-            makeSupplier(m_gripper.runMotorOut().withTimeout(1)).get());
+            makeConditional(m_gripper.runMotorOutSoft().withTimeout(2.)));
 
         // Purple
         m_driverController.lb.onTrue(new InstantCommand(OneMechanism::becomePurpleMode));
@@ -197,22 +193,24 @@ public class RobotContainer {
         m_driverController.rb.onTrue(new InstantCommand(OneMechanism::becomeOrangeMode));
 
         // Stow
-        m_driverController.x.onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.STOWED)).get());
+        m_driverController.x.onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.STOWED)));
 
         // Score
-        m_driverController.y.onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE)).get());
+        m_driverController.y.onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE)));
 
         // Pickup [line]
         m_driverController.a
-            .onTrue(makeSupplier(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT)).get());
+            .onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE)));
 
         // Seek
-        m_driverController.b.onTrue(makeSupplier(new ConditionalCommand(
+        m_driverController.b.onTrue(makeConditional(new ConditionalCommand(
             new LimelightSquare(false, true,
                 () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(), m_drive),
+                () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(), m_drive)
+                    .alongWith(new InstantCommand(OneMechanism::becomePurpleMode))
+                    .until(m_gripper::getHasGamePiece),
             new InstantCommand(() -> {
-            }), () -> OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CONE_UPRIGHT)).get());
+            }), () -> OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CUBE)));
 
         // HotFire
         m_driverController.dpadDown.onTrue(new InstantCommand(OneMechanism::setFireWorkPlz));
@@ -223,27 +221,26 @@ public class RobotContainer {
         // Normal
         m_driverController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
 
-        //This is for when toddler
+        // This is for when toddler
         m_ourController.a.onTrue(new InstantCommand(() -> deadmanOn = true))
-            .onFalse(new InstantCommand(() -> deadmanOn = false));
+            .onFalse(new InstantCommand(() -> deadmanOn = false)
+                .alongWith(
+                    m_upperArm.holdArmPosition().alongWith(m_lowerArm.holdArmPosition()))
+                .until(() -> deadmanOn));
 
-        //this is for when led die
+        // this is for when led die
         m_ourController.dpadRight.onTrue(new InstantCommand(OneMechanism::setActive));
 
-        //this is for when x.com
+        // this is for when x.com
         m_ourController.b.onTrue(new InstantCommand(() -> {
         }, m_drive, m_gripper, m_candle, m_lowerArm, m_upperArm, m_wrist));
 
     }
 
-    /**
-     * Wraps a Command in a conditional supplier based on {@link RobotContainer#deadmanOn}
-     * @param cmd the command to wrap in a condditional supplier
-     * @return the supplier
-     */
-    private Supplier<Command> makeSupplier(Command cmd, Subsystem... requirements) {
-        return () -> deadmanOn ? new InstantCommand(cmd::schedule, requirements) : new InstantCommand(() -> {
-        }, requirements);
+    private Command makeConditional(Command cmd, Subsystem... requirements) {
+        return new ConditionalCommand(cmd, new InstantCommand(() -> {
+            m_drive.drive(0, 0, 0, true);
+        }, requirements), this::getDeadman);
     }
 
     private void initAutonChooser() {
@@ -296,23 +293,23 @@ public class RobotContainer {
     public double speedScaledDriverLeftY() {
         return getCurrentYLimiter().calculate(Util.speedScale(m_driverController.getLeftYAxis(),
             getCurrentSpeedScale(),
-            m_driverController.getRightTrigger()));
+            0));
     }
 
     public double speedScaledDriverRightX() {
         return getCurrentRotLimiter().calculate(-Util.speedScale(m_driverController.getRightXAxis(),
             getCurrentSpeedScale(),
-            m_driverController.getRightTrigger()));
+            0));
     }
 
     public double speedScaledDriverLeftX() {
         return getCurrentXLimiter().calculate(-Util.speedScale(m_driverController.getLeftXAxis(),
             getCurrentSpeedScale(),
-            m_driverController.getRightTrigger()));
+            0));
     }
 
     private double getCurrentSpeedScale() {
-        return DriveConstants.SLOW_SPEED_SCALE;
+        return DriveConstants.SLOW_SPEED_SCALE * 1.5;
     }
 
     private SlewRateLimiter getCurrentXLimiter() {
@@ -336,5 +333,9 @@ public class RobotContainer {
         // return m_autons.coolPreloadScoreSequence().andThen(new RunCommand(() ->
         // m_drive.drive(new Chassis)).withTimeout(2.0));
         return m_autoChooser.get().resetPoseAndRun();
+    }
+
+    public boolean getDeadman() {
+        return deadmanOn;
     }
 }
