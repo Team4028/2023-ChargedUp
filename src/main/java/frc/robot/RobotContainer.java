@@ -192,9 +192,6 @@ public class RobotContainer {
         // Orange
         m_driverController.rb.onTrue(new InstantCommand(OneMechanism::becomeOrangeMode));
 
-        // Stow
-        m_driverController.x.onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.STOWED)));
-
         // Score
         m_driverController.y.onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.SCORE_MID_CONE)));
 
@@ -203,14 +200,14 @@ public class RobotContainer {
             .onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.ACQUIRE_FLOOR_CUBE)));
 
         // Seek
-        m_driverController.b.onTrue(makeConditional(new ConditionalCommand(
+        m_driverController.b.toggleOnTrue(makeConditional(new ConditionalCommand(
             new LimelightSquare(false, true,
                 () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
                 () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(), m_drive)
                     .alongWith(new InstantCommand(OneMechanism::becomePurpleMode))
-                    .until(m_gripper::getHasGamePiece),
+                    .until(m_gripper.atCurrentThresholdSupplier()),
             new InstantCommand(() -> {
-            }), () -> OneMechanism.getScoringPosition() == ScoringPositions.ACQUIRE_FLOOR_CUBE)));
+            }), () -> OneMechanism.getTargetPosition() == ScoringPositions.ACQUIRE_FLOOR_CUBE)));
 
         // HotFire
         m_driverController.dpadDown.onTrue(new InstantCommand(OneMechanism::setFireWorkPlz));
@@ -234,6 +231,9 @@ public class RobotContainer {
         // this is for when x.com
         m_ourController.b.onTrue(new InstantCommand(() -> {
         }, m_drive, m_gripper, m_candle, m_lowerArm, m_upperArm, m_wrist));
+
+        // Stow
+        m_ourController.x.onTrue(makeConditional(OneMechanism.runArms(ScoringPositions.STOWED)));
 
     }
 

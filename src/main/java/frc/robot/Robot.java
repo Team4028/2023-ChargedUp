@@ -96,6 +96,8 @@ public class Robot extends LoggedRobot {
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
 
+        SmartDashboard.putBoolean("deadman", robotContainer.getDeadman());
+
         SmartDashboard.putBoolean("Score Mode", OneMechanism.getScoreMode());
         SmartDashboard.putNumber("Node", OneMechanism.getCurrentNode().GridID);
         SmartDashboard.putBoolean("Mode", OneMechanism.getGamePieceMode() == GamePieceMode.PURPLE_CUBE);

@@ -34,6 +34,7 @@ import frc.robot.subsystems.manipulator.Wrist;
  */
 public class OneMechanism {
     private static ScoringPositions currentPosition = ScoringPositions.STOWED;
+    private static ScoringPositions m_targetPos = ScoringPositions.STOWED;
 
     /**
      * the states of the robot
@@ -575,6 +576,10 @@ public class OneMechanism {
         return m_currentMode;
     }
 
+    public static ScoringPositions getTargetPosition() {
+        return m_targetPos;
+    }
+
     /**
      * 
      * @return whether or not the robot is in climb mode
@@ -609,6 +614,7 @@ public class OneMechanism {
                     setActive();
                 }
             }
+            m_targetPos = targetPos;
         }).alongWith(new RunArmsWithPID(targetPos, m_lowerArm, m_upperArm, m_wrist));
     }
 
