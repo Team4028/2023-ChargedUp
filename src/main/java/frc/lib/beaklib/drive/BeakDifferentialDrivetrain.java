@@ -4,11 +4,9 @@
 
 package frc.lib.beaklib.drive;
 
-import java.util.Map;
-
-import com.pathplanner.lib.commands.FollowPathWithEvents;
-
-import edu.wpi.first.math.controller.RamseteController;
+import com.pathplanner.lib.commands.PathfindLTV;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -16,7 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.motor.BeakMotorControllerGroup;
@@ -156,32 +153,43 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
         }
     }
 
+    // @Override
+    // public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
+    //     Command pathFollowingCommand = m_config.IsOpenLoop ? new PPRamseteCommand(
+    //         traj,
+    //         this::getPoseMeters,
+    //         new RamseteController(),
+    //         m_feedForward,
+    //         m_kinematics,
+    //         this::getWheelSpeeds,
+    //         createDriveController(),
+    //         createDriveController(),
+    //         this::driveVolts,
+    //         this) :
+
+    //         new PPRamseteCommand(
+    //             traj,
+    //             this::getPoseMeters,
+    //             new RamseteController(),
+    //             m_kinematics,
+    //             this::drive,
+    //             this);
+
+    //     return new FollowPathWithEvents(
+    //         pathFollowingCommand,
+    //         traj.getMarkers(),
+    //         eventMap);
+    // }
+
     @Override
-    public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
-        Command pathFollowingCommand = m_config.IsOpenLoop ? new PPRamseteCommand(
-            traj,
-            this::getPoseMeters,
-            new RamseteController(),
-            m_feedForward,
-            m_kinematics,
-            this::getWheelSpeeds,
-            createDriveController(),
-            createDriveController(),
-            this::driveVolts,
-            this) :
-
-            new PPRamseteCommand(
-                traj,
-                this::getPoseMeters,
-                new RamseteController(),
-                m_kinematics,
-                this::drive,
-                this);
-
-        return new FollowPathWithEvents(
-            pathFollowingCommand,
-            traj.getMarkers(),
-            eventMap);
+    public PathfindingCommand pathFindingCommand(Pose2d desiredPose, double scale) {
+        // todo: scale
+        return new PathfindLTV(desiredPose.getTranslation(),
+        new PathConstraints(1, 1, 1, 1),
+        this::getPoseMeters,
+        this::getChassisSpeeds,
+        this::drive,
+        0.02);
     }
 
     @Override
@@ -223,5 +231,10 @@ public class BeakDifferentialDrivetrain extends BeakDrivetrain {
     @Override
     public boolean isHolonomic() {
         return false;
+    }
+
+    @Override
+    public ChassisSpeeds getChassisSpeeds() {
+        return m_kinematics.toChassisSpeeds(getWheelSpeeds());
     }
 }

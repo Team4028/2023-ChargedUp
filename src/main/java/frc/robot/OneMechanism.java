@@ -4,23 +4,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.arm.RunArmPID;
 import frc.robot.commands.arm.RunArmsWithPID;
-import frc.robot.commands.auton.generation.GeneratePathWithArc;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.LEDs.CANdleMode;
 import frc.robot.subsystems.LEDs.Color;
@@ -365,6 +361,24 @@ public class OneMechanism {
         return mode == GamePieceMode.ORANGE_CONE ? orangeModeCommand() : purpleModeCommand();
     }
 
+    public static Command runtimeModeCommand(Supplier<GamePieceMode> mode) {
+        return Commands.runOnce(
+            () -> {
+                GamePieceMode currentMode = mode.get();
+                switch (currentMode) {
+                    case ORANGE_CONE: {
+                        becomePurpleMode();
+                        break;
+                    }
+                    case PURPLE_CUBE: {
+                        becomeOrangeMode();
+                        break;
+                    }
+                }
+                checkAuxiliaryModes();
+            }, m_leds);
+    }
+
     // TODO: javadoc these
     public static void toggleScoreMode() {
         m_scoreMode = !m_scoreMode;
@@ -378,6 +392,10 @@ public class OneMechanism {
         m_leds.setFade(scoreMode);
     }
 
+    public static Command setScoreModeCommand(boolean scoreMode) {
+        return Commands.runOnce(() -> setScoreMode(scoreMode), m_leds);
+    }
+
     public static void toggleClimbMode() {
         m_climbMode = !m_climbMode;
         m_leds.setBeaconState(m_climbMode);
@@ -389,6 +407,10 @@ public class OneMechanism {
         m_climbMode = climb;
 
         checkAuxiliaryModes();
+    }
+    
+    public static Command setClimbModeCommand(boolean climb) {
+        return Commands.runOnce(() -> setClimbMode(climb), m_leds);
     }
 
     /**
@@ -485,14 +507,15 @@ public class OneMechanism {
     public static Command runToNodePosition(BooleanSupplier interruptCondition) {
         // Add measurements to the pose estimator before and after to ensure relative
         // accuracy
-        return new ConditionalCommand(
-            new GeneratePathWithArc(
-                () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
-                interruptCondition,
-                m_drive)
-                    .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
-            Commands.none(),
-            () -> m_scoreMode);
+        // return new ConditionalCommand(
+        //     new GeneratePathWithArc(
+        //         () -> DriverStation.getAlliance() == Alliance.Red ? m_currentNode.RedPose : m_currentNode.BluePose,
+        //         interruptCondition,
+        //         m_drive)
+        //             .withInterruptBehavior(InterruptionBehavior.kCancelSelf),
+        //     Commands.none(),
+        //     () -> m_scoreMode);
+        return Commands.none();
     }
 
     public static Node getCurrentNode() {

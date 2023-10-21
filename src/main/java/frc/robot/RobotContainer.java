@@ -9,6 +9,8 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -28,8 +30,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.OneMechanism.GamePieceMode;
 import frc.robot.OneMechanism.ScoringPositions;
 import frc.robot.commands.arm.CurrentZero;
-import frc.robot.commands.auton.Autons;
-import frc.robot.commands.auton.BeakAutonCommand;
+import frc.robot.commands.auton.NewAutons;
 import frc.robot.commands.chassis.QuadraticAutoBalance;
 import frc.robot.commands.chassis.SnapToAngle;
 import frc.robot.commands.chassis.XDrive;
@@ -92,8 +93,8 @@ public class RobotContainer {
     private final BeakXBoxController m_emergencyController = new BeakXBoxController(2);
 
     // Auton stuff
-    private final LoggedDashboardChooser<BeakAutonCommand> m_autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    private final Autons m_autons;
+    private final LoggedDashboardChooser<PathPlannerAuto> m_autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    private final NewAutons m_autons;
 
     // Limiters, etc.
     private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(4.0);
@@ -126,33 +127,8 @@ public class RobotContainer {
 
         OneMechanism.addSubsystems(m_candle, m_drive, m_lowerArm, m_upperArm, m_wrist);
 
-        m_autons = new Autons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
+        m_autons = new NewAutons(m_drive, m_lowerArm, m_upperArm, m_wrist, m_gripper, m_frontAprilTagVision,
             m_rearAprilTagVision);
-
-        switch (Constants.currentMode) {
-            // TODO
-            // Real robot, instantiate hardware IO implementations
-            case REAL:
-                // drive = new Drive(new DriveIOSparkMax());
-                // flywheel = new Flywheel(new FlywheelIOSparkMax());
-                // drive = new Drive(new DriveIOFalcon500());
-                // flywheel = new Flywheel(new FlywheelIOFalcon500());
-                break;
-
-            // Sim robot, instantiate physics sim IO implementations
-            case SIM:
-                // drive = new Drive(new DriveIOSim());
-                // flywheel = new Flywheel(new FlywheelIOSim());
-                break;
-
-            // Replayed robot, disable IO implementations
-            default:
-                // drive = new Drive(new DriveIO() {
-                // });
-                // flywheel = new Flywheel(new FlywheelIO() {
-                // });
-                break;
-        }
 
         // Configure the button bindings
         configureButtonBindings();
@@ -532,50 +508,57 @@ public class RobotContainer {
     }
 
     private void initAutonChooser() {
-        m_autoChooser.addDefaultOption("1.5 Top", m_autons.OnePiece(PathPosition.Top));
-        m_autoChooser.addOption("1.5 Bottom", m_autons.OnePiece(PathPosition.Bottom));
+        // m_autoChooser.addDefaultOption("1.5 Top", m_autons.OnePiece(PathPosition.Top));
+        // m_autoChooser.addOption("1.5 Bottom", m_autons.OnePiece(PathPosition.Bottom));
 
-        m_autoChooser.addOption("2 Top", m_autons.TwoPiece(PathPosition.Top, false));
-        m_autoChooser.addOption("2 Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
+        // m_autoChooser.addOption("2 Top", m_autons.TwoPiece(PathPosition.Top, false));
+        // m_autoChooser.addOption("2 Bottom", m_autons.TwoPiece(PathPosition.Bottom, false));
 
-        m_autoChooser.addOption("2 Top Bal", m_autons.TwoPiece(PathPosition.Top, true));
-        m_autoChooser.addOption("2 Bottom Bal (OHCL)", m_autons.TwoPiece(PathPosition.Bottom, true));
+        // m_autoChooser.addOption("2 Top Bal", m_autons.TwoPiece(PathPosition.Top, true));
+        // m_autoChooser.addOption("2 Bottom Bal (OHCL)", m_autons.TwoPiece(PathPosition.Bottom, true));
 
-        m_autoChooser.addOption("2.25 Top", m_autons.TwoQuarterPiece(PathPosition.Top));
-        m_autoChooser.addOption("2.25 Bottom (OHCL)", m_autons.TwoQuarterPiece(PathPosition.Bottom));
+        // m_autoChooser.addOption("2.25 Top", m_autons.TwoQuarterPiece(PathPosition.Top));
+        // m_autoChooser.addOption("2.25 Bottom (OHCL)", m_autons.TwoQuarterPiece(PathPosition.Bottom));
 
-        m_autoChooser.addOption("2.9 Top", m_autons.ThreePiece(PathPosition.Top, false, false, ""));
-        m_autoChooser.addOption("2.9 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false, false, ""));
+        // m_autoChooser.addOption("2.9 Top", m_autons.ThreePiece(PathPosition.Top, false, false, ""));
+        // m_autoChooser.addOption("2.9 Bottom", m_autons.ThreePiece(PathPosition.Bottom, false, false, ""));
 
-        m_autoChooser.addOption("3 Top Mid", m_autons.ThreePiece(PathPosition.Top, false, true, "Mid"));
+        // m_autoChooser.addOption("3 Top Mid", m_autons.ThreePiece(PathPosition.Top, false, true, "Mid"));
 
-        m_autoChooser.addOption("3 Top Low", m_autons.ThreePiece(PathPosition.Top, false, true, "Low"));
+        // m_autoChooser.addOption("3 Top Low", m_autons.ThreePiece(PathPosition.Top, false, true, "Low"));
 
-        m_autoChooser.addOption("1 Cube Mid Bal",
-            m_autons.OneBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
-        m_autoChooser.addOption("1 Cone Mid Bal",
-            m_autons.OneBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
+        // m_autoChooser.addOption("1 Cube Mid Bal",
+        //     m_autons.OneBalance(PathPosition.Middle, GamePieceMode.PURPLE_CUBE));
+        // m_autoChooser.addOption("1 Cone Mid Bal",
+        //     m_autons.OneBalance(PathPosition.Middle, GamePieceMode.ORANGE_CONE));
 
-        m_autoChooser.addOption("1 Top Bal",
-            new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Top, "2").getInitialPose(),
-                m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
-                m_autons.Balance(PathPosition.Top, "2")));
+        // m_autoChooser.addOption("1 Top Bal",
+        //     new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Top, "2").getInitialPose(),
+        //         m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
+        //         m_autons.Balance(PathPosition.Top, "2")));
 
-        m_autoChooser.addOption("1 Bottom Bal",
-            new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Bottom, "2").getInitialPose(),
-                m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
-                m_autons.Balance(PathPosition.Bottom, "2")));
+        // m_autoChooser.addOption("1 Bottom Bal",
+        //     new BeakAutonCommand(m_drive, m_autons.Balance(PathPosition.Bottom, "2").getInitialPose(),
+        //         m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE),
+        //         m_autons.Balance(PathPosition.Bottom, "2")));
 
-        m_autoChooser.addOption("1 Mobility Bal",
-            m_autons.OnePieceMobilityBalance(true));
+        // m_autoChooser.addOption("1 Mobility Bal",
+        //     m_autons.OnePieceMobilityBalance(true));
 
-        m_autoChooser.addOption("3 Bottom Limelight",
-            m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
+        // m_autoChooser.addOption("3 Bottom Limelight",
+        //     m_autons.LimelightThreePiece(PathPosition.Bottom, GamePieceMode.PURPLE_CUBE));
 
-        m_autoChooser.addOption("Preload Sequence",
-            new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));
-        m_autoChooser.addOption("Auton Zero", new BeakAutonCommand(m_autons.autonZero()));
-        m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
+        // m_autoChooser.addOption("Preload Sequence",
+        //     new BeakAutonCommand(m_autons.preloadScoreSequence(GamePieceMode.ORANGE_CONE)));
+        // m_autoChooser.addOption("Auton Zero", new BeakAutonCommand(m_autons.autonZero()));
+        // m_autoChooser.addOption("Do Nothing", new BeakAutonCommand());
+
+        // m_autoChooser.addOption("1.5 Top Balance", m_autons.Two(PathPosition.Top, false));
+
+        m_autoChooser.addOption("2 Top", m_autons.Two(PathPosition.Top, false));
+
+        m_autoChooser.addOption("3 Top", m_autons.Three(PathPosition.Top, false));
+        m_autoChooser.addOption("3 Top Balance", m_autons.Three(PathPosition.Top, true));
     }
 
     public double speedScaledDriverLeftY() {
@@ -621,6 +604,6 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         // return m_autons.coolPreloadScoreSequence().andThen(new RunCommand(() ->
         // m_drive.drive(new Chassis)).withTimeout(2.0));
-        return m_autoChooser.get().resetPoseAndRun();
+        return m_autoChooser.get();
     }
 }

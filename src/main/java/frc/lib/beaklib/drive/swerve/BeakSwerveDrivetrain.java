@@ -6,12 +6,8 @@ package frc.lib.beaklib.drive.swerve;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PathfindHolonomic;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
@@ -30,13 +26,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.beaklib.drive.BeakDrivetrain;
 import frc.lib.beaklib.drive.RobotPhysics;
 import frc.lib.beaklib.gyro.BeakGyro;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.robot.commands.auton.generation.GeneratePath;
 
 /** Generic Swerve Drivetrain subsystem. */
 public class BeakSwerveDrivetrain extends BeakDrivetrain {
@@ -152,23 +145,23 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         logger.recordOutput("Swerve/Module Angles", getModuleAngles());
     }
 
-    @Override
-    public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
-        Command pathFollowingCommand = new PPSwerveControllerCommand(
-            traj,
-            this::getPoseMeters,
-            createDriveController(),
-            createDriveController(),
-            createAutonThetaController(),
-            this::drive,
-            true,
-            this);
+    // @Override
+    // public Command getTrajectoryCommand(PathPlannerTrajectory traj, Map<String, Command> eventMap) {
+    //     Command pathFollowingCommand = new PPSwerveControllerCommand(
+    //         traj,
+    //         this::getPoseMeters,
+    //         createDriveController(),
+    //         createDriveController(),
+    //         createAutonThetaController(),
+    //         this::drive,
+    //         true,
+    //         this);
 
-        return new FollowPathWithEvents(
-            pathFollowingCommand,
-            traj.getMarkers(),
-            eventMap);
-    }
+    //     return new FollowPathWithEvents(
+    //         pathFollowingCommand,
+    //         traj.getMarkers(),
+    //         eventMap);
+    // }
 
     @Override
     public PathfindingCommand pathFindingCommand(Pose2d desiredPose, double scale) {
@@ -178,7 +171,8 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         () -> getPoseMeters(),
         () -> getChassisSpeeds(),
         this::drive,
-        new HolonomicPathFollowerConfig(1, m_modules.get(0).getLocation(), new ReplanningConfig()));
+        // TODO: locations
+        new HolonomicPathFollowerConfig(1, 1.0, new ReplanningConfig()));
     }
 
     @Override
@@ -232,6 +226,12 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
         Logger.getInstance().recordOutput("Swerve/Module Setpoints", states);
 
         setModuleStates(states);
+    }
+
+    @Override
+    public ChassisSpeeds getChassisSpeeds() {
+        return m_kinematics.toChassisSpeeds(
+            getModuleStates());
     }
 
     /* Swerve-specific Methods */
@@ -316,11 +316,6 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     public void zero() {
         resetTurningMotors();
         m_odom.resetPosition(getGyroRotation2d(), getModulePositions(), new Pose2d());
-    }
-
-    public ChassisSpeeds getChassisSpeeds() {
-        return m_kinematics.toChassisSpeeds(
-            getModuleStates());
     }
 
     /**

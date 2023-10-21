@@ -137,6 +137,10 @@ public class Gripper extends SubsystemBase {
         }
     }
 
+    public Command idleModeCommand() {
+        return runOnce(this::beIdleMode);
+    }
+
     public boolean hasGamePiece() {
         return m_hasGamePiece;
     }

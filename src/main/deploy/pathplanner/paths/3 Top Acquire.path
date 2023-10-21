@@ -3,39 +3,39 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5754722449042216,
-        "y": 5.059126768840786
+        "x": 1.68,
+        "y": 4.41
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.349081280482192,
-        "y": 4.728391058606782
+        "x": 3.530832201660209,
+        "y": 4.593312184736786
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 6.063495412435456,
-        "y": 5.804661276898058
+        "x": 5.329467039491965,
+        "y": 4.41
       },
       "prevControl": {
-        "x": 5.454143106272791,
-        "y": 5.54847901746978
+        "x": 5.009579678868245,
+        "y": 4.522583785751029
       },
       "nextControl": {
-        "x": 6.672847718598121,
-        "y": 6.0608435363263355
+        "x": 5.751778975768522,
+        "y": 4.261368067618686
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 6.95,
-        "y": 4.987988380968373
+        "x": 6.802462491774816,
+        "y": 3.3293185839727384
       },
       "prevControl": {
-        "x": 6.8090629797136275,
-        "y": 5.524415958647355
+        "x": 5.719940081344089,
+        "y": 3.31192803272771
       },
       "nextControl": null,
       "isLocked": false
@@ -43,11 +43,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.5,
-      "rotationDegrees": -75.0
-    },
-    {
-      "waypointRelativePos": 0.65,
+      "waypointRelativePos": 0.5,
       "rotationDegrees": 180.0
     }
   ],
@@ -55,7 +51,7 @@
   "eventMarkers": [
     {
       "name": "Infeed",
-      "waypointRelativePos": 0.4,
+      "waypointRelativePos": 0.8,
       "command": {
         "type": "parallel",
         "data": {
@@ -97,12 +93,12 @@
   "globalConstraints": {
     "maxVelocity": 3.5,
     "maxAcceleration": 4.0,
-    "maxAngularVelocity": 540.0,
+    "maxAngularVelocity": 540,
     "maxAngularAcceleration": 720
   },
   "goalEndState": {
     "velocity": 2.0,
-    "rotation": -71.92000000000002
+    "rotation": 6.320260590692156
   },
   "reversed": false,
   "folder": null

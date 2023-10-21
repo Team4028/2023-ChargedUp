@@ -3,24 +3,24 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.95,
-        "y": 4.99
+        "x": 1.72,
+        "y": 4.41
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.847768513909512,
-        "y": 3.897795213795126
+        "x": 1.72,
+        "y": 3.0100000000000002
       },
       "isLocked": false
     },
     {
       "anchor": {
-        "x": 1.6837560096051403,
-        "y": 4.40679720914811
+        "x": 4.1475925674166785,
+        "y": 2.902540796168002
       },
       "prevControl": {
-        "x": 2.8332661929585607,
-        "y": 5.051718709246982
+        "x": 2.1475925674166785,
+        "y": 2.902540796168002
       },
       "nextControl": null,
       "isLocked": false
@@ -31,7 +31,7 @@
   "eventMarkers": [
     {
       "name": "Retract",
-      "waypointRelativePos": 0.2,
+      "waypointRelativePos": 0.15,
       "command": {
         "type": "parallel",
         "data": {
@@ -41,39 +41,11 @@
               "data": {
                 "name": "Retract"
               }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Score",
-      "waypointRelativePos": 0.9,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
+            },
             {
               "type": "named",
               "data": {
-                "name": "Score"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Prep",
-      "waypointRelativePos": 0.7,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "Prep"
+                "name": "Climb"
               }
             }
           ]
@@ -88,7 +60,7 @@
     "maxAngularAcceleration": 360.0
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.8,
     "rotation": 180.0
   },
   "reversed": false,

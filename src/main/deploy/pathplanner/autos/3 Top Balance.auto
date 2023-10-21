@@ -1,0 +1,60 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.5754722449042216,
+      "y": 5.059126768840786
+    },
+    "rotation": 180.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Preload"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Top Acquire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Top Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Top Acquire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Top Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Top Balance"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Balance"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null
+}

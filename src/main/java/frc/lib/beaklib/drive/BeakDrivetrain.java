@@ -172,6 +172,16 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     }
 
     /**
+     * Create a pathfinding command.
+     * @param desiredPose The pose you wish to run to.
+     * @param scale How fast the robot should go (1.0 = full speed)
+     * @return
+     */
+    public PathfindingCommand pathFindingCommand(Pose2d desiredPose, double scale) {
+        return null;
+    }
+
+    /**
      * Method to drive the robot using joystick info.
      *
      * @param x
@@ -208,6 +218,14 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      *            The ChassisSpeeds to use.
      */
     public void drive(ChassisSpeeds speeds) {
+    }
+
+    /**
+     * Get the current speed of the robot.
+     * @return {@link ChassisSpeeds} for the robot.
+     */
+    public ChassisSpeeds getChassisSpeeds() {
+        return null;
     }
 
     /**
