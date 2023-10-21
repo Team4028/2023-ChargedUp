@@ -1,0 +1,69 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 6.71,
+        "y": 3.43
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.650455386625059,
+        "y": 4.93721579157444
+      },
+      "holonomicAngle": -45.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.8,
+        "y": 4.02
+      },
+      "prevControl": {
+        "x": 3.01675314779201,
+        "y": 4.764366631590406
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.05454545454545455,
+      "names": [
+        "ArmRetract",
+        "StopGripper"
+      ]
+    },
+    {
+      "position": 0.5090909090909094,
+      "names": [
+        "ScoreLow"
+      ]
+    },
+    {
+      "position": 0.7727272727272717,
+      "names": [
+        "RunGripperOut"
+      ]
+    }
+  ]
+}

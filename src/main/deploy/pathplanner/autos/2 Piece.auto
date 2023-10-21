@@ -1,0 +1,48 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.5754722449042216,
+      "y": 5.059126768840786
+    },
+    "rotation": 180.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Top Acquire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Top Score"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Outfeed"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        }
+      ]
+    }
+  },
+  "folder": null
+}

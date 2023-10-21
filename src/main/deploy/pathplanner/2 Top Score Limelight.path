@@ -1,0 +1,100 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 6.9,
+        "y": 4.4
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.963602815777061,
+        "y": 4.444068362422439
+      },
+      "holonomicAngle": -16.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.348016981748249,
+        "y": 4.781124133676839
+      },
+      "prevControl": {
+        "x": 5.016737316604331,
+        "y": 4.835937275878157
+      },
+      "nextControl": {
+        "x": 3.4748176639210424,
+        "y": 4.709550419100838
+      },
+      "holonomicAngle": 90.0,
+      "isReversal": false,
+      "velOverride": 2.0,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.73,
+        "y": 4.38
+      },
+      "prevControl": {
+        "x": 1.7443183714938861,
+        "y": 4.315427990855981
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.05454545454545449,
+      "names": [
+        "ArmRetract"
+      ]
+    },
+    {
+      "position": 1.5818181818181816,
+      "names": [
+        "CubePrep",
+        "FrontLocalizeContinuous"
+      ]
+    },
+    {
+      "position": 1.154545454545453,
+      "names": [
+        "CubeHigh"
+      ]
+    },
+    {
+      "position": 0.21818181818181823,
+      "names": [
+        "StopGripper"
+      ]
+    }
+  ]
+}
