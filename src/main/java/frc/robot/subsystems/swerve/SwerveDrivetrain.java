@@ -4,18 +4,12 @@
 
 package frc.robot.subsystems.swerve;
 
-import frc.lib.beaklib.drive.RobotPhysics;
-import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
-import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
-import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
-import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
-import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
-import frc.lib.beaklib.gyro.BeakPigeon2;
-import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.lib.beaklib.units.Acceleration;
-import frc.lib.beaklib.units.AngularVelocity;
-import frc.lib.beaklib.units.Distance;
-import frc.lib.beaklib.units.Velocity;
+import static edu.wpi.first.units.Units.FeetPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,8 +19,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.beaklib.drive.RobotPhysics;
+import frc.lib.beaklib.drive.swerve.BeakSwerveDrivetrain;
+import frc.lib.beaklib.drive.swerve.DrivetrainConfiguration;
+import frc.lib.beaklib.drive.swerve.SdsModuleConfiguration;
+import frc.lib.beaklib.drive.swerve.SdsModuleConfigurations;
+import frc.lib.beaklib.drive.swerve.SwerveModuleConfiguration;
+import frc.lib.beaklib.gyro.BeakPigeon2;
+import frc.lib.beaklib.pid.BeakPIDConstants;
 
 /** Add your docs here. */
 public class SwerveDrivetrain extends BeakSwerveDrivetrain {
@@ -70,17 +75,17 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
     private static final SdsModuleConfiguration CONFIGURATION = SdsModuleConfigurations.MK4I_L2;
 
-    private static final Velocity MAX_VELOCITY = Velocity.fromFeetPerSecond(16.3);
-    private static final Acceleration MAX_ACCEL = Acceleration.fromFeetPerSecondSquared(16.3);
+    private static final Measure<Velocity<Distance>> MAX_VELOCITY = FeetPerSecond.of(16.3);
+    private static final Measure<Velocity<Velocity<Distance>>> MAX_ACCEL = MetersPerSecondPerSecond.of(5.0);
 
     // distance from the right to left wheels on the robot
-    private static final Distance TRACK_WIDTH = Distance.fromInches(19.688); // 24.
+    private static final Measure<Distance> TRACK_WIDTH = Inches.of(19.688); // 24.
     // distance from the front to back wheels on the robot
-    private static final Distance WHEEL_BASE = Distance.fromInches(23.688); // 28.
+    private static final Measure<Distance> WHEEL_BASE = Inches.of(23.688); // 28.
 
     private static final RobotPhysics PHYSICS = new RobotPhysics(
         MAX_VELOCITY,
-        new AngularVelocity(),
+        RadiansPerSecond.zero(),
         MAX_ACCEL,
         TRACK_WIDTH,
         WHEEL_BASE,
@@ -96,29 +101,29 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
     private static final int FL_TURN_ID = 1;
     private static final int FL_ENCODER_ID = 1; // SHOULD BE 9
     private static final Rotation2d FL_OFFSET = Rotation2d.fromDegrees(-357.4);
-    private static final Translation2d FL_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-        TRACK_WIDTH.getAsMeters() / 2); // TODO: Please God BeakTranslation2d
+    private static final Translation2d FL_LOCATION = new Translation2d(WHEEL_BASE.in(Meters) / 2,
+        TRACK_WIDTH.in(Meters) / 2); // TODO: Please God BeakTranslation2d
 
     private static final int FR_DRIVE_ID = 4;
     private static final int FR_TURN_ID = 3;
     private static final int FR_ENCODER_ID = 2; // SHOULD BE 10
     private static final Rotation2d FR_OFFSET = Rotation2d.fromDegrees(-271.3);
-    private static final Translation2d FR_LOCATION = new Translation2d(WHEEL_BASE.getAsMeters() / 2,
-        -TRACK_WIDTH.getAsMeters() / 2);
+    private static final Translation2d FR_LOCATION = new Translation2d(WHEEL_BASE.in(Meters) / 2,
+        -TRACK_WIDTH.in(Meters) / 2);
 
     private static final int BL_DRIVE_ID = 6;
     private static final int BL_TURN_ID = 5;
     private static final int BL_ENCODER_ID = 3; // SHOULD BE 11
     private static final Rotation2d BL_OFFSET = Rotation2d.fromDegrees(-327.3);
-    private static final Translation2d BL_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
-        TRACK_WIDTH.getAsMeters() / 2);
+    private static final Translation2d BL_LOCATION = new Translation2d(-WHEEL_BASE.in(Meters) / 2,
+        TRACK_WIDTH.in(Meters) / 2);
 
     private static final int BR_DRIVE_ID = 8;
     private static final int BR_TURN_ID = 7;
     private static final int BR_ENCODER_ID = 4; // SHOULD BE 12
     private static final Rotation2d BR_OFFSET = Rotation2d.fromDegrees(-160.5);
-    private static final Translation2d BR_LOCATION = new Translation2d(-WHEEL_BASE.getAsMeters() / 2,
-        -TRACK_WIDTH.getAsMeters() / 2);
+    private static final Translation2d BR_LOCATION = new Translation2d(-WHEEL_BASE.in(Meters) / 2,
+        -TRACK_WIDTH.in(Meters) / 2);
 
     private static final double ALLOWED_CLOSED_LOOP_ERROR = 40.0;
 
@@ -236,10 +241,10 @@ public class SwerveDrivetrain extends BeakSwerveDrivetrain {
 
         SmartDashboard.putNumber("Pitch", getGyroPitchRotation2d().getDegrees());
 
-        SmartDashboard.putNumber("FL angle", Math.toDegrees(m_modules.get(0).getAbsoluteEncoderRadians()));
-        SmartDashboard.putNumber("FR angle", Math.toDegrees(m_modules.get(1).getAbsoluteEncoderRadians()));
-        SmartDashboard.putNumber("BL angle", Math.toDegrees(m_modules.get(2).getAbsoluteEncoderRadians()));
-        SmartDashboard.putNumber("BR angle", Math.toDegrees(m_modules.get(3).getAbsoluteEncoderRadians()));
+        SmartDashboard.putNumber("FL angle", m_modules.get(0).getAbsoluteEncoderRotation2d().getDegrees());
+        SmartDashboard.putNumber("FR angle", m_modules.get(1).getAbsoluteEncoderRotation2d().getDegrees());
+        SmartDashboard.putNumber("BL angle", m_modules.get(2).getAbsoluteEncoderRotation2d().getDegrees());
+        SmartDashboard.putNumber("BR angle", m_modules.get(3).getAbsoluteEncoderRotation2d().getDegrees());
 
         SmartDashboard.putNumber("X (meters)", m_odom.getEstimatedPosition().getX());
         SmartDashboard.putNumber("Y (meters)", m_odom.getEstimatedPosition().getY());

@@ -4,11 +4,15 @@
 
 package frc.lib.beaklib.encoder;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** CANCoder, as a {@link BeakAbsoluteEncoder}. */
 public class BeakAnalogInput extends AnalogInput implements BeakAbsoluteEncoder {
@@ -40,8 +44,8 @@ public class BeakAnalogInput extends AnalogInput implements BeakAbsoluteEncoder 
     }
 
     @Override
-    public DataSignal<AngularVelocity> getEncoderVelocity() {
-        return new DataSignal<AngularVelocity>(new AngularVelocity());
+    public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity() {
+        return new DataSignal<Measure<Velocity<Angle>>>(RadiansPerSecond.zero());
     }
 
     @Override

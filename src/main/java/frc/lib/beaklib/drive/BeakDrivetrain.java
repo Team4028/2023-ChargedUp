@@ -19,31 +19,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.beaklib.pid.BeakPIDConstants;
 import frc.lib.beaklib.subsystem.BeakGyroSubsystem;
-import frc.lib.beaklib.units.Acceleration;
-import frc.lib.beaklib.units.AngularVelocity;
-import frc.lib.beaklib.units.Distance;
-import frc.lib.beaklib.units.Velocity;
 
 /** Base drivetrain class. */
 public class BeakDrivetrain extends BeakGyroSubsystem {
     protected Pose2d m_pose;
 
-    protected Velocity m_maxVelocity;
-    protected AngularVelocity m_maxAngularVelocity;
-    protected Acceleration m_maxAccel;
-
-    protected Distance m_trackWidth;
-    protected Distance m_wheelBase;
-
-    protected Distance m_wheelDiameter;
-
-    protected double m_gearRatio;
-
-    protected SimpleMotorFeedforward m_feedForward;
+    public RobotPhysics Physics;
 
     protected ProfiledPIDController m_thetaController;
     protected BeakPIDConstants m_thetaPID;
@@ -72,19 +60,11 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
         BeakPIDConstants drivePID,
         boolean gyroInverted) {
         super(gyroInverted);
-        m_maxVelocity = physics.maxVelocity;
-        m_maxAngularVelocity = physics.maxAngularVelocity;
-        m_maxAccel = physics.maxAccel;
 
-        m_trackWidth = physics.trackWidth;
-        m_wheelBase = physics.wheelBase;
-        m_wheelDiameter = physics.wheelDiameter;
-
-        m_gearRatio = physics.driveGearRatio;
-        m_feedForward = physics.feedforward;
+        Physics = physics;
 
         final TrapezoidProfile.Constraints thetaConstraints = new TrapezoidProfile.Constraints(
-            physics.maxAngularVelocity.getAsRadiansPerSecond(), physics.maxAngularVelocity.getAsRadiansPerSecond());
+            physics.MaxAngularVelocity.in(Units.RadiansPerSecond), physics.MaxAngularVelocity.in(Units.RadiansPerSecond));
 
         m_thetaController = new ProfiledPIDController(
             thetaPID.kP,
@@ -97,18 +77,6 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     }
 
     public void configMotors() {
-    }
-
-    public RobotPhysics getPhysics() {
-        return new RobotPhysics(
-            m_maxVelocity,
-            m_maxAngularVelocity,
-            m_maxAccel,
-            m_trackWidth,
-            m_wheelBase,
-            m_wheelDiameter,
-            m_gearRatio,
-            m_feedForward);
     }
 
     /**
@@ -137,8 +105,8 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      */
     public ProfiledPIDController createThetaController() {
         final TrapezoidProfile.Constraints thetaConstraints = new TrapezoidProfile.Constraints(
-            getPhysics().maxAngularVelocity.getAsRadiansPerSecond(),
-            getPhysics().maxAngularVelocity.getAsRadiansPerSecond());
+            Physics.MaxAngularVelocity.in(Units.RadiansPerSecond),
+            Physics.MaxAngularVelocity.in(Units.RadiansPerSecond));
 
         return new ProfiledPIDController(
             m_thetaPID.kP,
@@ -155,7 +123,7 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
     }
 
     public SimpleMotorFeedforward getFeedforward() {
-        return m_feedForward;
+        return Physics.Feedforward;
     }
 
     /**
@@ -303,15 +271,15 @@ public class BeakDrivetrain extends BeakGyroSubsystem {
      * React, the blue alliance HP station)
      * 
      * @param x
-     *            The X position of the target, in inches.
+     *            The X position of the target.
      * @param y
-     *            The Y position of the target, in inches.
+     *            The Y position of the target.
      * @return A {@link Rotation2d} of the drivetrain's angle to the target
      *         position.
      */
-    public Rotation2d getAngleToTargetPosition(Distance x, Distance y) {
-        double xDelta = x.getAsMeters() - getPoseMeters().getX();
-        double yDelta = y.getAsMeters() - getPoseMeters().getY();
+    public Rotation2d getAngleToTargetPosition(Measure<Distance> x, Measure<Distance> y) {
+        double xDelta = x.in(Units.Meters) - getPoseMeters().getX();
+        double yDelta = y.in(Units.Meters) - getPoseMeters().getY();
 
         double radiansToTarget = Math.atan2(yDelta, xDelta);
 

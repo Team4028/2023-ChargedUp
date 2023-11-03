@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.pathplanner.lib.commands.PathfindHolonomic;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
@@ -23,7 +25,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.beaklib.drive.BeakDrivetrain;
@@ -209,9 +210,9 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
 
     @Override
     public void drive(double x, double y, double rot, boolean fieldRelative) {
-        x *= m_maxVelocity.getAsMetersPerSecond();
-        y *= m_maxVelocity.getAsMetersPerSecond();
-        rot *= m_maxAngularVelocity.getAsRadiansPerSecond();
+        x *= Physics.MaxVelocity.in(MetersPerSecond);
+        y *= Physics.MaxVelocity.in(MetersPerSecond);
+        rot *= Physics.MaxAngularVelocity.in(RadiansPerSecond);
 
         ChassisSpeeds speeds = fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(x, y, rot, getRotation2d())
             : new ChassisSpeeds(x, y, rot);
@@ -243,7 +244,7 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
      *            An array of the desired states for the m_modules.
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_maxVelocity.getAsMetersPerSecond());
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Physics.MaxVelocity.in(MetersPerSecond));
 
         for (int i = 0; i < desiredStates.length; i++) {
             m_modules.get(i).setDesiredState(desiredStates[i]);
@@ -281,12 +282,12 @@ public class BeakSwerveDrivetrain extends BeakDrivetrain {
     /**
      * Get the angles of each module.
      * 
-     * @return Array of the angles for each module.
+     * @return Array of the angles for each module, in radians.
      */
     public double[] getModuleAngles() {
         double[] states = new double[m_numModules];
         for (int i = 0; i < m_numModules; i++) {
-            states[i] = Units.radiansToDegrees(m_modules.get(i).getTurningEncoderRadians());
+            states[i] = m_modules.get(i).getTurningEncoderRotation2d().getRadians();
         }
 
         return states;

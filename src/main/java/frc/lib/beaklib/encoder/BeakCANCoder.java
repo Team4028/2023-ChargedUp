@@ -4,12 +4,16 @@
 
 package frc.lib.beaklib.encoder;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** CANCoder, as a {@link BeakAbsoluteEncoder}. */
 public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
@@ -62,9 +66,9 @@ public class BeakCANCoder extends WPI_CANCoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<AngularVelocity> getEncoderVelocity() {
-        AngularVelocity velocity = AngularVelocity.fromDegreesPerSecond(super.getVelocity());
-        return new DataSignal<AngularVelocity>(velocity);
+    public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity() {
+        Measure<Velocity<Angle>> velocity = DegreesPerSecond.of(super.getVelocity());
+        return new DataSignal<Measure<Velocity<Angle>>>(velocity);
     }
 
 }

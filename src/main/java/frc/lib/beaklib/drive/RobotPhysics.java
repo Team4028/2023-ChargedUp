@@ -5,76 +5,78 @@
 package frc.lib.beaklib.drive;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import frc.lib.beaklib.units.Acceleration;
-import frc.lib.beaklib.units.AngularVelocity;
-import frc.lib.beaklib.units.Distance;
-import frc.lib.beaklib.units.Velocity;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
 
 /** Class containing various physical parameters of a robot. */
 public class RobotPhysics {
-    public Velocity maxVelocity;
-    public AngularVelocity maxAngularVelocity;
+    public Measure<Velocity<Distance>> MaxVelocity;
+    public Measure<Velocity<Angle>> MaxAngularVelocity;
 
-    public Acceleration maxAccel;
+    public Measure<Velocity<Velocity<Distance>>> MaxAccel;
 
-    public Distance trackWidth;
-    public Distance wheelBase;
+    public Measure<Distance> TrackWidth;
+    public Measure<Distance> WheelBase;
 
-    public Distance wheelDiameter;
+    public Measure<Distance> WheelDiameter;
 
-    public double driveGearRatio;
+    public double DriveGearRatio;
 
-    public SimpleMotorFeedforward feedforward;
+    public SimpleMotorFeedforward Feedforward;
 
     /**
      * Construct a new physics object to pass to a drivetrain.
      * 
      * @param maxVelocity
-     *            Maximum travel velocity of the robot.
+     *                           Maximum travel velocity of the robot.
      * @param maxAngularVelocity
-     *            Maximum angular velocity of the robot. Set to 0 to calculate a
-     *            theoretical.
+     *                           Maximum angular velocity of the robot. Set to 0 to
+     *                           calculate a
+     *                           theoretical.
      * @param maxAccel
-     *            Maximum attainable acceleration of the robot.
+     *                           Maximum attainable acceleration of the robot.
      * @param trackWidth
-     *            Distance from the left wheels to the right wheels.
+     *                           Distance from the left wheels to the right wheels.
      * @param wheelBase
-     *            Distance from the front wheels to the back wheels.
+     *                           Distance from the front wheels to the back wheels.
      * @param wheelDiameter
-     *            Diameter of the wheels.
+     *                           Diameter of the wheels.
      * @param driveGearRatio
-     *            Gear ratio of the drive motors.
+     *                           Gear ratio of the drive motors.
      * @param feedforward
-     *            A {@link SimpleMotorFeedforward} calculated from
-     *            SysId.
+     *                           A {@link SimpleMotorFeedforward} calculated from
+     *                           SysId.
      */
     public RobotPhysics(
-        Velocity maxVelocity,
-        AngularVelocity maxAngularVelocity,
-        Acceleration maxAccel,
-        Distance trackWidth,
-        Distance wheelBase,
-        Distance wheelDiameter,
-        double driveGearRatio,
-        SimpleMotorFeedforward feedforward) {
-        this.maxVelocity = maxVelocity;
-        this.maxAccel = maxAccel;
+            Measure<Velocity<Distance>> maxVelocity,
+            Measure<Velocity<Angle>> maxAngularVelocity,
+            Measure<Velocity<Velocity<Distance>>> maxAccel,
+            Measure<Distance> trackWidth,
+            Measure<Distance> wheelBase,
+            Measure<Distance> wheelDiameter,
+            double driveGearRatio,
+            SimpleMotorFeedforward feedforward) {
+        this.MaxVelocity = maxVelocity;
+        this.MaxAccel = maxAccel;
 
-        this.trackWidth = trackWidth;
-        this.wheelBase = wheelBase;
+        this.TrackWidth = trackWidth;
+        this.WheelBase = wheelBase;
 
-        this.maxAngularVelocity = (maxAngularVelocity.getAsRadiansPerSecond() == 0. ? calcTheoreticalAngularVelocity()
-            : maxAngularVelocity);
+        this.MaxAngularVelocity = maxAngularVelocity.magnitude() == 0. ? calcTheoreticalAngularVelocity()
+                : maxAngularVelocity;
 
-        this.wheelDiameter = wheelDiameter;
-        this.driveGearRatio = driveGearRatio;
-        this.feedforward = feedforward;
+        this.WheelDiameter = wheelDiameter;
+        this.DriveGearRatio = driveGearRatio;
+        this.Feedforward = feedforward;
     }
 
-    protected AngularVelocity calcTheoreticalAngularVelocity() {
-
-        AngularVelocity vel = new AngularVelocity(maxVelocity.getAsMetersPerSecond()
-            / Math.hypot(trackWidth.getAsMeters() / 2.0, wheelBase.getAsMeters() / 2.0));
+    protected Measure<Velocity<Angle>> calcTheoreticalAngularVelocity() {
+        Measure<Velocity<Angle>> vel = 
+        Units.RadiansPerSecond.of(MaxVelocity.baseUnitMagnitude() /
+            Math.hypot(TrackWidth.baseUnitMagnitude() / 2.0, WheelBase.baseUnitMagnitude() / 2.0));
         return vel;
     }
 }

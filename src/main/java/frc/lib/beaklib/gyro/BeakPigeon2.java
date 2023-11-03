@@ -4,11 +4,15 @@
 
 package frc.lib.beaklib.gyro;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** A standard CTRE Pigeon 2 implemented as a BeakGyro. */
 public class BeakPigeon2 extends WPI_Pigeon2 implements BeakGyro {
@@ -36,7 +40,7 @@ public class BeakPigeon2 extends WPI_Pigeon2 implements BeakGyro {
     }
 
     @Override
-    public DataSignal<AngularVelocity> getAngularVelocity() {
-        return new DataSignal<AngularVelocity>(AngularVelocity.fromDegreesPerSecond(getRate()));
+    public DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
+        return new DataSignal<Measure<Velocity<Angle>>>(DegreesPerSecond.of(getRate()));
     }
 }

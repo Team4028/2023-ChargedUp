@@ -4,9 +4,12 @@
 
 package frc.lib.beaklib.drive.swerve;
 
+import static edu.wpi.first.units.Units.*;
+
 import java.util.Objects;
 
-import frc.lib.beaklib.units.Distance;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 
 /** Configuration of an SDS Swerve Module. */
 public class SdsModuleConfiguration {
@@ -14,7 +17,7 @@ public class SdsModuleConfiguration {
         MK2, MK3, MK4, MK4i, UNCHARACTERIZED_MK4i,
     }
 
-    public final Distance wheelDiameter;
+    public final Measure<Distance> wheelDiameter;
     public final double driveGearRatio;
     public final boolean driveInverted;
 
@@ -28,7 +31,7 @@ public class SdsModuleConfiguration {
      *
      * @param wheelDiameter
      *            The diameter of the module's wheel in meters.
-     * @param driveGearRatio
+     * @param DriveGearRatio
      *            The overall drive reduction of the module. Multiplying
      *            motor rotations by this value should result in wheel
      *            rotations.
@@ -48,7 +51,7 @@ public class SdsModuleConfiguration {
      *            The type of the module (i.e. MK2, MK3, MK4, MK4i)
      */
     public SdsModuleConfiguration(
-        Distance wheelDiameter,
+        Measure<Distance> wheelDiameter,
         double driveReduction,
         boolean driveInverted,
         double steerReduction,
@@ -65,7 +68,7 @@ public class SdsModuleConfiguration {
     /**
      * Gets the diameter of the wheel in meters.
      */
-    public Distance getWheelDiameter() {
+    public Measure<Distance> getWheelDiameter() {
         return wheelDiameter;
     }
 
@@ -110,7 +113,7 @@ public class SdsModuleConfiguration {
         if (o == null || getClass() != o.getClass())
             return false;
         SdsModuleConfiguration that = (SdsModuleConfiguration) o;
-        return Double.compare(that.getWheelDiameter().getAsMeters(), getWheelDiameter().getAsMeters()) == 0 &&
+        return Double.compare(that.getWheelDiameter().in(Meters), getWheelDiameter().in(Meters)) == 0 &&
             Double.compare(that.getDriveReduction(), getDriveReduction()) == 0 &&
             isDriveInverted() == that.isDriveInverted() &&
             Double.compare(that.getSteerReduction(), getSteerReduction()) == 0 &&

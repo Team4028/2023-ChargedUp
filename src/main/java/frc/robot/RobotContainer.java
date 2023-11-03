@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.*;
+
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -320,15 +322,15 @@ public class RobotContainer {
             new LimelightSquare(
                 false,
                 true,
-                () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
-                () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+                () -> -speedScaledDriverLeftY() * m_drive.Physics.MaxVelocity.in(MetersPerSecond),
+                () -> speedScaledDriverLeftX() * m_drive.Physics.MaxVelocity.in(MetersPerSecond),
                 m_drive)));
 
         m_operatorController.rs.toggleOnTrue(OneMechanism.orangeModeCommand().andThen(new LimelightSquare(
             true,
             true,
-            () -> -speedScaledDriverLeftY() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
-            () -> speedScaledDriverLeftX() * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond(),
+            () -> -speedScaledDriverLeftY() * m_drive.Physics.MaxVelocity.in(MetersPerSecond),
+            () -> speedScaledDriverLeftX() * m_drive.Physics.MaxVelocity.in(MetersPerSecond),
             m_drive)));
 
         // ================================================
@@ -389,9 +391,9 @@ public class RobotContainer {
         // ORTHAGONAL ANGLE HOLDING
         // ================================================
         DoubleSupplier xSupplier = () -> -speedScaledDriverLeftY()
-            * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
+            * m_drive.Physics.MaxVelocity.in(MetersPerSecond);
         DoubleSupplier ySupplier = () -> speedScaledDriverLeftX()
-            * m_drive.getPhysics().maxVelocity.getAsMetersPerSecond();
+            * m_drive.Physics.MaxVelocity.in(MetersPerSecond);
         BooleanSupplier angleInterrupt = m_driverController.rs;
 
         m_operatorController.dpadUp.toggleOnTrue(new SnapToAngle(

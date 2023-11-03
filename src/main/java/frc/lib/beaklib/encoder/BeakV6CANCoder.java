@@ -4,6 +4,8 @@
 
 package frc.lib.beaklib.encoder;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfigurator;
@@ -12,9 +14,11 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** Add your docs here. */
 public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
@@ -54,10 +58,10 @@ public class BeakV6CANCoder extends CANcoder implements BeakAbsoluteEncoder {
     }
 
     @Override
-    public DataSignal<AngularVelocity> getEncoderVelocity() { // TODO
+    public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity() { // TODO
         StatusSignal<Double> velocity = super.getVelocity();
-        AngularVelocity angularVelocity = AngularVelocity.fromRotationsPerSecond(velocity.getValue());
-        return new DataSignal<AngularVelocity>(angularVelocity, velocity.getTimestamp().getTime());
+        Measure<Velocity<Angle>> angularVelocity = RPM.of(velocity.getValue());
+        return new DataSignal<Measure<Velocity<Angle>>>(angularVelocity, velocity.getTimestamp().getTime());
     }
 
     @Override

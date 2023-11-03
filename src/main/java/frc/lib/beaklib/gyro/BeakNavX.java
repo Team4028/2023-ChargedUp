@@ -4,12 +4,16 @@
 
 package frc.lib.beaklib.gyro;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.SPI.Port;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** A Kauai Labs NavX IMU implemented as a BeakGyro. */
 public class BeakNavX extends AHRS implements BeakGyro {
@@ -33,8 +37,8 @@ public class BeakNavX extends AHRS implements BeakGyro {
     }
 
     @Override
-    public DataSignal<AngularVelocity> getAngularVelocity() {
-        return new DataSignal<AngularVelocity>(AngularVelocity.fromDegreesPerSecond(getRate()));
+    public DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
+        return new DataSignal<Measure<Velocity<Angle>>>(DegreesPerSecond.of(getRate()));
     }
 
     @Override

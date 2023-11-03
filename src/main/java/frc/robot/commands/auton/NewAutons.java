@@ -155,7 +155,7 @@ public class NewAutons {
                 m_drivetrain::getChassisSpeeds,
                 m_drivetrain::drive,
                 // TODO: locations
-                new HolonomicPathFollowerConfig(m_drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond(), 1,
+                new HolonomicPathFollowerConfig(m_drivetrain.Physics.MaxVelocity.baseUnitMagnitude(), 1,
                         new ReplanningConfig()),
                 m_drivetrain);
     }

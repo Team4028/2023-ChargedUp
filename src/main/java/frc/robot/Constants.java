@@ -4,7 +4,10 @@
 
 package frc.robot;
 
-import frc.lib.beaklib.units.Distance;
+import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -43,6 +46,6 @@ public final class Constants {
     }
 
     public static final class FieldConstants {
-        public static final Distance FIELD_WIDTH = new Distance(8.0137);
+        public static final Measure<Distance> FIELD_WIDTH = Meters.of(8.0137);
     }
 }

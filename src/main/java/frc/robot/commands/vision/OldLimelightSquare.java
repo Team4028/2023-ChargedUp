@@ -35,7 +35,7 @@ public class OldLimelightSquare extends PIDCommand {
             // use pidcontroller
             // new ProfiledPIDController(5., 0.0, 0,
             //     new TrapezoidProfile.Constraints(
-            //         drivetrain.getPhysics().maxAngularVelocity.getAsRadiansPerSecond() / 2., 1.0)),
+            //         drivetrain.Physics.maxAngularVelocity.in(RadiansPerSecond) / 2., 1.0)),
             new PIDController(5.0, 0, 0), // 5.0 good
             // This should return the measurement
             () -> Units.degreesToRadians(LimelightHelpers.getTX("")),

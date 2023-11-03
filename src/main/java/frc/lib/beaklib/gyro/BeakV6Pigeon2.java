@@ -4,13 +4,17 @@
 
 package frc.lib.beaklib.gyro;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** A v6 CTRE Pigeon 2 implemented as a BeakGyro. */
 public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
@@ -81,10 +85,10 @@ public class BeakV6Pigeon2 extends Pigeon2 implements BeakGyro {
     }
 
     @Override
-    public DataSignal<AngularVelocity> getAngularVelocity() {
+    public DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
         StatusSignal<Double> angularVelocity = super.getAngularVelocityZ();
 
-        return new DataSignal<AngularVelocity>(AngularVelocity.fromDegreesPerSecond(angularVelocity.getValue()), angularVelocity.getTimestamp().getTime());
+        return new DataSignal<Measure<Velocity<Angle>>>(DegreesPerSecond.of(angularVelocity.getValue()), angularVelocity.getTimestamp().getTime());
     }
 
     @Override

@@ -4,8 +4,9 @@
 
 package frc.lib.beaklib.motor;
 
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.lib.beaklib.units.Distance;
 
 /** A combined group of motor controllers to be controlled as one. */
 public class BeakMotorControllerGroup implements BeakMotorController {
@@ -15,13 +16,6 @@ public class BeakMotorControllerGroup implements BeakMotorController {
 
     public BeakMotorControllerGroup(BeakMotorController... motorControllers) {
         m_controllers = motorControllers;
-    }
-
-    @Override
-    public void set(double speed) {
-        for (BeakMotorController controller : m_controllers) {
-            controller.set(speed);
-        }
     }
 
     @Override
@@ -58,16 +52,16 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setVelocityNU(double nu, double arbFeedforward, int slot) {
+    public void setVelocityNU(double nu) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setVelocityNU(nu, arbFeedforward, slot);
+            controller.setVelocityNU(nu);
         }
     }
 
     @Override
-    public void setPositionNU(double nu, double arbFeedforward, int slot) {
+    public void setPositionNU(double nu) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setPositionNU(nu, arbFeedforward, slot);
+            controller.setPositionNU(nu);
         }
     }
 
@@ -79,9 +73,9 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicNU(double nu, double arbFeedforward, int slot) {
+    public void setMotionMagicNU(double nu) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setMotionMagicNU(nu, arbFeedforward, slot);
+            controller.setMotionMagicNU(nu);
         }
     }
 
@@ -101,15 +95,15 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setPID(BeakPIDConstants constants, int slot) {
+    public void setPID(BeakPIDConstants constants) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setPID(constants, slot);
+            controller.setPID(constants);
         }
     }
 
     @Override
-    public BeakPIDConstants getPID(int slot) {
-        return m_controllers[0].getPID(slot);
+    public BeakPIDConstants getPID() {
+        return m_controllers[0].getPID();
     }
 
     @Override
@@ -158,9 +152,9 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setAllowedClosedLoopError(double error, int slot) {
+    public void setAllowedClosedLoopError(double error) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setAllowedClosedLoopError(error, slot);
+            controller.setAllowedClosedLoopError(error);
         }
     }
 
@@ -172,23 +166,23 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setMotionMagicCruiseVelocity(double velocity, int slot) {
+    public void setMotionMagicCruiseVelocity(double velocity) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setMotionMagicCruiseVelocity(velocity, slot);
+            controller.setMotionMagicCruiseVelocity(velocity);
         }
     }
 
     @Override
-    public void setMotionMagicAcceleration(double accel, int slot) {
+    public void setMotionMagicAcceleration(double accel) {
         for (BeakMotorController controller : m_controllers) {
-            controller.setMotionMagicAcceleration(accel, slot);
+            controller.setMotionMagicAcceleration(accel);
         }
     }
 
     @Override
-    public void set(double percentOutput, double arbFeedforward) {
+    public void set(double percentOutput) {
         for (BeakMotorController controller : m_controllers) {
-            controller.set(percentOutput, arbFeedforward);
+            controller.set(percentOutput);
         }
     }
 
@@ -229,15 +223,28 @@ public class BeakMotorControllerGroup implements BeakMotorController {
     }
 
     @Override
-    public void setWheelDiameter(Distance diameter) {
+    public void setWheelDiameter(Measure<Distance> diameter) {
         for (BeakMotorController controller : m_controllers) {
             controller.setWheelDiameter(diameter);
         }
     }
 
     @Override
-    public Distance getWheelDiameter() {
+    public Measure<Distance> getWheelDiameter() {
         return m_controllers[0].getWheelDiameter();
     }
 
+    @Override
+    public void setNextArbFeedforward(double arbFeedforward) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.setNextArbFeedforward(arbFeedforward);
+        }
+    }
+
+    @Override
+    public void setSlot(int slot) {
+        for (BeakMotorController controller : m_controllers) {
+            controller.setSlot(slot);
+        }
+    }
 }

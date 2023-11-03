@@ -6,7 +6,8 @@ package frc.lib.beaklib.drive.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.lib.beaklib.units.Distance;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 
 /** Class containing general configuration for a {@link BeakSwerveModule}. */
 public class SwerveModuleConfiguration {
@@ -16,7 +17,7 @@ public class SwerveModuleConfiguration {
     public final double DriveGearRatio;
     public final double TurnGearRatio;
 
-    public final Distance WheelDiameter;
+    public final Measure<Distance> WheelDiameter;
 
     public final boolean DriveInverted;
     public final boolean TurnInverted;
@@ -47,7 +48,7 @@ public class SwerveModuleConfiguration {
         Translation2d moduleLocation,
         double driveGearRatio,
         double turnGearRatio,
-        Distance wheelDiameter,
+        Measure<Distance> wheelDiameter,
         boolean driveInverted,
         boolean turnInverted,
         DrivetrainConfiguration driveConfig) {

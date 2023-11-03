@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -198,7 +200,7 @@ public class OneMechanism {
             this.BluePose = pose;
             this.RedPose = new Pose2d(
                 pose.getX(),
-                FieldConstants.FIELD_WIDTH.getAsMeters() - pose.getY(),
+                FieldConstants.FIELD_WIDTH.in(Meters) - pose.getY(),
                 pose.getRotation());
         }
     }

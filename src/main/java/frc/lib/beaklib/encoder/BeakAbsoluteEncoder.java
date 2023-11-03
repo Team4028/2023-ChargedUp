@@ -5,8 +5,10 @@
 package frc.lib.beaklib.encoder;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import frc.lib.beaklib.motor.DataSignal;
-import frc.lib.beaklib.units.AngularVelocity;
 
 /** Generic external absolute encoder. */
 public interface BeakAbsoluteEncoder {
@@ -33,7 +35,7 @@ public interface BeakAbsoluteEncoder {
      * 
      * @return Velocity of the absolute encoder.
      */
-    public DataSignal<AngularVelocity> getEncoderVelocity();
+    public DataSignal<Measure<Velocity<Angle>>> getEncoderVelocity();
 
     /**
      * Get the encoder's absolute position, independent of calls to setPosition().

@@ -67,8 +67,8 @@ public class Trajectories {
     public static PathPlannerPath loadTrajectory(BeakDrivetrain drivetrain, String name,
         double velocityMultiplier, double accelMultiplier) {
         return PathPlannerPath.fromPathFile(name);
-            // drivetrain.getPhysics().maxVelocity.getAsMetersPerSecond() * velocityMultiplier,
-            // drivetrain.getPhysics().maxAccel.getAsMetersPerSecondSquared() * accelMultiplier);
+            // drivetrain.Physics.maxVelocity.in(MetersPerSecond) * velocityMultiplier,
+            // drivetrain.Physics.maxAccel.getAsMetersPerSecondSquared() * accelMultiplier);
     }
 
     // Since all autons use the same naming scheme, we can use a generic function to

@@ -4,10 +4,15 @@
 
 package frc.lib.beaklib.motor;
 
+import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import frc.lib.beaklib.pid.BeakPIDConstants;
-import frc.lib.beaklib.units.Distance;
-import frc.lib.beaklib.units.Velocity;
 
 /** Common interface for all motor controllers. */
 public interface BeakMotorController extends MotorController {
@@ -15,7 +20,7 @@ public interface BeakMotorController extends MotorController {
      * Set the motor to be on brake or coast mode.
      * 
      * @param brake
-     *            True = brake, False = coast
+     *              True = brake, False = coast
      */
     public void setBrake(boolean brake);
 
@@ -26,43 +31,13 @@ public interface BeakMotorController extends MotorController {
      * To run in native units, use {@link setVelocityNU}.
      * 
      * @param velocity
-     *            Velocity to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
+     *                 Velocity to run.
+     * 
      */
-    default void setVelocity(Velocity velocity, double arbFeedforward, int slot) {
+    default void setVelocity(Measure<Velocity<Distance>> velocity) {
         setVelocityNU(
-            (velocity.getAsMetersPerSecond() / (getWheelDiameter().getAsMeters() * Math.PI) * 60.) // rpm
-                * getEncoderGearRatio() * getVelocityConversionConstant(),
-            arbFeedforward, slot);
-    }
-
-    /**
-     * Run the motor in velocity mode.
-     * </p>
-     * 
-     * To run in native units, use {@link setVelocityNU}.
-     * 
-     * @param velocity
-     *            Velocity to run.
-     */
-    default void setVelocity(Velocity velocity, int slot) {
-        setVelocity(velocity, 0, slot);
-    }
-
-    /**
-     * Run the motor in velocity mode, in RPM.
-     * </p>
-     * 
-     * To run in native units, use {@link setVelocityNU}.
-     * 
-     * @param rpm
-     *            RPM to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     */
-    default void setVelocityRPM(double rpm, double arbFeedforward, int slot) {
-        setVelocityNU(rpm * getVelocityConversionConstant() * getEncoderGearRatio(), arbFeedforward, slot);
+                (velocity.in(MetersPerSecond) / (getWheelDiameter().in(Meters) * Math.PI) * 60.) // rpm
+                        * getEncoderGearRatio() * getVelocityConversionConstant());
     }
 
     /**
@@ -74,8 +49,8 @@ public interface BeakMotorController extends MotorController {
      * @param rpm
      *            RPM to run.
      */
-    default void setVelocityRPM(double rpm, int slot) {
-        setVelocityRPM(rpm, 0, slot);
+    default void setVelocityRPM(double rpm) {
+        setVelocityNU(rpm * getVelocityConversionConstant() * getEncoderGearRatio());
     }
 
     /**
@@ -84,39 +59,9 @@ public interface BeakMotorController extends MotorController {
      * NU/100ms for Talons, RPM for SparkMAX.
      * 
      * @param nu
-     *            NU to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
+     *           NU to run.
      */
-    public void setVelocityNU(double nu, double arbFeedforward, int slot);
-
-    /**
-     * Run the motor in velocity mode, in NU.
-     * </p>
-     * NU/100ms for Talons, RPM for SparkMAX.
-     * 
-     * @param nu
-     *            NU to run.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setVelocityNU(double nu, int slot) {
-        setVelocityNU(nu, 0, slot);
-    }
-
-    /**
-     * Run the motor in velocity mode, in NU.
-     * </p>
-     * NU/100ms for Talons, RPM for SparkMAX.
-     * 
-     * @param nu
-     *            NU to run.
-     */
-    default void setVelocityNU(double nu) {
-        setVelocityNU(nu, 0, 0);
-    }
+    public void setVelocityNU(double nu);
 
     /**
      * Run the motor in position mode.
@@ -125,33 +70,12 @@ public interface BeakMotorController extends MotorController {
      * To run in native units, use {@link setPositionNU}.
      * 
      * @param distance
-     *            Distance to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
+     *                 Distance to run.
      */
-    default void setPosition(Distance distance, double arbFeedforward, int slot) {
+    default void setPosition(Measure<Distance> distance) {
         setPositionNU(
-            (distance.getAsMeters() * getPositionConversionConstant() * getEncoderGearRatio()) //
-                / (getWheelDiameter().getAsMeters() * Math.PI),
-            arbFeedforward,
-            slot);
-    }
-
-    /**
-     * Run the motor in position mode.
-     * </p>
-     * 
-     * To run in native units, use {@link setPositionNU}.
-     * 
-     * @param distance
-     *            Distance to run.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setPosition(Distance distance, int slot) {
-        setPosition(distance, 0, slot);
+                (distance.in(Meters) * getPositionConversionConstant() * getEncoderGearRatio()) //
+                        / (getWheelDiameter().in(Meters) * Math.PI));
     }
 
     /**
@@ -161,42 +85,10 @@ public interface BeakMotorController extends MotorController {
      * To run in native units, use {@link setPositionNU}.
      * 
      * @param rotations
-     *            Rotations to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
+     *                  Rotations to run.
      */
-    default void setPositionMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setPositionNU(rotations * getPositionConversionConstant() * getEncoderGearRatio(), arbFeedforward, slot);
-    }
-
-    /**
-     * Run the motor in position mode, in motor rotations.
-     * </p>
-     * 
-     * To run in native units, use {@link setPositionNU}.
-     * 
-     * @param rotations
-     *            Rotations to run.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setPositionMotorRotations(double rotations, int slot) {
-        setPositionMotorRotations(rotations, 0, slot);
-    }
-
-    /**
-     * Run the motor in position mode, in motor rotations.
-     * </p>
-     * 
-     * To run in native units, use {@link setPositionNU}.
-     * 
-     * @param rotations
-     *            Rotations to run.
-     */
-    default void setPositionMotorRotations(double rotations) {
-        setPositionMotorRotations(rotations, 0, 0);
+    default void setPositionMotorRotations(Rotation2d rotations) {
+        setPositionNU(rotations.getRotations() * getPositionConversionConstant() * getEncoderGearRatio());
     }
 
     /**
@@ -206,41 +98,9 @@ public interface BeakMotorController extends MotorController {
      * SparkMAX.
      * 
      * @param nu
-     *            NU to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
+     *           NU to run.
      */
-    public void setPositionNU(double nu, double arbFeedforward, int slot);
-
-    /**
-     * Run the motor in position mode, in NU.
-     * </p>
-     * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
-     * SparkMAX.
-     * 
-     * @param nu
-     *            NU to run.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setPositionNU(double nu, int slot) {
-        setPositionNU(nu, 0, slot);
-    }
-
-    /**
-     * Run the motor in position mode, in NU.
-     * </p>
-     * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
-     * SparkMAX.
-     * 
-     * @param nu
-     *            NU to run.
-     */
-    default void setPositionNU(double nu) {
-        setPositionNU(nu, 0, 0);
-    }
+    public void setPositionNU(double nu);
 
     /**
      * Sets the encoder's position.
@@ -249,12 +109,12 @@ public interface BeakMotorController extends MotorController {
      * To set in native units, use {@link setEncoderPositionNU}.
      * 
      * @param distance
-     *            Distance to set the encoder to.
+     *                 Distance to set the encoder to.
      */
-    default void setEncoderPosition(Distance distance) {
+    default void setEncoderPosition(Measure<Distance> distance) {
         setEncoderPositionNU(
-            (distance.getAsMeters() * getPositionConversionConstant() * getEncoderGearRatio()) //
-                / (getWheelDiameter().getAsMeters() * Math.PI));
+                (distance.in(Meters) * getPositionConversionConstant() * getEncoderGearRatio()) //
+                        / (getWheelDiameter().in(Meters) * Math.PI));
     }
 
     /**
@@ -264,7 +124,7 @@ public interface BeakMotorController extends MotorController {
      * To set in native units, use {@link setEncoderPositionNU}.
      * 
      * @param rotations
-     *            Rotations to set the encoder to.
+     *                  Rotations to set the encoder to.
      */
     default void setEncoderPositionMotorRotations(double rotations) {
         setEncoderPositionNU(rotations * getPositionConversionConstant() * getEncoderGearRatio());
@@ -277,7 +137,7 @@ public interface BeakMotorController extends MotorController {
      * SparkMAX.
      * 
      * @param nu
-     *            NU to set the encoder to.
+     *           NU to set the encoder to.
      */
     public void setEncoderPositionNU(double nu);
 
@@ -295,33 +155,12 @@ public interface BeakMotorController extends MotorController {
      * To run in native units, use {@link setMotionMagicNU}.
      * 
      * @param distance
-     *            Distance to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
+     *                 Distance to run.
      */
-    default void setMotionMagic(Distance distance, double arbFeedforward, int slot) {
+    default void setMotionMagic(Measure<Distance> distance) {
         setMotionMagicNU(
-            (distance.getAsMeters() * getPositionConversionConstant() * getEncoderGearRatio()) //
-                / (getWheelDiameter().getAsMeters() * Math.PI),
-            arbFeedforward,
-            slot);
-    }
-
-    /**
-     * Run the motor in motion magic mode.
-     * </p>
-     * 
-     * To run in native units, use {@link setMotionMagicNU}.
-     * 
-     * @param distance
-     *            Distance to run.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setMotionMagic(Distance distance, int slot) {
-        setMotionMagic(distance, 0., slot);
+                (distance.in(Meters) * getPositionConversionConstant() * getEncoderGearRatio()) //
+                        / (getWheelDiameter().in(Meters) * Math.PI));
     }
 
     /**
@@ -331,40 +170,23 @@ public interface BeakMotorController extends MotorController {
      * To run in native units, use {@link setMotionMagicNU}.
      * 
      * @param rotations
-     *            Rotations to run.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setMotionMagicMotorRotations(double rotations, double arbFeedforward, int slot) {
-        setMotionMagicNU(rotations * getPositionConversionConstant() * getEncoderGearRatio(), arbFeedforward, slot);
-    }
-
-    /**
-     * Runs the motor in motion magic mode, in motor rotations.
-     * </p>
-     * Not currently supported by SparkMAX.
-     * 
-     * @param rotations
-     *            Rotations to run.
-     * @param slot
-     *            PID slot to run.
-     */
-    default void setMotionMagicMotorRotations(double rotations, int slot) {
-        setMotionMagicMotorRotations(rotations, 0, slot);
-    }
-
-    /**
-     * Runs the motor in motion magic mode, in motor rotations.
-     * </p>
-     * Not currently supported by SparkMAX.
-     * 
-     * @param rotations
-     *            Rotations to run.
+     *                  Rotations to run.
      */
     default void setMotionMagicMotorRotations(double rotations) {
-        setMotionMagicMotorRotations(rotations, 0, 0);
+        setMotionMagicNU(rotations * getPositionConversionConstant() * getEncoderGearRatio());
+    }
+
+    /**
+     * Runs the motor to a specified angle in motion magic mode.
+     * </p>
+     * 
+     * To run in native units, use {@link setMotionMagicNU}.
+     * 
+     * @param angle
+     *              Angle to run to.
+     */
+    default void setMotionMagicAngle(Rotation2d angle) {
+        setMotionMagicMotorRotations(angle.getRadians() / (2 * Math.PI));
     }
 
     /**
@@ -374,52 +196,38 @@ public interface BeakMotorController extends MotorController {
      * SparkMAX.
      * 
      * @param nu
-     *            NU to run.
+     *           NU to run.
+     */
+    public void setMotionMagicNU(double nu);
+
+    /**
+     * Set the arbitrary feedforward to pass to the next PID command.
+     * 
      * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
-     * @param slot
-     *            PID slot to run.
+     *                       The feedforward, in volts.
      */
-    public void setMotionMagicNU(double nu, double arbFeedforward, int slot);
+    public void setNextArbFeedforward(double arbFeedforward);
 
     /**
-     * Runs the motor in motion magic mode, in NU.
-     * </p>
-     * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
-     * SparkMAX.
+     * Set the slot to use with PID.
      * 
-     * @param nu
-     *            NU to run.
      * @param slot
-     *            PID slot to run.
+     *             The next slot to use with PID. This applies to both setting
+     *             constants and using them.
      */
-    default void setMotionMagicNU(double nu, int slot) {
-        setMotionMagicNU(nu, 0, slot);
-    }
-
-    /**
-     * Runs the motor in motion magic mode, in NU.
-     * </p>
-     * 2048 NU per rotation for TalonFX, 4096 for TalonSRX, and usually 1 for
-     * SparkMAX.
-     * 
-     * @param nu
-     *            NU to run.
-     */
-    default void setMotionMagicNU(double nu) {
-        setMotionMagicNU(nu, 0, 0);
-    }
+    public void setSlot(int slot);
 
     /**
      * Get the motor velocity.
      * 
      * @return Velocity combined with the timestamp of the received data.
      */
-    default DataSignal<Velocity> getSpeed() {
+    default DataSignal<Measure<Velocity<Distance>>> getSpeed() {
         DataSignal<Double> velocity = getVelocityNU();
-        Velocity motorVelocity = new Velocity(velocity.Value * (getWheelDiameter().getAsMeters() * Math.PI)
-            / getVelocityConversionConstant() / getEncoderGearRatio() / 60.);
-        return new DataSignal<Velocity>(motorVelocity);
+        Measure<Velocity<Distance>> motorVelocity = MetersPerSecond
+                .of(velocity.Value * (getWheelDiameter().in(Meters) * Math.PI)
+                        / getVelocityConversionConstant() / getEncoderGearRatio() / 60.);
+        return new DataSignal<Measure<Velocity<Distance>>>(motorVelocity);
     }
 
     /**
@@ -427,9 +235,11 @@ public interface BeakMotorController extends MotorController {
      * 
      * @return Velocity in RPM combined with the timestamp of the received data.
      */
-    default DataSignal<Double> getVelocityRPM() {
+    default DataSignal<Measure<Velocity<Angle>>> getAngularVelocity() {
         DataSignal<Double> velocity = getVelocityNU();
-        return new DataSignal<Double>(velocity.Value / getVelocityConversionConstant() / getEncoderGearRatio());
+        Measure<Velocity<Angle>> angularVelocity = RadiansPerSecond
+                .of(velocity.Value / getVelocityConversionConstant() / getEncoderGearRatio());
+        return new DataSignal<Measure<Velocity<Angle>>>(angularVelocity);
     }
 
     /**
@@ -445,29 +255,31 @@ public interface BeakMotorController extends MotorController {
      * Get the motor distance.
      * 
      * @param latencyCompensated
-     *            Whether or not to attempt latency compensation.
+     *                           Whether or not to attempt latency compensation.
      * 
      * @return Distance combined with the timestamp of the received data.
      */
-    default DataSignal<Distance> getDistance(boolean latencyCompensated) {
+    default DataSignal<Measure<Distance>> getDistance(boolean latencyCompensated) {
         DataSignal<Double> position = getPositionNU(latencyCompensated);
-        Distance motorDistance = new Distance(position.Value * (getWheelDiameter().getAsMeters() * Math.PI)
-            / getPositionConversionConstant() / getEncoderGearRatio());
-        return new DataSignal<Distance>(motorDistance, position.Timestamp);
+        Measure<Distance> motorDistance = Meters.of(position.Value * (getWheelDiameter().in(Meters) * Math.PI)
+                / getPositionConversionConstant() / getEncoderGearRatio());
+        return new DataSignal<Measure<Distance>>(motorDistance, position.Timestamp);
     }
 
     /**
      * Get the motor position, in motor rotations.
      * 
      * @param latencyCompensated
-     *            Whether or not to attempt latency compensation.
+     *                           Whether or not to attempt latency compensation.
      * 
      * @return Position in motor rotations.
      */
-    default DataSignal<Double> getPositionMotorRotations(boolean latencyCompensated) {
+    default DataSignal<Rotation2d> getPositionMotorRotations(boolean latencyCompensated) {
         DataSignal<Double> position = getPositionNU(latencyCompensated);
-        return new DataSignal<Double>(position.Value / getPositionConversionConstant() / getEncoderGearRatio(),
-            position.Timestamp);
+
+        Rotation2d rotations = Rotation2d.fromRotations(position.Value / getPositionConversionConstant() / getEncoderGearRatio());
+        return new DataSignal<Rotation2d>(rotations,
+                position.Timestamp);
     }
 
     /**
@@ -476,7 +288,7 @@ public interface BeakMotorController extends MotorController {
      * SparkMAX.
      * 
      * @param latencyCompensated
-     *            Whether or not to attempt latency compensation.
+     *                           Whether or not to attempt latency compensation.
      * 
      * @return Position in NU combined with the timestamp of the received data.
      */
@@ -520,28 +332,22 @@ public interface BeakMotorController extends MotorController {
      * Set PIDF gains.
      * 
      * @param constants
-     *            PIDF Constants.
-     * @param slot
-     *            The slot to set these values in.
+     *                  PIDF Constants.
      */
     public void setPID(
-        BeakPIDConstants constants,
-        int slot);
+            BeakPIDConstants constants);
 
     /**
      * Get PIDF gains.
-     * 
-     * @param slot
-     *            The slot to get these values from.
      */
-    public BeakPIDConstants getPID(int slot);
+    public BeakPIDConstants getPID();
 
     /**
      * Set the reverse limit switch's default state
      * 
      * @param normallyClosed
-     *            True if its normal state is "closed", false if its
-     *            normal state is "open"
+     *                       True if its normal state is "closed", false if its
+     *                       normal state is "open"
      */
     public void setReverseLimitSwitchNormallyClosed(boolean normallyClosed);
 
@@ -549,8 +355,8 @@ public interface BeakMotorController extends MotorController {
      * Set the forward limit switch's default state
      * 
      * @param normallyClosed
-     *            True if its normal state is "closed", false if its
-     *            normal state is "open"
+     *                       True if its normal state is "closed", false if its
+     *                       normal state is "open"
      */
     public void setForwardLimitSwitchNormallyClosed(boolean normallyClosed);
 
@@ -559,11 +365,11 @@ public interface BeakMotorController extends MotorController {
      * switch is hit.
      * </p>
      * 
-     * Only applies to v6 Talon FX.
+     * Only applies to v6 Talon FX. This can probably be faked though :)
      * 
      * @param nu
-     *            Position in NU (shaft rotations) to set the encoder to when
-     *            hitting the reverse limit switch.
+     *           Position in NU (shaft rotations) to set the encoder to when
+     *           hitting the reverse limit switch.
      */
     default void setReverseExtremePosition(double nu) {
     }
@@ -576,8 +382,8 @@ public interface BeakMotorController extends MotorController {
      * Only applies to v6 Talon FX.
      * 
      * @param nu
-     *            Position in NU (shaft rotations) to set the encoder to when
-     *            hitting the forward limit switch.
+     *           Position in NU (shaft rotations) to set the encoder to when
+     *           hitting the forward limit switch.
      */
     default void setForwardExtremePosition(double nu) {
     }
@@ -612,7 +418,7 @@ public interface BeakMotorController extends MotorController {
      * back to the limit is set to 0.1 seconds.
      * 
      * @param amps
-     *            The maximum amps to allow the motor controller to receive.
+     *             The maximum amps to allow the motor controller to receive.
      */
     public void setSupplyCurrentLimit(int amps);
 
@@ -627,7 +433,7 @@ public interface BeakMotorController extends MotorController {
      * limit is set to 0.1 seconds.
      * 
      * @param amps
-     *            The maximum amps to allow the motor controller to send.
+     *             The maximum amps to allow the motor controller to send.
      */
     public void setStatorCurrentLimit(int amps);
 
@@ -641,11 +447,9 @@ public interface BeakMotorController extends MotorController {
      * to an error.
      * 
      * @param error
-     *            Error deadband.
-     * @param slot
-     *            Slot to set to.
+     *              Error deadband.
      */
-    public void setAllowedClosedLoopError(double error, int slot);
+    public void setAllowedClosedLoopError(double error);
 
     /**
      * Set the voltage compensation saturation for the motor controller.
@@ -665,7 +469,7 @@ public interface BeakMotorController extends MotorController {
      * For any motor controller, set this to anything greater than 0 to enable it.
      * 
      * @param saturation
-     *            Saturation.
+     *                   Saturation.
      */
     public void setVoltageCompensationSaturation(double saturation);
 
@@ -677,9 +481,9 @@ public interface BeakMotorController extends MotorController {
      * to see what this means.
      * 
      * @param velocity
-     *            Cruise velocity, in NU.
+     *                 Cruise velocity, in NU.
      */
-    public void setMotionMagicCruiseVelocity(double velocity, int slot);
+    public void setMotionMagicCruiseVelocity(double velocity);
 
     /**
      * Set the Motion Magic acceleration.
@@ -689,20 +493,18 @@ public interface BeakMotorController extends MotorController {
      * to see what this means.
      * 
      * @param accel
-     *            Acceleration, in NU per second.
+     *              Acceleration, in NU per second.
      */
-    public void setMotionMagicAcceleration(double accel, int slot);
+    public void setMotionMagicAcceleration(double accel);
 
     /**
      * Set the motor controller's speed, in range [-1.0, 1.0], with an arbitrary
      * feed forward.
      * 
      * @param percentOutput
-     *            Percent output to pass to the motor controller.
-     * @param arbFeedforward
-     *            Arbitrary feed-forward to pass to the motor controller, in volts.
+     *                      Percent output to pass to the motor controller.
      */
-    public void set(double percentOutput, double arbFeedforward);
+    public void set(double percentOutput);
 
     /* CONVERSION API */
 
@@ -722,7 +524,7 @@ public interface BeakMotorController extends MotorController {
      * </ul>
      * 
      * @param constant
-     *            Conversion constant. Units: <code>NU/rev/min</code>
+     *                 Conversion constant. Units: <code>NU/rev/min</code>
      */
     public void setVelocityConversionConstant(double constant);
 
@@ -753,7 +555,7 @@ public interface BeakMotorController extends MotorController {
      * </ul>
      * 
      * @param constant
-     *            Conversion constant. Units: <code>NU/rev</code>
+     *                 Conversion constant. Units: <code>NU/rev</code>
      */
     public void setPositionConversionConstant(double constant);
 
@@ -783,7 +585,7 @@ public interface BeakMotorController extends MotorController {
      * after the gearbox, this will be 1.
      * 
      * @param ratio
-     *            Gear ratio. Units: coefficient
+     *              Gear ratio. Units: coefficient
      */
     public void setEncoderGearRatio(double ratio);
 
@@ -813,9 +615,9 @@ public interface BeakMotorController extends MotorController {
      * is rotating.
      * 
      * @param diameter
-     *            Diameter of the wheel. Units: distance
+     *                 Diameter of the wheel. Units: distance
      */
-    public void setWheelDiameter(Distance diameter);
+    public void setWheelDiameter(Measure<Distance> diameter);
 
     /**
      * Get the diameter of the wheel driven by this motor.
@@ -832,5 +634,5 @@ public interface BeakMotorController extends MotorController {
      * 
      * @return Diameter of the wheel. Units: distance
      */
-    public Distance getWheelDiameter();
+    public Measure<Distance> getWheelDiameter();
 }
